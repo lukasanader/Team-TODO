@@ -87,6 +87,8 @@ class _MyHomePageState extends State<MyHomePage> {
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () async{
+                  WidgetsFlutterBinding.ensureInitialized();
+                  await Firebase.initializeApp();
                   // Access the entered text using _textFieldController.text
                   //call method to add question to database
                   DateTime currentDate = DateTime.now();

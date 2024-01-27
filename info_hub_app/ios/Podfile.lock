@@ -55,6 +55,8 @@ PODS:
   - GoogleUtilities/Reachability (7.12.0):
     - GoogleUtilities/Logger
   - GTMSessionFetcher/Core (3.3.1)
+  - integration_test (0.0.1):
+    - Flutter
   - leveldb-library (1.22.2)
   - PromisesObjC (2.3.1)
   - RecaptchaInterop (100.0.0)
@@ -64,6 +66,7 @@ DEPENDENCIES:
   - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
   - firebase_database (from `.symlinks/plugins/firebase_database/ios`)
   - Flutter (from `Flutter`)
+  - integration_test (from `.symlinks/plugins/integration_test/ios`)
 
 SPEC REPOS:
   trunk:
@@ -89,6 +92,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/firebase_database/ios"
   Flutter:
     :path: Flutter
+  integration_test:
+    :path: ".symlinks/plugins/integration_test/ios"
 
 SPEC CHECKSUMS:
   Firebase: 414ad272f8d02dfbf12662a9d43f4bba9bec2a06
@@ -104,6 +109,7 @@ SPEC CHECKSUMS:
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   GoogleUtilities: 0759d1a57ebb953965c2dfe0ba4c82e95ccc2e34
   GTMSessionFetcher: 8a1b34ad97ebe6f909fb8b9b77fba99943007556
+  integration_test: 13825b8a9334a850581300559b8839134b124670
   leveldb-library: f03246171cce0484482ec291f88b6d563699ee06
   PromisesObjC: c50d2056b5253dadbd6c2bea79b0674bd5a52fa4
   RecaptchaInterop: 7d1a4a01a6b2cb1610a47ef3f85f0c411434cb21
