@@ -1,8 +1,8 @@
 class Topic {
-  final String title;
-  final String description;
-  final String videoUrl;
-  final String articleUrl;
+  String title;
+  String description;
+  String videoUrl;
+  String articleUrl;
 
   Topic({
     required this.title,
