@@ -1,6 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-
-void main() {
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
+void main() async{
   runApp(const MyApp());
 }
 
@@ -28,7 +30,7 @@ class MyApp extends StatelessWidget {
         //
         // This works for code too, not just values: Most code changes can be
         // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: Color.fromARGB(255, 255, 0, 0)),
         useMaterial3: true,
       ),
       home: const MyHomePage(title: 'Flutter Demo Home Page'),
@@ -56,7 +58,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
-
+  final TextEditingController _textFieldController = TextEditingController();
   void _incrementCounter() {
     setState(() {
       // This call to setState tells the Flutter framework that something has
@@ -66,6 +68,44 @@ class _MyHomePageState extends State<MyHomePage> {
       // called again, and so nothing would appear to happen.
       _counter++;
     });
+  }
+  void _showPostDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text(''),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: _textFieldController,
+                decoration: const InputDecoration(labelText: 'Ask a question...'),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () async{
+                  // Access the entered text using _textFieldController.text
+                  //call method to add question to database
+                  DateTime currentDate = DateTime.now();
+                  final postData = {
+                      'question': _textFieldController.text,
+                      'uid':  1 ,//FirebaseAuth.instance.currentUser?.uid,
+                      'date': currentDate.toString(),
+                    };
+                  CollectionReference db = FirebaseFirestore.instance.collection('questions');
+                  await db.add(postData);
+                  _textFieldController.clear();
+                  // ignore: use_build_context_synchronously
+                  Navigator.of(context).pop(); // Close the dialog
+                },
+                child: const Text('Submit'),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -119,7 +159,31 @@ class _MyHomePageState extends State<MyHomePage> {
         onPressed: _incrementCounter,
         tooltip: 'Increment',
         child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      ),
+      
+      bottomNavigationBar: BottomAppBar(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            ElevatedButton(
+              onPressed: () {
+                _showPostDialog();
+              },
+              style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0), // Adjust border radius for a more rectangular shape
+              ),
+              ),
+              child: const Text(
+                'Post',
+                style: TextStyle(color: Colors.black)
+                ),
+            ),
+          ],
+        ),
+      ),
+       // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
