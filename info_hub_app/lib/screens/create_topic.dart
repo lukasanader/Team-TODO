@@ -1,9 +1,9 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import '/resources/save_video.dart';
 import 'package:video_player/video_player.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class CreateTopicScreen extends StatefulWidget {
   const CreateTopicScreen({Key? key}) : super(key: key);
@@ -265,5 +265,16 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
       'articleLink': articleLinkController.text,
       'videoUrl': _downloadURL,
     });
+  }
+}
+
+final FirebaseStorage _storage = FirebaseStorage.instance;
+
+class StoreData {
+  Future<String> uploadVideo(String videoUrl) async {
+    Reference ref = _storage.ref().child('videos/${DateTime.now()}.mp4');
+    await ref.putFile(File(videoUrl));
+    String downloadURL = await ref.getDownloadURL();
+    return downloadURL;
   }
 }
