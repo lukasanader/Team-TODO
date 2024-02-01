@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -93,15 +94,15 @@ class _MyHomePageState extends State<MyHomePage> {
                   //call method to add question to database
                   DateTime currentDate = DateTime.now();
                   
-                  final newPostKey = FirebaseDatabase.instance.ref().child('Questions').push().key;
+                  //final newPostKey = FirebaseDatabase.instance.ref().child('Questions').push().key;
                   final postData = {
                       'question': _textFieldController.text,
                       'uid':  1 ,//FirebaseAuth.instance.currentUser?.uid,
                       'date': currentDate.toString(),
                     };
-                  DatabaseReference ref = FirebaseDatabase.instance.ref('Questions/$newPostKey');
-                  
-                  await ref.set(postData);
+                  //DatabaseReference ref = FirebaseDatabase.instance.ref('Questions/$newPostKey');
+                  CollectionReference db = FirebaseFirestore.instance.collection('questions');
+                  await db.add(postData);
                   
                   _textFieldController.clear();
                   
