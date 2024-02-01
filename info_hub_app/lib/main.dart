@@ -1,11 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 void main() async{
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
   runApp(const MyApp());
 }
 
@@ -88,24 +85,17 @@ class _MyHomePageState extends State<MyHomePage> {
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () async{
-                  WidgetsFlutterBinding.ensureInitialized();
-                  await Firebase.initializeApp();
                   // Access the entered text using _textFieldController.text
                   //call method to add question to database
                   DateTime currentDate = DateTime.now();
-                  
-                  //final newPostKey = FirebaseDatabase.instance.ref().child('Questions').push().key;
                   final postData = {
                       'question': _textFieldController.text,
                       'uid':  1 ,//FirebaseAuth.instance.currentUser?.uid,
                       'date': currentDate.toString(),
                     };
-                  //DatabaseReference ref = FirebaseDatabase.instance.ref('Questions/$newPostKey');
                   CollectionReference db = FirebaseFirestore.instance.collection('questions');
                   await db.add(postData);
-                  
                   _textFieldController.clear();
-                  
                   // ignore: use_build_context_synchronously
                   Navigator.of(context).pop(); // Close the dialog
                 },
