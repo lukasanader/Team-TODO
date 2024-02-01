@@ -73,6 +73,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                 ),
                 TextFormField(
                   controller: titleController,
+                  maxLength: 70,
                   decoration: const InputDecoration(
                     labelText: 'Title *',
                     prefixIcon: Icon(Icons.drive_file_rename_outline_outlined),
