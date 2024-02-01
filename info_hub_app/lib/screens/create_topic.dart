@@ -154,7 +154,6 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
 
   void _pickVideo() async {
     _videoController?.pause();
-    _videoController?.dispose();
     _videoURL = await pickVideoFromDevice();
     _initializeVideoPlayer();
   }
@@ -189,60 +188,77 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
   }
 
   Widget _videoPreviewWidget() {
-    if (_videoController != null) {
-      return Column(
-        children: [
-          SizedBox(
-            width: 300,
-            height: 100 * (_videoController!.value.aspectRatio),
-            child: Stack(
-              children: [
-                AspectRatio(
-                  aspectRatio: _videoController!.value.aspectRatio,
-                  child: VideoPlayer(_videoController!),
-                ),
-                Positioned.fill(
-                  child: GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        if (_videoController!.value.isPlaying) {
-                          _videoController!.pause();
-                        } else {
-                          _videoController!.play();
-                        }
-                      });
-                    },
-                    child: Center(
-                      child: Icon(
-                        _videoController!.value.isPlaying
-                            ? Icons.pause
-                            : Icons.play_arrow,
-                        size: 50,
-                        color: Colors.white,
-                      ),
+    return Column(
+      children: [
+        SizedBox(
+          width: 280,
+          height: 80 * (_videoController!.value.aspectRatio),
+          child: Stack(
+            children: [
+              AspectRatio(
+                aspectRatio: _videoController!.value.aspectRatio,
+                child: VideoPlayer(_videoController!),
+              ),
+              Positioned.fill(
+                child: GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      if (_videoController!.value.isPlaying) {
+                        _videoController!.pause();
+                      } else {
+                        _videoController!.play();
+                      }
+                    });
+                  },
+                  child: Center(
+                    child: Icon(
+                      _videoController!.value.isPlaying
+                          ? Icons.pause
+                          : Icons.play_arrow,
+                      size: 50,
+                      color: Colors.white,
                     ),
                   ),
                 ),
-              ],
+              ),
+            ],
+          ),
+        ),
+        const Text(
+          'the above is a preview of your video.',
+          style: TextStyle(color: Colors.grey),
+        ),
+        SizedBox(
+          height: 30,
+          child: GestureDetector(
+            onTap: _clearVideoSelection,
+            child: const Icon(
+              Icons.delete_forever_rounded,
+              color: Colors.red,
             ),
           ),
-          const Text('the above is a preview of your video.'),
-        ],
-      );
-    } else {
-      return const CircularProgressIndicator();
-    }
+        ),
+      ],
+    );
+  }
+
+  void _clearVideoSelection() {
+    setState(() {
+      _videoURL = null;
+      _downloadURL = null;
+      _videoController?.dispose();
+      _videoController = null;
+    });
   }
 
   void _uploadTopic() async {
     if (_videoController != null) {
       _downloadURL = await StoreData().uploadVideo(_videoURL!);
-      await StoreData().saveVideoData(_downloadURL!);
     }
 
-    CollectionReference colRef =
+    CollectionReference topicCollectionRef =
         FirebaseFirestore.instance.collection('topics');
-    colRef.add({
+    topicCollectionRef.add({
       'title': titleController.text,
       'description': descriptionController.text,
       'articleLink': articleLinkController.text,
