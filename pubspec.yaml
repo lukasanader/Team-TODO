@@ -45,6 +45,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   mockito: ^5.4.4
+  font_awesome_flutter: ^9.2.0
   firebase_database_mocks: ^0.6.1
   integration_test:
     sdk: flutter
