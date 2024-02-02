@@ -3,11 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 void main() async{
-  runApp(const MyApp());
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
+  runApp(MyApp(firestore: firestore));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final FirebaseFirestore firestore;
+
+  const MyApp({Key? key, required this.firestore}) : super(key: key);
 
   // This widget is the root of your application.
   @override
@@ -33,13 +39,15 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Color.fromARGB(255, 255, 0, 0)),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MyHomePage(title: 'Flutter Demo Home Page',firestore: firestore,),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+  final FirebaseFirestore firestore;
+  const MyHomePage({Key? key, required this.title, required this.firestore})
+      : super(key: key);
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -57,6 +65,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  
   int _counter = 0;
   final TextEditingController _textFieldController = TextEditingController();
   void _incrementCounter() {
@@ -85,6 +94,7 @@ class _MyHomePageState extends State<MyHomePage> {
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () async{
+                  
                   // Access the entered text using _textFieldController.text
                   //call method to add question to database
                   DateTime currentDate = DateTime.now();
@@ -93,7 +103,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       'uid':  1 ,//FirebaseAuth.instance.currentUser?.uid,
                       'date': currentDate.toString(),
                     };
-                  CollectionReference db = FirebaseFirestore.instance.collection('questions');
+                  CollectionReference db = widget.firestore.collection('questions');
                   await db.add(postData);
                   _textFieldController.clear();
                   // ignore: use_build_context_synchronously
