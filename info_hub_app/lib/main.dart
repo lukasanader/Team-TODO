@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:firebase_core/firebase_core.dart';
+import 'package:info_hub_app/holder/discovery_view.dart';
 import 'screens/create_topic.dart';
 
 import 'package:info_hub_app/holder/discovery.dart';
@@ -41,7 +42,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       //home: const MyHomePage(title: 'Flutter Demo Home Page'),
-      home: const Discovery(),
+      home: DiscoveryView(),
     );
   }
 }
