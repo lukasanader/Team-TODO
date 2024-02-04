@@ -11,7 +11,12 @@ TopicCard(this._topic);
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: Text(_topic['title'])
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Text(_topic['title']),
+        ),
+      )
     );
   }
 }

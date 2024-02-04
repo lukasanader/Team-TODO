@@ -5,7 +5,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:info_hub_app/holder/discovery_view.dart';
 import 'screens/create_topic.dart';
 
-import 'package:info_hub_app/holder/discovery.dart';
 
 
 void main() async {
