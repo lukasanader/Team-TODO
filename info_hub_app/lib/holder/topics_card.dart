@@ -6,17 +6,22 @@ import 'package:firebase_core/firebase_core.dart';
 class TopicCard extends StatelessWidget {
   final QueryDocumentSnapshot _topic;
 
-TopicCard(this._topic);
+  TopicCard(this._topic);
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Card(
-        child: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Text(_topic['title']),
-        ),
-      )
+    return GestureDetector(
+      onTap: () {
+        print(_topic['title']);
+      },
+      child: Container( 
+        child: Card(
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Text(_topic['title']),
+          ),
+        )    
+    ) 
     );
   }
 }
