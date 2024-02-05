@@ -28,7 +28,7 @@ class _ThreadAppState extends State<ThreadApp> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Testing Da threads"),
+        title: const Text("Threads in Developement"),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -77,7 +77,7 @@ class _ThreadAppState extends State<ThreadApp> {
                       autofocus: true,
                       autocorrect: true,
                       decoration: InputDecoration(
-                        labelText: "Identifying Name/UserName*",
+                        labelText: "Author",
                         errorText:
                             showErrorName ? "Please enter your name" : null,
                       ),
@@ -87,7 +87,7 @@ class _ThreadAppState extends State<ThreadApp> {
                       autofocus: true,
                       autocorrect: true,
                       decoration: InputDecoration(
-                        labelText: "Title*",
+                        labelText: "Title",
                         errorText:
                             showErrorTitle ? "Please enter a title" : null,
                       ),
@@ -97,7 +97,7 @@ class _ThreadAppState extends State<ThreadApp> {
                       autofocus: true,
                       autocorrect: true,
                       decoration: InputDecoration(
-                        labelText: "Description*",
+                        labelText: "Description",
                         errorText: showErrorDescription
                             ? "Please enter a description"
                             : null,

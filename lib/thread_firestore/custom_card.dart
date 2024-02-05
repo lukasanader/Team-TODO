@@ -16,6 +16,7 @@ class CustomCard extends StatelessWidget {
         as Map<String, dynamic>; // Cast the document data to a Map
     var title = docData['title'] ?? 'No title';
     var description = docData['description'] ?? 'No description';
+    var name = docData['name'] ?? 'Unknown';
     var timestamp = docData['timestamp']?.toDate();
     'Timestamp not available'; // Safely access the timestamp
     var formatter = timestamp != null
@@ -29,14 +30,25 @@ class CustomCard extends StatelessWidget {
           child: Card(
             elevation: 8.5,
             child: ListTile(
-              title: Text(
-                title,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold, // Make the title text bold
-                ),
-                overflow:
-                    TextOverflow.ellipsis, // Prevent overflow and add ellipsis
-                maxLines: 1,
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold, // Make the title text bold
+                      ),
+                      overflow: TextOverflow
+                          .ellipsis, // Prevent overflow and add ellipsis
+                      maxLines: 1,
+                    ),
+                  ),
+                  SizedBox(
+                      width:
+                          8), // Small spacing between the title and "something" text
+                  Text("something"),
+                ],
               ),
               subtitle: Column(
                 crossAxisAlignment:
@@ -53,13 +65,28 @@ class CustomCard extends StatelessWidget {
                   const SizedBox(
                       height:
                           4), // Add some spacing between the description and the timestamp
-                  Text(
-                    //"posted " +
-                    formatter,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Color.fromARGB(255, 255, 0, 0),
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        name + ": ",
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Color.fromARGB(255, 255, 0, 0),
+                          fontWeight: FontWeight.bold,
+                        ),
+                        overflow: TextOverflow
+                            .ellipsis, // Prevent overflow and add ellipsis
+                        maxLines: 1,
+                      ),
+                      Text(
+                        formatter,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Color.fromARGB(255, 255, 0, 0),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -71,39 +98,7 @@ class CustomCard extends StatelessWidget {
             ),
           ),
         ),
-        //Text(timestamp), // Display the timestamp or 'Timestamp not available'
       ],
     );
   }
-
-  /*
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: <Widget>[
-        //Text(snapshot!.docs[index]['title'])
-        Container(
-          height: 125,
-          child: Card(
-            elevation: 8.5,
-            child: ListTile(
-              title: Text(snapshot!.docs[index]['title']),
-              subtitle: Text(snapshot!.docs[index]['description']),
-              leading: CircleAvatar(
-                radius: 34,
-                child: Text(snapshot!.docs[index]['title'].toString()[0]),
-              ),
-            ),
-          ),
-        ),
-        Text(
-          snapshot!.docs[index]['timestamp'] == null
-              ? 'Timestamp not available'
-              : snapshot!.docs[index]['timestamp'].toString(),
-        )
-      ],
-    );
-  }
-*/
 }
