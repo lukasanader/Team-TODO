@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'custom_card.dart';
 
 class ThreadApp extends StatefulWidget {
   const ThreadApp({Key? key}) : super(key: key);
@@ -42,7 +43,8 @@ class _ThreadAppState extends State<ThreadApp> {
           return ListView.builder(
             itemCount: snapshot.data!.docs.length,
             itemBuilder: (context, int index) {
-              return Text(snapshot.data!.docs[index]['title']);
+              //return Text(snapshot.data!.docs[index]['title']);
+              return CustomCard(snapshot: snapshot.data, index: index);
             },
           );
         },
@@ -111,6 +113,7 @@ class _ThreadAppState extends State<ThreadApp> {
                       "title": titleInputController.text,
                       "description": descriptionInputController.text,
                       "timestamp": FieldValue.serverTimestamp(),
+                      //"profilePic":
                     }).then((response) {
                       print(response.id);
                       nameInputController.clear();

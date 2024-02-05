@@ -35,7 +35,7 @@ class MyApp extends StatelessWidget {
         // This works for code too, not just values: Most code changes can be
         // tested with just a hot reload.
         colorScheme:
-            ColorScheme.fromSeed(seedColor: Color.fromARGB(255, 255, 0, 0)),
+            ColorScheme.fromSeed(seedColor: Color.fromARGB(255, 52, 143, 204)),
         useMaterial3: true,
       ),
       home: ThreadApp(),
@@ -190,7 +190,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 _showPostDialog();
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
+                backgroundColor: const Color.fromARGB(255, 54, 168, 244),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(
                       10.0), // Adjust border radius for a more rectangular shape
