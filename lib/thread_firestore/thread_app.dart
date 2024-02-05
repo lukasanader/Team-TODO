@@ -53,6 +53,110 @@ class _ThreadAppState extends State<ThreadApp> {
   }
 
   _showDialog(BuildContext context) async {
+    // Initialize error state variables
+    bool showErrorName = false;
+    bool showErrorTitle = false;
+    bool showErrorDescription = false;
+
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          // Added StatefulBuilder here
+          builder: (context, setState) {
+            return AlertDialog(
+              contentPadding: EdgeInsets.all(12.0),
+              content: SingleChildScrollView(
+                // Changed to SingleChildScrollView to accommodate keyboard
+                child: Column(
+                  mainAxisSize:
+                      MainAxisSize.min, // Changed to min to avoid overflow
+                  children: <Widget>[
+                    const Text("Please fill out the form"),
+                    TextField(
+                      autofocus: true,
+                      autocorrect: true,
+                      decoration: InputDecoration(
+                        labelText: "Identifying Name/UserName*",
+                        errorText:
+                            showErrorName ? "Please enter your name" : null,
+                      ),
+                      controller: nameInputController,
+                    ),
+                    TextField(
+                      autofocus: true,
+                      autocorrect: true,
+                      decoration: InputDecoration(
+                        labelText: "Title*",
+                        errorText:
+                            showErrorTitle ? "Please enter a title" : null,
+                      ),
+                      controller: titleInputController,
+                    ),
+                    TextField(
+                      autofocus: true,
+                      autocorrect: true,
+                      decoration: InputDecoration(
+                        labelText: "Description*",
+                        errorText: showErrorDescription
+                            ? "Please enter a description"
+                            : null,
+                      ),
+                      controller: descriptionInputController,
+                    ),
+                  ],
+                ),
+              ),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    nameInputController.clear();
+                    titleInputController.clear();
+                    descriptionInputController.clear();
+                    Navigator.pop(context);
+                  },
+                  child: const Text("Cancel"),
+                ),
+                TextButton(
+                  onPressed: () {
+                    // Update the error state based on the text field inputs
+                    setState(() {
+                      showErrorName = nameInputController.text.isEmpty;
+                      showErrorTitle = titleInputController.text.isEmpty;
+                      showErrorDescription =
+                          descriptionInputController.text.isEmpty;
+                    });
+
+                    // Check if all fields are filled
+                    if (!showErrorName &&
+                        !showErrorTitle &&
+                        !showErrorDescription) {
+                      FirebaseFirestore.instance.collection("thread").add({
+                        "name": nameInputController.text,
+                        "title": titleInputController.text,
+                        "description": descriptionInputController.text,
+                        "timestamp": FieldValue.serverTimestamp(),
+                      }).then((response) {
+                        print(response.id);
+                        nameInputController.clear();
+                        titleInputController.clear();
+                        descriptionInputController.clear();
+                        Navigator.pop(context);
+                      });
+                    }
+                  },
+                  child: const Text("Submit"),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+/*
+  _showDialog(BuildContext context) async {
     await showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -122,14 +226,20 @@ class _ThreadAppState extends State<ThreadApp> {
                       Navigator.pop(context);
                     });
                   } else {
-                    // ignore: avoid_print
-                    print("Please fill out the form");
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                            "Please fill out all the details in the form."),
+                        duration: Duration(seconds: 3),
+                      ),
+                    );
                   }
                 },
-                child: const Text("Save"),
+                child: const Text("Submit"),
               ),
             ]);
       },
     );
   }
+  */
 }

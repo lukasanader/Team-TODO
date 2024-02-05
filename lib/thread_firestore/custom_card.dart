@@ -29,13 +29,26 @@ class CustomCard extends StatelessWidget {
           child: Card(
             elevation: 8.5,
             child: ListTile(
-              title: Text(title),
+              title: Text(
+                title,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold, // Make the title text bold
+                ),
+                overflow:
+                    TextOverflow.ellipsis, // Prevent overflow and add ellipsis
+                maxLines: 1,
+              ),
               subtitle: Column(
                 crossAxisAlignment:
                     CrossAxisAlignment.start, // Align the text to the start
                 mainAxisSize: MainAxisSize.min, // Use minimum space
                 children: <Widget>[
-                  Text(description), // The original subtitle text
+                  Text(
+                    description,
+                    overflow:
+                        TextOverflow.ellipsis, // Add ellipsis if text overflows
+                    maxLines: 2,
+                  ), // The original subtitle text
                   Padding(padding: const EdgeInsets.all(2)),
                   const SizedBox(
                       height:
