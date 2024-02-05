@@ -14,6 +14,7 @@ class CustomCard extends StatelessWidget {
   Widget build(BuildContext context) {
     var docData = snapshot!.docs[index].data()
         as Map<String, dynamic>; // Cast the document data to a Map
+    var docId = snapshot!.docs[index].id;
     var title = docData['title'] ?? 'No title';
     var description = docData['description'] ?? 'No description';
     var name = docData['name'] ?? 'Unknown';
@@ -26,9 +27,12 @@ class CustomCard extends StatelessWidget {
     return Column(
       children: <Widget>[
         Container(
-          height: 125,
+          height: 140,
           child: Card(
-            elevation: 8.5,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(0),
+            ),
+            elevation: 5,
             child: ListTile(
               title: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -47,7 +51,24 @@ class CustomCard extends StatelessWidget {
                   SizedBox(
                       width:
                           8), // Small spacing between the title and "something" text
-                  Text("something"),
+                  IconButton(
+                      icon: Icon(
+                        FontAwesomeIcons.edit,
+                        size: 15,
+                      ),
+                      onPressed: () {}),
+
+                  IconButton(
+                      icon: Icon(
+                        FontAwesomeIcons.trashAlt,
+                        size: 15,
+                      ),
+                      onPressed: () async {
+                        await FirebaseFirestore.instance
+                            .collection('thread')
+                            .doc(docId)
+                            .delete();
+                      }),
                 ],
               ),
               subtitle: Column(
