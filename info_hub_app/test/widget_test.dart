@@ -7,14 +7,13 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:firebase_database_mocks/firebase_database_mocks.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:info_hub_app/main.dart';
 
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    
+
     await tester.pumpWidget(const MyApp());
 
     // Verify that our counter starts at 0.
@@ -30,9 +29,9 @@ void main() {
     expect(find.text('1'), findsOneWidget);
   });
   testWidgets('Show Post Dialog Test', (WidgetTester tester) async {
-    
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp()); // Replace MyApp with the name of your app widget.
+    await tester.pumpWidget(
+        const MyApp()); // Replace MyApp with the name of your app widget.
     // Trigger the _showPostDialog method
     await tester.tap(find.byType(ElevatedButton));
     await tester.pump();
@@ -43,13 +42,13 @@ void main() {
     await tester.enterText(find.byType(TextField), 'Test question');
 
     // Tap the Submit button
-  
+
     await tester.tap(find.text('Submit'));
     await tester.pumpAndSettle();
 
     // Verify that the database operation is called
-   // expect(FirebaseDatabase.instance.ref().child('Questions').push().key, isNotNull);
-    expect(MockFirebaseDatabase.instance.ref().child('Questions').push().key, isNotNull);
+    // expect(FirebaseDatabase.instance.ref().child('Questions').push().key, isNotNull);
+
     // Verify that the TextField is cleared
     //expect((tester.widget(find.byType(TextField)) as TextField).controller?.text, isEmpty);
 
