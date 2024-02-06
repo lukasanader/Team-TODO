@@ -27,9 +27,53 @@ class _ThreadAppState extends State<ThreadApp> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // current AppBar is only to be used as placeholder
+
       appBar: AppBar(
-        title: const Text("Threads in Developement"),
+        title: Text(
+          "Topic Threads",
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 20.0,
+            fontFamily: 'Roboto',
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        backgroundColor: Color.fromARGB(255, 48, 46, 46),
+        elevation: 4.0,
+        leading: IconButton(
+          icon: Icon(Icons.menu, color: Colors.white),
+          onPressed: () {},
+        ),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.search, color: Colors.white),
+            onPressed: () {},
+          ),
+          IconButton(
+            icon: Icon(Icons.notifications_none, color: Colors.white),
+            tooltip: 'Notifications',
+            onPressed: () {},
+          ),
+          IconButton(
+            icon: Icon(Icons.account_circle, color: Colors.white),
+            tooltip: 'Profile',
+            onPressed: () {},
+          ),
+        ],
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(0.0),
+          child: Container(),
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            bottom: Radius.circular(0),
+          ),
+        ),
       ),
+
+// modify above appbar as needed to match rest of app
+
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           _showDialog(context);
@@ -53,7 +97,6 @@ class _ThreadAppState extends State<ThreadApp> {
   }
 
   _showDialog(BuildContext context) async {
-    // Initialize error state variables
     bool showErrorName = false;
     bool showErrorTitle = false;
     bool showErrorDescription = false;
@@ -62,15 +105,12 @@ class _ThreadAppState extends State<ThreadApp> {
       context: context,
       builder: (BuildContext context) {
         return StatefulBuilder(
-          // Added StatefulBuilder here
           builder: (context, setState) {
             return AlertDialog(
               contentPadding: EdgeInsets.all(12.0),
               content: SingleChildScrollView(
-                // Changed to SingleChildScrollView to accommodate keyboard
                 child: Column(
-                  mainAxisSize:
-                      MainAxisSize.min, // Changed to min to avoid overflow
+                  mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
                     const Text("Please fill out the form"),
                     TextField(
@@ -119,7 +159,6 @@ class _ThreadAppState extends State<ThreadApp> {
                 ),
                 TextButton(
                   onPressed: () {
-                    // Update the error state based on the text field inputs
                     setState(() {
                       showErrorName = nameInputController.text.isEmpty;
                       showErrorTitle = titleInputController.text.isEmpty;
@@ -127,7 +166,6 @@ class _ThreadAppState extends State<ThreadApp> {
                           descriptionInputController.text.isEmpty;
                     });
 
-                    // Check if all fields are filled
                     if (!showErrorName &&
                         !showErrorTitle &&
                         !showErrorDescription) {
@@ -137,7 +175,7 @@ class _ThreadAppState extends State<ThreadApp> {
                         "description": descriptionInputController.text,
                         "timestamp": FieldValue.serverTimestamp(),
                       }).then((response) {
-                        print(response.id);
+                        //print(response.id);
                         nameInputController.clear();
                         titleInputController.clear();
                         descriptionInputController.clear();

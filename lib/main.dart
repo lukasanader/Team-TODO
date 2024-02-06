@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:info_hub_app/thread_firestore/thread_app.dart';
+import 'package:info_hub_app/threads/thread_app.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,7 +35,7 @@ class MyApp extends StatelessWidget {
         // This works for code too, not just values: Most code changes can be
         // tested with just a hot reload.
         colorScheme:
-            ColorScheme.fromSeed(seedColor: Color.fromARGB(255, 52, 143, 204)),
+            ColorScheme.fromSeed(seedColor: Color.fromARGB(255, 62, 62, 62)),
         useMaterial3: true,
       ),
       home: ThreadApp(),
