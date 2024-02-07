@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:info_hub_app/holder/discovery_view.dart';
+import 'package:info_hub_app/screens/trending_topic.dart';
 import 'screens/create_topic.dart';
 
 
@@ -41,7 +42,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       //home: const MyHomePage(title: 'Flutter Demo Home Page'),
-      home: DiscoveryView(),
+      home:  trendingTopic(),
     );
   }
 }

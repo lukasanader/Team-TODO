@@ -264,6 +264,8 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
       'description': descriptionController.text,
       'articleLink': articleLinkController.text,
       'videoUrl': _downloadURL,
+      'views': 0,
+      'date': DateTime.now(),
     });
   }
 }
