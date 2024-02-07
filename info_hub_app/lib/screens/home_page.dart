@@ -17,6 +17,7 @@ class HomePage extends StatelessWidget {
                 height: 180.0, 
                 fit: BoxFit.cover,
               ),
+              Text('Team TODO'),
             const SizedBox(height: 250.0), // Button and image spacing
             SizedBox(
               width: 250.0,
@@ -47,7 +48,7 @@ class HomePage extends StatelessWidget {
               width: 250.0,
               child: OutlinedButton(
                 onPressed: () {
-
+                  // ADD LOGIN HERE
                 },
                 style: OutlinedButton.styleFrom(
                   side: const BorderSide(color: Colors.red),

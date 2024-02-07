@@ -168,11 +168,11 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => MainPage(), // Replace with your MainPage widget
+                          builder: (context) => MainPage(),
                         ),
                       );
                     } else {
-                      // Show an error message using a SnackBar
+                      // Show error message if anything goes wrong in auth process
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text('Registration failed. Please try again.'),

@@ -9,12 +9,12 @@ class AuthService {
   UserModel? _userFromFirebaseUser(User user, String firstName, String lastName,String email, String roleType) {
     return UserModel(uid: user.uid,firstName: firstName, email: email, lastName: lastName,roleType: roleType);
   }
-  // register user
 
   Stream<User?> get user {
     return _auth.authStateChanges();
   }
 
+  // register user
   Future registerUser(String firstName, String lastName, String email, String password,String roleType) async {
     try {
       UserCredential result = await _auth.createUserWithEmailAndPassword(email: email, password: password);

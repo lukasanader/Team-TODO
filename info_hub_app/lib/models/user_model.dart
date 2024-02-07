@@ -1,3 +1,4 @@
+// UserModel is mainly used for local work- it can be used to avoid having to constantly query the database in order to retrieve information
 class UserModel {
   final String uid;
   final String firstName;
