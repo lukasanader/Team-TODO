@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -11,11 +12,13 @@ import 'screens/create_topic.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(const MyApp());
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
+  runApp(MyApp(firestore: firestore));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final FirebaseFirestore firestore;
+  const MyApp({Key? key, required this.firestore}) : super(key: key);
 
   // This widget is the root of your application.
   @override
@@ -42,7 +45,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       //home: const MyHomePage(title: 'Flutter Demo Home Page'),
-      home:  trendingTopic(),
+      home:  trendingTopic(firestore: firestore),
     );
   }
 }

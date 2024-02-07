@@ -6,6 +6,8 @@ import '../screens/create_topic.dart';
 
 
 class trendingTopic extends StatefulWidget {
+  final FirebaseFirestore firestore;
+  const trendingTopic({Key? key, required this.firestore});
   @override
   _trendingTopicState createState() => _trendingTopicState();
 }
@@ -36,7 +38,7 @@ Widget build(BuildContext context) {
 }
 
 Future getTopicsList() async {
-    QuerySnapshot data = await FirebaseFirestore.instance.collection('topics').get();
+    QuerySnapshot data = await widget.firestore.collection('topics').get();
     
     double getTrending(QueryDocumentSnapshot topic){
       Timestamp timestamp = topic['date'];
