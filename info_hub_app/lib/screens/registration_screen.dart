@@ -49,6 +49,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter your first name';
+                  } else if (!RegExp(r'^[a-zA-Z]+$').hasMatch(value)) {
+                    return 'Please enter only letters';
                   }
                   return null;
                 },
@@ -61,6 +63,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter your last name';
+                  } else if (!RegExp(r'^[a-zA-Z]+$').hasMatch(value)) {
+                    return 'Please enter only letters';
                   }
                   return null;
                 },

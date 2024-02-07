@@ -7,12 +7,10 @@ import 'package:info_hub_app/screens/registration_screen.dart';
 
 void main() {
   
-  // setUpAll(() async {
+  // Future<void> setUp() async {
   //   WidgetsFlutterBinding.ensureInitialized();
-  //   await Firebase.initializeApp(
-  //     options: DefaultFirebaseOptions.currentPlatform,
-  //   );
-  // });
+  //   await Firebase.initializeApp();
+  // }
   
   testWidgets('Register button is present', (WidgetTester tester) async {
     await tester.pumpWidget(MaterialApp(home: HomePage()));
