@@ -1,14 +1,14 @@
 class Notification {
-  final String id;
+  final String user;
   final String title;
-  final String message;
+  final String body;
   final DateTime timestamp;
 
   // Constructor
   Notification({
-    required this.id,
+    required this.user,
     required this.title,
-    required this.message,
+    required this.body,
     required this.timestamp,
   });
 }

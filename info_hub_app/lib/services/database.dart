@@ -11,45 +11,43 @@ class DatabaseService {
   final CollectionReference notificationsCollection =
       FirebaseFirestore.instance.collection('notifications');
 
-  // Update user data
-  Future<void> updateUserData(
-      String title, String body, DateTime timestamp) async {
-    try {
-      await notificationsCollection.doc(uid).set({
-        'title': title,
-        'body': body,
-        'timestamp': timestamp,
-      });
-    } catch (e) {
-      print('Error updating user data: $e');
-      throw e;
-    }
-  }
-
   // Create a notification
   Future<void> createNotification(
       String title, String body, DateTime timestamp) async {
     try {
-      await notificationsCollection.doc(uid).set({
-        'id': uid,
+      print('Creating notification');
+      await notificationsCollection.add({
+        'user': uid,
         'title': title,
         'body': body,
         'timestamp': timestamp,
       });
     } catch (e) {
       print('Error creating notification: $e');
-      throw e;
+      rethrow;
+    }
+  }
+
+  Future<void> deleteNotification(String id) async {
+    try {
+      print('Deleting notification');
+      await notificationsCollection.doc(id).delete();
+    } catch (e) {
+      print('Error deleting notification: $e');
+      rethrow;
     }
   }
 
   // Convert a Firestore snapshot to a list of custom notifications
   List<custom.Notification> notificationListFromSnapshot(
       QuerySnapshot snapshot) {
+    print('Converting notification list from snapshot');
     return snapshot.docs.map((doc) {
+      print('Converting notification');
       return custom.Notification(
-        id: doc.id,
+        user: doc.get('user') ?? '',
         title: doc.get('title') ?? '',
-        message: doc.get('message') ?? '',
+        body: doc.get('body') ?? '',
         timestamp: doc.get('timestamp').toDate() ?? DateTime.now(),
       );
     }).toList();
@@ -57,6 +55,8 @@ class DatabaseService {
 
   // Get notifications stream
   Stream<List<custom.Notification>> get notifications {
+    print('Getting notifications');
+    print(notificationsCollection.snapshots().toString());
     return notificationsCollection
         .snapshots()
         .map(notificationListFromSnapshot);

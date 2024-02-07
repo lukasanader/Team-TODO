@@ -14,7 +14,7 @@ class NotificationTile extends StatelessWidget {
           margin: EdgeInsets.fromLTRB(20.0, 6.0, 20.0, 0.0),
           child: ListTile(
             title: Text(notification.title),
-            subtitle: Text(notification.message),
+            subtitle: Text(notification.body),
             trailing: Text(
               '${notification.timestamp.hour}:${notification.timestamp.minute}',
             ),
