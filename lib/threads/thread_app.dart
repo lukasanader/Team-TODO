@@ -24,11 +24,9 @@ class _ThreadAppState extends State<ThreadApp> {
     descriptionInputController = TextEditingController();
   }
 
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // current AppBar is only to be used as placeholder
-
+//current appbar is placeholder, replace with actual appbar or equivalent
       appBar: AppBar(
         title: Text(
           "Topic Threads",
@@ -39,7 +37,7 @@ class _ThreadAppState extends State<ThreadApp> {
             fontWeight: FontWeight.w500,
           ),
         ),
-        backgroundColor: Color.fromARGB(255, 48, 46, 46),
+        backgroundColor: Color.fromARGB(255, 0, 48, 194),
         elevation: 4.0,
         leading: IconButton(
           icon: Icon(Icons.menu, color: Colors.white),

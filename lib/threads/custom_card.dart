@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 import 'thread_replies.dart';
 import 'package:flutter/cupertino.dart';
 
-class CustomCard extends StatelessWidget {
+class CustomCard extends StatefulWidget {
   final QuerySnapshot? snapshot;
   final int index;
 
@@ -13,26 +13,54 @@ class CustomCard extends StatelessWidget {
       : super(key: key);
 
   @override
+  _CustomCardState createState() => _CustomCardState();
+}
+
+class _CustomCardState extends State<CustomCard> {
+  late TextEditingController titleInputController;
+  late TextEditingController descriptionInputController;
+  late TextEditingController nameInputController;
+
+  @override
+  void initState() {
+    super.initState();
+    final docData =
+        widget.snapshot!.docs[widget.index].data() as Map<String, dynamic>;
+    titleInputController = TextEditingController(text: docData['title']);
+    descriptionInputController =
+        TextEditingController(text: docData['description']);
+    nameInputController = TextEditingController(text: docData['name']);
+  }
+
+  @override
+  void dispose() {
+    titleInputController.dispose();
+    descriptionInputController.dispose();
+    nameInputController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    var docData = snapshot!.docs[index].data()
-        as Map<String, dynamic>; // Cast the document data to a Map
-    var docId = snapshot!.docs[index].id;
+    var docData =
+        widget.snapshot!.docs[widget.index].data() as Map<String, dynamic>;
+    var docId = widget.snapshot!.docs[widget.index].id;
+
     var title = docData['title'] ?? 'No title';
     var description = docData['description'] ?? 'No description';
     var name = docData['name'] ?? 'Unknown';
     var timestamp = docData['timestamp']?.toDate();
-    'Timestamp not available'; // Safely access the timestamp
     var formatter = timestamp != null
         ? DateFormat("dd-MMM-yyyy 'at' HH:mm").format(timestamp)
         : 'Timestamp not available';
-    // add bool for edited true or not
+
     return Column(
       children: <Widget>[
         Container(
           height: 140,
           child: Card(
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(0),
+              borderRadius: BorderRadius.circular(6),
             ),
             elevation: 5,
             child: ListTile(
@@ -41,24 +69,20 @@ class CustomCard extends StatelessWidget {
                 children: <Widget>[
                   Expanded(
                     child: Material(
-                      color: Colors
-                          .transparent, // To maintain the original card color
+                      color: Colors.transparent,
                       child: InkWell(
                         onTap: () {
                           Navigator.of(context).push(CupertinoPageRoute(
-                              builder: (BuildContext context) {
-                            return ThreadReplies();
-                          }));
+                              builder: (BuildContext context) =>
+                                  ThreadReplies()));
                         },
                         child: Text(
                           title,
                           style: TextStyle(
                             fontSize: 18,
-                            fontWeight:
-                                FontWeight.bold, // Make the title text bold
+                            fontWeight: FontWeight.bold,
                           ),
-                          overflow: TextOverflow
-                              .ellipsis, // Prevent overflow and add ellipsis
+                          overflow: TextOverflow.ellipsis,
                           maxLines: 1,
                         ),
                       ),
@@ -66,51 +90,44 @@ class CustomCard extends StatelessWidget {
                   ),
                   SizedBox(width: 8),
                   IconButton(
-                      icon: Icon(
-                        FontAwesomeIcons.edit,
-                        size: 15,
-                      ),
-                      onPressed: () {}),
+                    icon: Icon(FontAwesomeIcons.edit, size: 15),
+                    onPressed: () {
+                      _showDialog(context, docId);
+                    },
+                  ),
                   IconButton(
-                      icon: Icon(
-                        FontAwesomeIcons.trashAlt,
-                        size: 15,
-                      ),
-                      onPressed: () async {
-                        await FirebaseFirestore.instance
-                            .collection('thread')
-                            .doc(docId)
-                            .delete();
-                      }),
+                    icon: Icon(FontAwesomeIcons.trashAlt, size: 15),
+                    onPressed: () async {
+                      await FirebaseFirestore.instance
+                          .collection('thread')
+                          .doc(docId)
+                          .delete();
+                    },
+                  ),
                 ],
               ),
               subtitle: Column(
-                crossAxisAlignment:
-                    CrossAxisAlignment.start, // Align the text to the start
-                mainAxisSize: MainAxisSize.min, // Use minimum space
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
                   Text(
                     description,
-                    overflow:
-                        TextOverflow.ellipsis, // Add ellipsis if text overflows
+                    overflow: TextOverflow.ellipsis,
                     maxLines: 2,
-                  ), // The original subtitle text
+                  ),
                   Padding(padding: const EdgeInsets.all(2)),
-                  const SizedBox(
-                      height:
-                          4), // Add some spacing between the description and the timestamp
+                  const SizedBox(height: 4),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: <Widget>[
                       Text(
-                        name + ": ",
+                        "$name: ",
                         style: TextStyle(
                           fontSize: 14,
                           color: Color.fromARGB(255, 255, 0, 0),
                           fontWeight: FontWeight.bold,
                         ),
-                        overflow: TextOverflow
-                            .ellipsis, // Prevent overflow and add ellipsis
+                        overflow: TextOverflow.ellipsis,
                         maxLines: 1,
                       ),
                       Text(
@@ -126,13 +143,112 @@ class CustomCard extends StatelessWidget {
               ),
               leading: CircleAvatar(
                 radius: 38,
-                child: Text(title[
-                    0]), // Assumes title is not empty place holder for avatar
+                child: Text(title[0]),
               ),
             ),
           ),
         ),
       ],
+    );
+  }
+
+  _showDialog(BuildContext context, String docId) async {
+    bool showErrorName = false;
+    bool showErrorTitle = false;
+    bool showErrorDescription = false;
+
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              contentPadding: EdgeInsets.all(12.0),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    const Text("Please fill out the form"),
+                    TextField(
+                      autofocus: true,
+                      autocorrect: true,
+                      decoration: InputDecoration(
+                        labelText: "Author",
+                        errorText:
+                            showErrorName ? "Please enter your name" : null,
+                      ),
+                      controller: nameInputController,
+                    ),
+                    TextField(
+                      autofocus: true,
+                      autocorrect: true,
+                      decoration: InputDecoration(
+                        labelText: "Title",
+                        errorText:
+                            showErrorTitle ? "Please enter a title" : null,
+                      ),
+                      controller: titleInputController,
+                    ),
+                    TextField(
+                      autofocus: true,
+                      autocorrect: true,
+                      decoration: InputDecoration(
+                        labelText: "Description",
+                        errorText: showErrorDescription
+                            ? "Please enter a description"
+                            : null,
+                      ),
+                      controller: descriptionInputController,
+                    ),
+                  ],
+                ),
+              ),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    /*nameInputController.clear();
+                    titleInputController.clear();
+                    descriptionInputController.clear();*/
+                    Navigator.pop(context);
+                  },
+                  child: const Text("Cancel"),
+                ),
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      showErrorName = nameInputController.text.isEmpty;
+                      showErrorTitle = titleInputController.text.isEmpty;
+                      showErrorDescription =
+                          descriptionInputController.text.isEmpty;
+                    });
+
+                    if (!showErrorName &&
+                        !showErrorTitle &&
+                        !showErrorDescription) {
+                      FirebaseFirestore.instance
+                          .collection("thread")
+                          .doc(docId)
+                          .update({
+                        "name": nameInputController.text,
+                        "title": titleInputController.text,
+                        "description": descriptionInputController.text,
+                        "timestamp": FieldValue.serverTimestamp(),
+                      }).then((response) {
+                        //print(response.id);
+                        /* nameInputController.clear();
+                        titleInputController.clear();
+                        descriptionInputController.clear(); */
+                        Navigator.pop(context);
+                      });
+                    }
+                  },
+                  child: const Text("Update"),
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 }

@@ -13,7 +13,7 @@ class _ThreadRepliesState extends State<ThreadReplies> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Thread Replies"),
+        title: Text("Replies"),
       ),
       body: Center(
         child: Text(
