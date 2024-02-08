@@ -7,6 +7,7 @@ class MainPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     User? user = FirebaseAuth.instance.currentUser;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Main Page'),
@@ -27,7 +28,10 @@ class MainPage extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => Notifications()),
+                  MaterialPageRoute(
+                    builder: (context) => Notifications(
+                        currentUser: user!.uid), // Pass currentUser argument
+                  ),
                 );
               },
               child: const Text('Notifications'),
