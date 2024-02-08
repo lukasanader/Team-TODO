@@ -51,8 +51,11 @@ Future getTopicsList() async {
     }
     setState(() {
       _topicsList = List.from(data.docs);
-      
       _topicsList.sort((b,a) => getTrending(a as QueryDocumentSnapshot<Object?>).compareTo(getTrending(b as QueryDocumentSnapshot<Object?>)));
+      topicLength = _topicsList.length;
+      if (topicLength>6) {
+        _topicsList.removeRange(6, topicLength);
+      }
       topicLength = _topicsList.length;
     });
   }
