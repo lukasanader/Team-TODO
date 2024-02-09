@@ -1,9 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
 
 class ViewTopicScreen extends StatefulWidget {
-  final Map<String, dynamic> topic;
+  final QueryDocumentSnapshot topic;
 
   const ViewTopicScreen({required this.topic, Key? key}) : super(key: key);
 
@@ -14,6 +15,7 @@ class ViewTopicScreen extends StatefulWidget {
 class _ViewTopicScreenState extends State<ViewTopicScreen> {
   late VideoPlayerController? _controller;
   late Future<void>? _initializeVideoPlayerFuture;
+  bool _showControls = true;
 
   @override
   void initState() {
@@ -42,9 +44,13 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color.fromRGBO(200, 0, 0, 1.0),
-        title: Text(widget.topic['title'],
-            style: const TextStyle(
-                color: Colors.white, fontWeight: FontWeight.bold)),
+        title: Text(
+          widget.topic['title'],
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -63,22 +69,28 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
                         alignment: Alignment.center,
                         children: [
                           VideoPlayer(_controller!),
-                          IconButton(
-                            onPressed: () {
-                              setState(() {
-                                if (_controller!.value.isPlaying) {
-                                  _controller!.pause();
-                                } else {
-                                  _controller!.play();
-                                }
-                              });
-                            },
-                            icon: Icon(
-                              _controller!.value.isPlaying
-                                  ? Icons.pause
-                                  : Icons.play_arrow,
-                              size: 50,
-                              color: Colors.white,
+                          AnimatedOpacity(
+                            opacity: _showControls ? 1.0 : 0.0,
+                            duration: const Duration(milliseconds: 500),
+                            child: IconButton(
+                              onPressed: () {
+                                setState(() {
+                                  _showControls =
+                                      !_showControls; // Toggle control visibility
+                                  if (_controller!.value.isPlaying) {
+                                    _controller!.pause();
+                                  } else {
+                                    _controller!.play();
+                                  }
+                                });
+                              },
+                              icon: Icon(
+                                _controller!.value.isPlaying
+                                    ? Icons.pause
+                                    : Icons.play_arrow,
+                                size: 50,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
                         ],
@@ -94,7 +106,7 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
               '${widget.topic['description']}',
               style: const TextStyle(fontSize: 18.0),
             ),
-            const SizedBox(height: 30),
+            const SizedBox(height: 160),
             if (widget.topic['articleLink'] != '')
               Center(
                 child: ElevatedButton(
@@ -103,7 +115,7 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
                   },
                   child: const Text('Read Article'),
                 ),
-              )
+              ),
           ],
         ),
       ),
