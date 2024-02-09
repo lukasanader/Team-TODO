@@ -107,7 +107,7 @@ class _DiscoveryViewState extends State<DiscoveryView> {
 
 
   Future getTopicsList() async {
-    QuerySnapshot data = await FirebaseFirestore.instance.collection('topics').get();
+    QuerySnapshot data = await FirebaseFirestore.instance.collection('topics').orderBy('title').get();
 
     setState(() {
       _topicsList = List.from(data.docs);
