@@ -35,7 +35,7 @@ class _DiscoveryViewState extends State<DiscoveryView> {
           leading: IconButton(
             icon: Icon(Icons.arrow_back),
             onPressed: () {
-              print(_searchedTopicsList);
+              Navigator.pop(context);
             },
           ),
           title: TextField(
@@ -44,11 +44,10 @@ class _DiscoveryViewState extends State<DiscoveryView> {
               _searchData(query);
             },
           ),
-          actions: [
+          actions: const [
             IconButton(
               icon: Icon(Icons.search),
-              onPressed: () {
-              },
+              onPressed: null,
             )
           ],
         ),
