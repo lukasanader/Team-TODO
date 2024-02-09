@@ -55,15 +55,24 @@ class _DiscoveryViewState extends State<DiscoveryView> {
             Expanded(child: ListView.builder(
               itemCount: topicLength == 0 ? 1: topicLength,
               itemBuilder: (context, index) {
-                if (_searchController.text.isEmpty) {
-                  return TopicCard(_topicsList[index] as QueryDocumentSnapshot<Object>);
-                }
-                if (_searchedTopicsList.isEmpty) {
-                  return ListTile(
-                    title: Text("Sorry there are no topics for this!"),
+                if (_topicsList.isEmpty) {
+                  return const ListTile(
+                    title: CircularProgressIndicator(),
                   );
                 }
-                return TopicCard(_searchedTopicsList[index] as QueryDocumentSnapshot<Object>);
+                else {
+                  if (_searchController.text.isEmpty) {
+                    return TopicCard(_topicsList[index] as QueryDocumentSnapshot<Object>);
+                  }
+                  else if (_searchedTopicsList.isEmpty) {
+                    return const ListTile(
+                      title: Text("Sorry there are no topics for this!"),
+                    );
+                  }
+                  else {
+                    return TopicCard(_searchedTopicsList[index] as QueryDocumentSnapshot<Object>);
+                  }
+                }
                 },
               ) 
             ),
