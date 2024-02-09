@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'registration_screen.dart';
 
 class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+  final FirebaseFirestore firestore;
+  const HomePage({Key? key, required this.firestore}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -12,20 +14,20 @@ class HomePage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Image.asset(
-                'assets/base_image.png',
-                width: 180.0, 
-                height: 180.0, 
-                fit: BoxFit.cover,
-              ),
-              Text('Team TODO'),
-            const SizedBox(height: 250.0), // Button and image spacing
+              'assets/base_image.png',
+              width: 180.0,
+              height: 180.0,
+              fit: BoxFit.cover,
+            ),
+            Text('Team TODO'),
+            const SizedBox(height: 250.0),
             SizedBox(
               width: 250.0,
               child: ElevatedButton(
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const RegistrationScreen()),
+                    MaterialPageRoute(builder: (context) => RegistrationScreen(firestore: firestore)),
                   );
                 },
                 style: ElevatedButton.styleFrom(
