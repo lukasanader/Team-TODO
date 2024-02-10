@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:info_hub_app/screens/admin_dash.dart';
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
@@ -39,7 +40,8 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Color.fromARGB(255, 255, 0, 0)),
         useMaterial3: true,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page',firestore: firestore,),
+      //home: MyHomePage(title: 'Flutter Demo Home Page',firestore: firestore,),
+      home: adminHomepage(firestore: firestore)
     );
   }
 }
@@ -65,7 +67,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  
   int _counter = 0;
   final TextEditingController _textFieldController = TextEditingController();
   void _incrementCounter() {
@@ -165,12 +166,6 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ),
-      
       bottomNavigationBar: BottomAppBar(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -196,4 +191,5 @@ class _MyHomePageState extends State<MyHomePage> {
        // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
+
 }
