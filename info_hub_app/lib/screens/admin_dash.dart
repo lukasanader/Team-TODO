@@ -105,15 +105,18 @@ String getEmail(QueryDocumentSnapshot user){
 }
 
 void addAdmins() async {
+  List<int> indicesToRemove = [];
   List<dynamic> selectedUsers = [];
   for (int i = 0; i < selected.length; i++) {
     if (selected[i]) {
-      selectedUsers.add(_userList[i]); // Add the selected item to the list
+      selectedUsers.add(_userList[i]);
+      indicesToRemove.add(i); // Add the selected item to the list
     }
   }
   for (int i = 0; i < selectedUsers.length; i++) {
     await widget.firestore.collection('Users')
     .doc(selectedUsers[i].id).update({'roleType': 'admin'});
   }
+  getUserList(); //refreshes the list
 }
 }

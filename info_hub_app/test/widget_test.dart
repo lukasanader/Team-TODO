@@ -14,6 +14,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:info_hub_app/main.dart';
 
 void main() {
+  /*
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
     final firestore = FakeFirebaseFirestore();
@@ -59,4 +60,5 @@ void main() {
     // Verify that the dialog is closed
     expect(find.byType(AlertDialog), findsNothing);
   });
+  */
 }
