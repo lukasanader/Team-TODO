@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:firebase_core/firebase_core.dart';
-import 'package:info_hub_app/holder/discovery_view.dart';
+import 'package:info_hub_app/screens/discovery_view.dart';
 import 'screens/create_topic.dart';
 
 

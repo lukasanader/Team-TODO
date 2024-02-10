@@ -1,15 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:info_hub_app/holder/topics_card.dart';
-import '../screens/create_topic.dart';
+import 'package:info_hub_app/helpers/topics_card.dart';
 
 
 
 
 class DiscoveryView extends StatefulWidget {
   final FirebaseFirestore firestore;
-  const DiscoveryView({Key? key, required this.firestore});
+  const DiscoveryView({super.key, required this.firestore});
   @override
   _DiscoveryViewState createState() => _DiscoveryViewState();
 }
@@ -17,7 +15,7 @@ class DiscoveryView extends StatefulWidget {
 
 
 class _DiscoveryViewState extends State<DiscoveryView> {
-  TextEditingController _searchController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
   List<Object> _topicsList = [];
   List<Object> _searchedTopicsList = [];
   int topicLength = 0;
@@ -33,7 +31,7 @@ class _DiscoveryViewState extends State<DiscoveryView> {
     return Scaffold(
         appBar: AppBar(
           leading: IconButton(
-            icon: Icon(Icons.arrow_back),
+            icon: const Icon(Icons.arrow_back),
             onPressed: () {
               Navigator.pop(context);
             },
@@ -79,7 +77,7 @@ class _DiscoveryViewState extends State<DiscoveryView> {
             ),
             ElevatedButton(
               onPressed: () {},
-              child: Text("Ask a question!")
+              child: const Text("Ask a question!")
             )
           ],)
         ),
@@ -88,20 +86,20 @@ class _DiscoveryViewState extends State<DiscoveryView> {
 
 
   void _searchData(String query) {
-    List<QueryDocumentSnapshot<Object?>> _tempList = [];
+    List<QueryDocumentSnapshot<Object?>> tempList = [];
 
     for (int i = 0; i < _topicsList.length; i++) {
       QueryDocumentSnapshot topic = _topicsList[i] as QueryDocumentSnapshot<Object?>;
       if (topic['title'] != null) {
         String title = topic['title'].toString().toLowerCase();
         if (title.contains(query.toLowerCase())) {
-          _tempList.add(topic);
+          tempList.add(topic);
         }
       }
     }
     
     setState(() {
-      _searchedTopicsList = _tempList;
+      _searchedTopicsList = tempList;
       topicLength = _searchedTopicsList.length;
     });
   }
