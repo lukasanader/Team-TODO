@@ -55,4 +55,42 @@ void main() {
     expect(find.byType(AlertDialog), findsNothing);
   });
 
+testWidgets('Add admin search test', (WidgetTester tester) async {
+    final firestore = FakeFirebaseFirestore();
+    CollectionReference userCollectionRef =
+      firestore.collection('Users');
+    userCollectionRef.add(
+      {
+        'email': 'john@nhs.com',
+        'firstName': 'John',
+        'lastName': 'Doe',
+        'roleType': 'Healthcare Professional'
+      }
+    );
+    userCollectionRef.add(
+      {
+        'email': 'jane@nhs.com',
+        'firstName': 'Jane',
+        'lastName': 'Doe',
+        'roleType': 'Healthcare Professional'
+      }
+    );
+    // Build our app and trigger a frame.
+    await tester.pumpWidget(MyApp(firestore: firestore,));
+    // Trigger the _showUser method
+    await tester.tap(find.byType(ElevatedButton));
+    await tester.pump();
+    
+    final searchTextField = find.byType(TextField);
+    await tester.enterText(searchTextField,'jo');
+    await tester.pump();
+    
+    Finder textFinder = find.text('john@nhs.com');
+    expect(tester.widget<Text>(textFinder).data, 'john@nhs.com');
+
+    await tester.enterText(searchTextField,'There is no user with this email');
+    await tester.pump();
+    textFinder = find.text('Sorry there are no healthcare professionals matching this email.');
+    expect(tester.widget<Text>(textFinder).data, 'Sorry there are no healthcare professionals matching this email.');
+  });
 }

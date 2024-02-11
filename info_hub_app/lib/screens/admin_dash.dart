@@ -77,7 +77,6 @@ void selectUserDialog() {
                   setState(() {
                     selected[index] = !selected[index];
                   });
-                  
                 },
                 tileColor: selected[index] ? Colors.blue.withOpacity(0.5) : null,
               );
@@ -98,7 +97,6 @@ void selectUserDialog() {
     }
     );
     }
-    
   );
 }
 
