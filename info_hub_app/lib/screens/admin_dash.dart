@@ -12,6 +12,7 @@ class adminHomepage extends StatefulWidget {
 }
 
 class _adminHomepageState extends State<adminHomepage>{
+final TextEditingController _searchController = TextEditingController();
 List<Object> _userList = [];
 List<bool> selected = [];
 
@@ -51,25 +52,37 @@ void selectUserDialog() {
     return StatefulBuilder(
       builder: (BuildContext context, StateSetter setState) {
       return AlertDialog(
-        title: const Text("Selected Items"),
+        title: TextField(
+          controller: _searchController,
+          onChanged: (query) async{
+            await getUserList();
+            setState((){});
+          },
+        ),
         content: SizedBox (
         height: 300,
         width: 200,
         child: 
         ListView.builder(
-          itemCount: _userList.isEmpty ? 0: _userList.length,
+          itemCount: _userList.isEmpty ? 1: _userList.length,
           itemBuilder: (context, index) {
-            return ListTile(
-              title: Text(getEmail(_userList[index] as QueryDocumentSnapshot)),
-              onTap: () {
-                setState(() {
-                  selected[index] = !selected[index];
-                });
-                
-              },
-              tileColor: selected[index] ? Colors.blue.withOpacity(0.5) : null,
-            );
-          },
+            if(_userList.isEmpty){
+              return const ListTile(
+                title: Text("Sorry there are no healthcare professionals matching this email."),
+              );
+            }else{
+              return ListTile(
+                title: Text(getEmail(_userList[index] as QueryDocumentSnapshot)),
+                onTap: () {
+                  setState(() {
+                    selected[index] = !selected[index];
+                  });
+                  
+                },
+                tileColor: selected[index] ? Colors.blue.withOpacity(0.5) : null,
+              );
+          }
+          }
         )
         ),
         actions: [
@@ -93,9 +106,20 @@ Future getUserList() async {
    QuerySnapshot data = await widget.firestore.collection('Users')
    .where('roleType', isEqualTo: 'Healthcare Professional')
    .get();
-
+   List<Object> tempList= List.from(data.docs);
+   String search = _searchController.text;
+   if(search.isNotEmpty){
+    for(int i=0; i< tempList.length; i++) {
+      QueryDocumentSnapshot user = tempList[i] as QueryDocumentSnapshot;
+      String email = user['email'].toString().toLowerCase();
+      if (!email.contains(search.toLowerCase())) {
+        tempList.removeAt(i);
+        i=i-1;
+      }
+    }
+   }
    setState(() {
-     _userList=List.from(data.docs);
+     _userList=tempList;
      selected = List<bool>.filled(_userList.length, false);
    });
 }
