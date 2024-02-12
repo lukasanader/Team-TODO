@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/services/auth.dart';
 import 'package:info_hub_app/models/user_model.dart';
@@ -6,15 +7,25 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class RegistrationScreen extends StatefulWidget {
   final FirebaseFirestore firestore;
-  const RegistrationScreen({Key? key, required this.firestore}) : super(key:key);
+  final FirebaseAuth auth;
+  const RegistrationScreen({Key? key, required this.firestore,required this.auth}) : super(key: key);
 
   @override
   State<RegistrationScreen> createState() => _RegistrationScreenState();
 }
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
+  late AuthService _auth; // Declare _auth without initializing it
+
+  @override
+  void initState() {
+    super.initState();
+    _auth = AuthService(
+      firestore: widget.firestore,
+      auth: widget.auth); // Initialize _auth in initState
+  }
+
   final _formKey = GlobalKey<FormState>();
-  final AuthService _auth = AuthService();
   String? _selectedRole;
   final TextEditingController firstNameController = TextEditingController();
   final TextEditingController lastNameController = TextEditingController();
@@ -178,7 +189,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         ),
                       );
                     } else {
-                      // Show error message if anything goes wrong in auth process
+                      // Show error message if anything goes wrong in the auth process
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text('Registration failed. Please try again.'),
@@ -220,4 +231,3 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     );
   }
 }
-
