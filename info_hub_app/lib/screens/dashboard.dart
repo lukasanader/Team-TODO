@@ -30,7 +30,11 @@ class MainPage extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                     builder: (context) => Notifications(
-                        currentUser: user!.uid), // Pass currentUser argument
+                      currentUser: user!.uid,
+                      firestore: DatabaseService(uid: user.uid)
+                          .notificationsCollection
+                          .snapshots(), // Pass currentUser argument
+                    ),
                   ),
                 );
               },

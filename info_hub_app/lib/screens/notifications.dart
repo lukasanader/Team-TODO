@@ -6,7 +6,8 @@ import 'package:provider/provider.dart';
 class Notifications extends StatefulWidget {
   final String currentUser;
 
-  const Notifications({Key? key, required this.currentUser}) : super(key: key);
+  const Notifications({Key? key, required this.currentUser, required firestore})
+      : super(key: key);
 
   @override
   State<Notifications> createState() => _NotificationsState();

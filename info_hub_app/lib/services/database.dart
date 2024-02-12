@@ -3,13 +3,12 @@ import 'package:info_hub_app/models/notification.dart' as custom;
 
 class DatabaseService {
   final String uid;
+  final CollectionReference notificationsCollection;
 
   // Constructor
-  DatabaseService({required this.uid});
-
-  // Collection reference
-  final CollectionReference notificationsCollection =
-      FirebaseFirestore.instance.collection('notifications');
+  DatabaseService({required this.uid, FirebaseFirestore? firestore})
+      : notificationsCollection = (firestore ?? FirebaseFirestore.instance)
+            .collection('notifications');
 
   // Create a notification
   Future<void> createNotification(
@@ -42,7 +41,7 @@ class DatabaseService {
   List<custom.Notification> notificationListFromSnapshot(
       QuerySnapshot snapshot) {
     print('Converting notification list from snapshot');
-    return snapshot.docs.map((doc) {
+    final notifications = snapshot.docs.map((doc) {
       print('Converting notification');
       return custom.Notification(
         user: doc.get('user') ?? '',
@@ -51,6 +50,10 @@ class DatabaseService {
         timestamp: doc.get('timestamp').toDate() ?? DateTime.now(),
       );
     }).toList();
+
+    notifications.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+
+    return notifications;
   }
 
   // Get notifications stream
