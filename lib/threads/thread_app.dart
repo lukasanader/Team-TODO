@@ -4,14 +4,16 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'custom_card.dart';
 
 class ThreadApp extends StatefulWidget {
-  const ThreadApp({Key? key}) : super(key: key);
+  final FirebaseFirestore firestore;
+
+  const ThreadApp({Key? key, required this.firestore}) : super(key: key);
 
   @override
   _ThreadAppState createState() => _ThreadAppState();
 }
 
 class _ThreadAppState extends State<ThreadApp> {
-  var firestoreDb = FirebaseFirestore.instance.collection("thread").snapshots();
+  late Stream<QuerySnapshot> firestoreDb;
   late TextEditingController nameInputController;
   late TextEditingController titleInputController;
   late TextEditingController descriptionInputController;
@@ -19,6 +21,7 @@ class _ThreadAppState extends State<ThreadApp> {
   @override
   void initState() {
     super.initState();
+    firestoreDb = widget.firestore.collection("thread").snapshots();
     nameInputController = TextEditingController();
     titleInputController = TextEditingController();
     descriptionInputController = TextEditingController();
@@ -80,13 +83,17 @@ class _ThreadAppState extends State<ThreadApp> {
       ),
       body: StreamBuilder(
         stream: firestoreDb,
-        builder: (context, snapshot) {
+        builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (!snapshot.hasData) return const CircularProgressIndicator();
           return ListView.builder(
             itemCount: snapshot.data!.docs.length,
             itemBuilder: (context, int index) {
               //return Text(snapshot.data!.docs[index]['title']);
-              return CustomCard(snapshot: snapshot.data, index: index);
+              return CustomCard(
+                snapshot: snapshot.data,
+                index: index,
+                firestore: widget.firestore,
+              );
             },
           );
         },
@@ -112,6 +119,7 @@ class _ThreadAppState extends State<ThreadApp> {
                   children: <Widget>[
                     const Text("Please fill out the form"),
                     TextField(
+                      key: const Key('Author'),
                       autofocus: true,
                       autocorrect: true,
                       decoration: InputDecoration(
@@ -122,6 +130,7 @@ class _ThreadAppState extends State<ThreadApp> {
                       controller: nameInputController,
                     ),
                     TextField(
+                      key: const Key('Title'),
                       autofocus: true,
                       autocorrect: true,
                       decoration: InputDecoration(
@@ -132,6 +141,7 @@ class _ThreadAppState extends State<ThreadApp> {
                       controller: titleInputController,
                     ),
                     TextField(
+                      key: const Key('Description'),
                       autofocus: true,
                       autocorrect: true,
                       decoration: InputDecoration(
@@ -167,7 +177,7 @@ class _ThreadAppState extends State<ThreadApp> {
                     if (!showErrorName &&
                         !showErrorTitle &&
                         !showErrorDescription) {
-                      FirebaseFirestore.instance.collection("thread").add({
+                      widget.firestore.collection("thread").add({
                         "name": nameInputController.text,
                         "title": titleInputController.text,
                         "description": descriptionInputController.text,

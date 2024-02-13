@@ -50,6 +50,9 @@ dev_dependencies:
   firebase_database_mocks: ^0.6.1
   integration_test:
     sdk: flutter
+  flutter_typeahead: ^5.1.0
+  fake_cloud_firestore: ^2.4.8
+  
   
 
   # The "flutter_lints" package below contains a set of recommended lints to

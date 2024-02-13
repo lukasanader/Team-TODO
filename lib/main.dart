@@ -3,15 +3,18 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:info_hub_app/threads/thread_app.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(const MyApp());
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
+  runApp(MyApp(firestore: firestore));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final FirebaseFirestore firestore;
+  const MyApp({Key? key, required this.firestore}) : super(key: key);
 
   // This widget is the root of your application.
   @override
@@ -38,7 +41,7 @@ class MyApp extends StatelessWidget {
             ColorScheme.fromSeed(seedColor: Color.fromARGB(255, 62, 62, 62)),
         useMaterial3: true,
       ),
-      home: ThreadApp(),
+      home: ThreadApp(firestore: firestore),
       //home: const MyHomePage(title: 'Flutter Demo Home Page'), //commented out to test thread_app.dart
     );
   }

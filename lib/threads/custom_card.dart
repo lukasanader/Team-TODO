@@ -8,9 +8,14 @@ import 'package:flutter/cupertino.dart';
 class CustomCard extends StatefulWidget {
   final QuerySnapshot? snapshot;
   final int index;
+  final FirebaseFirestore firestore;
 
-  const CustomCard({Key? key, this.snapshot, required this.index})
-      : super(key: key);
+  const CustomCard({
+    Key? key,
+    this.snapshot,
+    required this.index,
+    required this.firestore,
+  }) : super(key: key);
 
   @override
   _CustomCardState createState() => _CustomCardState();
@@ -26,10 +31,13 @@ class _CustomCardState extends State<CustomCard> {
     super.initState();
     final docData =
         widget.snapshot!.docs[widget.index].data() as Map<String, dynamic>;
-    titleInputController = TextEditingController(text: docData['title']);
+    /* titleInputController = TextEditingController(text: docData['title']);
     descriptionInputController =
         TextEditingController(text: docData['description']);
-    nameInputController = TextEditingController(text: docData['name']);
+    nameInputController = TextEditingController(text: docData['name']); */
+    titleInputController = TextEditingController();
+    descriptionInputController = TextEditingController();
+    nameInputController = TextEditingController();
   }
 
   @override
@@ -78,7 +86,7 @@ class _CustomCardState extends State<CustomCard> {
                         },
                         child: Text(
                           title,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
@@ -88,18 +96,19 @@ class _CustomCardState extends State<CustomCard> {
                       ),
                     ),
                   ),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   IconButton(
-                    icon: Icon(FontAwesomeIcons.edit, size: 15),
+                    icon: const Icon(FontAwesomeIcons.edit, size: 15),
                     onPressed: () {
                       _showDialog(context, docId);
                     },
                   ),
                   IconButton(
-                    icon: Icon(FontAwesomeIcons.trashAlt, size: 15),
+                    icon: const Icon(FontAwesomeIcons.trashAlt, size: 15),
                     onPressed: () async {
-                      await FirebaseFirestore.instance
-                          .collection('thread')
+                      if (!mounted) return;
+                      await widget.firestore
+                          .collection("thread")
                           .doc(docId)
                           .delete();
                     },
@@ -115,14 +124,14 @@ class _CustomCardState extends State<CustomCard> {
                     overflow: TextOverflow.ellipsis,
                     maxLines: 2,
                   ),
-                  Padding(padding: const EdgeInsets.all(2)),
+                  const Padding(padding: EdgeInsets.all(2)),
                   const SizedBox(height: 4),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: <Widget>[
                       Text(
                         "$name: ",
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 14,
                           color: Color.fromARGB(255, 255, 0, 0),
                           fontWeight: FontWeight.bold,
@@ -132,7 +141,7 @@ class _CustomCardState extends State<CustomCard> {
                       ),
                       Text(
                         formatter,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 12,
                           color: Color.fromARGB(255, 255, 0, 0),
                         ),
@@ -157,13 +166,24 @@ class _CustomCardState extends State<CustomCard> {
     bool showErrorTitle = false;
     bool showErrorDescription = false;
 
+    var docSnapshot =
+        await widget.firestore.collection("thread").doc(docId).get();
+    var docData = docSnapshot.data() as Map<String, dynamic>;
+
+    if (!mounted) return;
+
+    // Reinitialize the TextEditingController instances with the latest document data
+    titleInputController.text = docData['title'] ?? '';
+    descriptionInputController.text = docData['description'] ?? '';
+    nameInputController.text = docData['name'] ?? '';
+
     await showDialog(
       context: context,
       builder: (BuildContext context) {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              contentPadding: EdgeInsets.all(12.0),
+              contentPadding: const EdgeInsets.all(12.0),
               content: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -225,10 +245,7 @@ class _CustomCardState extends State<CustomCard> {
                     if (!showErrorName &&
                         !showErrorTitle &&
                         !showErrorDescription) {
-                      FirebaseFirestore.instance
-                          .collection("thread")
-                          .doc(docId)
-                          .update({
+                      widget.firestore.collection("thread").doc(docId).update({
                         "name": nameInputController.text,
                         "title": titleInputController.text,
                         "description": descriptionInputController.text,
