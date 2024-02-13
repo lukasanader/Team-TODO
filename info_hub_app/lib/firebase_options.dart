@@ -54,6 +54,7 @@ class DefaultFirebaseOptions {
     appId: '1:47545646262:android:db648613d6218a36d0ba17',
     messagingSenderId: '47545646262',
     projectId: 'team-todo-38f76',
+    databaseURL: 'https://team-todo-38f76-default-rtdb.europe-west1.firebasedatabase.app/',
     storageBucket: 'team-todo-38f76.appspot.com',
   );
 
@@ -62,7 +63,8 @@ class DefaultFirebaseOptions {
     appId: '1:47545646262:ios:28f60523ad4a393dd0ba17',
     messagingSenderId: '47545646262',
     projectId: 'team-todo-38f76',
+    databaseURL: 'https://team-todo-38f76-default-rtdb.europe-west1.firebasedatabase.app/',
     storageBucket: 'team-todo-38f76.appspot.com',
-    iosBundleId: 'com.example.infoHubApp',
-  );
+    iosBundleId: 'com.example.infoHubApp'
+    );
 }
