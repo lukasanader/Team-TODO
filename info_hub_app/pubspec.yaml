@@ -31,6 +31,7 @@ dependencies:
   flutter:
     sdk: flutter
 
+
   firebase_core: ^2.24.2
   firebase_database: ^10.4.0
   firebase_auth: ^4.16.0
@@ -45,10 +46,13 @@ dependencies:
 
   cloud_firestore: ^4.15.0
 
-  file_picker: ^6.1.1
+  file_picker: ^5.2.10
 
   url_launcher: ^6.2.4
-  
+
+  chewie: ^1.5.0
+
+
 
 
 

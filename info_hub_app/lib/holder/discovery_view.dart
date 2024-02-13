@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:info_hub_app/holder/topics_card.dart';
 
 class DiscoveryView extends StatefulWidget {
+  final FirebaseFirestore firestore;
+  const DiscoveryView({super.key, required this.firestore});
   @override
   _DiscoveryViewState createState() => _DiscoveryViewState();
 }
 
 class _DiscoveryViewState extends State<DiscoveryView> {
-  TextEditingController _searchController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
   List<Object> _topicsList = [];
   List<Object> _searchedTopicsList = [];
   int topicLength = 0;
@@ -24,9 +26,9 @@ class _DiscoveryViewState extends State<DiscoveryView> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            print(_searchedTopicsList);
+            Navigator.pop(context);
           },
         ),
         title: TextField(
@@ -35,10 +37,10 @@ class _DiscoveryViewState extends State<DiscoveryView> {
             _searchData(query);
           },
         ),
-        actions: [
+        actions: const [
           IconButton(
             icon: Icon(Icons.search),
-            onPressed: () {},
+            onPressed: null,
           )
         ],
       ),
@@ -68,14 +70,14 @@ class _DiscoveryViewState extends State<DiscoveryView> {
               }
             },
           )),
-          ElevatedButton(onPressed: () {}, child: Text("Ask a question!"))
+          ElevatedButton(onPressed: () {}, child: const Text("Ask a question!"))
         ],
       )),
     );
   }
 
   void _searchData(String query) {
-    List<QueryDocumentSnapshot<Object?>> _tempList = [];
+    List<QueryDocumentSnapshot<Object?>> tempList = [];
 
     for (int i = 0; i < _topicsList.length; i++) {
       QueryDocumentSnapshot topic =
@@ -83,22 +85,20 @@ class _DiscoveryViewState extends State<DiscoveryView> {
       if (topic['title'] != null) {
         String title = topic['title'].toString().toLowerCase();
         if (title.contains(query.toLowerCase())) {
-          _tempList.add(topic);
+          tempList.add(topic);
         }
       }
     }
 
     setState(() {
-      _searchedTopicsList = _tempList;
+      _searchedTopicsList = tempList;
       topicLength = _searchedTopicsList.length;
     });
   }
 
   Future getTopicsList() async {
-    QuerySnapshot data = await FirebaseFirestore.instance
-        .collection('topics')
-        .orderBy('title')
-        .get();
+    QuerySnapshot data =
+        await widget.firestore.collection('topics').orderBy('title').get();
 
     setState(() {
       _topicsList = List.from(data.docs);

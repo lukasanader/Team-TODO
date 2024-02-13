@@ -1,11 +1,20 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'screens/create_topic.dart';
+import 'holder/discovery_view.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
+  runApp(MyApp(firestore: firestore));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final FirebaseFirestore firestore;
+  const MyApp({Key? key, required this.firestore}) : super(key: key);
 
   // This widget is the root of your application.
   @override
@@ -31,7 +40,8 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      //home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: DiscoveryView(firestore: firestore),
     );
   }
 }
@@ -81,10 +91,11 @@ class _MyHomePageState extends State<MyHomePage> {
         // TRY THIS: Try changing the color here to a specific color (to
         // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
         // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        backgroundColor: Colors.red,
+
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
+        title: Text(widget.title, style: const TextStyle(color: Colors.white)),
       ),
       body: Center(
         // Center is a layout widget. It takes a single child and positions it
@@ -105,6 +116,28 @@ class _MyHomePageState extends State<MyHomePage> {
           // wireframe for each widget.
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: <Widget>[
+                ElevatedButton.icon(
+                  onPressed: () => Navigator.of(context).push(
+                    CupertinoPageRoute(
+                      builder: (BuildContext context) {
+                        return const CreateTopicScreen();
+                      },
+                    ),
+                  ),
+                  style: ButtonStyle(
+                    backgroundColor:
+                        MaterialStateProperty.all<Color>(Colors.red),
+                  ),
+                  icon: const Icon(Icons.note_add_sharp),
+                  label: const Text('Create Topic',
+                      style: TextStyle(
+                          color: Colors.white, fontWeight: FontWeight.bold)),
+                ),
+              ],
+            ),
             const Text(
               'You have pushed the button this many times:',
             ),

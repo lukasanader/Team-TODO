@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:chewie/chewie.dart';
 import 'package:video_player/video_player.dart';
+import 'package:flutter/services.dart';
 
 class ViewTopicScreen extends StatefulWidget {
   final QueryDocumentSnapshot topic;
@@ -13,30 +15,52 @@ class ViewTopicScreen extends StatefulWidget {
 }
 
 class _ViewTopicScreenState extends State<ViewTopicScreen> {
-  late VideoPlayerController? _controller;
-  late Future<void>? _initializeVideoPlayerFuture;
-  bool _showControls = true;
+  VideoPlayerController? _videoPlayerController;
+  ChewieController? _chewieController;
+
+  bool vidAvailable = false;
 
   @override
   void initState() {
     super.initState();
     if (widget.topic['videoUrl'] != null && widget.topic['videoUrl'] != "") {
-      _controller = VideoPlayerController.networkUrl(
-        Uri.parse(widget.topic['videoUrl']),
-      );
-      _initializeVideoPlayerFuture = _controller!.initialize().then((_) {
-        _controller!.pause();
-      });
-    } else {
-      _controller = null;
-      _initializeVideoPlayerFuture = null;
+      _initializeVideoPlayer();
+      vidAvailable = true;
     }
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+    ]);
+  }
+
+  void _initializeVideoPlayer() async {
+    _videoPlayerController = VideoPlayerController.networkUrl(
+      Uri.parse(widget.topic['videoUrl']),
+    );
+    await _videoPlayerController?.initialize();
+    _chewieController = ChewieController(
+      videoPlayerController: _videoPlayerController!,
+      autoInitialize: true,
+      looping: false,
+      aspectRatio: 16 / 9,
+      deviceOrientationsAfterFullScreen: [
+        DeviceOrientation.portraitUp,
+        DeviceOrientation.portraitDown
+      ],
+      allowedScreenSleep: false,
+    );
+    _chewieController!.addListener(() {
+      if (!_chewieController!.isFullScreen) {
+        SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+      }
+    });
   }
 
   @override
   void dispose() {
-    _controller?.dispose();
     super.dispose();
+    _videoPlayerController?.dispose();
+    _chewieController?.dispose();
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   }
 
   @override
@@ -57,56 +81,26 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 30),
-            if (_controller != null)
-              FutureBuilder<void>(
-                future: _initializeVideoPlayerFuture,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.done) {
-                    return AspectRatio(
-                      aspectRatio: _controller!.value.aspectRatio,
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          VideoPlayer(_controller!),
-                          AnimatedOpacity(
-                            opacity: _showControls ? 1.0 : 0.0,
-                            duration: const Duration(milliseconds: 500),
-                            child: IconButton(
-                              onPressed: () {
-                                setState(() {
-                                  _showControls =
-                                      !_showControls; // Toggle control visibility
-                                  if (_controller!.value.isPlaying) {
-                                    _controller!.pause();
-                                  } else {
-                                    _controller!.play();
-                                  }
-                                });
-                              },
-                              icon: Icon(
-                                _controller!.value.isPlaying
-                                    ? Icons.pause
-                                    : Icons.play_arrow,
-                                size: 50,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  } else {
-                    return const CircularProgressIndicator();
-                  }
-                },
+            if (vidAvailable && _chewieController != null)
+              SizedBox(
+                height: 250,
+                child: Chewie(controller: _chewieController!),
               ),
             const SizedBox(height: 30),
-            Text(
-              '${widget.topic['description']}',
-              style: const TextStyle(fontSize: 18.0),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '${widget.topic['description']}',
+                      style: const TextStyle(fontSize: 18.0),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+                ),
+              ),
             ),
-            const SizedBox(height: 160),
             if (widget.topic['articleLink'] != '')
               Center(
                 child: ElevatedButton(
