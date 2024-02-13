@@ -29,9 +29,9 @@ class _CustomCardState extends State<CustomCard> {
   @override
   void initState() {
     super.initState();
-    final docData =
+    /*final docData =
         widget.snapshot!.docs[widget.index].data() as Map<String, dynamic>;
-    /* titleInputController = TextEditingController(text: docData['title']);
+     titleInputController = TextEditingController(text: docData['title']);
     descriptionInputController =
         TextEditingController(text: docData['description']);
     nameInputController = TextEditingController(text: docData['name']); */
@@ -64,7 +64,8 @@ class _CustomCardState extends State<CustomCard> {
 
     return Column(
       children: <Widget>[
-        Container(
+        //Container(
+        SizedBox(
           height: 140,
           child: Card(
             shape: RoundedRectangleBorder(
@@ -82,7 +83,7 @@ class _CustomCardState extends State<CustomCard> {
                         onTap: () {
                           Navigator.of(context).push(CupertinoPageRoute(
                               builder: (BuildContext context) =>
-                                  ThreadReplies()));
+                                  const ThreadReplies()));
                         },
                         child: Text(
                           title,
@@ -190,6 +191,7 @@ class _CustomCardState extends State<CustomCard> {
                   children: <Widget>[
                     const Text("Please fill out the form"),
                     TextField(
+                      key: const Key('Author'),
                       autofocus: true,
                       autocorrect: true,
                       decoration: InputDecoration(
@@ -200,6 +202,7 @@ class _CustomCardState extends State<CustomCard> {
                       controller: nameInputController,
                     ),
                     TextField(
+                      key: const Key('Title'),
                       autofocus: true,
                       autocorrect: true,
                       decoration: InputDecoration(
@@ -210,6 +213,7 @@ class _CustomCardState extends State<CustomCard> {
                       controller: titleInputController,
                     ),
                     TextField(
+                      key: const Key('Description'),
                       autofocus: true,
                       autocorrect: true,
                       decoration: InputDecoration(

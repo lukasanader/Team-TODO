@@ -31,7 +31,7 @@ class _ThreadAppState extends State<ThreadApp> {
     return Scaffold(
 //current appbar is placeholder, replace with actual appbar or equivalent
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           "Topic Threads",
           style: TextStyle(
             color: Colors.white,
@@ -40,24 +40,24 @@ class _ThreadAppState extends State<ThreadApp> {
             fontWeight: FontWeight.w500,
           ),
         ),
-        backgroundColor: Color.fromARGB(255, 0, 48, 194),
+        backgroundColor: const Color.fromARGB(255, 0, 48, 194),
         elevation: 4.0,
         leading: IconButton(
-          icon: Icon(Icons.menu, color: Colors.white),
+          icon: const Icon(Icons.menu, color: Colors.white),
           onPressed: () {},
         ),
         actions: <Widget>[
           IconButton(
-            icon: Icon(Icons.search, color: Colors.white),
+            icon: const Icon(Icons.search, color: Colors.white),
             onPressed: () {},
           ),
           IconButton(
-            icon: Icon(Icons.notifications_none, color: Colors.white),
+            icon: const Icon(Icons.notifications_none, color: Colors.white),
             tooltip: 'Notifications',
             onPressed: () {},
           ),
           IconButton(
-            icon: Icon(Icons.account_circle, color: Colors.white),
+            icon: const Icon(Icons.account_circle, color: Colors.white),
             tooltip: 'Profile',
             onPressed: () {},
           ),
@@ -66,7 +66,7 @@ class _ThreadAppState extends State<ThreadApp> {
           preferredSize: Size.fromHeight(0.0),
           child: Container(),
         ),
-        shape: RoundedRectangleBorder(
+        shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(
             bottom: Radius.circular(0),
           ),
@@ -112,7 +112,7 @@ class _ThreadAppState extends State<ThreadApp> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              contentPadding: EdgeInsets.all(12.0),
+              contentPadding: const EdgeInsets.all(12.0),
               content: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,

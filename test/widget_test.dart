@@ -36,7 +36,7 @@ void main() {
     expect(find.byType(CustomCard), findsNWidgets(2));
   });
 
-  /* testWidgets('CustomCard allows editing of a thread',
+  testWidgets('CustomCard allows editing of a thread',
       (WidgetTester tester) async {
     await tester.pumpWidget(MaterialApp(home: ThreadApp(firestore: firestore)));
     await tester.pumpAndSettle();
@@ -47,9 +47,11 @@ void main() {
     await tester.pumpAndSettle();
 
     // Fill out the edit form
-    await tester.enterText(find.byType(TextField).at(0), 'Edited Author');
-    await tester.enterText(find.byType(TextField).at(1), 'Edited Title');
-    await tester.enterText(find.byType(TextField).at(2), 'Edited Description');
+
+    await tester.enterText(find.byKey(const Key('Author')), 'Edited Author');
+    await tester.enterText(find.byKey(const Key('Title')), 'Edited Title');
+    await tester.enterText(
+        find.byKey(const Key('Description')), 'Edited description');
 
     // Tap the "Update" button
     await tester.tap(find.text('Update'));
@@ -57,26 +59,9 @@ void main() {
 
     // Verify the update by checking if "Edited Title" is now displayed
     expect(find.text('Edited Title'), findsOneWidget);
+    //expect(find.text('Edited description'), findsOneWidget);
+    //expect(find.text('Edited Author'), findsOneWidget);
   });
-
-  testWidgets('CustomCard allows deletion of a thread',
-      (WidgetTester tester) async {
-    await tester.pumpWidget(MaterialApp(home: ThreadApp(firestore: firestore)));
-    await tester.pumpAndSettle();
-
-    // Initial count check
-    expect(find.byType(CustomCard), findsNWidgets(2));
-
-    // Find the delete button for the first thread and tap it
-    final deleteButton = find.byIcon(FontAwesomeIcons.trashAlt).first;
-    await tester.tap(deleteButton);
-    await tester.pumpAndSettle();
-
-    // Verify the thread was deleted by checking the count
-    expect(find.byType(CustomCard), findsNWidgets(1));
-  });
-
-*/
 
   testWidgets('ThreadApp allows users to add a new thread',
       (WidgetTester tester) async {
