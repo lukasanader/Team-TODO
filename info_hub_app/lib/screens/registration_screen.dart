@@ -15,14 +15,14 @@ class RegistrationScreen extends StatefulWidget {
 }
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
-  late AuthService _auth; // Declare _auth without initializing it
+  late AuthService _auth;
 
   @override
   void initState() {
     super.initState();
     _auth = AuthService(
       firestore: widget.firestore,
-      auth: widget.auth); // Initialize _auth in initState
+      auth: widget.auth);
   }
 
   final _formKey = GlobalKey<FormState>();
@@ -93,7 +93,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   } else if (!value.contains('@')) {
                     return 'Please enter a valid email address';
                   } else if (!value.contains('@nhs.co.uk') && _selectedRole == 'Healthcare Professional') {
-                    return 'This is not a valid healthcare professional email.';
+                    return 'Please enter a valid healthcare professional email.';
                   }
                   return null;
                 },
