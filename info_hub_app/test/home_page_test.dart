@@ -49,19 +49,19 @@ void main() {
     expect(find.byType(RegistrationScreen), findsOneWidget);
   });
 
-  // testWidgets('Login button press leads to login screen', (WidgetTester tester) async {
-  //   final firestore = FakeFirebaseFirestore();
-  //   final auth = MockFirebaseAuth();
+  testWidgets('Login button press leads to login screen', (WidgetTester tester) async {
+    final firestore = FakeFirebaseFirestore();
+    final auth = MockFirebaseAuth();
     
-  //   await tester.pumpWidget(
-  //     MaterialApp(
-  //       home: HomePage(firestore: firestore,auth: auth),
-  //       ),
-  //   );
+    await tester.pumpWidget(
+      MaterialApp(
+        home: HomePage(firestore: firestore,auth: auth),
+        ),
+    );
 
-  //   await tester.tap(find.text('Login'));
-  //   await tester.pumpAndSettle();
-  //   expect(find.byType(LoginScreen), findsOneWidget);
-  // });
+    await tester.tap(find.text('Login'));
+    await tester.pumpAndSettle();
+    expect(find.byType(LoginScreen), findsOneWidget);
+  });
 
 }

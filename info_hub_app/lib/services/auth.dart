@@ -17,7 +17,6 @@ class AuthService {
   Stream<User?> get user {
     return auth.authStateChanges();
   }
-
   // register user
   Future registerUser(String firstName, String lastName, String email, String password,String roleType) async {
     try {
