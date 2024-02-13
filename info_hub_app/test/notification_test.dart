@@ -44,9 +44,7 @@ Future<void> main() async {
         child: MaterialApp(
           home: Notifications(
             currentUser: 'user1',
-            firestore: firestore
-                .collection(NotificationCollection)
-                .snapshots(), // Pass currentUser argument
+            firestore: firestore,
           ),
         ),
       ),

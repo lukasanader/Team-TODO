@@ -1,12 +1,14 @@
 import 'package:info_hub_app/models/notification.dart' as custom;
 import 'package:flutter/material.dart';
-import 'package:info_hub_app/screens/notification_tile.dart';
+import 'package:info_hub_app/helpers/notification_tile.dart';
 import 'package:provider/provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Notifications extends StatefulWidget {
   final String currentUser;
 
-  const Notifications({Key? key, required this.currentUser, required firestore})
+  const Notifications(
+      {Key? key, required this.currentUser, FirebaseFirestore? firestore})
       : super(key: key);
 
   @override
