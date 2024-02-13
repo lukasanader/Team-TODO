@@ -12,10 +12,18 @@ import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:info_hub_app/main.dart';
 import 'package:info_hub_app/screens/trending_topic.dart';
 
+
 void main() {
+  late FakeFirebaseFirestore firestore = FakeFirebaseFirestore();
+  late Widget TrendingTopicWidget;
+  setUp(() {
+    TrendingTopicWidget = MaterialApp(
+      home:trendingTopic(firestore: firestore),
+    );
+  });
   testWidgets('Trendings topic are in right order', (WidgetTester tester) async {
     // Build your widget
-    final firestore = FakeFirebaseFirestore();
+    
     CollectionReference topicCollectionRef =
         firestore.collection('topics');
     topicCollectionRef.add({
@@ -42,7 +50,7 @@ void main() {
       'views': 2,
       'date': DateTime.now(),
     });
-    await tester.pumpWidget(MyApp(firestore: firestore));
+    await tester.pumpWidget(TrendingTopicWidget);
     await tester.pumpAndSettle();
 
     // Tap into the ListView
@@ -62,7 +70,6 @@ void main() {
 
    testWidgets('Shows only first 6 trending topics', (WidgetTester tester) async {
     // Build your widget
-    final firestore = FakeFirebaseFirestore();
     CollectionReference topicCollectionRef =
         firestore.collection('topics');
     topicCollectionRef.add({
@@ -122,7 +129,7 @@ void main() {
       'date': DateTime.now(),
     });
 
-    await tester.pumpWidget(MyApp(firestore: firestore));
+    await tester.pumpWidget(TrendingTopicWidget);
     await tester.pumpAndSettle();
 
     // Tap into the ListView
@@ -136,34 +143,6 @@ void main() {
     final textFinders = find.byType(Text);
     // Check that test 7 is ignored
     expect((textFinders.last.evaluate().single.widget as Text).data, 'test 6');
-  });
-  testWidgets('Show Post Dialog Test', (WidgetTester tester) async {
-    final firestore = FakeFirebaseFirestore();
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(MyApp(firestore: firestore,)); // Replace MyApp with the name of your app widget.
-    // Trigger the _showPostDialog method
-    await tester.tap(find.byType(ElevatedButton));
-    await tester.pump();
-    // Verify that the AlertDialog is displayed
-    //expect(find.byType(AlertDialog), findsOneWidget);
-    // Enter text into the TextField
-    await tester.enterText(find.byType(TextField), 'Test question');
-    // Tap the Submit button
-    await tester.tap(find.text('Submit'));
-    await tester.pumpAndSettle();
-    final QuerySnapshot<Map<String, dynamic>> querySnapshot =
-      await firestore.collection("questions").get();
-    final List<DocumentSnapshot<Map<String, dynamic>>> documents =
-      querySnapshot.docs;
-    // Check if the collection contains a document with the expected question
-    expect(
-      documents.any(
-        (doc) => doc.data()?['question'] == 'Test question',
-      ),
-      isTrue,
-    );
-    // Verify that the dialog is closed
-    expect(find.byType(AlertDialog), findsNothing);
   });
 }
 

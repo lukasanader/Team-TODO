@@ -162,7 +162,32 @@ void main() {
     expect((textFinders.at(3).evaluate().single.widget as Text).data, 'D test');
   });
 
-  
-
+  testWidgets('Show Post Dialog Test', (WidgetTester tester) async {
+    // Build our app and trigger a frame.
+    await tester.pumpWidget(discoveryViewWidget); // Replace MyApp with the name of your app widget.
+    // Trigger the _showPostDialog method
+    await tester.tap(find.byType(ElevatedButton));
+    await tester.pump();
+    // Verify that the AlertDialog is displayed
+    //expect(find.byType(AlertDialog), findsOneWidget);
+    // Enter text into the TextField
+    await tester.enterText(find.byType(TextField), 'Test question');
+    // Tap the Submit button
+    await tester.tap(find.text('Submit'));
+    await tester.pumpAndSettle();
+    final QuerySnapshot<Map<String, dynamic>> querySnapshot =
+      await firestore.collection("questions").get();
+    final List<DocumentSnapshot<Map<String, dynamic>>> documents =
+      querySnapshot.docs;
+    // Check if the collection contains a document with the expected question
+    expect(
+      documents.any(
+        (doc) => doc.data()?['question'] == 'Test question',
+      ),
+      isTrue,
+    );
+    // Verify that the dialog is closed
+    expect(find.byType(AlertDialog), findsNothing);
+  });
 }
 
