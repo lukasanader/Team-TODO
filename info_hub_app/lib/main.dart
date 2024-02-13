@@ -46,8 +46,8 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Color.fromARGB(255, 255, 0, 0)),
         useMaterial3: true,
       ),
-      //home: const MyHomePage(title: 'Flutter Demo Home Page'),
-      home:  DiscoveryView(firestore: firestore),
+      //home: MyHomePage(title: 'Flutter Demo Home Page',firestore: firestore,),
+      home:  trendingTopic(firestore: firestore),
     );
   }
 }

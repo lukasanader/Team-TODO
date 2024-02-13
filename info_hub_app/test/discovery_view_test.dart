@@ -164,14 +164,15 @@ void main() {
 
   testWidgets('Show Post Dialog Test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(discoveryViewWidget); // Replace MyApp with the name of your app widget.
+    await tester.pumpWidget(discoveryViewWidget);
+    await tester.pumpAndSettle();
     // Trigger the _showPostDialog method
     await tester.tap(find.byType(ElevatedButton));
     await tester.pump();
     // Verify that the AlertDialog is displayed
     //expect(find.byType(AlertDialog), findsOneWidget);
     // Enter text into the TextField
-    await tester.enterText(find.byType(TextField), 'Test question');
+    await tester.enterText(find.byType(TextField).last, 'Test question');
     // Tap the Submit button
     await tester.tap(find.text('Submit'));
     await tester.pumpAndSettle();

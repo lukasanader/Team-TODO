@@ -39,7 +39,7 @@ void main() {
       'description': 'this is a test',
       'articleLink': '',
       'videoUrl': '',
-      'views': 5,
+      'views': 9,
       'date': DateTime.now(),
     });
     topicCollectionRef.add({
@@ -47,7 +47,7 @@ void main() {
       'description': 'this is a test',
       'articleLink': '',
       'videoUrl': '',
-      'views': 2,
+      'views': 8,
       'date': DateTime.now(),
     });
     await tester.pumpWidget(TrendingTopicWidget);
@@ -69,51 +69,12 @@ void main() {
   });
 
    testWidgets('Shows only first 6 trending topics', (WidgetTester tester) async {
+   
     // Build your widget
     CollectionReference topicCollectionRef =
         firestore.collection('topics');
     topicCollectionRef.add({
-      'title': 'test 1',
-      'description': 'this is a test',
-      'articleLink': '',
-      'videoUrl': '',
-      'views': 10,
-      'date': DateTime.now(),
-    });
-    topicCollectionRef.add({
-      'title': 'test 2',
-      'description': 'this is a test',
-      'articleLink': '',
-      'videoUrl': '',
-      'views': 9,
-      'date': DateTime.now(),
-    });
-    topicCollectionRef.add({
-      'title': 'test 3',
-      'description': 'this is a test',
-      'articleLink': '',
-      'videoUrl': '',
-      'views': 8,
-      'date': DateTime.now(),
-    });
-    topicCollectionRef.add({
       'title': 'test 4',
-      'description': 'this is a test',
-      'articleLink': '',
-      'videoUrl': '',
-      'views': 7,
-      'date': DateTime.now(),
-    });
-    topicCollectionRef.add({
-      'title': 'test 5',
-      'description': 'this is a test',
-      'articleLink': '',
-      'videoUrl': '',
-      'views': 6,
-      'date': DateTime.now(),
-    });
-    topicCollectionRef.add({
-      'title': 'test 6',
       'description': 'this is a test',
       'articleLink': '',
       'videoUrl': '',
@@ -121,11 +82,27 @@ void main() {
       'date': DateTime.now(),
     });
     topicCollectionRef.add({
-      'title': 'test 7',
+      'title': 'test 5',
       'description': 'this is a test',
       'articleLink': '',
       'videoUrl': '',
       'views': 4,
+      'date': DateTime.now(),
+    });
+    topicCollectionRef.add({
+      'title': 'test 6',
+      'description': 'this is a test',
+      'articleLink': '',
+      'videoUrl': '',
+      'views': 3,
+      'date': DateTime.now(),
+    });
+    topicCollectionRef.add({
+      'title': 'test 7',
+      'description': 'this is a test',
+      'articleLink': '',
+      'videoUrl': '',
+      'views': 1,
       'date': DateTime.now(),
     });
 
