@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/helpers/topics_card.dart';
 
@@ -138,7 +139,7 @@ void _showPostDialog() {
                   DateTime currentDate = DateTime.now();
                   final postData = {
                       'question': _questionController.text,
-                      'uid':  1 ,//FirebaseAuth.instance.currentUser?.uid,
+                      'uid':  FirebaseAuth.instance.currentUser?.uid,
                       'date': currentDate.toString(),
                     };
                   CollectionReference db = widget.firestore.collection('questions');
