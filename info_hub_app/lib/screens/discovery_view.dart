@@ -139,7 +139,7 @@ void _showPostDialog() {
                   DateTime currentDate = DateTime.now();
                   final postData = {
                       'question': _questionController.text,
-                      'uid':  FirebaseAuth.instance.currentUser?.uid,
+                      'uid':  1,
                       'date': currentDate.toString(),
                     };
                   CollectionReference db = widget.firestore.collection('questions');

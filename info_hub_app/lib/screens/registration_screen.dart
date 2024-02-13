@@ -1,6 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:info_hub_app/screens/discovery_view.dart';
 import 'package:info_hub_app/services/auth.dart';
 import 'package:info_hub_app/models/user_model.dart';
 import 'package:info_hub_app/screens/dashboard.dart';
@@ -17,7 +16,7 @@ class RegistrationScreen extends StatefulWidget {
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
   late AuthService _auth;
-  late FirebaseFirestore firestore;
+
   @override
   void initState() {
     super.initState();
@@ -186,7 +185,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => DiscoveryView(firestore: firestore),
+                          builder: (context) => HomePage(),
                         ),
                       );
                     } else {

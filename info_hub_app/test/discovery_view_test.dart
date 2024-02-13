@@ -6,7 +6,7 @@ import 'package:info_hub_app/screens/discovery_view.dart';
 
 
 void main() {
-  late FakeFirebaseFirestore firestore = FakeFirebaseFirestore();
+  late FakeFirebaseFirestore firestore;
   late CollectionReference topicsCollectionRef;
   late Widget discoveryViewWidget;
 
@@ -139,8 +139,6 @@ void main() {
     expect(find.text('Sorry there are no topics for this!'), findsOneWidget);
   });
 
-
-
   testWidgets('DiscoveryView topics are in alphabetical order', (WidgetTester tester) async {
 
     await tester.pumpWidget(discoveryViewWidget);
@@ -176,6 +174,7 @@ void main() {
     // Tap the Submit button
     await tester.tap(find.text('Submit'));
     await tester.pumpAndSettle();
+    
     final QuerySnapshot<Map<String, dynamic>> querySnapshot =
       await firestore.collection("questions").get();
     final List<DocumentSnapshot<Map<String, dynamic>>> documents =
