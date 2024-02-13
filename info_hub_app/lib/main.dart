@@ -1,9 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:firebase_core/firebase_core.dart';
-import 'package:info_hub_app/holder/discovery_view.dart';
+import 'package:info_hub_app/screens/discovery_view.dart';
 import 'package:info_hub_app/screens/trending_topic.dart';
 import 'screens/create_topic.dart';
 
@@ -19,6 +20,7 @@ void main() async {
 class MyApp extends StatelessWidget {
   final FirebaseFirestore firestore;
   const MyApp({Key? key, required this.firestore}) : super(key: key);
+
 
   // This widget is the root of your application.
   @override
@@ -45,7 +47,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       //home: const MyHomePage(title: 'Flutter Demo Home Page'),
-      home:  trendingTopic(firestore: firestore),
+      home:  DiscoveryView(firestore: firestore),
     );
   }
 }
@@ -73,7 +75,6 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   
   int _counter = 0;
-  final TextEditingController _textFieldController = TextEditingController();
   void _incrementCounter() {
     setState(() {
       // This call to setState tells the Flutter framework that something has
@@ -84,45 +85,7 @@ class _MyHomePageState extends State<MyHomePage> {
       _counter++;
     });
   }
-  void _showPostDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text(''),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: _textFieldController,
-                decoration: const InputDecoration(labelText: 'Ask a question...'),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () async{
-                  
-                  // Access the entered text using _textFieldController.text
-                  //call method to add question to database
-                  DateTime currentDate = DateTime.now();
-                  final postData = {
-                      'question': _textFieldController.text,
-                      'uid':  1 ,//FirebaseAuth.instance.currentUser?.uid,
-                      'date': currentDate.toString(),
-                    };
-                  CollectionReference db = widget.firestore.collection('questions');
-                  await db.add(postData);
-                  _textFieldController.clear();
-                  // ignore: use_build_context_synchronously
-                  Navigator.of(context).pop(); // Close the dialog
-                },
-                child: const Text('Submit'),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
+  
 
   @override
   Widget build(BuildContext context) {
@@ -200,27 +163,7 @@ class _MyHomePageState extends State<MyHomePage> {
         child: const Icon(Icons.add),
       ),
       
-      bottomNavigationBar: BottomAppBar(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            ElevatedButton(
-              onPressed: () {
-                _showPostDialog();
-              },
-              style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0), // Adjust border radius for a more rectangular shape
-              ),
-              ),
-              child: const Text(
-                'Post',
-                style: TextStyle(color: Colors.black)
-                ),
-            ),
-          ],
-        ),
+      bottomNavigationBar: const BottomAppBar(
       ),
        // This trailing comma makes auto-formatting nicer for build methods.
     );

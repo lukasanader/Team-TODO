@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:info_hub_app/holder/topics_card.dart';
+import 'package:info_hub_app/helpers/topics_card.dart';
 import '../screens/create_topic.dart';
 
 
