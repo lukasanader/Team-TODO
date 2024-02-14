@@ -2,7 +2,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 import 'package:file_picker/file_picker.dart';
-
+import 'package:chewie/chewie.dart';
+import 'package:flutter/services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
@@ -48,10 +49,13 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
   String? _videoURL;
   String? _downloadURL;
   VideoPlayerController? _videoController;
+  ChewieController? _chewieController;
 
   @override
   void dispose() {
     _videoController?.dispose();
+    _chewieController?.dispose();
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     super.dispose();
   }
 
@@ -176,7 +180,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
   void _pickVideo() async {
     _videoController?.pause();
     _videoURL = await pickVideoFromDevice();
-    _initializeVideoPlayer();
+    await _initializeVideoPlayer();
   }
 
   Future<String?> pickVideoFromDevice() async {
@@ -196,66 +200,63 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
     }
   }
 
-  void _initializeVideoPlayer() {
-    _videoController?.pause();
-    _videoController?.dispose();
+  Future<void> _initializeVideoPlayer() async {
     if (_videoURL != null) {
-      _videoController = VideoPlayerController.file(File(_videoURL!))
-        ..initialize().then((_) {
-          setState(() {});
-          _videoController!.pause();
-        });
+      _videoController = VideoPlayerController.file(File(_videoURL!));
+
+      await _videoController?.initialize();
+      _chewieController = ChewieController(
+        videoPlayerController: _videoController!,
+        autoInitialize: true,
+        looping: false,
+        aspectRatio: 16 / 9,
+        deviceOrientationsAfterFullScreen: [
+          DeviceOrientation.portraitUp,
+          DeviceOrientation.portraitDown
+        ],
+        allowedScreenSleep: false,
+      );
+      _chewieController!.addListener(() {
+        if (!_chewieController!.isFullScreen) {
+          SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+        }
+      });
+      setState(() {});
     }
   }
 
   Widget _videoPreviewWidget() {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         SizedBox(
-          width: 280,
-          height: 80 * (_videoController!.value.aspectRatio),
-          child: Stack(
+          height: 150,
+          child: AspectRatio(
+            aspectRatio: _videoController!.value.aspectRatio,
+            child: Chewie(controller: _chewieController!),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              AspectRatio(
-                aspectRatio: _videoController!.value.aspectRatio,
-                child: VideoPlayer(_videoController!),
-              ),
-              Positioned.fill(
-                child: GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      if (_videoController!.value.isPlaying) {
-                        _videoController!.pause();
-                      } else {
-                        _videoController!.play();
-                      }
-                    });
-                  },
-                  child: Center(
-                    child: Icon(
-                      _videoController!.value.isPlaying
-                          ? Icons.pause
-                          : Icons.play_arrow,
-                      size: 50,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
+              IconButton(
+                icon: const Icon(Icons.delete, color: Colors.red),
+                onPressed: _clearVideoSelection,
+                tooltip: 'Remove Video',
               ),
             ],
           ),
         ),
-        const Text(
-          'the above is a preview of your video.',
-          style: TextStyle(color: Colors.grey),
-        ),
-        SizedBox(
-          height: 30,
-          child: GestureDetector(
-            onTap: _clearVideoSelection,
-            child: const Icon(
-              Icons.delete_forever_rounded,
-              color: Colors.red,
+        const SizedBox(height: 8),
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 8.0),
+          child: Center(
+            child: Text(
+              'the above is a preview of your video.',
+              style: TextStyle(color: Colors.grey),
             ),
           ),
         ),
@@ -290,6 +291,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
       _videoURL = null;
       _downloadURL = null;
       _videoController?.dispose();
+      _chewieController?.dispose();
       _videoController = null;
     });
   }
