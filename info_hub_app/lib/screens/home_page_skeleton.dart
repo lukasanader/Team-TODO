@@ -1,3 +1,10 @@
+/*
+ * This is a skeleton home page, which contains an app bar with the 
+ * notifications and profile icons. This also contains a placeholder 
+ * NotificationPage() and ProfilePage(), which should be replaced with the 
+ * genuine article.
+ */
+
 import 'package:flutter/material.dart';
 
 class HomePage extends StatelessWidget {
@@ -7,7 +14,7 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Home'),
+        title: const Text('Team TODO'),
         actions: <Widget>[
           IconButton(
             icon: const Icon(Icons.notifications),
@@ -37,37 +44,11 @@ class HomePage extends StatelessWidget {
       body: const Center(
         child: Text("User-specific home page content"),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.search),
-            label: 'Search',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Settings',
-          ),
-        ],
-        selectedItemColor: Colors.blue,
-        onTap: (int index) {
-          // Navigate to settings page when the settings icon is clicked
-          if (index == 2) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const SettingsPage()),
-            );
-          }
-        },
-      ),
     );
   }
 }
 
-// PlaceHolder for Nav Page
+// PlaceHolder for Notification Page
 class NotificationPage extends StatelessWidget {
   const NotificationPage({super.key});
 
@@ -96,23 +77,6 @@ class ProfilePage extends StatelessWidget {
       ),
       body: const Center(
         child: Text('Profile Page'),
-      ),
-    );
-  }
-}
-
-// PlaceHolder for Settings Page
-class SettingsPage extends StatelessWidget {
-  const SettingsPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Settings'),
-      ),
-      body: const Center(
-        child: Text('Settings Page'),
       ),
     );
   }
