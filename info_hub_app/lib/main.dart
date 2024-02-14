@@ -3,18 +3,19 @@ import 'package:flutter/material.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'screens/create_topic.dart';
-
-import 'package:info_hub_app/holder/discovery.dart';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(const MyApp());
+
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
+  runApp(MyApp(firestore: firestore));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final FirebaseFirestore firestore;
+  const MyApp({Key? key, required this.firestore}) : super(key: key);
 
   // This widget is the root of your application.
   @override
@@ -41,13 +42,15 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       //home: const MyHomePage(title: 'Flutter Demo Home Page'),
-      home: const Discovery(),
+      home: CreateTopicScreen(firestore: firestore),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+  final FirebaseFirestore firestore;
+  const MyHomePage({Key? key, required this.title, required this.firestore})
+      : super(key: key);
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -123,7 +126,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   onPressed: () => Navigator.of(context).push(
                     CupertinoPageRoute(
                       builder: (BuildContext context) {
-                        return const CreateTopicScreen();
+                        return CreateTopicScreen(firestore: widget.firestore);
                       },
                     ),
                   ),

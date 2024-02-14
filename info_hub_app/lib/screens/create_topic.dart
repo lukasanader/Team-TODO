@@ -2,11 +2,14 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 import 'package:file_picker/file_picker.dart';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
 class CreateTopicScreen extends StatefulWidget {
-  const CreateTopicScreen({Key? key}) : super(key: key);
+  final FirebaseFirestore firestore;
+  const CreateTopicScreen({Key? key, required this.firestore})
+      : super(key: key);
 
   @override
   State<CreateTopicScreen> createState() => _CreateTopicScreenState();
@@ -54,101 +57,118 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Form(
-      key: _topicFormKey,
-      child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.red,
-          title: const Text('Create a Topic',
-              style:
-                  TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.red,
+        title: const Text(
+          'Create a Topic',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
-        body: Container(
-            padding: const EdgeInsets.all(20.0),
-            child: ListView(
-              children: [
-                const Text(
-                  'fields marked with an asterisk (*) are required',
-                  style: TextStyle(color: Colors.grey),
-                ),
-                TextFormField(
-                  controller: titleController,
-                  maxLength: 70,
-                  decoration: const InputDecoration(
-                    labelText: 'Title *',
-                    prefixIcon: Icon(Icons.drive_file_rename_outline_outlined),
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: validateTitle,
-                ),
-                const SizedBox(height: 10.0),
-                TextFormField(
-                  controller: descriptionController,
-                  maxLines: 8,
-                  maxLength: 350,
-                  decoration: const InputDecoration(
-                    labelText: 'Description *',
-                    prefixIcon: Icon(Icons.description_outlined),
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: validateDescription,
-                ),
-                const SizedBox(height: 10.0),
-                TextFormField(
-                  controller: articleLinkController,
-                  decoration: const InputDecoration(
-                    labelText: 'Link article',
-                    prefixIcon: Icon(Icons.link_outlined),
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: validateArticleLink,
-                ),
-                const SizedBox(height: 5.0),
-                ElevatedButton.icon(
-                  onPressed: _pickVideo,
-                  icon: const Icon(
-                    Icons.cloud_upload_outlined,
-                  ),
-                  label: _videoURL == null
-                      ? const Text(
-                          'Upload a video',
-                          style: TextStyle(
-                              color: Colors.red, fontWeight: FontWeight.bold),
-                        )
-                      : const Text(
-                          'Change video',
-                          style: TextStyle(
-                              color: Colors.red, fontWeight: FontWeight.bold),
-                        ),
-                  style: ElevatedButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                  ),
-                ),
-                _videoURL != null
-                    ? _videoPreviewWidget()
-                    : const Text('no video selected'),
-                const SizedBox(height: 50.0),
-                publishBtn(context),
-              ],
-            )),
       ),
-    );
-  }
-
-  OutlinedButton publishBtn(BuildContext context) {
-    return OutlinedButton(
-      style: OutlinedButton.styleFrom(minimumSize: const Size(200, 50)),
-      onPressed: () {
-        if (_topicFormKey.currentState!.validate()) {
-          _uploadTopic();
-          Navigator.pop(context);
-        }
-      },
-      child: const Text(
-        "PUBLISH TOPIC",
-        style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+      body: Form(
+        key: _topicFormKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    TextFormField(
+                      key: const Key('titleField'),
+                      controller: titleController,
+                      maxLength: 70,
+                      decoration: const InputDecoration(
+                        labelText: 'Title *',
+                        prefixIcon:
+                            Icon(Icons.drive_file_rename_outline_outlined),
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: validateTitle,
+                    ),
+                    const SizedBox(height: 10.0),
+                    TextFormField(
+                      key: const Key('descField'),
+                      controller: descriptionController,
+                      maxLines: 8,
+                      maxLength: 350,
+                      decoration: const InputDecoration(
+                        labelText: 'Description *',
+                        prefixIcon: Icon(Icons.description_outlined),
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: validateDescription,
+                    ),
+                    const SizedBox(height: 10.0),
+                    TextFormField(
+                      key: const Key('linkField'),
+                      controller: articleLinkController,
+                      decoration: const InputDecoration(
+                        labelText: 'Link article',
+                        prefixIcon: Icon(Icons.link_outlined),
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: validateArticleLink,
+                    ),
+                    const SizedBox(height: 5.0),
+                    ElevatedButton.icon(
+                      onPressed: _pickVideo,
+                      icon: const Icon(
+                        Icons.cloud_upload_outlined,
+                      ),
+                      label: _videoURL == null
+                          ? const Text(
+                              'Upload a video',
+                              style: TextStyle(
+                                  color: Colors.red,
+                                  fontWeight: FontWeight.bold),
+                            )
+                          : const Text(
+                              'Change video',
+                              style: TextStyle(
+                                  color: Colors.red,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                      style: ElevatedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                      ),
+                    ),
+                    _videoURL != null
+                        ? _videoPreviewWidget()
+                        : const Text('no video selected'),
+                    const SizedBox(height: 10.0),
+                  ],
+                ),
+              ),
+            ),
+            Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
+              child: OutlinedButton(
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 50),
+                ),
+                onPressed: () {
+                  if (_topicFormKey.currentState!.validate()) {
+                    _uploadTopic();
+                    Navigator.pop(context);
+                  }
+                },
+                child: const Text(
+                  "PUBLISH TOPIC",
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -243,27 +263,34 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
     );
   }
 
+  void _uploadTopic() async {
+    if (_videoController != null) {
+      _downloadURL = await StoreData().uploadVideo(_videoURL!);
+    }
+
+    final topicDetails = {
+      'title': titleController.text,
+      'description': descriptionController.text,
+      'articleLink': articleLinkController.text,
+      'videoUrl': _downloadURL,
+    };
+
+    CollectionReference topicCollectionRef =
+        widget.firestore.collection('topics');
+
+    await topicCollectionRef.add(topicDetails);
+
+    titleController.clear();
+    descriptionController.clear();
+    articleLinkController.clear();
+  }
+
   void _clearVideoSelection() {
     setState(() {
       _videoURL = null;
       _downloadURL = null;
       _videoController?.dispose();
       _videoController = null;
-    });
-  }
-
-  void _uploadTopic() async {
-    if (_videoController != null) {
-      _downloadURL = await StoreData().uploadVideo(_videoURL!);
-    }
-
-    CollectionReference topicCollectionRef =
-        FirebaseFirestore.instance.collection('topics');
-    topicCollectionRef.add({
-      'title': titleController.text,
-      'description': descriptionController.text,
-      'articleLink': articleLinkController.text,
-      'videoUrl': _downloadURL,
     });
   }
 }
