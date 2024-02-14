@@ -1,23 +1,49 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:firebase_database_mocks/firebase_database_mocks.dart';
-import 'package:firebase_database/firebase_database.dart';
-import 'package:info_hub_app/main.dart';
 import 'package:info_hub_app/screens/admin_dash.dart';
+import 'package:info_hub_app/screens/create_topic.dart';
+import 'package:info_hub_app/screens/question_view.dart';
 
 void main() {
-late FirebaseFirestore firestore = FakeFirebaseFirestore();;
+late FirebaseFirestore firestore = FakeFirebaseFirestore();
 late Widget adminWidget;
 
   setUp((){
       firestore = FakeFirebaseFirestore();
       adminWidget = MaterialApp(
-      home: adminHomepage(firestore: firestore),
+      home: AdminHomepage(firestore: firestore),
     );
   });
+
+  testWidgets('Test create topic button', (WidgetTester tester) async {
+    await tester.pumpWidget(adminWidget);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Create Topic'));
+    await tester.pumpAndSettle();
+    expect(find.byType(CreateTopicScreen), findsOneWidget);
+  });
+
+  testWidgets('Test view questions button', (WidgetTester tester) async {
+    await tester.pumpWidget(adminWidget);
+    await tester.tap(find.text('View Questions'));
+    await tester.pumpAndSettle();
+    expect(find.byType(ViewQuestionPage), findsOneWidget);
+    //test back arrow
+    await tester.tap(find.byIcon(Icons.arrow_back));
+    await tester.pumpAndSettle();
+    expect(find.byType(AdminHomepage), findsOneWidget);
+
+  });
+
+  testWidgets('Test view thread button', (WidgetTester tester) async {
+    await tester.pumpWidget(adminWidget);
+    await tester.tap(find.text('View Thread'));
+    await tester.pumpAndSettle();
+    //expect(find.byType(CreateTopicScreen), findsOneWidget);
+  });
+
   testWidgets('Add admin test', (WidgetTester tester) async {
     CollectionReference userCollectionRef =
       firestore.collection('Users');
@@ -40,7 +66,7 @@ late Widget adminWidget;
     // Build our app and trigger a frame.
     await tester.pumpWidget(adminWidget);
     // Trigger the _showUser method
-    await tester.tap(find.byType(ElevatedButton));
+    await tester.tap(find.text('Add Admin'));
     await tester.pump();
     // Verify that the AlertDialog is displayed
     expect(find.byType(AlertDialog), findsOneWidget);
@@ -87,7 +113,7 @@ testWidgets('Add admin search test', (WidgetTester tester) async {
     await tester.pumpWidget(adminWidget);
     await tester.pumpAndSettle();
     // Trigger the _showUser method
-    await tester.tap(find.byType(ElevatedButton));
+    await tester.tap(find.text('Add Admin'));
     await tester.pump();
     
     final searchTextField = find.byType(TextField);
