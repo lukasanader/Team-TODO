@@ -33,26 +33,33 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
   }
 
   void _initializeVideoPlayer() async {
-    _videoPlayerController = VideoPlayerController.networkUrl(
-      Uri.parse(widget.topic['videoUrl']),
-    );
-    await _videoPlayerController?.initialize();
-    _chewieController = ChewieController(
-      videoPlayerController: _videoPlayerController!,
-      autoInitialize: true,
-      looping: false,
-      aspectRatio: 16 / 9,
-      deviceOrientationsAfterFullScreen: [
-        DeviceOrientation.portraitUp,
-        DeviceOrientation.portraitDown
-      ],
-      allowedScreenSleep: false,
-    );
-    _chewieController!.addListener(() {
-      if (!_chewieController!.isFullScreen) {
-        SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-      }
-    });
+    final videoUrl = widget.topic['videoUrl'] as String?;
+    if (videoUrl != null && videoUrl.isNotEmpty) {
+      _videoPlayerController =
+          VideoPlayerController.networkUrl(Uri.parse(videoUrl));
+      await _videoPlayerController!.initialize();
+      _chewieController = ChewieController(
+        videoPlayerController: _videoPlayerController!,
+        autoInitialize: true,
+        looping: false,
+        aspectRatio: 16 / 9,
+        deviceOrientationsAfterFullScreen: [
+          DeviceOrientation.portraitUp,
+          DeviceOrientation.portraitDown,
+        ],
+        allowedScreenSleep: false,
+      );
+      _chewieController!.addListener(() {
+        if (!_chewieController!.isFullScreen) {
+          SystemChrome.setPreferredOrientations([
+            DeviceOrientation.portraitUp,
+          ]);
+        }
+      });
+
+      // Ensure that the video player controller is updated
+      setState(() {});
+    }
   }
 
   @override

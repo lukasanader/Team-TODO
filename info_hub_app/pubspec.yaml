@@ -52,6 +52,12 @@ dependencies:
 
   chewie: ^1.5.0
 
+  file: ^7.0.0
+  video_player_platform_interface: ^6.2.2
+
+  plugin_platform_interface: ^2.1.8
+  url_launcher_platform_interface: ^2.3.1
+
 
 
 
@@ -64,6 +70,10 @@ dev_dependencies:
     sdk: flutter
   flutter_typeahead: ^5.1.0
   fake_cloud_firestore: ^2.4.8
+
+  mocktail: ^1.0.3
+
+  ioc_container: ^1.0.12
 
 
 
