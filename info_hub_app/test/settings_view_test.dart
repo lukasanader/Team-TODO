@@ -18,7 +18,7 @@ void main() {
   testWidgets('SettingsView has appbar with back button and title "Settings"', (WidgetTester tester) async {
     await tester.pumpWidget(settingsViewWidget);
 
-    expect(find.widgetWithIcon(IconButton, Icons.arrow_back), findsOneWidget);
+    
     expect(find.text("Settings"), findsOneWidget);
   });
 

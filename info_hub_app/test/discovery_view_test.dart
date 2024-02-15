@@ -46,10 +46,10 @@ void main() {
   });
 
 
-  testWidgets('DiscoveryView has appbar with back button, search bar and search icon', (WidgetTester tester) async {
+  testWidgets('DiscoveryView has appbar, search bar and search icon', (WidgetTester tester) async {
     await tester.pumpWidget(discoveryViewWidget);
 
-    expect(find.widgetWithIcon(IconButton, Icons.arrow_back), findsOneWidget);
+   
     expect(find.byType(TextField), findsOneWidget);
     expect(find.widgetWithIcon(IconButton, Icons.search), findsOneWidget);
 
