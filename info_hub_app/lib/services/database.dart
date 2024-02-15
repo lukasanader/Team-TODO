@@ -11,22 +11,24 @@ class DatabaseService {
             .collection('notifications');
 
   // Create a notification
-  Future<void> createNotification(
+  Future<String> createNotification(
       String title, String body, DateTime timestamp) async {
     try {
       print('Creating notification');
-      await notificationsCollection.add({
+      var docRef = await notificationsCollection.add({
         'user': uid,
         'title': title,
         'body': body,
         'timestamp': timestamp,
       });
+      return docRef.id;
     } catch (e) {
       print('Error creating notification: $e');
       rethrow;
     }
   }
 
+  // Delete a notification
   Future<void> deleteNotification(String id) async {
     try {
       print('Deleting notification');
@@ -44,6 +46,7 @@ class DatabaseService {
     final notifications = snapshot.docs.map((doc) {
       print('Converting notification');
       return custom.Notification(
+        id: doc.id,
         user: doc.get('user') ?? '',
         title: doc.get('title') ?? '',
         body: doc.get('body') ?? '',

@@ -1,8 +1,9 @@
-import 'package:info_hub_app/models/notification.dart' as custom;
 import 'package:flutter/material.dart';
+import 'package:info_hub_app/models/notification.dart' as custom;
 import 'package:info_hub_app/helpers/notification_tile.dart';
 import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:info_hub_app/services/database.dart';
 
 class Notifications extends StatefulWidget {
   final String currentUser;
@@ -33,7 +34,12 @@ class _NotificationsState extends State<Notifications> {
       body: ListView.builder(
         itemCount: userNotifications.length,
         itemBuilder: (context, index) {
-          return NotificationTile(notification: userNotifications[index]);
+          return NotificationTile(
+            notification: userNotifications[index],
+            onDelete: (id) {
+              DatabaseService(uid: widget.currentUser).deleteNotification(id);
+            },
+          );
         },
       ),
     );
