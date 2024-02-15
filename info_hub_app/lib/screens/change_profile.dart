@@ -167,12 +167,13 @@ class _ChangeProfileState extends State<ChangeProfile> {
             }
           });
         });
-        // await widget.firestore.collection('Users').doc(user.uid).update({
-        //   'firstName': _firstNameController.text,
-        //   'lastName': _lastNameController.text,
-        // });
       } catch (e) {
-        print('Error updating first name and last name in Firestore: $e');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Profile Update failed. Please try again.'),
+            duration: Duration(seconds: 3),
+          ),
+        );
       }
 
       // Update password
@@ -180,6 +181,17 @@ class _ChangeProfileState extends State<ChangeProfile> {
     }
   }
 }
+
+
+
+
+
+
+
+
+
+
+
 
 
 
