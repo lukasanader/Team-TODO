@@ -34,10 +34,13 @@ class _NotificationsState extends State<Notifications> {
       body: ListView.builder(
         itemCount: userNotifications.length,
         itemBuilder: (context, index) {
-          return NotificationTile(
-            notification: userNotifications[index],
-            onDelete: (id) {
-              DatabaseService(uid: widget.currentUser).deleteNotification(id);
+          final notification = userNotifications[index];
+          return Dismissible(
+            key: Key(notification.id),
+            child: NotificationTile(notification: notification),
+            onDismissed: (direction) {
+              DatabaseService(uid: widget.currentUser)
+                  .deleteNotification(notification.id);
             },
           );
         },
