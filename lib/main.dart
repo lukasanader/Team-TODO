@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:info_hub_app/threads/thread_app.dart';
+import 'package:info_hub_app/thread_screens/thread_app.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 void main() async {
