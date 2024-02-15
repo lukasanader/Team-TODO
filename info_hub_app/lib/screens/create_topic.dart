@@ -96,7 +96,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                     TextFormField(
                       key: const Key('descField'),
                       controller: descriptionController,
-                      maxLines: 8,
+                      maxLines: 5, // Reduced maxLines
                       maxLength: 350,
                       decoration: const InputDecoration(
                         labelText: 'Description *',
@@ -116,9 +116,21 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                       ),
                       validator: validateArticleLink,
                     ),
-                    const SizedBox(height: 5.0),
+                    const SizedBox(height: 10.0),
                     ElevatedButton.icon(
-                      onPressed: _pickVideo,
+                      key: const Key('uploadVideoButton'),
+                      onPressed: () async {
+                        _videoController?.pause();
+                        String? videoURL = await pickVideoFromDevice();
+                        print(videoURL);
+                        if (videoURL != null) {
+                          setState(() {
+                            _videoURL = videoURL;
+                          });
+                          await _initializeVideoPlayer();
+                        }
+                        print(_videoURL);
+                      },
                       icon: const Icon(
                         Icons.cloud_upload_outlined,
                       ),
@@ -141,17 +153,14 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                         ),
                       ),
                     ),
-                    _videoURL != null
-                        ? _videoPreviewWidget()
-                        : const Text('no video selected'),
-                    const SizedBox(height: 10.0),
+                    if (_videoURL != null && _chewieController != null)
+                      _videoPreviewWidget(),
                   ],
                 ),
               ),
             ),
             Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
+              padding: const EdgeInsets.symmetric(vertical: 10.0),
               child: OutlinedButton(
                 style: OutlinedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 50),
@@ -159,6 +168,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                 onPressed: () {
                   if (_topicFormKey.currentState!.validate()) {
                     _uploadTopic();
+                    print('done saving!');
                     Navigator.pop(context);
                   }
                 },
@@ -177,24 +187,13 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
     );
   }
 
-  void _pickVideo() async {
-    _videoController?.pause();
-    _videoURL = await pickVideoFromDevice();
-    await _initializeVideoPlayer();
-  }
-
   Future<String?> pickVideoFromDevice() async {
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['mp4', 'mov', 'avi', 'mkv', 'wmv'],
       );
-
-      if (result != null && result.files.isNotEmpty) {
-        return result.files.first.path;
-      } else {
-        return null;
-      }
+      return result!.files.first.path;
     } catch (e) {
       return null;
     }
@@ -204,7 +203,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
     if (_videoURL != null) {
       _videoController = VideoPlayerController.file(File(_videoURL!));
 
-      await _videoController?.initialize();
+      await _videoController!.initialize();
       _chewieController = ChewieController(
         videoPlayerController: _videoController!,
         autoInitialize: true,
@@ -226,41 +225,37 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
   }
 
   Widget _videoPreviewWidget() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        SizedBox(
-          height: 150,
-          child: AspectRatio(
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          AspectRatio(
             aspectRatio: _videoController!.value.aspectRatio,
             child: Chewie(controller: _chewieController!),
           ),
-        ),
-        const SizedBox(height: 8),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              IconButton(
-                icon: const Icon(Icons.delete, color: Colors.red),
-                onPressed: _clearVideoSelection,
-                tooltip: 'Remove Video',
-              ),
-            ],
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                IconButton(
+                  key: const Key('deleteButton'),
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                  onPressed: _clearVideoSelection,
+                  tooltip: 'Remove Video',
+                ),
+              ],
+            ),
           ),
-        ),
-        const SizedBox(height: 8),
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 8.0),
-          child: Center(
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 8.0),
             child: Text(
               'the above is a preview of your video.',
               style: TextStyle(color: Colors.grey),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
