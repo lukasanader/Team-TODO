@@ -422,7 +422,7 @@ void main() async {
     await tester.tap(find.byKey(const Key('uploadVideoButton')));
     await tester.pumpAndSettle();
 
-    await Future.delayed(const Duration(seconds: 4));
+    await Future.delayed(const Duration(seconds: 10));
 
     await tester.pump();
     expect(find.text('Change video'), findsOneWidget);

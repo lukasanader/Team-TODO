@@ -52,7 +52,7 @@ Widget build(BuildContext context) {
                   onPressed: () => Navigator.of(context).push(
                     CupertinoPageRoute(
                       builder: (BuildContext context) {
-                        return const CreateTopicScreen();
+                        return CreateTopicScreen(firestore: widget.firestore,);
                       },
                     ),
                   ),
