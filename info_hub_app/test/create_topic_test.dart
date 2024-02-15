@@ -422,9 +422,22 @@ void main() async {
     await tester.tap(find.byKey(const Key('uploadVideoButton')));
     await tester.pumpAndSettle();
 
-    await Future.delayed(const Duration(seconds: 4));
+    bool videoFound = false;
+    final startTime = DateTime.now();
+    while (!videoFound) {
+      await tester.pump();
 
-    await tester.pump();
+      if (find.text('Change video').evaluate().isNotEmpty) {
+        videoFound = true;
+        break;
+      }
+
+      if (DateTime.now().difference(startTime).inSeconds > 240) {
+        fail('Timed out waiting for the "Change video" text to appear');
+      }
+      await Future.delayed(const Duration(milliseconds: 100));
+    }
+
     expect(find.text('Change video'), findsOneWidget);
 
     expect(find.byType(Chewie), findsOneWidget);
