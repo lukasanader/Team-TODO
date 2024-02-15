@@ -2,11 +2,15 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:chewie/chewie.dart';
+import 'package:flutter/services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
 class CreateTopicScreen extends StatefulWidget {
-  const CreateTopicScreen({Key? key}) : super(key: key);
+  final FirebaseFirestore firestore;
+  const CreateTopicScreen({Key? key, required this.firestore})
+      : super(key: key);
 
   @override
   State<CreateTopicScreen> createState() => _CreateTopicScreenState();
@@ -45,118 +49,142 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
   String? _videoURL;
   String? _downloadURL;
   VideoPlayerController? _videoController;
+  ChewieController? _chewieController;
 
   @override
   void dispose() {
     _videoController?.dispose();
+    _chewieController?.dispose();
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Form(
-      key: _topicFormKey,
-      child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.red,
-          title: const Text('Create a Topic',
-              style:
-                  TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.red,
+        title: const Text(
+          'Create a Topic',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
-        body: Container(
-            padding: const EdgeInsets.all(20.0),
-            child: ListView(
-              children: [
-                const Text(
-                  'fields marked with an asterisk (*) are required',
-                  style: TextStyle(color: Colors.grey),
-                ),
-                TextFormField(
-                  controller: titleController,
-                  maxLength: 70,
-                  decoration: const InputDecoration(
-                    labelText: 'Title *',
-                    prefixIcon: Icon(Icons.drive_file_rename_outline_outlined),
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: validateTitle,
-                ),
-                const SizedBox(height: 10.0),
-                TextFormField(
-                  controller: descriptionController,
-                  maxLines: 8,
-                  maxLength: 350,
-                  decoration: const InputDecoration(
-                    labelText: 'Description *',
-                    prefixIcon: Icon(Icons.description_outlined),
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: validateDescription,
-                ),
-                const SizedBox(height: 10.0),
-                TextFormField(
-                  controller: articleLinkController,
-                  decoration: const InputDecoration(
-                    labelText: 'Link article',
-                    prefixIcon: Icon(Icons.link_outlined),
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: validateArticleLink,
-                ),
-                const SizedBox(height: 5.0),
-                ElevatedButton.icon(
-                  onPressed: _pickVideo,
-                  icon: const Icon(
-                    Icons.cloud_upload_outlined,
-                  ),
-                  label: _videoURL == null
-                      ? const Text(
-                          'Upload a video',
-                          style: TextStyle(
-                              color: Colors.red, fontWeight: FontWeight.bold),
-                        )
-                      : const Text(
-                          'Change video',
-                          style: TextStyle(
-                              color: Colors.red, fontWeight: FontWeight.bold),
-                        ),
-                  style: ElevatedButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.0),
+      ),
+      body: Form(
+        key: _topicFormKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    TextFormField(
+                      key: const Key('titleField'),
+                      controller: titleController,
+                      maxLength: 70,
+                      decoration: const InputDecoration(
+                        labelText: 'Title *',
+                        prefixIcon:
+                            Icon(Icons.drive_file_rename_outline_outlined),
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: validateTitle,
                     ),
+                    const SizedBox(height: 10.0),
+                    TextFormField(
+                      key: const Key('descField'),
+                      controller: descriptionController,
+                      maxLines: 5, // Reduced maxLines
+                      maxLength: 350,
+                      decoration: const InputDecoration(
+                        labelText: 'Description *',
+                        prefixIcon: Icon(Icons.description_outlined),
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: validateDescription,
+                    ),
+                    const SizedBox(height: 10.0),
+                    TextFormField(
+                      key: const Key('linkField'),
+                      controller: articleLinkController,
+                      decoration: const InputDecoration(
+                        labelText: 'Link article',
+                        prefixIcon: Icon(Icons.link_outlined),
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: validateArticleLink,
+                    ),
+                    const SizedBox(height: 10.0),
+                    ElevatedButton.icon(
+                      key: const Key('uploadVideoButton'),
+                      onPressed: () async {
+                        _videoController?.pause();
+                        String? videoURL = await pickVideoFromDevice();
+                        print(videoURL);
+                        if (videoURL != null) {
+                          setState(() {
+                            _videoURL = videoURL;
+                          });
+                          await _initializeVideoPlayer();
+                        }
+                        print(_videoURL);
+                      },
+                      icon: const Icon(
+                        Icons.cloud_upload_outlined,
+                      ),
+                      label: _videoURL == null
+                          ? const Text(
+                              'Upload a video',
+                              style: TextStyle(
+                                  color: Colors.red,
+                                  fontWeight: FontWeight.bold),
+                            )
+                          : const Text(
+                              'Change video',
+                              style: TextStyle(
+                                  color: Colors.red,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                      style: ElevatedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                      ),
+                    ),
+                    if (_videoURL != null && _chewieController != null)
+                      _videoPreviewWidget(),
+                  ],
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10.0),
+              child: OutlinedButton(
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 50),
+                ),
+                onPressed: () {
+                  if (_topicFormKey.currentState!.validate()) {
+                    _uploadTopic();
+                    print('done saving!');
+                    Navigator.pop(context);
+                  }
+                },
+                child: const Text(
+                  "PUBLISH TOPIC",
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-                _videoURL != null
-                    ? _videoPreviewWidget()
-                    : const Text('no video selected'),
-                const SizedBox(height: 50.0),
-                publishBtn(context),
-              ],
-            )),
+              ),
+            ),
+          ],
+        ),
       ),
     );
-  }
-
-  OutlinedButton publishBtn(BuildContext context) {
-    return OutlinedButton(
-      style: OutlinedButton.styleFrom(minimumSize: const Size(200, 50)),
-      onPressed: () {
-        if (_topicFormKey.currentState!.validate()) {
-          _uploadTopic();
-          Navigator.pop(context);
-        }
-      },
-      child: const Text(
-        "PUBLISH TOPIC",
-        style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
-      ),
-    );
-  }
-
-  void _pickVideo() async {
-    _videoController?.pause();
-    _videoURL = await pickVideoFromDevice();
-    _initializeVideoPlayer();
   }
 
   Future<String?> pickVideoFromDevice() async {
@@ -165,91 +193,70 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
         type: FileType.custom,
         allowedExtensions: ['mp4', 'mov', 'avi', 'mkv', 'wmv'],
       );
-
-      if (result != null && result.files.isNotEmpty) {
-        return result.files.first.path;
-      } else {
-        return null;
-      }
+      return result!.files.first.path;
     } catch (e) {
       return null;
     }
   }
 
-  void _initializeVideoPlayer() {
-    _videoController?.pause();
-    _videoController?.dispose();
+  Future<void> _initializeVideoPlayer() async {
     if (_videoURL != null) {
-      _videoController = VideoPlayerController.file(File(_videoURL!))
-        ..initialize().then((_) {
-          setState(() {});
-          _videoController!.pause();
-        });
+      _videoController = VideoPlayerController.file(File(_videoURL!));
+
+      await _videoController!.initialize();
+      _chewieController = ChewieController(
+        videoPlayerController: _videoController!,
+        autoInitialize: true,
+        looping: false,
+        aspectRatio: 16 / 9,
+        deviceOrientationsAfterFullScreen: [
+          DeviceOrientation.portraitUp,
+          DeviceOrientation.portraitDown
+        ],
+        allowedScreenSleep: false,
+      );
+      _chewieController!.addListener(() {
+        if (!_chewieController!.isFullScreen) {
+          SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+        }
+      });
+      setState(() {});
     }
   }
 
   Widget _videoPreviewWidget() {
-    return Column(
-      children: [
-        SizedBox(
-          width: 280,
-          height: 80 * (_videoController!.value.aspectRatio),
-          child: Stack(
-            children: [
-              AspectRatio(
-                aspectRatio: _videoController!.value.aspectRatio,
-                child: VideoPlayer(_videoController!),
-              ),
-              Positioned.fill(
-                child: GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      if (_videoController!.value.isPlaying) {
-                        _videoController!.pause();
-                      } else {
-                        _videoController!.play();
-                      }
-                    });
-                  },
-                  child: Center(
-                    child: Icon(
-                      _videoController!.value.isPlaying
-                          ? Icons.pause
-                          : Icons.play_arrow,
-                      size: 50,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ),
-            ],
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          AspectRatio(
+            aspectRatio: _videoController!.value.aspectRatio,
+            child: Chewie(controller: _chewieController!),
           ),
-        ),
-        const Text(
-          'the above is a preview of your video.',
-          style: TextStyle(color: Colors.grey),
-        ),
-        SizedBox(
-          height: 30,
-          child: GestureDetector(
-            onTap: _clearVideoSelection,
-            child: const Icon(
-              Icons.delete_forever_rounded,
-              color: Colors.red,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                IconButton(
+                  key: const Key('deleteButton'),
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                  onPressed: _clearVideoSelection,
+                  tooltip: 'Remove Video',
+                ),
+              ],
             ),
           ),
-        ),
-      ],
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 8.0),
+            child: Text(
+              'the above is a preview of your video.',
+              style: TextStyle(color: Colors.grey),
+            ),
+          ),
+        ],
+      ),
     );
-  }
-
-  void _clearVideoSelection() {
-    setState(() {
-      _videoURL = null;
-      _downloadURL = null;
-      _videoController?.dispose();
-      _videoController = null;
-    });
   }
 
   void _uploadTopic() async {
@@ -257,15 +264,30 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
       _downloadURL = await StoreData().uploadVideo(_videoURL!);
     }
 
-    CollectionReference topicCollectionRef =
-        FirebaseFirestore.instance.collection('topics');
-    topicCollectionRef.add({
+    final topicDetails = {
       'title': titleController.text,
       'description': descriptionController.text,
       'articleLink': articleLinkController.text,
       'videoUrl': _downloadURL,
-      'views': 0,
-      'date': DateTime.now(),
+    };
+
+    CollectionReference topicCollectionRef =
+        widget.firestore.collection('topics');
+
+    await topicCollectionRef.add(topicDetails);
+
+    titleController.clear();
+    descriptionController.clear();
+    articleLinkController.clear();
+  }
+
+  void _clearVideoSelection() {
+    setState(() {
+      _videoURL = null;
+      _downloadURL = null;
+      _videoController?.dispose();
+      _chewieController?.dispose();
+      _videoController = null;
     });
   }
 }

@@ -1,17 +1,17 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
+import 'package:info_hub_app/screens/create_topic.dart';
+import 'package:info_hub_app/screens/question_view.dart';
 
-class adminHomepage extends StatefulWidget {
+class AdminHomepage extends StatefulWidget {
   final FirebaseFirestore firestore;
-  const adminHomepage({Key? key, required this.firestore});
+  const AdminHomepage({super.key, required this.firestore});
   @override
-  _adminHomepageState createState() => _adminHomepageState();
+  _AdminHomepageState createState() => _AdminHomepageState();
 }
 
-class _adminHomepageState extends State<adminHomepage>{
+class _AdminHomepageState extends State<AdminHomepage>{
 final TextEditingController _searchController = TextEditingController();
 List<Object> _userList = [];
 List<bool> selected = [];
@@ -26,21 +26,80 @@ List<bool> selected = [];
 Widget build(BuildContext context) {
   return Scaffold(
     body: Center(
-      child: ElevatedButton(
-        onPressed: (){
-          selectUserDialog();
-        },
-        child: const Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.add),
-            Text(
-              'Add admin',
-              style: TextStyle(color: Colors.black),
+      child: GridView.extent( 
+        shrinkWrap: true,
+        maxCrossAxisExtent: 150,
+        crossAxisSpacing: 50.0,
+        mainAxisSpacing: 50.0,
+        padding: const EdgeInsets.all(20.0),
+        children: <Widget>[
+          ElevatedButton(
+            onPressed: (){
+              selectUserDialog();
+            },
+            child: const Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.add),
+                Text(
+                  'Add Admin',
+                  style: TextStyle(color: Colors.black),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+          ElevatedButton(
+                  onPressed: () => Navigator.of(context).push(
+                    CupertinoPageRoute(
+                      builder: (BuildContext context) {
+                        return  CreateTopicScreen(firestore: widget.firestore,);
+                      },
+                    ),
+                  ),
+                  child: const Column(
+                    mainAxisSize: MainAxisSize.min,
+                  children: [
+                  Icon(Icons.note_add_sharp),
+                  Text('Create Topic',style: TextStyle(color: Color.fromARGB(255, 0, 0, 0))),
+                  ]
+                  )
+                ),
+          ElevatedButton(
+                  onPressed: (){
+                    //PLACE VIEW THREAD METHOD HERE
+                  },
+            child: const Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.question_answer),
+                Text(
+                  'View Thread',
+                  style: TextStyle(color: Colors.black),
+                ),
+              ],
+            ),
+          ),
+          ElevatedButton(
+                  onPressed: () => Navigator.of(context).push(
+                    CupertinoPageRoute(
+                      builder: (BuildContext context) {
+                        return ViewQuestionPage(firestore: widget.firestore,);
+                      },
+                    ),
+                  ),
+            child: const Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.question_mark),
+                Text(
+                  'View Questions',
+                  style: TextStyle(color: Colors.black),
+                ),
+              ],
+            ),
+          ),
+      ] 
+      )
     ),
   );
 }

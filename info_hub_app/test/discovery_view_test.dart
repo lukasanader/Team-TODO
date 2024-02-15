@@ -46,10 +46,10 @@ void main() {
   });
 
 
-  testWidgets('DiscoveryView has appbar with back button, search bar and search icon', (WidgetTester tester) async {
+  testWidgets('DiscoveryView has appbar, search bar and search icon', (WidgetTester tester) async {
     await tester.pumpWidget(discoveryViewWidget);
 
-    expect(find.widgetWithIcon(IconButton, Icons.arrow_back), findsOneWidget);
+   
     expect(find.byType(TextField), findsOneWidget);
     expect(find.widgetWithIcon(IconButton, Icons.search), findsOneWidget);
 
@@ -165,8 +165,8 @@ void main() {
     await tester.pumpWidget(discoveryViewWidget);
     await tester.pumpAndSettle();
     // Trigger the _showPostDialog method
-    await tester.tap(find.byType(ElevatedButton));
-    await tester.pump();
+    await tester.tap(find.text('Ask a question!'));
+    await tester.pumpAndSettle();
     // Verify that the AlertDialog is displayed
     //expect(find.byType(AlertDialog), findsOneWidget);
     // Enter text into the TextField
