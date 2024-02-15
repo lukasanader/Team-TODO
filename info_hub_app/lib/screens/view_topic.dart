@@ -27,9 +27,6 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
       _initializeVideoPlayer();
       vidAvailable = true;
     }
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-    ]);
   }
 
   void _initializeVideoPlayer() async {

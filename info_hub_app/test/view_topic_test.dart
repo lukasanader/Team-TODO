@@ -6,7 +6,6 @@ import 'package:info_hub_app/screens/view_topic.dart';
 import 'package:chewie/chewie.dart';
 import 'package:flutter/services.dart';
 import 'dart:async';
-
 import 'package:video_player_platform_interface/video_player_platform_interface.dart';
 import 'package:url_launcher_platform_interface/link.dart';
 import 'package:url_launcher_platform_interface/url_launcher_platform_interface.dart';
@@ -172,28 +171,6 @@ class MockUrlLauncher extends Fake
   }
 
   @override
-  Future<bool> launch(
-    String url, {
-    required bool useSafariVC,
-    required bool useWebView,
-    required bool enableJavaScript,
-    required bool enableDomStorage,
-    required bool universalLinksOnly,
-    required Map<String, String> headers,
-    String? webOnlyWindowName,
-  }) async {
-    expect(url, this.url);
-    expect(useSafariVC, this.useSafariVC);
-    expect(useWebView, this.useWebView);
-    expect(enableJavaScript, this.enableJavaScript);
-    expect(enableDomStorage, this.enableDomStorage);
-    expect(universalLinksOnly, this.universalLinksOnly);
-    expect(headers, this.headers);
-    launchCalled = true;
-    return response!;
-  }
-
-  @override
   Future<bool> launchUrl(String url, LaunchOptions options) async {
     expect(url, this.url);
     expect(options.webViewConfiguration.enableJavaScript, enableJavaScript);
@@ -312,6 +289,64 @@ void main() {
     expect(elevatedButton, findsOneWidget);
 
     await tester.tap(elevatedButton);
+
+    await tester.pumpAndSettle();
+  });
+
+  testWidgets('Test orientation changes correctly with video fullscreen',
+      (tester) async {
+    final logs = [];
+    final firestore = FakeFirebaseFirestore();
+    CollectionReference topicCollectionRef = firestore.collection('topics');
+
+    await topicCollectionRef.add({
+      'title': 'video topic',
+      'description': 'Test Description',
+      'articleLink': 'http://www.javatpoint.com/heap-sort',
+      'videoUrl':
+          'https://firebasestorage.googleapis.com/v0/b/team-todo-38f76.appspot.com/o/videos%2F2024-02-01%2018:28:20.745204.mp4?alt=media&token=6d6e3aee-240d-470f-ab22-58e274a04010',
+    });
+
+    QuerySnapshot data = await topicCollectionRef.orderBy('title').get();
+
+    tester.binding.defaultBinaryMessenger
+        .setMockMethodCallHandler(SystemChannels.platform, (methodCall) async {
+      if (methodCall.method == 'SystemChrome.setPreferredOrientations') {
+        logs.add((methodCall.arguments as List)[0]);
+      }
+      return null;
+    });
+
+    expect(logs.length, 0);
+
+    await tester.pumpWidget(MaterialApp(
+      home: ViewTopicScreen(
+        topic: data.docs[0] as QueryDocumentSnapshot<Object>,
+      ),
+    ));
+
+    await tester.pumpAndSettle();
+
+    expect(find.byType(Chewie), findsOneWidget);
+
+    final Chewie chewieWidget = tester.widget<Chewie>(find.byType(Chewie));
+
+    chewieWidget.controller.enterFullScreen();
+    await tester.pumpAndSettle();
+
+    expect(logs.length, 1,
+        reason:
+            'It should have added an orientation log after the fullscreen entry');
+
+    chewieWidget.controller.exitFullScreen();
+
+    expect(logs.length, 2,
+        reason:
+            'It should have added an orientation log after the fullscreen exit');
+
+    expect(logs.last, 'DeviceOrientation.portraitUp',
+        reason:
+            'It should be in the portrait view after the fullscreen actions done');
 
     await tester.pumpAndSettle();
   });
