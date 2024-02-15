@@ -20,6 +20,7 @@ class ChangeProfile extends StatefulWidget {
 
 class _ChangeProfileState extends State<ChangeProfile> {
   late NavigatorState _navigatorState;
+
   final TextEditingController _newPasswordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
   final TextEditingController _firstNameController = TextEditingController();
@@ -64,6 +65,7 @@ class _ChangeProfileState extends State<ChangeProfile> {
             TextField(
               controller: _newPasswordController,
               obscureText: true,
+              
               decoration: const InputDecoration(
                 labelText: 'New Password',
                 border: OutlineInputBorder(),
@@ -150,13 +152,25 @@ class _ChangeProfileState extends State<ChangeProfile> {
 
   Future<void> _updateProfile() async {
     final user = widget.auth.currentUser;
+    
     if (user != null) {
       // Update first name and last name in Firestore
       try {
-        await widget.firestore.collection('Users').doc(user.uid).update({
-          'firstName': _firstNameController.text,
-          'lastName': _lastNameController.text,
+        final docRef = widget.firestore.collection('Users');
+        docRef.get().then((querySnapshot) {
+          querySnapshot.docs.forEach((doc) {
+            if (doc['uid'] == user.uid) {
+              docRef.doc(doc.id).update({
+                'firstName': _firstNameController.text,
+                'lastName': _lastNameController.text,
+              });
+            }
+          });
         });
+        // await widget.firestore.collection('Users').doc(user.uid).update({
+        //   'firstName': _firstNameController.text,
+        //   'lastName': _lastNameController.text,
+        // });
       } catch (e) {
         print('Error updating first name and last name in Firestore: $e');
       }
