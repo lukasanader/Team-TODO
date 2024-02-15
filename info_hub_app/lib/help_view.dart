@@ -10,6 +10,32 @@ class HelpView extends StatelessWidget {
         leading: const Icon(Icons.arrow_back),
         title: const Text("Help"),
       ),
+      body: PageView(
+        children: [
+          Container(
+            height: 100,
+            width: 100,
+            color: Colors.red,
+            child: const Text("Hello"),
+          ),
+          Container(
+            height: 100,
+            width: 100,
+            color: Colors.blue,
+            child: const Text("Hello"),
+          ),
+        ],)
+      
+      
+      // Column(
+      //   children: [
+      //     Container(
+      //       height: 100,
+      //       width: 100,
+      //       color: Colors.red,
+      //       child: const Text("Hello"),
+      //     )
+      //   ]),
     );
   }
 }
