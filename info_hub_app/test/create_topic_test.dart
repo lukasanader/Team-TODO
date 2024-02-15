@@ -279,7 +279,7 @@ void main() async {
     expect(documents.isEmpty, isTrue);
   });
 
-  testWidgets('Topic inavlid article link does not save',
+  testWidgets('Topic invalid article link does not save',
       (WidgetTester tester) async {
     final firestore = FakeFirebaseFirestore();
     final mockStorage = MockFirebaseStorage();
@@ -517,5 +517,117 @@ void main() async {
     expect(find.byType(Chewie), findsNothing);
     expect(find.text('Change video'), findsNothing);
     expect(find.text('Upload a video'), findsOneWidget);
+  });
+
+  testWidgets('Uploaded video is stored in Firebase Storage',
+      (WidgetTester tester) async {
+    final firestore = FakeFirebaseFirestore();
+    final mockStorage = MockFirebaseStorage();
+
+    await tester.pumpWidget(MaterialApp(
+      home: CreateTopicScreen(
+        firestore: firestore,
+        storage: mockStorage,
+      ),
+    ));
+
+    await tester.tap(find.byKey(const Key('uploadVideoButton')));
+    await tester.pumpAndSettle();
+
+    bool videoFound = false;
+    final startTime = DateTime.now();
+    while (!videoFound) {
+      await tester.pump();
+
+      if (find.text('Change video').evaluate().isNotEmpty) {
+        videoFound = true;
+        break;
+      }
+
+      if (DateTime.now().difference(startTime).inSeconds > 1800) {
+        fail('Timed out waiting for the "Change video" text to appear');
+      }
+      await Future.delayed(const Duration(milliseconds: 100));
+    }
+
+    expect(find.text('Change video'), findsOneWidget);
+
+    await tester.enterText(find.byKey(const Key('titleField')), 'Test title');
+    await tester.enterText(
+        find.byKey(const Key('descField')), 'Test description');
+
+    // submit form
+
+    await tester.tap(find.byType(OutlinedButton));
+
+    final ListResult result = await mockStorage.ref().child('videos').listAll();
+
+    expect(result.items.length, greaterThan(0));
+  });
+
+  testWidgets('Orientation adjusts correctly', (WidgetTester tester) async {
+    final firestore = FakeFirebaseFirestore();
+    final mockStorage = MockFirebaseStorage();
+    final logs = [];
+
+    tester.binding.defaultBinaryMessenger
+        .setMockMethodCallHandler(SystemChannels.platform, (methodCall) async {
+      if (methodCall.method == 'SystemChrome.setPreferredOrientations') {
+        logs.add((methodCall.arguments as List)[0]);
+      }
+      return null;
+    });
+
+    expect(logs.length, 0);
+
+    await tester.pumpWidget(MaterialApp(
+      home: CreateTopicScreen(
+        firestore: firestore,
+        storage: mockStorage,
+      ),
+    ));
+
+    await tester.tap(find.byKey(const Key('uploadVideoButton')));
+    await tester.pumpAndSettle();
+
+    bool videoFound = false;
+    final startTime = DateTime.now();
+    while (!videoFound) {
+      await tester.pump();
+
+      if (find.text('Change video').evaluate().isNotEmpty) {
+        videoFound = true;
+        break;
+      }
+
+      if (DateTime.now().difference(startTime).inSeconds > 1800) {
+        fail('Timed out waiting for the "Change video" text to appear');
+      }
+      await Future.delayed(const Duration(milliseconds: 100));
+    }
+
+    expect(find.text('Change video'), findsOneWidget);
+
+    expect(find.byType(Chewie), findsOneWidget);
+
+    final Chewie chewieWidget = tester.widget<Chewie>(find.byType(Chewie));
+
+    await tester.pumpAndSettle();
+
+    chewieWidget.controller.enterFullScreen();
+
+    expect(logs.length, 1,
+        reason:
+            'It should have added an orientation log after the fullscreen entry');
+
+    chewieWidget.controller.exitFullScreen();
+
+    expect(logs.length, 2,
+        reason:
+            'It should have added an orientation log after the fullscreen exit');
+
+    expect(logs.last, 'DeviceOrientation.portraitUp',
+        reason:
+            'It should be in the portrait view after the fullscreen actions done');
   });
 }

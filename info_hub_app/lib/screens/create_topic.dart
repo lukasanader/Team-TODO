@@ -55,11 +55,10 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
 
   @override
   void dispose() {
+    super.dispose();
     _videoController?.dispose();
     _chewieController?.dispose();
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-
-    super.dispose();
   }
 
   @override
@@ -202,12 +201,10 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
   }
 
   Future<void> _initializeVideoPlayer() async {
-    if (_videoURL != null) {
+    if (_videoURL != null && _videoURL!.isNotEmpty) {
       _videoController = VideoPlayerController.file(File(_videoURL!));
 
       await _videoController!.initialize();
-
-      // Check if the widget is still mounted before calling setState
 
       _chewieController = ChewieController(
         videoPlayerController: _videoController!,
@@ -266,7 +263,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
 
   void _uploadTopic() async {
     if (_videoController != null) {
-      _downloadURL = await StoreData().uploadVideo(_videoURL!);
+      _downloadURL = await StoreData(widget.storage).uploadVideo(_videoURL!);
     }
 
     final topicDetails = {
@@ -280,37 +277,33 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
         widget.firestore.collection('topics');
 
     await topicCollectionRef.add(topicDetails);
-
-    titleController.clear();
-    descriptionController.clear();
-    articleLinkController.clear();
   }
 
   void _clearVideoSelection() {
-    if (mounted) {
-      setState(() {
-        _videoURL = null;
-        _downloadURL = null;
-        if (_videoController != null) {
-          _videoController!.pause();
-          _videoController!.dispose();
-          _videoController = null;
-        }
-        if (_chewieController != null) {
-          _chewieController!.pause();
-          _chewieController!.dispose();
-          _chewieController = null;
-        }
-      });
-    }
+    setState(() {
+      _videoURL = null;
+      _downloadURL = null;
+      if (_videoController != null) {
+        _videoController!.pause();
+        _videoController!.dispose();
+        _videoController = null;
+      }
+      if (_chewieController != null) {
+        _chewieController!.pause();
+        _chewieController!.dispose();
+        _chewieController = null;
+      }
+    });
 
-    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+    // SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   }
 }
 
-final FirebaseStorage _storage = FirebaseStorage.instance;
-
 class StoreData {
+  final FirebaseStorage _storage;
+
+  StoreData(this._storage);
+
   Future<String> uploadVideo(String videoUrl) async {
     Reference ref = _storage.ref().child('videos/${DateTime.now()}.mp4');
     await ref.putFile(File(videoUrl));
