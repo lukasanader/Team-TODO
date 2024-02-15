@@ -8,7 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:info_hub_app/models/notification.dart' as custom;
 import 'package:info_hub_app/screens/base.dart';
 import 'package:info_hub_app/screens/discovery_view.dart';
-import 'package:info_hub_app/screens/home_page_skeleton.dart';
+import 'package:info_hub_app/screens/home_page.dart';
 import 'package:info_hub_app/screens/notifications.dart';
 import 'package:info_hub_app/screens/settings_view.dart';
 import 'package:firebase_core/firebase_core.dart';

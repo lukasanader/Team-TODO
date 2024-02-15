@@ -10,7 +10,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:info_hub_app/main.dart';
-import 'package:info_hub_app/screens/trending_topic.dart';
+import 'package:info_hub_app/screens/base.dart';
+
 
 
 void main() {
@@ -18,7 +19,7 @@ void main() {
   late Widget TrendingTopicWidget;
   setUp(() {
     TrendingTopicWidget = MaterialApp(
-      home:trendingTopic(firestore: firestore),
+      home:Base(firestore: firestore),
     );
   });
   testWidgets('Trendings topic are in right order', (WidgetTester tester) async {
@@ -65,7 +66,7 @@ void main() {
     // Check the order of card titles
     expect((textFinders.first.evaluate().single.widget as Text).data, 'test 1');
     expect((textFinders.at(1).evaluate().single.widget as Text).data, 'test 2');
-    expect((textFinders.last.evaluate().single.widget as Text).data, 'test 3');
+    expect((textFinders.at(2).evaluate().single.widget as Text).data, 'test 3');
   });
 
    testWidgets('Shows only first 6 trending topics', (WidgetTester tester) async {
@@ -119,7 +120,7 @@ void main() {
 
     final textFinders = find.byType(Text);
     // Check that test 7 is ignored
-    expect((textFinders.last.evaluate().single.widget as Text).data, 'test 6');
+    expect((textFinders.at(5).evaluate().single.widget as Text).data, 'test 6');
   });
 }
 

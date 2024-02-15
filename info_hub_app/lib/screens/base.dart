@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:info_hub_app/screens/discovery_view.dart';
 import 'package:info_hub_app/screens/settings_view.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
-import 'package:info_hub_app/screens/home_page_skeleton.dart';
+import 'package:info_hub_app/screens/home_page.dart';
 
 class Base extends StatelessWidget {
   FirebaseFirestore firestore;

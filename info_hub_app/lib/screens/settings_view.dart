@@ -13,9 +13,6 @@ class _SettingsViewState extends State<SettingsView> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Settings"),
-        leading: IconButton(
-          onPressed: () {}, 
-          icon: const Icon(Icons.arrow_back))
       ),
       body: ListView(
         children: [
