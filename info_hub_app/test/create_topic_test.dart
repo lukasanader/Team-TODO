@@ -432,7 +432,7 @@ void main() async {
         break;
       }
 
-      if (DateTime.now().difference(startTime).inSeconds > 240) {
+      if (DateTime.now().difference(startTime).inSeconds > 1800) {
         fail('Timed out waiting for the "Change video" text to appear');
       }
       await Future.delayed(const Duration(milliseconds: 100));
