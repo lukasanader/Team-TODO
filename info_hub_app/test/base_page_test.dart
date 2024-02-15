@@ -5,31 +5,33 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:info_hub_app/models/notification.dart' as custom;
 import 'package:info_hub_app/screens/base.dart';
 import 'package:info_hub_app/screens/discovery_view.dart';
 import 'package:info_hub_app/screens/home_page_skeleton.dart';
+import 'package:info_hub_app/screens/notifications.dart';
 import 'package:info_hub_app/screens/settings_view.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:info_hub_app/services/database.dart';
+import 'package:provider/provider.dart';
+import 'mock.dart';
 
 
 void main() {
   late FirebaseFirestore firestore = FakeFirebaseFirestore();
-  setUp((){
-    CollectionReference topicCollectionRef =
-        firestore.collection('topics');
-    topicCollectionRef.add({
-      'title': 'test 4',
-      'description': 'this is a test',
-      'articleLink': '',
-      'videoUrl': '',
-      'views': 5,
-      'date': DateTime.now(),
-    });
+
+  setupFirebaseAuthMocks();
+  setUpAll(() async {
+    await Firebase.initializeApp();
   });
+
+
   testWidgets('Bottom Nav Bar to Home Page', (WidgetTester tester) async {
     await tester.pumpWidget(MaterialApp(home: Base(firestore: firestore,)));
-
+    await tester.pumpAndSettle();
     await tester.tap(find.byIcon(Icons.home));
     await tester.pump();
+    await tester.pumpAndSettle();
 
     expect(find.text('Team TODO'), findsOneWidget);
     expect(find.byIcon(Icons.notifications), findsOneWidget);
@@ -65,15 +67,23 @@ void main() {
     expect(find.byType(HomePage), findsOneWidget);
   });
 
-  testWidgets('HomePage to Navigation Page', (WidgetTester tester) async {
-    await tester.pumpWidget(MaterialApp(
-      home: HomePage(firestore: firestore,),
+  testWidgets('HomePage to Notification Page', (WidgetTester tester) async {
+    await tester.pumpWidget(MultiProvider(
+      providers: [
+        StreamProvider<List<custom.Notification>>(
+          create: (_) => DatabaseService(uid: '', firestore: firestore).notifications,
+          initialData: [], // Initial data while waiting for Firebase data
+        ),
+  
+      ],
+      child: MaterialApp(
+        home: HomePage(firestore: firestore,),
+      ),
     ));
-
     await tester.tap(find.byIcon(Icons.notifications));
     await tester.pumpAndSettle();
 
-    expect(find.text('Notifications'), findsOneWidget);
+    expect(find.byType(Notifications), findsOneWidget);
   });
 
   testWidgets('HomePage to Profile Page', (WidgetTester tester) async {
@@ -88,12 +98,19 @@ void main() {
   });
 
   testWidgets('NotificationPage UI Test', (WidgetTester tester) async {
-    await tester.pumpWidget(const MaterialApp(
-      home: NotificationPage(),
+    await tester.pumpWidget(MultiProvider(
+      providers: [
+        StreamProvider<List<custom.Notification>>(
+          create: (_) => DatabaseService(uid: '', firestore: firestore).notifications,
+          initialData: [], // Initial data while waiting for Firebase data
+        ),
+  
+      ],
+      child: MaterialApp(
+        home: Notifications(currentUser: '1',firestore: firestore,),
+      ),
     ));
-
-    expect(find.text('Notifications'), findsOneWidget);
-    expect(find.text('Notification Page'), findsOneWidget);
+    expect(find.byType(Notifications), findsOneWidget);
   });
 
   testWidgets('ProfilePage UI Test', (WidgetTester tester) async {

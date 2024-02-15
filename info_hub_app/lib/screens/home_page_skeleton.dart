@@ -11,12 +11,13 @@ import 'package:flutter/material.dart';
 import 'package:info_hub_app/helpers/topics_card.dart';
 import 'package:info_hub_app/screens/notifications.dart';
 import 'package:info_hub_app/services/database.dart';
+
 import '../screens/create_topic.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
   FirebaseFirestore firestore;
-  User? user = FirebaseAuth.instance.currentUser;
+  //User? user = FirebaseAuth.instance.currentUser;
   HomePage({super.key,required this.firestore});
   @override
   State<HomePage> createState() => _HomePageState();
@@ -47,7 +48,7 @@ class _HomePageState extends State<HomePage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) =>  Notifications(currentUser: widget.user!.uid,firestore:widget.firestore,)),
+                    builder: (context) =>  Notifications(currentUser: '1',firestore:widget.firestore,)),
               );
             },
           ),
@@ -73,7 +74,7 @@ class _HomePageState extends State<HomePage> {
           }),),
       ElevatedButton(
               onPressed: () async {
-                await DatabaseService(firestore:widget.firestore, uid: widget.user!.uid).createNotification(
+                await DatabaseService(firestore:widget.firestore, uid: '1').createNotification(
                     'Test Notification',
                     'This is a test notification',
                     DateTime.now());

@@ -165,8 +165,8 @@ void main() {
     await tester.pumpWidget(discoveryViewWidget);
     await tester.pumpAndSettle();
     // Trigger the _showPostDialog method
-    await tester.tap(find.byType(ElevatedButton));
-    await tester.pump();
+    await tester.tap(find.text('Ask a question!'));
+    await tester.pumpAndSettle();
     // Verify that the AlertDialog is displayed
     //expect(find.byType(AlertDialog), findsOneWidget);
     // Enter text into the TextField
