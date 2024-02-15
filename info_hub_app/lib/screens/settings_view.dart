@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:info_hub_app/help_view.dart';
 
 class SettingsView extends StatefulWidget {
   const SettingsView({super.key});
@@ -59,14 +60,22 @@ class _SettingsViewState extends State<SettingsView> {
                 title: Text('History'),
               ),
             ),
-            Container(
-              // decoration: BoxDecoration(
-              //   border: Border.all(color: Colors.black)
-              // ),
-              child: const ListTile(
-                leading: Icon(Icons.help),
-                title: Text('Help'),
-              ),
+
+            GestureDetector(
+              key: const Key('Help Option'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>  const HelpView()),
+                );
+              } ,
+              child: Container(
+                child: const ListTile(
+                  leading: Icon(Icons.help),
+                  title: Text('Help'),
+                ),              
+              )
             ),
 
         ],)

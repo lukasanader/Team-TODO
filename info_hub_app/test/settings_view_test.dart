@@ -1,6 +1,9 @@
 
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:info_hub_app/help_view.dart';
 import 'package:info_hub_app/screens/settings_view.dart';
 
 
@@ -45,5 +48,17 @@ void main() {
 
   });
 
+  testWidgets('SettingsView help option goes to help view', (WidgetTester tester) async {
+    await tester.pumpWidget(settingsViewWidget);
+
+    final helpOption = find.byKey(const Key('Help Option'));
+
+    expect(helpOption, findsOneWidget);
+
+    await tester.tap(helpOption);
+    await tester.pumpAndSettle();
+
+    expect(find.byType(HelpView), findsOneWidget);
+  });
 
 }
