@@ -4,18 +4,23 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'screens/create_topic.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
 
   FirebaseFirestore firestore = FirebaseFirestore.instance;
-  runApp(MyApp(firestore: firestore));
+  FirebaseStorage storage = FirebaseStorage.instance;
+  runApp(MyApp(firestore: firestore, storage: storage));
 }
 
 class MyApp extends StatelessWidget {
   final FirebaseFirestore firestore;
-  const MyApp({Key? key, required this.firestore}) : super(key: key);
+  final FirebaseStorage storage;
+
+  const MyApp({Key? key, required this.firestore, required this.storage})
+      : super(key: key);
 
   // This widget is the root of your application.
   @override
@@ -42,14 +47,20 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       //home: const MyHomePage(title: 'Flutter Demo Home Page'),
-      home: CreateTopicScreen(firestore: firestore),
+      home: CreateTopicScreen(firestore: firestore, storage: storage),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
   final FirebaseFirestore firestore;
-  const MyHomePage({Key? key, required this.title, required this.firestore})
+  final FirebaseStorage storage;
+
+  const MyHomePage(
+      {Key? key,
+      required this.title,
+      required this.firestore,
+      required this.storage})
       : super(key: key);
 
   // This widget is the home page of your application. It is stateful, meaning
@@ -126,7 +137,9 @@ class _MyHomePageState extends State<MyHomePage> {
                   onPressed: () => Navigator.of(context).push(
                     CupertinoPageRoute(
                       builder: (BuildContext context) {
-                        return CreateTopicScreen(firestore: widget.firestore);
+                        return CreateTopicScreen(
+                            firestore: widget.firestore,
+                            storage: widget.storage);
                       },
                     ),
                   ),

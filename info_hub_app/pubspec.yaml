@@ -49,7 +49,7 @@ dependencies:
 
   path_provider: ^2.1.2
 
-  file: ^6.1.4
+  file: ^7.0.0
   video_player_platform_interface: ^6.2.2
 
   plugin_platform_interface: ^2.1.8
@@ -71,6 +71,8 @@ dev_dependencies:
     sdk: flutter
   flutter_typeahead: ^5.1.0
   fake_cloud_firestore: ^2.4.8
+
+  firebase_storage_mocks:  ^0.6.1
 
 
 

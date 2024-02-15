@@ -9,7 +9,9 @@ import 'package:firebase_storage/firebase_storage.dart';
 
 class CreateTopicScreen extends StatefulWidget {
   final FirebaseFirestore firestore;
-  const CreateTopicScreen({Key? key, required this.firestore})
+  final FirebaseStorage storage;
+  const CreateTopicScreen(
+      {Key? key, required this.firestore, required this.storage})
       : super(key: key);
 
   @override
@@ -56,6 +58,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
     _videoController?.dispose();
     _chewieController?.dispose();
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+
     super.dispose();
   }
 
@@ -122,14 +125,13 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                       onPressed: () async {
                         _videoController?.pause();
                         String? videoURL = await pickVideoFromDevice();
-                        print(videoURL);
+
                         if (videoURL != null) {
                           setState(() {
                             _videoURL = videoURL;
                           });
                           await _initializeVideoPlayer();
                         }
-                        print(_videoURL);
                       },
                       icon: const Icon(
                         Icons.cloud_upload_outlined,
@@ -168,7 +170,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                 onPressed: () {
                   if (_topicFormKey.currentState!.validate()) {
                     _uploadTopic();
-                    print('done saving!');
+
                     Navigator.pop(context);
                   }
                 },
@@ -204,6 +206,9 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
       _videoController = VideoPlayerController.file(File(_videoURL!));
 
       await _videoController!.initialize();
+
+      // Check if the widget is still mounted before calling setState
+
       _chewieController = ChewieController(
         videoPlayerController: _videoController!,
         autoInitialize: true,
@@ -282,13 +287,24 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
   }
 
   void _clearVideoSelection() {
-    setState(() {
-      _videoURL = null;
-      _downloadURL = null;
-      _videoController?.dispose();
-      _chewieController?.dispose();
-      _videoController = null;
-    });
+    if (mounted) {
+      setState(() {
+        _videoURL = null;
+        _downloadURL = null;
+        if (_videoController != null) {
+          _videoController!.pause();
+          _videoController!.dispose();
+          _videoController = null;
+        }
+        if (_chewieController != null) {
+          _chewieController!.pause();
+          _chewieController!.dispose();
+          _chewieController = null;
+        }
+      });
+    }
+
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   }
 }
 
