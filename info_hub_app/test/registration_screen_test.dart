@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:info_hub_app/screens/base.dart';
 import 'package:info_hub_app/screens/registration_screen.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
@@ -246,7 +247,7 @@ void main() {
     await tester.pumpAndSettle();
 
     // Expect to find HomeScreen
-    expect(find.byType(HomePage), findsOneWidget);
+    expect(find.byType(Base), findsOneWidget);
 });
 
 }

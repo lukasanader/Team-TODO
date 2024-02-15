@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/screens/admin_dash.dart';
+import 'package:info_hub_app/screens/base.dart';
 import 'screens/start_page.dart';
 import 'firebase_options.dart';
 
@@ -22,8 +23,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: StartPage(
-        firestore: firestore,auth: auth,),
+
+      home: Base(firestore: firestore)
+      //StartPage(
+        //firestore: firestore,auth: auth,),
     );
     
   }

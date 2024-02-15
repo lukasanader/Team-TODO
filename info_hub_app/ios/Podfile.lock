@@ -635,7 +635,6 @@ PODS:
     - BoringSSL-GRPC/Interface (= 0.0.24)
   - BoringSSL-GRPC/Interface (0.0.24)
   - cloud_firestore (4.15.4):
-  - cloud_firestore (4.15.4):
     - Firebase/Firestore (= 10.20.0)
     - firebase_core
     - Flutter
@@ -689,20 +688,16 @@ PODS:
     - Firebase/CoreOnly
     - FirebaseStorage (~> 10.20.0)
   - firebase_auth (4.17.4):
-  - firebase_auth (4.17.4):
     - Firebase/Auth (= 10.20.0)
     - firebase_core
     - Flutter
   - firebase_core (2.25.4):
-  - firebase_core (2.25.4):
     - Firebase/CoreOnly (= 10.20.0)
     - Flutter
-  - firebase_database (10.4.5):
   - firebase_database (10.4.5):
     - Firebase/Database (= 10.20.0)
     - firebase_core
     - Flutter
-  - firebase_storage (11.6.5):
   - firebase_storage (11.6.5):
     - Firebase/Storage (= 10.20.0)
     - firebase_core
@@ -756,8 +751,6 @@ PODS:
     - FirebaseCoreExtension (~> 10.0)
     - GTMSessionFetcher/Core (< 4.0, >= 2.1)
   - Flutter (1.0.0)
-  - flutter_keyboard_visibility (0.0.1):
-    - Flutter
   - flutter_keyboard_visibility (0.0.1):
     - Flutter
   - GoogleUtilities/AppDelegateSwizzler (7.12.0):
@@ -847,6 +840,11 @@ PODS:
     - nanopb/encode (= 2.30909.1)
   - nanopb/decode (2.30909.1)
   - nanopb/encode (2.30909.1)
+  - package_info_plus (0.4.5):
+    - Flutter
+  - path_provider_foundation (0.0.1):
+    - Flutter
+    - FlutterMacOS
   - pointer_interceptor_ios (0.0.1):
     - Flutter
   - PromisesObjC (2.3.1)
@@ -870,8 +868,10 @@ DEPENDENCIES:
   - firebase_storage (from `.symlinks/plugins/firebase_storage/ios`)
   - Flutter (from `Flutter`)
   - flutter_keyboard_visibility (from `.symlinks/plugins/flutter_keyboard_visibility/ios`)
-  - flutter_keyboard_visibility (from `.symlinks/plugins/flutter_keyboard_visibility/ios`)
   - image_picker_ios (from `.symlinks/plugins/image_picker_ios/ios`)
+  - integration_test (from `.symlinks/plugins/integration_test/ios`)
+  - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
+  - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
   - pointer_interceptor_ios (from `.symlinks/plugins/pointer_interceptor_ios/ios`)
   - video_player_avfoundation (from `.symlinks/plugins/video_player_avfoundation/darwin`)
   - wakelock_plus (from `.symlinks/plugins/wakelock_plus/ios`)
@@ -922,10 +922,14 @@ EXTERNAL SOURCES:
     :path: Flutter
   flutter_keyboard_visibility:
     :path: ".symlinks/plugins/flutter_keyboard_visibility/ios"
-  flutter_keyboard_visibility:
-    :path: ".symlinks/plugins/flutter_keyboard_visibility/ios"
   image_picker_ios:
     :path: ".symlinks/plugins/image_picker_ios/ios"
+  integration_test:
+    :path: ".symlinks/plugins/integration_test/ios"
+  package_info_plus:
+    :path: ".symlinks/plugins/package_info_plus/ios"
+  path_provider_foundation:
+    :path: ".symlinks/plugins/path_provider_foundation/darwin"
   pointer_interceptor_ios:
     :path: ".symlinks/plugins/pointer_interceptor_ios/ios"
   video_player_avfoundation:
@@ -937,15 +941,10 @@ SPEC CHECKSUMS:
   abseil: 926fb7a82dc6d2b8e1f2ed7f3a718bce691d1e46
   BoringSSL-GRPC: 3175b25143e648463a56daeaaa499c6cb86dad33
   cloud_firestore: ba576bee785a05ff952e4da7fa4e23c196917436
-  cloud_firestore: ba576bee785a05ff952e4da7fa4e23c196917436
   DKImagePickerController: b512c28220a2b8ac7419f21c491fc8534b7601ac
   DKPhotoGallery: fdfad5125a9fdda9cc57df834d49df790dbb4179
   file_picker: 15fd9539e4eb735dc54bae8c0534a7a9511a03de
   Firebase: 10c8cb12fb7ad2ae0c09ffc86cd9c1ab392a0031
-  firebase_auth: 29a10d4129d53aa690c10dbd838ed1a059ef0c9b
-  firebase_core: a46c312d8bae4defa3d009b2aa7b5b413aeb394e
-  firebase_database: e6b72eeda8dadd6e3965d86b86c997d35e43d4e2
-  firebase_storage: 5007be227e54a46f260b6040a23b4fdc8ca1c5c5
   firebase_auth: 29a10d4129d53aa690c10dbd838ed1a059ef0c9b
   firebase_core: a46c312d8bae4defa3d009b2aa7b5b413aeb394e
   firebase_database: e6b72eeda8dadd6e3965d86b86c997d35e43d4e2
@@ -963,7 +962,6 @@ SPEC CHECKSUMS:
   FirebaseStorage: 8505bae8ac6662474b5b50e07759fb2765c15746
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   flutter_keyboard_visibility: 0339d06371254c3eb25eeb90ba8d17dca8f9c069
-  flutter_keyboard_visibility: 0339d06371254c3eb25eeb90ba8d17dca8f9c069
   GoogleUtilities: 0759d1a57ebb953965c2dfe0ba4c82e95ccc2e34
   "gRPC-C++": 2df8cba576898bdacd29f0266d5236fa0e26ba6a
   gRPC-Core: a21a60aefc08c68c247b439a9ef97174b0c54f96
@@ -972,6 +970,8 @@ SPEC CHECKSUMS:
   integration_test: 13825b8a9334a850581300559b8839134b124670
   leveldb-library: f03246171cce0484482ec291f88b6d563699ee06
   nanopb: d4d75c12cd1316f4a64e3c6963f879ecd4b5e0d5
+  package_info_plus: 115f4ad11e0698c8c1c5d8a689390df880f47e85
+  path_provider_foundation: 3784922295ac71e43754bd15e0653ccfd36a147c
   pointer_interceptor_ios: 9280618c0b2eeb80081a343924aa8ad756c21375
   PromisesObjC: c50d2056b5253dadbd6c2bea79b0674bd5a52fa4
   RecaptchaInterop: 7d1a4a01a6b2cb1610a47ef3f85f0c411434cb21
