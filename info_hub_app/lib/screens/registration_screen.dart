@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:info_hub_app/screens/base.dart';
 import 'package:info_hub_app/services/auth.dart';
 import 'package:info_hub_app/models/user_model.dart';
-import 'package:info_hub_app/screens/dashboard.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class RegistrationScreen extends StatefulWidget {

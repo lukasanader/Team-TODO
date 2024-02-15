@@ -5,14 +5,18 @@
  * genuine article.
  */
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/helpers/topics_card.dart';
+import 'package:info_hub_app/screens/notifications.dart';
+import 'package:info_hub_app/services/database.dart';
 import '../screens/create_topic.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
   FirebaseFirestore firestore;
+  User? user = FirebaseAuth.instance.currentUser;
   HomePage({super.key,required this.firestore});
   @override
   State<HomePage> createState() => _HomePageState();
@@ -43,7 +47,7 @@ class _HomePageState extends State<HomePage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => const NotificationPage()),
+                    builder: (context) =>  Notifications(currentUser: widget.user!.uid,firestore:widget.firestore,)),
               );
             },
           ),
@@ -66,7 +70,16 @@ class _HomePageState extends State<HomePage> {
           itemCount:  topicLength == 0 ? 0: topicLength,
           itemBuilder: (context, index){
           return TopicCard(_topicsList[index] as QueryDocumentSnapshot<Object>);
-          }),)
+          }),),
+      ElevatedButton(
+              onPressed: () async {
+                await DatabaseService(firestore:widget.firestore, uid: widget.user!.uid).createNotification(
+                    'Test Notification',
+                    'This is a test notification',
+                    DateTime.now());
+              },
+              child: const Text('Create Test Notification'),
+            ),
       ]),
       ),
     );

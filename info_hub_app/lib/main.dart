@@ -4,8 +4,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/screens/admin_dash.dart';
 import 'package:info_hub_app/screens/base.dart';
+import 'models/notification.dart' as custom;
 import 'screens/start_page.dart';
 import 'firebase_options.dart';
+import 'package:provider/provider.dart';
+import 'package:info_hub_app/services/database.dart';
+
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,12 +26,18 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-
-      home: Base(firestore: firestore)
-      //StartPage(
-        //firestore: firestore,auth: auth,),
+      return MultiProvider(
+      providers: [
+        StreamProvider<List<custom.Notification>>(
+          create: (_) => DatabaseService(uid: '', firestore: firestore).notifications,
+          initialData: [], // Initial data while waiting for Firebase data
+        ),
+      ],
+      child: MaterialApp(
+        home: Base(firestore: firestore,),
+      ),
     );
+    
     
   }
 }
