@@ -68,6 +68,20 @@ class _SettingsViewState extends State<SettingsView> {
                 title: Text('Help'),
               ),
             ),
+            Container(
+              // decoration: BoxDecoration(
+              //   border: Border.all(color: Colors.black)
+              // ),
+              child: const AboutListTile(
+                icon: Icon(Icons.info),
+                applicationLegalese: 'Legalese',
+                applicationName: 'TEAM TODO',
+                applicationVersion: '1.0.0',
+                aboutBoxChildren: [
+                  Text('Liver information hub for young people')
+                ],
+              ),
+            ),
 
         ],)
     );
