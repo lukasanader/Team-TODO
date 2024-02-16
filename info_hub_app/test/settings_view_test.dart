@@ -42,6 +42,7 @@ void main() {
     expect(find.text("Manage Privacy Settings"), findsOneWidget);
     expect(find.text("History"), findsOneWidget);
     expect(find.text("Help"), findsOneWidget);
+    expect(find.text("About TEAM TODO"), findsOneWidget);
 
   });
 
