@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/help_view.dart';
+import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 
 class SettingsView extends StatefulWidget {
   const SettingsView({super.key});
@@ -64,10 +65,11 @@ class _SettingsViewState extends State<SettingsView> {
             GestureDetector(
               key: const Key('Help Option'),
               onTap: () {
-                Navigator.push(
+                PersistentNavBarNavigator.pushNewScreen(
                   context,
-                  MaterialPageRoute(
-                      builder: (context) =>  const HelpView()),
+                  screen: const HelpView(),
+                  withNavBar: false, 
+                  pageTransitionAnimation: PageTransitionAnimation.cupertino,
                 );
               } ,
               child: Container(

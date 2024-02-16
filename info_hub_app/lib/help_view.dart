@@ -7,35 +7,30 @@ class HelpView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: const Icon(Icons.arrow_back),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
         title: const Text("Help"),
       ),
-      body: PageView(
-        children: [
-          Container(
-            height: 100,
-            width: 100,
+      body: Column(children: [
+        Expanded(
+          flex: 1,
+          child: Container(
+            padding: EdgeInsets.all(10),
             color: Colors.red,
-            child: const Text("Hello"),
           ),
-          Container(
-            height: 100,
+        ),
+        Expanded(
+          flex: 1,
+          child: Container(
             width: 100,
             color: Colors.blue,
-            child: const Text("Hello"),
-          ),
-        ],)
-      
-      
-      // Column(
-      //   children: [
-      //     Container(
-      //       height: 100,
-      //       width: 100,
-      //       color: Colors.red,
-      //       child: const Text("Hello"),
-      //     )
-      //   ]),
+            child: Text("fnioaheo"),)
+        )
+      ],)
     );
   }
 }
