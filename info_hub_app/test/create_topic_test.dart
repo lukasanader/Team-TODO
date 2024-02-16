@@ -8,10 +8,10 @@ import 'package:path_provider/path_provider.dart';
 import 'package:flutter/services.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:chewie/chewie.dart';
-import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'dart:async';
 import 'package:video_player_platform_interface/video_player_platform_interface.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 
 class StoreData {
   final StorageService storageService;
@@ -182,17 +182,16 @@ void main() async {
     final fakeVideoPlayerPlatform = FakeVideoPlayerPlatform();
 
     VideoPlayerPlatform.instance = fakeVideoPlayerPlatform;
-
-    final fakeStorageService = FakeStorageService();
-
-    final storeData = StoreData(fakeStorageService);
   });
   testWidgets('Topic with title and description save',
       (WidgetTester tester) async {
     final firestore = FakeFirebaseFirestore();
+    final mockStorage = MockFirebaseStorage();
+
     await tester.pumpWidget(MaterialApp(
       home: CreateTopicScreen(
         firestore: firestore,
+        storage: mockStorage,
       ),
     ));
 
@@ -228,9 +227,12 @@ void main() async {
 
   testWidgets('Topic with no title does not save', (WidgetTester tester) async {
     final firestore = FakeFirebaseFirestore();
+    final mockStorage = MockFirebaseStorage();
+
     await tester.pumpWidget(MaterialApp(
       home: CreateTopicScreen(
         firestore: firestore,
+        storage: mockStorage,
       ),
     ));
 
@@ -253,9 +255,12 @@ void main() async {
   testWidgets('Topic no description does not save',
       (WidgetTester tester) async {
     final firestore = FakeFirebaseFirestore();
+    final mockStorage = MockFirebaseStorage();
+
     await tester.pumpWidget(MaterialApp(
       home: CreateTopicScreen(
         firestore: firestore,
+        storage: mockStorage,
       ),
     ));
 
@@ -274,12 +279,15 @@ void main() async {
     expect(documents.isEmpty, isTrue);
   });
 
-  testWidgets('Topic inavlid article link does not save',
+  testWidgets('Topic invalid article link does not save',
       (WidgetTester tester) async {
     final firestore = FakeFirebaseFirestore();
+    final mockStorage = MockFirebaseStorage();
+
     await tester.pumpWidget(MaterialApp(
       home: CreateTopicScreen(
         firestore: firestore,
+        storage: mockStorage,
       ),
     ));
 
@@ -306,9 +314,12 @@ void main() async {
   testWidgets('Topic with valid article link saves',
       (WidgetTester tester) async {
     final firestore = FakeFirebaseFirestore();
+    final mockStorage = MockFirebaseStorage();
+
     await tester.pumpWidget(MaterialApp(
       home: CreateTopicScreen(
         firestore: firestore,
+        storage: mockStorage,
       ),
     ));
 
@@ -356,9 +367,12 @@ void main() async {
 
   testWidgets('Test all form fields are present', (WidgetTester tester) async {
     final firestore = FakeFirebaseFirestore();
+    final mockStorage = MockFirebaseStorage();
+
     await tester.pumpWidget(MaterialApp(
       home: CreateTopicScreen(
         firestore: firestore,
+        storage: mockStorage,
       ),
     ));
 
@@ -374,9 +388,12 @@ void main() async {
   testWidgets('Navigates back after submitting form',
       (WidgetTester tester) async {
     final firestore = FakeFirebaseFirestore();
+    final mockStorage = MockFirebaseStorage();
+
     await tester.pumpWidget(MaterialApp(
       home: CreateTopicScreen(
         firestore: firestore,
+        storage: mockStorage,
       ),
     ));
 
@@ -393,9 +410,12 @@ void main() async {
   testWidgets('Navigates back after submitting form',
       (WidgetTester tester) async {
     final firestore = FakeFirebaseFirestore();
+    final mockStorage = MockFirebaseStorage();
+
     await tester.pumpWidget(MaterialApp(
       home: CreateTopicScreen(
         firestore: firestore,
+        storage: mockStorage,
       ),
     ));
 
@@ -413,22 +433,201 @@ void main() async {
       (WidgetTester tester) async {
     final firestore = FakeFirebaseFirestore();
 
+    final mockStorage = MockFirebaseStorage();
+
     await tester.pumpWidget(MaterialApp(
       home: CreateTopicScreen(
         firestore: firestore,
+        storage: mockStorage,
       ),
     ));
     expect(find.text('Upload a video'), findsOneWidget);
     await tester.tap(find.byKey(const Key('uploadVideoButton')));
     await tester.pumpAndSettle();
 
-    await Future.delayed(const Duration(seconds: 10));
+    bool videoFound = false;
+    final startTime = DateTime.now();
+    while (!videoFound) {
+      await tester.pump();
 
-    await tester.pump();
+      if (find.text('Change video').evaluate().isNotEmpty) {
+        videoFound = true;
+        break;
+      }
+
+      if (DateTime.now().difference(startTime).inSeconds > 1800) {
+        fail('Timed out waiting for the "Change video" text to appear');
+      }
+      await Future.delayed(const Duration(milliseconds: 100));
+    }
     expect(find.text('Change video'), findsOneWidget);
 
     expect(find.byType(Chewie), findsOneWidget);
 
     expect(find.byKey(const Key('deleteButton')), findsOneWidget);
+  });
+
+  testWidgets('Uploaded video can be cleared', (WidgetTester tester) async {
+    final firestore = FakeFirebaseFirestore();
+
+    final mockStorage = MockFirebaseStorage();
+
+    await tester.pumpWidget(MaterialApp(
+      home: CreateTopicScreen(
+        firestore: firestore,
+        storage: mockStorage,
+      ),
+    ));
+    expect(find.text('Upload a video'), findsOneWidget);
+    await tester.tap(find.byKey(const Key('uploadVideoButton')));
+    await tester.pumpAndSettle();
+
+    bool videoFound = false;
+    final startTime = DateTime.now();
+    while (!videoFound) {
+      await tester.pump();
+
+      if (find.text('Change video').evaluate().isNotEmpty) {
+        videoFound = true;
+        break;
+      }
+
+      if (DateTime.now().difference(startTime).inSeconds > 1800) {
+        fail('Timed out waiting for the "Change video" text to appear');
+      }
+      await Future.delayed(const Duration(milliseconds: 100));
+    }
+    expect(find.text('Change video'), findsOneWidget);
+
+    expect(find.byType(Chewie), findsOneWidget);
+
+    expect(find.byKey(const Key('deleteButton')), findsOneWidget);
+
+    final Finder buttonToTap = find.byKey(const Key('deleteButton'));
+
+    await tester.dragUntilVisible(
+      buttonToTap,
+      find.byType(SingleChildScrollView),
+      const Offset(0, 50),
+    );
+    await tester.tap(buttonToTap);
+
+    await tester.pump();
+
+    expect(find.byType(Chewie), findsNothing);
+    expect(find.text('Change video'), findsNothing);
+    expect(find.text('Upload a video'), findsOneWidget);
+  });
+
+  testWidgets('Uploaded video is stored in Firebase Storage',
+      (WidgetTester tester) async {
+    final firestore = FakeFirebaseFirestore();
+    final mockStorage = MockFirebaseStorage();
+
+    await tester.pumpWidget(MaterialApp(
+      home: CreateTopicScreen(
+        firestore: firestore,
+        storage: mockStorage,
+      ),
+    ));
+
+    await tester.tap(find.byKey(const Key('uploadVideoButton')));
+    await tester.pumpAndSettle();
+
+    bool videoFound = false;
+    final startTime = DateTime.now();
+    while (!videoFound) {
+      await tester.pump();
+
+      if (find.text('Change video').evaluate().isNotEmpty) {
+        videoFound = true;
+        break;
+      }
+
+      if (DateTime.now().difference(startTime).inSeconds > 1800) {
+        fail('Timed out waiting for the "Change video" text to appear');
+      }
+      await Future.delayed(const Duration(milliseconds: 100));
+    }
+
+    expect(find.text('Change video'), findsOneWidget);
+
+    await tester.enterText(find.byKey(const Key('titleField')), 'Test title');
+    await tester.enterText(
+        find.byKey(const Key('descField')), 'Test description');
+
+    // submit form
+
+    await tester.tap(find.byType(OutlinedButton));
+
+    final ListResult result = await mockStorage.ref().child('videos').listAll();
+
+    expect(result.items.length, greaterThan(0));
+  });
+
+  testWidgets('Orientation adjusts correctly', (WidgetTester tester) async {
+    final firestore = FakeFirebaseFirestore();
+    final mockStorage = MockFirebaseStorage();
+    final logs = [];
+
+    tester.binding.defaultBinaryMessenger
+        .setMockMethodCallHandler(SystemChannels.platform, (methodCall) async {
+      if (methodCall.method == 'SystemChrome.setPreferredOrientations') {
+        logs.add((methodCall.arguments as List)[0]);
+      }
+      return null;
+    });
+
+    expect(logs.length, 0);
+
+    await tester.pumpWidget(MaterialApp(
+      home: CreateTopicScreen(
+        firestore: firestore,
+        storage: mockStorage,
+      ),
+    ));
+
+    await tester.tap(find.byKey(const Key('uploadVideoButton')));
+    await tester.pumpAndSettle();
+
+    bool videoFound = false;
+    final startTime = DateTime.now();
+    while (!videoFound) {
+      await tester.pump();
+
+      if (find.text('Change video').evaluate().isNotEmpty) {
+        videoFound = true;
+        break;
+      }
+
+      if (DateTime.now().difference(startTime).inSeconds > 1800) {
+        fail('Timed out waiting for the "Change video" text to appear');
+      }
+      await Future.delayed(const Duration(milliseconds: 100));
+    }
+
+    expect(find.text('Change video'), findsOneWidget);
+
+    expect(find.byType(Chewie), findsOneWidget);
+
+    final Chewie chewieWidget = tester.widget<Chewie>(find.byType(Chewie));
+
+    await tester.pumpAndSettle();
+
+    chewieWidget.controller.enterFullScreen();
+
+    expect(logs.length, 1,
+        reason:
+            'It should have added an orientation log after the fullscreen entry');
+
+    chewieWidget.controller.exitFullScreen();
+
+    expect(logs.length, 2,
+        reason:
+            'It should have added an orientation log after the fullscreen exit');
+
+    expect(logs.last, 'DeviceOrientation.portraitUp',
+        reason:
+            'It should be in the portrait view after the fullscreen actions done');
   });
 }

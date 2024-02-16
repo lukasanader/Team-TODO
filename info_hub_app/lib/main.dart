@@ -10,35 +10,33 @@ import 'firebase_options.dart';
 import 'package:provider/provider.dart';
 import 'package:info_hub_app/services/database.dart';
 
-
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   FirebaseAuth auth = FirebaseAuth.instance;
   FirebaseFirestore firestore = FirebaseFirestore.instance;
-  runApp(MyApp(firestore: firestore,auth: auth));
+  runApp(MyApp(firestore: firestore, auth: auth));
 }
 
 class MyApp extends StatelessWidget {
   final FirebaseFirestore firestore;
   final FirebaseAuth auth;
-  const MyApp({Key? key, required this.firestore,required this.auth}) : super(key:key);
+  const MyApp({Key? key, required this.firestore, required this.auth})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-      return MultiProvider(
+    return MultiProvider(
       providers: [
         StreamProvider<List<custom.Notification>>(
-          create: (_) => DatabaseService(uid: '', firestore: firestore).notifications,
+          create: (_) =>
+              DatabaseService(uid: '', firestore: firestore).notifications,
           initialData: [], // Initial data while waiting for Firebase data
         ),
       ],
       child: MaterialApp(
-        home: Base(firestore: firestore,),
+        home: Base(firestore: firestore),
       ),
     );
-    
-    
   }
 }
-

@@ -9,7 +9,9 @@ import 'package:firebase_storage/firebase_storage.dart';
 
 class CreateTopicScreen extends StatefulWidget {
   final FirebaseFirestore firestore;
-  const CreateTopicScreen({Key? key, required this.firestore})
+  final FirebaseStorage storage;
+  const CreateTopicScreen(
+      {Key? key, required this.firestore, required this.storage})
       : super(key: key);
 
   @override
@@ -53,10 +55,10 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
 
   @override
   void dispose() {
+    super.dispose();
     _videoController?.dispose();
     _chewieController?.dispose();
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-    super.dispose();
   }
 
   @override
@@ -122,14 +124,13 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                       onPressed: () async {
                         _videoController?.pause();
                         String? videoURL = await pickVideoFromDevice();
-                        print(videoURL);
+
                         if (videoURL != null) {
                           setState(() {
                             _videoURL = videoURL;
                           });
                           await _initializeVideoPlayer();
                         }
-                        print(_videoURL);
                       },
                       icon: const Icon(
                         Icons.cloud_upload_outlined,
@@ -168,7 +169,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                 onPressed: () {
                   if (_topicFormKey.currentState!.validate()) {
                     _uploadTopic();
-                    print('done saving!');
+
                     Navigator.pop(context);
                   }
                 },
@@ -200,10 +201,11 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
   }
 
   Future<void> _initializeVideoPlayer() async {
-    if (_videoURL != null) {
+    if (_videoURL != null && _videoURL!.isNotEmpty) {
       _videoController = VideoPlayerController.file(File(_videoURL!));
 
       await _videoController!.initialize();
+
       _chewieController = ChewieController(
         videoPlayerController: _videoController!,
         autoInitialize: true,
@@ -261,7 +263,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
 
   void _uploadTopic() async {
     if (_videoController != null) {
-      _downloadURL = await StoreData().uploadVideo(_videoURL!);
+      _downloadURL = await StoreData(widget.storage).uploadVideo(_videoURL!);
     }
 
     final topicDetails = {
@@ -275,26 +277,33 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
         widget.firestore.collection('topics');
 
     await topicCollectionRef.add(topicDetails);
-
-    titleController.clear();
-    descriptionController.clear();
-    articleLinkController.clear();
   }
 
   void _clearVideoSelection() {
     setState(() {
       _videoURL = null;
       _downloadURL = null;
-      _videoController?.dispose();
-      _chewieController?.dispose();
-      _videoController = null;
+      if (_videoController != null) {
+        _videoController!.pause();
+        _videoController!.dispose();
+        _videoController = null;
+      }
+      if (_chewieController != null) {
+        _chewieController!.pause();
+        _chewieController!.dispose();
+        _chewieController = null;
+      }
     });
+
+    // SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   }
 }
 
-final FirebaseStorage _storage = FirebaseStorage.instance;
-
 class StoreData {
+  final FirebaseStorage _storage;
+
+  StoreData(this._storage);
+
   Future<String> uploadVideo(String videoUrl) async {
     Reference ref = _storage.ref().child('videos/${DateTime.now()}.mp4');
     await ref.putFile(File(videoUrl));
