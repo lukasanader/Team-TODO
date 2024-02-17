@@ -168,6 +168,7 @@ class _ChangeProfileState extends State<ChangeProfile> {
           });
         });
       } catch (e) {
+        //notification if profile update failed
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Profile Update failed. Please try again.'),
