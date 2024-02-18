@@ -1,4 +1,6 @@
 
+import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
+import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:info_hub_app/screens/settings_view.dart';
@@ -7,11 +9,13 @@ import 'package:info_hub_app/screens/settings_view.dart';
 
 void main() {
   late Widget settingsViewWidget;
+  late MockFirebaseAuth auth = MockFirebaseAuth();
+  late FakeFirebaseFirestore firestore = FakeFirebaseFirestore();
 
 
   setUp(() {
-    settingsViewWidget = const MaterialApp(
-      home: SettingsView()
+    settingsViewWidget =  MaterialApp(
+      home: SettingsView(firestore:firestore, auth: auth)
     );
   });
 

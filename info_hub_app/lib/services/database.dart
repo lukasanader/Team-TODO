@@ -68,13 +68,49 @@ class DatabaseService {
         .snapshots()
         .map(notificationListFromSnapshot);
   }
-   Future addUserData(String firstName, String lastName,String email,String roleType) async {
+
+   Future addUserData(String firstName, String lastName,String email,String roleType,String uid) async {
     CollectionReference usersCollectionRef = firestore.collection('Users');
-    return await usersCollectionRef.add({
+    return await usersCollectionRef.doc(uid).set({
       'firstName': firstName,
       'lastName': lastName,
       'email': email,
       'roleType': roleType,
     });
   }
+
+  //Save a user activity
+  Future addTopicActivity(QueryDocumentSnapshot topic) async{
+    QuerySnapshot data = await firestore.collection('activity').where('aid', isEqualTo: topic.id).where('uid', isEqualTo: uid).get();
+    if(data.docs.isEmpty){
+      CollectionReference activityCollectionRef = firestore.collection('activity');
+      await activityCollectionRef.add({
+        'uid': uid,
+        'aid': topic.id,
+        'type': 'topic',
+        'date': DateTime.now()
+      });
+    }
+  }
+  
+  Future<List<dynamic>> getActivityList(String activity) async {
+  QuerySnapshot data = await firestore.collection('activity').where('type', isEqualTo: 'topic').where('uid', isEqualTo: uid).get();
+  List<dynamic> activities = List.from(data.docs);
+  List<dynamic> topics = [];
+
+  for (int index = 0; index < activities.length; index++) {
+    String topicID = activities[index]['aid'];
+    DocumentSnapshot topicSnapshot = await firestore.collection('topics').doc(topicID).get();
+    Map<String, dynamic> temp = topicSnapshot.data() as Map<String, dynamic>;
+    temp['viewDate'] = activities[index]['date'];
+    topics.add(temp);
+    
+  }
+  return topics;
+}
+
+getActivityDate(){
+
+}
+
 }

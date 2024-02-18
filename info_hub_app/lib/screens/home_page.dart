@@ -12,13 +12,11 @@ import 'package:info_hub_app/helpers/topics_card.dart';
 import 'package:info_hub_app/screens/notifications.dart';
 import 'package:info_hub_app/services/database.dart';
 
-import '../screens/create_topic.dart';
-import 'package:flutter/material.dart';
-
 class HomePage extends StatefulWidget {
   FirebaseFirestore firestore;
+  FirebaseAuth auth;
   //User? user = FirebaseAuth.instance.currentUser;
-  HomePage({super.key,required this.firestore});
+  HomePage({super.key,required this.firestore,required this.auth});
   @override
   State<HomePage> createState() => _HomePageState();
 }
@@ -70,7 +68,7 @@ class _HomePageState extends State<HomePage> {
         Expanded(child: ListView.builder(
           itemCount:  topicLength == 0 ? 0: topicLength,
           itemBuilder: (context, index){
-          return TopicCard(_topicsList[index] as QueryDocumentSnapshot<Object>);
+          return TopicCard(_topicsList[index] as QueryDocumentSnapshot<Object>,widget.firestore,widget.auth);
           }),),
       ElevatedButton(
               onPressed: () async {

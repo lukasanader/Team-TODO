@@ -5,6 +5,7 @@
  */
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/screens/discovery_view.dart';
 import 'package:info_hub_app/screens/settings_view.dart';
@@ -13,16 +14,17 @@ import 'package:info_hub_app/screens/home_page.dart';
 
 class Base extends StatelessWidget {
   FirebaseFirestore firestore;
-  Base({super.key, required this.firestore});
+  FirebaseAuth auth;
+  Base({super.key, required this.firestore,required this.auth});
 
   @override
   Widget build(BuildContext context) {
     // Bottom Navigation Bar
     List<Widget> _buildScreens() {
       return [
-        HomePage(firestore: firestore,),
-        DiscoveryView(firestore: firestore,), // Should be replaced with the genuine page
-        SettingsView(), // Should be replaced with the genuine page
+        HomePage(firestore: firestore,auth: auth,),
+        DiscoveryView(firestore: firestore,auth: auth,), // Should be replaced with the genuine page
+        SettingsView(firestore: firestore,auth: auth,), // Should be replaced with the genuine page
       ];
     }
 

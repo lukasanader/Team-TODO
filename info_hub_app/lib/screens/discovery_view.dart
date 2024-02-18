@@ -8,7 +8,8 @@ import 'package:info_hub_app/helpers/topics_card.dart';
 
 class DiscoveryView extends StatefulWidget {
   final FirebaseFirestore firestore;
-  const DiscoveryView({super.key, required this.firestore});
+  final FirebaseAuth auth;
+  const DiscoveryView({super.key, required this.firestore, required this.auth});
   @override
   _DiscoveryViewState createState() => _DiscoveryViewState();
 }
@@ -57,7 +58,7 @@ class _DiscoveryViewState extends State<DiscoveryView> {
                 }
                 else {
                   if (_searchController.text.isEmpty) {
-                    return TopicCard(_topicsList[index] as QueryDocumentSnapshot<Object>);
+                    return TopicCard(_topicsList[index] as QueryDocumentSnapshot<Object>,widget.firestore,widget.auth);
                   }
                   else if (_searchedTopicsList.isEmpty) {
                     return const ListTile(
@@ -65,7 +66,7 @@ class _DiscoveryViewState extends State<DiscoveryView> {
                     );
                   }
                   else {
-                    return TopicCard(_searchedTopicsList[index] as QueryDocumentSnapshot<Object>);
+                    return TopicCard(_searchedTopicsList[index] as QueryDocumentSnapshot<Object>,widget.firestore,widget.auth);
                   }
                 }
                 },

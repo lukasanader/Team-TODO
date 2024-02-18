@@ -10,7 +10,6 @@ class QuestionCard extends StatelessWidget {
   const QuestionCard(this._question,this.firestore,this.onDelete,{super.key});
 
   @override
-   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       child: Card(
