@@ -42,7 +42,8 @@ class _ThreadAppState extends State<ThreadApp> {
         ),
         backgroundColor: const Color.fromARGB(255, 0, 48, 194),
         elevation: 4.0,
-        leading: IconButton(
+        /*leading: 
+        IconButton(
           icon: const Icon(Icons.menu, color: Colors.white),
           onPressed: () {},
         ),
@@ -60,8 +61,8 @@ class _ThreadAppState extends State<ThreadApp> {
             icon: const Icon(Icons.account_circle, color: Colors.white),
             tooltip: 'Profile',
             onPressed: () {},
-          ),
-        ],
+          ), 
+        ],*/
         bottom: PreferredSize(
           preferredSize: Size.fromHeight(0.0),
           child: Container(),
