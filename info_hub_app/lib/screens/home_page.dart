@@ -10,7 +10,11 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/helpers/topics_card.dart';
 import 'package:info_hub_app/screens/notifications.dart';
+import 'package:info_hub_app/screens/threads.dart';
 import 'package:info_hub_app/services/database.dart';
+
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:flutter/cupertino.dart';
 
 import '../screens/create_topic.dart';
 import 'package:flutter/material.dart';
@@ -18,7 +22,7 @@ import 'package:flutter/material.dart';
 class HomePage extends StatefulWidget {
   FirebaseFirestore firestore;
   //User? user = FirebaseAuth.instance.currentUser;
-  HomePage({super.key,required this.firestore});
+  HomePage({super.key, required this.firestore});
   @override
   State<HomePage> createState() => _HomePageState();
 }
@@ -32,7 +36,6 @@ class _HomePageState extends State<HomePage> {
     super.didChangeDependencies();
     getTopicsList();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +51,10 @@ class _HomePageState extends State<HomePage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) =>  Notifications(currentUser: '1',firestore:widget.firestore,)),
+                    builder: (context) => Notifications(
+                          currentUser: '1',
+                          firestore: widget.firestore,
+                        )),
               );
             },
           ),
@@ -65,51 +71,68 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
+
+      //below is the floating action button placeholder for thread navigation
+
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.of(context).push(CupertinoPageRoute(
+              builder: (BuildContext context) =>
+                  ThreadApp(firestore: widget.firestore)));
+        },
+        child: Icon(FontAwesomeIcons.comment),
+      ),
+
+      //above is the floating action button
       body: Center(
         child: Column(children: [
-        Expanded(child: ListView.builder(
-          itemCount:  topicLength == 0 ? 0: topicLength,
-          itemBuilder: (context, index){
-          return TopicCard(_topicsList[index] as QueryDocumentSnapshot<Object>);
-          }),),
-      ElevatedButton(
-              onPressed: () async {
-                await DatabaseService(firestore:widget.firestore, uid: '1').createNotification(
-                    'Test Notification',
-                    'This is a test notification',
-                    DateTime.now());
-              },
-              child: const Text('Create Test Notification'),
-            ),
-      ]),
+          Expanded(
+            child: ListView.builder(
+                itemCount: topicLength == 0 ? 0 : topicLength,
+                itemBuilder: (context, index) {
+                  return TopicCard(
+                      _topicsList[index] as QueryDocumentSnapshot<Object>);
+                }),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              await DatabaseService(firestore: widget.firestore, uid: '1')
+                  .createNotification('Test Notification',
+                      'This is a test notification', DateTime.now());
+            },
+            child: const Text('Create Test Notification'),
+          ),
+        ]),
       ),
     );
   }
 
   Future getTopicsList() async {
     QuerySnapshot data = await widget.firestore.collection('topics').get();
-    
-    double getTrending(QueryDocumentSnapshot topic){
+
+    double getTrending(QueryDocumentSnapshot topic) {
       Timestamp timestamp = topic['date'];
       DateTime date = timestamp.toDate();
       int difference = DateTime.now().difference(date).inDays;
-      if (difference==0) {
-        difference=1;
+      if (difference == 0) {
+        difference = 1;
       }
-      return topic['views']/difference;
+      return topic['views'] / difference;
     }
+
     setState(() {
       _topicsList = List.from(data.docs);
-      _topicsList.sort((b,a) => getTrending(a as QueryDocumentSnapshot<Object?>).compareTo(getTrending(b as QueryDocumentSnapshot<Object?>)));
+      _topicsList.sort((b, a) =>
+          getTrending(a as QueryDocumentSnapshot<Object?>)
+              .compareTo(getTrending(b as QueryDocumentSnapshot<Object?>)));
       topicLength = _topicsList.length;
-      if (topicLength>6) {
+      if (topicLength > 6) {
         _topicsList.removeRange(6, topicLength);
       }
       topicLength = _topicsList.length;
     });
   }
 }
-
 
 // PlaceHolder for Notification Page
 class NotificationPage extends StatelessWidget {
