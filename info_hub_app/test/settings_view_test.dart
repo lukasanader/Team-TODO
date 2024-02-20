@@ -3,7 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:info_hub_app/help_view.dart';
+import 'package:info_hub_app/help_features/help_view.dart';
 import 'package:info_hub_app/screens/settings_view.dart';
 
 

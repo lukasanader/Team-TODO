@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:info_hub_app/help_view.dart';
+import 'package:info_hub_app/help_features/help_view.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 
 class SettingsView extends StatefulWidget {
