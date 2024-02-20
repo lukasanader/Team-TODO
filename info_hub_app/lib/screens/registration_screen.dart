@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/services/auth.dart';
 import 'package:info_hub_app/models/user_model.dart';
-import 'package:info_hub_app/screens/dashboard.dart';
+import 'package:info_hub_app/screens/webinar-screens/dashboard.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class RegistrationScreen extends StatefulWidget {
@@ -185,7 +185,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => HomePage(),
+                          builder: (context) => GoLiveScreen(user: userModel, firestore: widget.firestore,),
                         ),
                       );
                     } else {
