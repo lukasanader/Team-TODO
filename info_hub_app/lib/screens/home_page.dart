@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:info_hub_app/helpers/topics_card.dart';
 import 'package:info_hub_app/screens/notifications.dart';
 import 'package:info_hub_app/services/database.dart';
+import 'package:info_hub_app/webinar_view.dart';
 
 import '../screens/create_topic.dart';
 import 'package:flutter/material.dart';
@@ -72,6 +73,14 @@ class _HomePageState extends State<HomePage> {
           itemBuilder: (context, index){
           return TopicCard(_topicsList[index] as QueryDocumentSnapshot<Object>);
           }),),
+      ElevatedButton(
+              onPressed: ()  {
+                Navigator.push(
+                  context, 
+                  MaterialPageRoute(builder: (context) => const WebinarView()));
+              },
+              child: const Text('Enter webinar view'),
+            ),
       ElevatedButton(
               onPressed: () async {
                 await DatabaseService(firestore:widget.firestore, uid: '1').createNotification(
