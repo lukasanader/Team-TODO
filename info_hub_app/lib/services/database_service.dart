@@ -1,10 +1,12 @@
 import 'dart:io';
+import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/models/livestream.dart';
+import 'package:uuid/uuid.dart';
 
 class DatabaseService {
   final String uid;
@@ -23,32 +25,38 @@ class DatabaseService {
       'roleType': roleType,
     });
   }
-  
+    
   Future<String> startLiveStream(BuildContext context, String title, Uint8List? image) async {
     String channelId = '';
     try {
       if (title.isNotEmpty && image != null) {
         CollectionReference webinarRef = firestore.collection('Webinar');
-        bool uidExists = await await checkUidExists(uid);
+        bool uidExists = await checkUidExists(uid);
         if (!uidExists) {
-          String thumbnailUrl = await uploadImageToStorage('webinar-thumbnails', image,uid);
-          webinarRef.add( {
-            'title' : title,
+          String thumbnailUrl = await uploadImageToStorage('webinar-thumbnails', image, uid);
+
+          DocumentReference docRef = webinarRef.doc(uid);
+
+          await docRef.set({
+            'title': title,
             'thumbnail': thumbnailUrl,
             'uid': uid,
+            'views': 0,
           });
+
           channelId = uid;
-          } else {
-            print('You can not start a stream if you already have one');
-          }
         } else {
-          print('Error');
+          print('You cannot start a stream if you already have one');
         }
-   } catch(e) {
-    print(e);
-   }
-   return channelId;
+      } else {
+        print('Error');
+      }
+    } catch (e) {
+      print(e);
+    }
+    return channelId;
   }
+
 
   Future<bool> checkUidExists(String uid) async {
     try {
@@ -69,31 +77,70 @@ class DatabaseService {
   }
 
   Future<String> uploadImageToStorage(String childName, Uint8List file, String uid) async {
-    // Create a temporary file
     final tempDir = await getTemporaryDirectory();
     final tempFile = File('${tempDir.path}/temp_image.jpg');
-    
-    // Write the Uint8List data to the file
+
     await tempFile.writeAsBytes(file);
-
-    // Create a reference to the storage path
+    
     Reference ref = _storage.ref().child(childName).child(uid);
-
-    // Upload the file to Firebase Storage
     UploadTask uploadTask = ref.putFile(tempFile);
-
-    // Wait for the upload to complete
+    
     TaskSnapshot snapshot = await uploadTask;
-
-    // Get the download URL of the uploaded file
     String downloadUrl = await snapshot.ref.getDownloadURL();
-
-    // Delete the temporary file
     await tempFile.delete();
-
     return downloadUrl;
   }
 
+  Future<void> updateViewCount(String id, bool isIncrease) async {
+    try {
+      await firestore.collection('webinar').doc(id).update({
+        'views': FieldValue.increment(isIncrease? 1: -1),
+      });
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
 
+  Future<void> chat(String text, String id,String roleType) async {
+    try {
+      String commentId = const Uuid().v1();
+      await firestore.collection('Webinar')
+      .doc(id)
+      .collection('comments')
+      .doc(commentId)
+      .set({
+        'message' : text,
+        'createdAt' : DateTime.now(),
+        'commentId' : commentId,
+        'roleType' : roleType,
+        'uid' : uid,
+
+      });
+
+    } on FirebaseException catch(e) {
+      debugPrint(e.toString());
+    }
+  }
+  Future<void> endLiveStream(String channelId) async {
+    try {
+      QuerySnapshot snap = await firestore
+      .collection('Webinar')
+      .doc(channelId)
+      .collection('comments')
+      .get();
+      for (int i = 0; i < snap.docs.length; i++) {
+        await firestore
+        .collection('Webinar')
+        .doc(channelId)
+        .collection('comments')
+        .doc(
+          ((snap.docs[i].data()! as dynamic)['commentId']),
+          ).delete();
+      }
+      await firestore.collection('Webinar').doc(channelId).delete();
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
 
 }

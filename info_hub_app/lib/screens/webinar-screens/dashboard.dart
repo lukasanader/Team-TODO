@@ -36,6 +36,7 @@ class _GoLiveScreenState extends State<GoLiveScreen> {
             isBroadcaster: true,
             channelId: channelId,
             currentUser: widget.user,
+            firestore: widget.firestore,
           ),
           ),
       );

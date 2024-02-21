@@ -1,23 +1,35 @@
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/config/app_id.dart';
 import 'package:info_hub_app/models/user_model.dart';
+import 'package:info_hub_app/screens/random_screen.dart';
+import 'package:info_hub_app/screens/webinar-screens/chat.dart';
+import 'package:info_hub_app/services/database_service.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class BroadcastScreen extends StatefulWidget {
   final bool isBroadcaster;
   final String channelId;
   final UserModel currentUser;
-  const BroadcastScreen({Key? key, required this.isBroadcaster, required this.channelId, required this.currentUser}) :super(key: key);
+  final FirebaseFirestore firestore;
+
+  const BroadcastScreen({
+    Key? key,
+    required this.isBroadcaster,
+    required this.channelId,
+    required this.currentUser,
+    required this.firestore,
+  }) : super(key: key);
 
   @override
   State<BroadcastScreen> createState() => _BroadcastScreenState();
 }
 
 class _BroadcastScreenState extends State<BroadcastScreen> {
-  late final RtcEngine _engine;
+  late final RtcEngine _engine = createAgoraRtcEngine();
+  bool switchCamera = true;
+  bool isMuted = false;
   int? _remoteUid;
   List<int> userUIDs = [];
 
@@ -28,22 +40,22 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
   }
 
   void _initEngine() async {
+    int userUID = 1;
     await [Permission.microphone, Permission.camera].request();
-    _engine =  createAgoraRtcEngine();
     await _engine.initialize(const RtcEngineContext(
       appId: appID,
-      channelProfile: ChannelProfileType.channelProfileLiveBroadcasting));
+      channelProfile: ChannelProfileType.channelProfileLiveBroadcasting,
+    ));
     _addListeners();
-    
+
     if (widget.isBroadcaster) {
       _engine.setClientRole(role: ClientRoleType.clientRoleBroadcaster);
-
+      userUID = 0;
     } else {
       _engine.setClientRole(role: ClientRoleType.clientRoleAudience);
     }
     await _engine.enableVideo();
     await _engine.startPreview();
-    // await _engine.setChannelProfile(ChannelProfileType.channelProfileLiveBroadcasting);
 
     await _engine.joinChannel(
       token: tempToken,
@@ -55,23 +67,22 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
 
   void _addListeners() {
     _engine.registerEventHandler(RtcEngineEventHandler(
-
-      onJoinChannelSuccess:(channel, uid) {
+      onJoinChannelSuccess: (channel, uid) {
         debugPrint('joinChannelSuccess $channel $uid ');
       },
       onUserJoined: (connection, remoteUid, elapsed) {
         debugPrint('userJoined $connection $remoteUid $elapsed');
         setState(() {
-            _remoteUid = remoteUid;
-        }); 
+          _remoteUid = remoteUid;
+        });
       },
-      onUserOffline:(connection, remoteUid, reason) {
+      onUserOffline: (connection, remoteUid, reason) {
         debugPrint('userOffline $connection $remoteUid $reason');
         setState(() {
           userUIDs.removeWhere((element) => element == remoteUid);
         });
       },
-      onLeaveChannel:(connection, stats) {
+      onLeaveChannel: (connection, stats) {
         debugPrint('leaveChannel $stats');
         setState(() {
           userUIDs.clear();
@@ -80,76 +91,124 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
     ));
   }
 
-  // void _joinChannel() async {
-  //   if (defaultTargetPlatform == TargetPlatform.android) {
-  //     await [Permission.microphone, Permission.camera].request();
-  //   }
-  //   await _engine.joinChannelWithUserAccount(token: tempToken, channelId: 'howdoesthiswork', userAccount: widget.currentUser.uid);
-  // }
+  void _switchCamera() {
+    _engine.switchCamera().then((value) {
+      setState(() {
+        switchCamera = !switchCamera;
+      });
+    }).catchError((err) {
+      debugPrint('switchCamera $err');
+    });
+  }
 
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('${widget.currentUser.firstName}\'s Webinar'),
-      ),
-      body: Stack(
-        children: [
-          Center(
-            child: Align(
-              alignment: Alignment.topCenter,
-              child: SizedBox(
-                width: 300,
-                height: 250,
-                child: Center(
-                  child: AgoraVideoView(
-                          controller: VideoViewController(
-                            rtcEngine: _engine,
-                            canvas: const VideoCanvas(uid: 0),
-                          ),
-                        )
-                ),
-              ),
-            ),
-          ),
-        ],
+  void onToggleMute() async {
+    setState(() {
+      isMuted = !isMuted;
+    });
+    await _engine.muteLocalAudioStream(isMuted);
+  }
+
+_leaveChannel() async {
+  await _engine.leaveChannel();
+
+  if (widget.currentUser.uid == widget.channelId) {
+    await DatabaseService(firestore: widget.firestore, uid: widget.currentUser.uid).endLiveStream(widget.channelId);
+  } else {
+    await DatabaseService(firestore: widget.firestore, uid: widget.currentUser.uid).updateViewCount(widget.channelId, false);
+  }
+
+  if (mounted) { // Check if the widget is still mounted before navigation
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => RandomScreen(),
       ),
     );
   }
+}
 
 
-
-  // Widget _renderVideo() {
-  //   return AgoraVideoView(
-  //       controller: VideoViewController(
-  //         rtcEngine: _engine,
-  //         canvas: VideoCanvas(uid: _remoteUid),
-  //       )
-  //     );
-  //   }
-    //  else {
-    //     return const Text(
-    //       'Please wait for remote user to join',
-    //       textAlign: TextAlign.center,
-    //     );
-
-    //   aspectRatio: 16 / 9,
-    //   child: "${user.uid}" == widget.channelId
-    //       ? 
-    //       RtcLocalView.SurfaceView(
-    //           zOrderMediaOverlay: true,
-    //           zOrderOnTop: true,
-    //         )
-    //       : remoteUid.isNotEmpty
-    //           ? kIsWeb
-    //               ? RtcRemoteView.SurfaceView(
-    //                   uid: remoteUid[0],
-    //                   channelId: widget.channelId,
-    //                 )
-    //               : RtcRemoteView.TextureView(
-    //                   uid: remoteUid[0],
-    //                   channelId: widget.channelId,
-    //                 )
-    //           : Container(), // Add a default widget when remoteUid is empty
-    // )
-
+  @override
+  Widget build(BuildContext context) {
+    return PopScope(
+      onPopInvoked: (didPop) async {
+        await _leaveChannel();
+        return Future.value(true);
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('${widget.currentUser.firstName}\'s Webinar'),
+        ),
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Center(
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: SizedBox(
+                  width: 300,
+                  height: 250,
+                  child: Center(
+                    child: AgoraVideoView(
+                      controller: VideoViewController(
+                        rtcEngine: _engine,
+                        canvas: const VideoCanvas(uid: 0),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            if (widget.currentUser.uid == widget.channelId)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  InkWell(
+                    onTap: _switchCamera,
+                    child: Container(
+                      padding: EdgeInsets.all(12.0),
+                      margin: EdgeInsets.all(8.0),
+                      decoration: BoxDecoration(
+                        color: Colors.red, // Set button background color
+                        borderRadius: BorderRadius.circular(16.0),
+                      ),
+                      child: const Text(
+                        'Switch',
+                        style: TextStyle(
+                          color: Colors.white, // Set text color
+                        ),
+                      ),
+                    ),
+                  ),
+                  InkWell(
+                    onTap: onToggleMute,
+                    child: Container(
+                      padding: EdgeInsets.all(12.0),
+                      margin: EdgeInsets.all(8.0),
+                      decoration: BoxDecoration(
+                        color: isMuted ? Colors.grey : Colors.red, // Set button background color
+                        borderRadius: BorderRadius.circular(16.0),
+                      ),
+                      child: Text(
+                        isMuted ? 'Unmute' : 'Mute',
+                        style: TextStyle(
+                          color: Colors.white, // Set text color
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            Expanded(
+              child: Chat(
+                channelId: widget.channelId,
+                user: widget.currentUser,
+                firestore: widget.firestore,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
