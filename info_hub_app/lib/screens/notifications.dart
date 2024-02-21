@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/models/notification.dart' as custom;
-import 'package:info_hub_app/helpers/notification_tile.dart';
+import 'package:info_hub_app/helpers/notification_card.dart';
 import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:info_hub_app/services/database.dart';
@@ -8,8 +8,7 @@ import 'package:info_hub_app/services/database.dart';
 class Notifications extends StatefulWidget {
   final String currentUser;
   FirebaseFirestore firestore;
-  Notifications(
-      {Key? key, required this.currentUser,required this.firestore})
+  Notifications({Key? key, required this.currentUser, required this.firestore})
       : super(key: key);
 
   @override
@@ -37,9 +36,10 @@ class _NotificationsState extends State<Notifications> {
           final notification = userNotifications[index];
           return Dismissible(
             key: Key(notification.id),
-            child: NotificationTile(notification: notification),
+            child: NotificationCard(notification: notification),
             onDismissed: (direction) {
-              DatabaseService(uid: widget.currentUser, firestore: widget.firestore)
+              DatabaseService(
+                      uid: widget.currentUser, firestore: widget.firestore)
                   .deleteNotification(notification.id);
             },
           );

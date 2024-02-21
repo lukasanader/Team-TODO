@@ -28,11 +28,8 @@ class _ManageNotificationsState extends State<ManageNotifications> {
               });
             },
           ),
-          ListTile(
-            title: Text('Notification Types'),
-          ),
           SwitchListTile(
-            title: Text('Notification Type 1'),
+            title: Text('Webinars'),
             value: _notificationType1Enabled,
             onChanged: (value) {
               setState(() {
@@ -41,7 +38,7 @@ class _ManageNotificationsState extends State<ManageNotifications> {
             },
           ),
           SwitchListTile(
-            title: Text('Notification Type 2'),
+            title: Text('Replies'),
             value: _notificationType2Enabled,
             onChanged: (value) {
               setState(() {
@@ -50,7 +47,7 @@ class _ManageNotificationsState extends State<ManageNotifications> {
             },
           ),
           SwitchListTile(
-            title: Text('Notification Type 3'),
+            title: Text('News'),
             value: _notificationType3Enabled,
             onChanged: (value) {
               setState(() {

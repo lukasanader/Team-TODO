@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:info_hub_app/models/notification.dart' as custom;
 import 'package:timeago/timeago.dart' as timeago;
 
-class NotificationTile extends StatelessWidget {
+class NotificationCard extends StatelessWidget {
   final custom.Notification notification;
 
-  NotificationTile({required this.notification});
+  NotificationCard({required this.notification});
 
   @override
   Widget build(BuildContext context) {
