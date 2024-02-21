@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:info_hub_app/screens/manage_notifications.dart';
 
 class SettingsView extends StatefulWidget {
   const SettingsView({super.key});
@@ -11,11 +12,11 @@ class _SettingsViewState extends State<SettingsView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Settings"),
-      ),
-      body: ListView(
-        children: [
+        appBar: AppBar(
+          title: const Text("Settings"),
+        ),
+        body: ListView(
+          children: [
             Container(
               // decoration: BoxDecoration(
               //   border: Border.all(color: Colors.black)
@@ -28,17 +29,24 @@ class _SettingsViewState extends State<SettingsView> {
                 ),
                 title: Text("Username"),
                 subtitle: Text("Role"),
-              ),    
+              ),
             ),
-
-
-            Container(
-              // decoration: BoxDecoration(
-              //   border: Border.all(color: Colors.black)
-              // ),
-              child: const ListTile(
-                leading: Icon(Icons.notifications),
-                title: Text('Manage Notifications'),
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => ManageNotifications()),
+                );
+              },
+              child: Container(
+                // decoration: BoxDecoration(
+                //   border: Border.all(color: Colors.black)
+                // ),
+                child: const ListTile(
+                  leading: Icon(Icons.notifications),
+                  title: Text('Manage Notifications'),
+                ),
               ),
             ),
             Container(
@@ -82,8 +90,7 @@ class _SettingsViewState extends State<SettingsView> {
                 ],
               ),
             ),
-
-        ],)
-    );
+          ],
+        ));
   }
 }
