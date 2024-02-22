@@ -11,40 +11,28 @@ class DatabaseService {
   // Create a notification
   Future<String> createNotification(
       String title, String body, DateTime timestamp) async {
-        CollectionReference notificationsCollection = firestore.collection('notifications');
-    try {
-      print('Creating notification');
-      var docRef = await notificationsCollection.add({
-        'user': uid,
-        'title': title,
-        'body': body,
-        'timestamp': timestamp,
-      });
-      return docRef.id;
-    } catch (e) {
-      print('Error creating notification: $e');
-      rethrow;
-    }
+    CollectionReference notificationsCollection =
+        firestore.collection('notifications');
+    var docRef = await notificationsCollection.add({
+      'user': uid,
+      'title': title,
+      'body': body,
+      'timestamp': timestamp,
+    });
+    return docRef.id;
   }
 
   // Delete a notification
   Future<void> deleteNotification(String id) async {
-    CollectionReference notificationsCollection = firestore.collection('notifications');
-    try {
-      print('Deleting notification');
-      await notificationsCollection.doc(id).delete();
-    } catch (e) {
-      print('Error deleting notification: $e');
-      rethrow;
-    }
+    CollectionReference notificationsCollection =
+        firestore.collection('notifications');
+    await notificationsCollection.doc(id).delete();
   }
 
   // Convert a Firestore snapshot to a list of custom notifications
   List<custom.Notification> notificationListFromSnapshot(
       QuerySnapshot snapshot) {
-    print('Converting notification list from snapshot');
     final notifications = snapshot.docs.map((doc) {
-      print('Converting notification');
       return custom.Notification(
         id: doc.id,
         user: doc.get('user') ?? '',
@@ -61,14 +49,16 @@ class DatabaseService {
 
   // Get notifications stream
   Stream<List<custom.Notification>> get notifications {
-    CollectionReference notificationsCollection = firestore.collection('notifications');
-    print('Getting notifications');
+    CollectionReference notificationsCollection =
+        firestore.collection('notifications');
     print(notificationsCollection.snapshots().toString());
     return notificationsCollection
         .snapshots()
         .map(notificationListFromSnapshot);
   }
-   Future addUserData(String firstName, String lastName,String email,String roleType) async {
+
+  Future addUserData(
+      String firstName, String lastName, String email, String roleType) async {
     CollectionReference usersCollectionRef = firestore.collection('Users');
     return await usersCollectionRef.add({
       'firstName': firstName,

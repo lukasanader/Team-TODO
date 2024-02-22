@@ -18,46 +18,141 @@ Future<void> main() async {
     await Firebase.initializeApp();
   });
 
-  testWidgets('shows notifications', (WidgetTester tester) async {
-    // Populate the fake database.
-    final firestore = FakeFirebaseFirestore();
+  group('Notifications tests', () {
+    late FakeFirebaseFirestore firestore;
 
-    await firestore.collection(NotificationCollection).add({
-      'user': 'user1',
-      'title': 'title1',
-      'body': 'body1',
-      'timestamp': Timestamp.now(),
+    setUp(() {
+      firestore = FakeFirebaseFirestore();
     });
 
-    // Render the widget.
-    await tester.pumpWidget(
-      MultiProvider(
-        providers: [
-          StreamProvider<List<custom.Notification>>(
-            create: (_) => DatabaseService(
-              uid: 'user1',
-              firestore: firestore, // Use the fake Firestore instance
-            ).notifications,
-            initialData: [], // Initial data while waiting for Firebase data
-          ),
-        ],
-        child: MaterialApp(
-          home: Notifications(
-            currentUser: 'user1',
-            firestore: firestore,
+    tearDown(() async {
+      await firestore.collection(NotificationCollection).get().then((snapshot) {
+        for (var doc in snapshot.docs) {
+          doc.reference.delete();
+        }
+      });
+    });
+
+    testWidgets('shows notifications', (WidgetTester tester) async {
+      await firestore.collection(NotificationCollection).add({
+        'user': 'user1',
+        'title': 'title1',
+        'body': 'body1',
+        'timestamp': Timestamp.now(),
+      });
+
+      await tester.pumpWidget(
+        MultiProvider(
+          providers: [
+            StreamProvider<List<custom.Notification>>(
+              create: (_) => DatabaseService(
+                uid: 'user1',
+                firestore: firestore,
+              ).notifications,
+              initialData: [],
+            ),
+          ],
+          child: MaterialApp(
+            home: Notifications(
+              currentUser: 'user1',
+              firestore: firestore,
+            ),
           ),
         ),
-      ),
-    );
+      );
 
-    // Let the snapshots stream fire a snapshot.
-    await tester.idle();
-    // Re-render.
-    await tester.pump();
-    // // Verify the output.
-    expect(find.text('title1'), findsOneWidget);
-    expect(find.text('body1'), findsOneWidget);
-    expect(find.text('title2'), findsNothing);
-    expect(find.text('body2'), findsNothing);
+      await tester.idle();
+
+      await tester.pump();
+
+      expect(find.text('title1'), findsOneWidget);
+      expect(find.text('body1'), findsOneWidget);
+      expect(find.text('title2'), findsNothing);
+      expect(find.text('body2'), findsNothing);
+    });
+
+    testWidgets('create and delete notification', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Column(
+              children: [
+                ElevatedButton(
+                  onPressed: () async {
+                    String notificationId = await DatabaseService(
+                      uid: 'user1',
+                      firestore: firestore,
+                    ).createNotification(
+                      'Test Title',
+                      'Test Body',
+                      DateTime.now(),
+                    );
+
+                    expect(notificationId, isNotEmpty);
+
+                    await DatabaseService(
+                      uid: 'user1',
+                      firestore: firestore,
+                    ).deleteNotification(notificationId);
+
+                    final notificationAfterDelete = firestore
+                        .collection(NotificationCollection)
+                        .doc(notificationId);
+                    final snapshot = await notificationAfterDelete.get();
+
+                    expect(snapshot.exists, isFalse);
+                  },
+                  child: Text('Create and Delete Notification'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('Create and Delete Notification'));
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('delete notification on dismiss', (WidgetTester tester) async {
+      await firestore.collection(NotificationCollection).add({
+        'user': 'user1',
+        'title': 'Test Title',
+        'body': 'Test Body',
+        'timestamp': Timestamp.now(),
+      }).then((doc) => doc.id);
+
+      await tester.pumpWidget(
+        MultiProvider(
+          providers: [
+            StreamProvider<List<custom.Notification>>(
+              create: (_) => DatabaseService(
+                uid: 'user1',
+                firestore: firestore,
+              ).notifications,
+              initialData: [],
+            ),
+          ],
+          child: MaterialApp(
+            home: Notifications(
+              currentUser: 'user1',
+              firestore: firestore,
+            ),
+          ),
+        ),
+      );
+
+      await tester.idle();
+      await tester.pump();
+
+      expect(find.text('Test Title'), findsOneWidget);
+      expect(find.text('Test Body'), findsOneWidget);
+
+      await tester.drag(find.text('Test Title'), Offset(500.0, 0.0));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Test Title'), findsNothing);
+      expect(find.text('Test Body'), findsNothing);
+    });
   });
 }
