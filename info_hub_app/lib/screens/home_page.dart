@@ -11,7 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:info_hub_app/helpers/topics_card.dart';
 import 'package:info_hub_app/screens/notifications.dart';
 import 'package:info_hub_app/services/database.dart';
-import 'package:info_hub_app/webinar_view.dart';
+import 'package:info_hub_app/webinar/webinar_view.dart';
 
 import '../screens/create_topic.dart';
 import 'package:flutter/material.dart';
