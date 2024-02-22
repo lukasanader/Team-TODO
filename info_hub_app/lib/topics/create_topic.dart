@@ -11,8 +11,7 @@ class CreateTopicScreen extends StatefulWidget {
   final FirebaseFirestore firestore;
   final FirebaseStorage storage;
   const CreateTopicScreen(
-      {Key? key, required this.firestore, required this.storage})
-      : super(key: key);
+      {super.key, required this.firestore, required this.storage});
 
   @override
   State<CreateTopicScreen> createState() => _CreateTopicScreenState();

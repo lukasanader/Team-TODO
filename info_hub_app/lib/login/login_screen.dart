@@ -1,14 +1,13 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/services/auth.dart';
-import 'package:info_hub_app/models/user_model.dart';
-import 'package:info_hub_app/screens/base.dart';
+import 'package:info_hub_app/helpers/base.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class LoginScreen extends StatefulWidget {
   final FirebaseFirestore firestore;
   final FirebaseAuth auth;
-  const LoginScreen({Key? key, required this.firestore,required this.auth}) : super(key: key);
+  const LoginScreen({super.key, required this.firestore,required this.auth});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -87,7 +86,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   }
                   else{
                     ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
+                        const SnackBar(
                           content: Text('Email or password is incorrect. Please try again.'),
                           duration: Duration(seconds: 3),
                         ),

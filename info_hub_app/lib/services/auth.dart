@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:info_hub_app/models/user_model.dart';
+import 'package:flutter/foundation.dart';
+import 'package:info_hub_app/registration/user_model.dart';
 import 'package:info_hub_app/services/database.dart';
 
 class AuthService {
@@ -28,7 +29,9 @@ class AuthService {
         return _userFromFirebaseUser(user,firstName, lastName, email, roleType);
       }
     } catch (e) {
-      print(e.toString());
+      if (kDebugMode) {
+        print(e.toString());
+      }
       return null;
     }
   }
@@ -41,7 +44,9 @@ class AuthService {
         return user;
       }
     } catch (e) {
-      print(e.toString());
+      if (kDebugMode) {
+        print(e.toString());
+      }
       return null;
     }
   }

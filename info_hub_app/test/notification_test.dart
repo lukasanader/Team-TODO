@@ -3,14 +3,14 @@ import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:info_hub_app/models/notification.dart' as custom;
-import 'package:info_hub_app/screens/notifications.dart';
+import 'package:info_hub_app/notifications/notification.dart' as custom;
+import 'package:info_hub_app/notifications/notifications.dart';
 import 'package:info_hub_app/services/database.dart';
 import 'package:provider/provider.dart';
 
 import 'mock.dart';
 
-const NotificationCollection = 'notifications';
+const notificationCollection = 'notifications';
 
 Future<void> main() async {
   setupFirebaseAuthMocks();
@@ -22,7 +22,7 @@ Future<void> main() async {
     // Populate the fake database.
     final firestore = FakeFirebaseFirestore();
 
-    await firestore.collection(NotificationCollection).add({
+    await firestore.collection(notificationCollection).add({
       'user': 'user1',
       'title': 'title1',
       'body': 'body1',
@@ -38,7 +38,7 @@ Future<void> main() async {
               uid: 'user1',
               firestore: firestore, // Use the fake Firestore instance
             ).notifications,
-            initialData: [], // Initial data while waiting for Firebase data
+            initialData: const [], // Initial data while waiting for Firebase data
           ),
         ],
         child: MaterialApp(

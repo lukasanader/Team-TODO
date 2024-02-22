@@ -31,7 +31,6 @@ class _SettingsViewState extends State<SettingsView> {
               ),    
             ),
 
-
             Container(
               // decoration: BoxDecoration(
               //   border: Border.all(color: Colors.black)

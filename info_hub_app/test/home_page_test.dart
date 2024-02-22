@@ -9,16 +9,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
-import 'package:info_hub_app/main.dart';
-import 'package:info_hub_app/screens/base.dart';
+import 'package:info_hub_app/helpers/base.dart';
 
 
 
 void main() {
   late FakeFirebaseFirestore firestore = FakeFirebaseFirestore();
-  late Widget TrendingTopicWidget;
+  late Widget trendingTopicWidget;
   setUp(() {
-    TrendingTopicWidget = MaterialApp(
+    trendingTopicWidget = MaterialApp(
       home:Base(firestore: firestore),
     );
   });
@@ -51,7 +50,7 @@ void main() {
       'views': 8,
       'date': DateTime.now(),
     });
-    await tester.pumpWidget(TrendingTopicWidget);
+    await tester.pumpWidget(trendingTopicWidget);
     await tester.pumpAndSettle();
 
     // Tap into the ListView
@@ -107,7 +106,7 @@ void main() {
       'date': DateTime.now(),
     });
 
-    await tester.pumpWidget(TrendingTopicWidget);
+    await tester.pumpWidget(trendingTopicWidget);
     await tester.pumpAndSettle();
 
     // Tap into the ListView

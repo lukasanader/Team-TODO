@@ -1,14 +1,14 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:info_hub_app/screens/base.dart';
+import 'package:info_hub_app/helpers/base.dart';
 import 'package:info_hub_app/services/auth.dart';
-import 'package:info_hub_app/models/user_model.dart';
+import 'package:info_hub_app/registration/user_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class RegistrationScreen extends StatefulWidget {
   final FirebaseFirestore firestore;
   final FirebaseAuth auth;
-  const RegistrationScreen({Key? key, required this.firestore,required this.auth}) : super(key: key);
+  const RegistrationScreen({super.key, required this.firestore,required this.auth});
 
   @override
   State<RegistrationScreen> createState() => _RegistrationScreenState();
@@ -191,7 +191,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     } else {
                       // Show error message if anything goes wrong in the auth process
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
+                        const SnackBar(
                           content: Text('Registration failed. Please try again.'),
                           duration: Duration(seconds: 3),
                         ),

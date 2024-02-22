@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:info_hub_app/screens/home_page.dart';
+import 'package:info_hub_app/home_page/home_page.dart';
 import 'package:info_hub_app/login/login_screen.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
-import 'package:info_hub_app/screens/Base.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 void main() {
   testWidgets('test if login text exists', (WidgetTester test) async{

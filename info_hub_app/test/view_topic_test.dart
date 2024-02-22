@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
-import 'package:info_hub_app/screens/view_topic.dart';
+import 'package:info_hub_app/topics/view_topic.dart';
 import 'package:chewie/chewie.dart';
 import 'package:flutter/services.dart';
 import 'dart:async';

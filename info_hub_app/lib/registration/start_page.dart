@@ -2,12 +2,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'registration_screen.dart';
-import 'login_screen.dart';
+import 'package:info_hub_app/login/login_screen.dart';
 
 class StartPage extends StatelessWidget {
   final FirebaseFirestore firestore;
   final FirebaseAuth auth;
-  const StartPage({Key? key, required this.firestore, required this.auth}) : super(key: key);
+  const StartPage({super.key, required this.firestore, required this.auth});
 
 @override
 Widget build(BuildContext context) {

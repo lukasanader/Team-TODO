@@ -5,12 +5,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:info_hub_app/models/notification.dart' as custom;
-import 'package:info_hub_app/screens/base.dart';
-import 'package:info_hub_app/screens/discovery_view.dart';
-import 'package:info_hub_app/screens/home_page.dart';
-import 'package:info_hub_app/screens/notifications.dart';
-import 'package:info_hub_app/screens/settings_view.dart';
+import 'package:info_hub_app/notifications/notification.dart' as custom;
+import 'package:info_hub_app/helpers/base.dart';
+import 'package:info_hub_app/discovery_view/discovery_view.dart';
+import 'package:info_hub_app/home_page/home_page.dart';
+import 'package:info_hub_app/notifications/notifications.dart';
+import 'package:info_hub_app/settings/settings_view.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:info_hub_app/services/database.dart';
 import 'package:provider/provider.dart';
@@ -72,7 +72,7 @@ void main() {
       providers: [
         StreamProvider<List<custom.Notification>>(
           create: (_) => DatabaseService(uid: '', firestore: firestore).notifications,
-          initialData: [], // Initial data while waiting for Firebase data
+          initialData: const [], // Initial data while waiting for Firebase data
         ),
   
       ],
@@ -102,7 +102,7 @@ void main() {
       providers: [
         StreamProvider<List<custom.Notification>>(
           create: (_) => DatabaseService(uid: '', firestore: firestore).notifications,
-          initialData: [], // Initial data while waiting for Firebase data
+          initialData: const [], // Initial data while waiting for Firebase data
         ),
   
       ],
