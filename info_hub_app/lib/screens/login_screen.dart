@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/services/auth.dart';
 import 'package:info_hub_app/models/user_model.dart';
-import 'package:info_hub_app/screens/dashboard.dart';
+import 'package:info_hub_app/screens/base.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -81,7 +81,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       if (user != null) {
                         Navigator.pushReplacement(context,
                         MaterialPageRoute(
-                          builder :(context) => HomePage(),
+                          builder :(context) => Base(firestore: widget.firestore,),
                         ),
                         );
                   }

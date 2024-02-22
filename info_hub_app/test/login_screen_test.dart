@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:info_hub_app/screens/login_screen.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
-import 'package:info_hub_app/screens/dashboard.dart';
+import 'package:info_hub_app/screens/Base.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 void main() {
@@ -76,7 +76,7 @@ void main() {
     final loginButton = find.text('Login');
     await test.tap(loginButton);
     await test.pumpAndSettle();
-    expect(find.byType(HomePage), findsOneWidget) ;
+    expect(find.byType(Base), findsOneWidget) ;
   });
 
   testWidgets('test if stops when email is empty', (WidgetTester test) async{
