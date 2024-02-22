@@ -35,7 +35,7 @@ class MyApp extends StatelessWidget {
         ),
       ],
       child: MaterialApp(
-        home: Base(firestore: firestore),
+        home: StartPage(firestore: firestore, auth: auth,),
       ),
     );
   }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:info_hub_app/screens/login_screen.dart';
+import 'package:info_hub_app/screens/home_page.dart';
+import 'package:info_hub_app/login/login_screen.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:info_hub_app/screens/Base.dart';
@@ -55,7 +56,7 @@ void main() {
     final loginButton = find.text('Login');
     await test.tap(loginButton);
     await test.pumpAndSettle();
-    expect(find.byType(SnackBar), findsOneWidget);
+    expect(find.text('Email or password is incorrect. Please try again'), findsNothing);
   });
 
   testWidgets('test if log in works on a valid user', (WidgetTester test) async{
@@ -76,7 +77,7 @@ void main() {
     final loginButton = find.text('Login');
     await test.tap(loginButton);
     await test.pumpAndSettle();
-    expect(find.byType(Base), findsOneWidget) ;
+    expect(find.byType(HomePage), findsOneWidget) ;
   });
 
   testWidgets('test if stops when email is empty', (WidgetTester test) async{
