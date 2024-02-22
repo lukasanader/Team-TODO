@@ -4,6 +4,7 @@ import "package:info_hub_app/models/user_model.dart";
 import 'package:cloud_firestore/cloud_firestore.dart';
 import "package:info_hub_app/services/database_service.dart";
 
+// Implements chat functionality
 class Chat extends StatefulWidget {
   final String channelId;
   final UserModel user;
@@ -39,10 +40,8 @@ class _ChatState extends State<Chat> {
         .snapshots();
   }
 
+  // Displays chat messages in a scrollable feature
   Widget _buildChatItem(QueryDocumentSnapshot<Map<String, dynamic>> document) {
-    // Print raw data to the console
-    print('Raw Chat Data: ${document.data()}');
-
     return ListTile(
       title: Text(
         document['roleType'] == 'Healthcare Professional'
@@ -72,7 +71,7 @@ class _ChatState extends State<Chat> {
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(
-                    child: CircularProgressIndicator(), // Use CircularProgressIndicator for the loading indicator
+                    child: CircularProgressIndicator(),
                   );
                 }
 

@@ -8,6 +8,7 @@ import 'package:info_hub_app/models/user_model.dart';
 import 'webinar_details_screen.dart';
 import 'package:info_hub_app/services/database_service.dart';
 
+// Loads inital broadcasting screen for admin to choose a respective thumbnail and title for the webinar
 class GoLiveScreen extends StatefulWidget {
   final UserModel user;
   final FirebaseFirestore firestore;
@@ -27,6 +28,7 @@ class _GoLiveScreenState extends State<GoLiveScreen> {
     super.dispose();
   }
 
+  // Loads broadcasting page
   Future goLiveWebinar() async {
     String channelId = await DatabaseService(uid: widget.user.uid, firestore: widget.firestore).startLiveStream(context, _titleController.text , image);
     if (channelId.isNotEmpty) {
@@ -44,6 +46,7 @@ class _GoLiveScreenState extends State<GoLiveScreen> {
       print('Error');
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -63,6 +66,7 @@ class _GoLiveScreenState extends State<GoLiveScreen> {
                       });
                     }
                   },
+                  // Handles displaying and selection of thumbnail for webinar
                   child: Container(
                     height: 200,
                     width: double.infinity,
@@ -75,7 +79,7 @@ class _GoLiveScreenState extends State<GoLiveScreen> {
                             strokeCap: StrokeCap.round,
                             color: Colors.red,
                             child: Container(
-                              height: 200,  // Adjusted height here
+                              height: 200, 
                               width: double.infinity,
                               decoration: BoxDecoration(
                                 color: Colors.red.withOpacity(0.05),
@@ -114,6 +118,7 @@ class _GoLiveScreenState extends State<GoLiveScreen> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
+                  // Displays title entry bar
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     child: TextField(
@@ -147,6 +152,7 @@ class _GoLiveScreenState extends State<GoLiveScreen> {
                 ],
               ),
               const SizedBox(height: 50.0),
+              // initiates going live process
               Padding(
                 padding: const EdgeInsets.only(bottom: 10),
                 child: SizedBox(
@@ -179,6 +185,7 @@ class _GoLiveScreenState extends State<GoLiveScreen> {
   }
 }
 
+// picks image
 Future<Uint8List?> pickImage() async {
   FilePickerResult? pickedImage = await FilePicker.platform.pickFiles(type: FileType.image);
   if (pickedImage != null) {

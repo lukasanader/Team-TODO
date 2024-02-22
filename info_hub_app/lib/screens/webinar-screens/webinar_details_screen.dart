@@ -8,6 +8,7 @@ import 'package:info_hub_app/screens/webinar-screens/chat.dart';
 import 'package:info_hub_app/services/database_service.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+// Displays base broadcasting screen
 class BroadcastScreen extends StatefulWidget {
   final bool isBroadcaster;
   final String channelId;
@@ -39,6 +40,7 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
     _initEngine();
   }
 
+  // initialises broadcasting engine according to user privelleges
   void _initEngine() async {
     int userUID = 1;
     await [Permission.microphone, Permission.camera].request();
@@ -65,6 +67,7 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
     );
   }
 
+  // establishes events and how to handle them
   void _addListeners() {
     _engine.registerEventHandler(RtcEngineEventHandler(
       onJoinChannelSuccess: (channel, uid) {
@@ -91,6 +94,7 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
     ));
   }
 
+  // allows for the ability for webinar lead to switch camera
   void _switchCamera() {
     _engine.switchCamera().then((value) {
       setState(() {
@@ -101,6 +105,7 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
     });
   }
 
+  // allows for the ability for webinar lead to toggle their microphone on and off
   void onToggleMute() async {
     setState(() {
       isMuted = !isMuted;
@@ -108,6 +113,9 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
     await _engine.muteLocalAudioStream(isMuted);
   }
 
+/* initates leaving sequence. If user is webinar lead, the stream is ended and everybody is removed
+If they are merely a member watching, they will exit the screen
+*/
 _leaveChannel() async {
   await _engine.leaveChannel();
 
@@ -130,6 +138,7 @@ _leaveChannel() async {
 
   @override
   Widget build(BuildContext context) {
+    // removes the entirety of the screen from the scope
     return PopScope(
       onPopInvoked: (didPop) async {
         await _leaveChannel();
@@ -163,36 +172,38 @@ _leaveChannel() async {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  // Switch camera button
                   InkWell(
                     onTap: _switchCamera,
                     child: Container(
                       padding: EdgeInsets.all(12.0),
                       margin: EdgeInsets.all(8.0),
                       decoration: BoxDecoration(
-                        color: Colors.red, // Set button background color
+                        color: Colors.red,
                         borderRadius: BorderRadius.circular(16.0),
                       ),
                       child: const Text(
                         'Switch',
                         style: TextStyle(
-                          color: Colors.white, // Set text color
+                          color: Colors.white,
                         ),
                       ),
                     ),
                   ),
+                  //  Toggle mute button
                   InkWell(
                     onTap: onToggleMute,
                     child: Container(
                       padding: EdgeInsets.all(12.0),
                       margin: EdgeInsets.all(8.0),
                       decoration: BoxDecoration(
-                        color: isMuted ? Colors.grey : Colors.red, // Set button background color
+                        color: isMuted ? Colors.grey : Colors.red,
                         borderRadius: BorderRadius.circular(16.0),
                       ),
                       child: Text(
                         isMuted ? 'Unmute' : 'Mute',
                         style: TextStyle(
-                          color: Colors.white, // Set text color
+                          color: Colors.white,
                         ),
                       ),
                     ),
