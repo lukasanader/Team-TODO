@@ -32,12 +32,6 @@ class _DiscoveryViewState extends State<DiscoveryView> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
           title: TextField(
             controller: _searchController,
             onChanged: (query) {
