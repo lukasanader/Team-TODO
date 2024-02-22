@@ -52,7 +52,7 @@ class _ActivityViewState extends State<ActivityView> {
             height: 250,
             child: ListView.builder(
               shrinkWrap: true,
-              itemCount: 10, // Replace with the actual number of items
+              itemCount: 5, // Replace with the actual number of items
               itemBuilder: (context, index) {
                 return ListTile(
                   title: Text('comment $index'),

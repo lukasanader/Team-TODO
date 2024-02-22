@@ -3,6 +3,7 @@ import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:info_hub_app/screens/activity_view.dart';
 import 'package:info_hub_app/screens/settings_view.dart';
 
 
@@ -50,5 +51,15 @@ void main() {
 
   });
 
+  testWidgets('SettingsView history option goes to activity view', (WidgetTester tester) async {
+    await tester.pumpWidget(settingsViewWidget);
+    final activityOption = find.byKey(const Key('Activity Option'));
+    expect(activityOption, findsOneWidget);
+
+    await tester.tap(activityOption);
+    await tester.pumpAndSettle();
+
+    expect(find.byType(ActivityView), findsOneWidget);
+  });
 
 }

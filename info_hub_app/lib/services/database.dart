@@ -109,8 +109,4 @@ class DatabaseService {
   return topics;
 }
 
-getActivityDate(){
-
-}
-
 }
