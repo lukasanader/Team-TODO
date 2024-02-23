@@ -8,7 +8,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class RegistrationScreen extends StatefulWidget {
   final FirebaseFirestore firestore;
   final FirebaseAuth auth;
-  const RegistrationScreen({super.key, required this.firestore,required this.auth});
+  const RegistrationScreen(
+      {super.key, required this.firestore, required this.auth});
 
   @override
   State<RegistrationScreen> createState() => _RegistrationScreenState();
@@ -20,9 +21,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   @override
   void initState() {
     super.initState();
-    _auth = AuthService(
-      firestore: widget.firestore,
-      auth: widget.auth);
+    _auth = AuthService(firestore: widget.firestore, auth: widget.auth);
   }
 
   final _formKey = GlobalKey<FormState>();
@@ -31,7 +30,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   final TextEditingController lastNameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController = TextEditingController();
+  final TextEditingController confirmPasswordController =
+      TextEditingController();
 
   @override
   void dispose() {
@@ -92,7 +92,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     return 'Please enter your email address';
                   } else if (!value.contains('@')) {
                     return 'Please enter a valid email address';
-                  } else if (!value.contains('@nhs.co.uk') && _selectedRole == 'Healthcare Professional') {
+                  } else if (!value.contains('@nhs.co.uk') &&
+                      _selectedRole == 'Healthcare Professional') {
                     return 'Please enter a valid healthcare professional email.';
                   }
                   return null;
@@ -107,7 +108,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter a password';
-                  } else if (!RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+{}|:"<>?])').hasMatch(value)) {
+                  } else if (!RegExp(
+                          r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+{}|:"<>?])')
+                      .hasMatch(value)) {
                     return 'Password must contain:\n'
                         '- At least one lowercase letter\n'
                         '- One uppercase letter\n'
@@ -176,23 +179,36 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     final String email = emailController.text;
                     final String password = passwordController.text;
                     final String role = _selectedRole ?? '';
+                    final List<String> likedTopics = [];
+                    final List<String> dislikedTopics = [];
 
                     // Register user and get the UserModel
-                    UserModel? userModel = await _auth.registerUser(firstName, lastName, email, password, role);
+                    UserModel? userModel = await _auth.registerUser(
+                        firstName,
+                        lastName,
+                        email,
+                        password,
+                        role,
+                        likedTopics,
+                        dislikedTopics);
 
                     if (userModel != null) {
                       // Registration was successful, navigate to the main application page
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => Base(firestore: widget.firestore,),
+                          builder: (context) => Base(
+                            auth: widget.auth,
+                            firestore: widget.firestore,
+                          ),
                         ),
                       );
                     } else {
                       // Show error message if anything goes wrong in the auth process
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text('Registration failed. Please try again.'),
+                          content:
+                              Text('Registration failed. Please try again.'),
                           duration: Duration(seconds: 3),
                         ),
                       );

@@ -54,7 +54,7 @@ dependencies:
 
   timeago: ^3.0.2
 
-  file: ^6.1.4
+  file: 
   
   url_launcher: ^6.2.4
 

@@ -10,22 +10,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:info_hub_app/helpers/base.dart';
-
-
+import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 
 void main() {
   late FakeFirebaseFirestore firestore = FakeFirebaseFirestore();
+  late MockFirebaseAuth auth = MockFirebaseAuth();
   late Widget trendingTopicWidget;
   setUp(() {
     trendingTopicWidget = MaterialApp(
-      home:Base(firestore: firestore),
+      home: Base(auth: auth, firestore: firestore),
     );
   });
-  testWidgets('Trendings topic are in right order', (WidgetTester tester) async {
+  testWidgets('Trendings topic are in right order',
+      (WidgetTester tester) async {
     // Build your widget
-    
-    CollectionReference topicCollectionRef =
-        firestore.collection('topics');
+
+    CollectionReference topicCollectionRef = firestore.collection('topics');
     topicCollectionRef.add({
       'title': 'test 1',
       'description': 'this is a test',
@@ -68,11 +68,10 @@ void main() {
     expect((textFinders.at(2).evaluate().single.widget as Text).data, 'test 3');
   });
 
-   testWidgets('Shows only first 6 trending topics', (WidgetTester tester) async {
-   
+  testWidgets('Shows only first 6 trending topics',
+      (WidgetTester tester) async {
     // Build your widget
-    CollectionReference topicCollectionRef =
-        firestore.collection('topics');
+    CollectionReference topicCollectionRef = firestore.collection('topics');
     topicCollectionRef.add({
       'title': 'test 4',
       'description': 'this is a test',
@@ -122,4 +121,3 @@ void main() {
     expect((textFinders.at(5).evaluate().single.widget as Text).data, 'test 6');
   });
 }
-

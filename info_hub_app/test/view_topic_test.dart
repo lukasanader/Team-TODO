@@ -10,6 +10,7 @@ import 'package:video_player_platform_interface/video_player_platform_interface.
 import 'package:url_launcher_platform_interface/link.dart';
 import 'package:url_launcher_platform_interface/url_launcher_platform_interface.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
+import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 
 class FakeVideoPlayerPlatform extends VideoPlayerPlatform {
   final Completer<bool> initialized = Completer<bool>();
@@ -188,7 +189,15 @@ class MockUrlLauncher extends Fake
 
 void main() {
   late MockUrlLauncher mock;
+  late FakeFirebaseFirestore firestore;
   setUp(() {
+    firestore = FakeFirebaseFirestore();
+
+    firestore = FakeFirebaseFirestore();
+
+    firestore.collection('users').doc('1').set(
+        {'name': 'John Doe', 'email': 'john@example.com', 'likedTopics': []});
+
     final fakeVideoPlayerPlatform = FakeVideoPlayerPlatform();
 
     VideoPlayerPlatform.instance = fakeVideoPlayerPlatform;
@@ -198,7 +207,7 @@ void main() {
   });
 
   testWidgets('ViewTopicScreen shows title', (WidgetTester tester) async {
-    final firestore = FakeFirebaseFirestore();
+    final auth = MockFirebaseAuth();
     CollectionReference topicCollectionRef = firestore.collection('topics');
 
     await topicCollectionRef.add({
@@ -206,14 +215,17 @@ void main() {
       'description': 'Test Description',
       'articleLink': 'https://www.javatpoint.com/heap-sort',
       'videoUrl': '',
+      'likes': 0,
+      'dislikes': 0,
     });
 
     QuerySnapshot data = await topicCollectionRef.orderBy('title').get();
 
     await tester.pumpWidget(MaterialApp(
       home: ViewTopicScreen(
-        topic: data.docs[0] as QueryDocumentSnapshot<Object>,
-      ),
+          firestore: firestore,
+          topic: data.docs[0] as QueryDocumentSnapshot<Object>,
+          auth: auth),
     ));
     await tester.pumpAndSettle();
 
@@ -225,6 +237,7 @@ void main() {
   testWidgets('ViewTopicScreen shows correct fields with video',
       (WidgetTester tester) async {
     final firestore = FakeFirebaseFirestore();
+    final auth = MockFirebaseAuth();
     CollectionReference topicCollectionRef = firestore.collection('topics');
 
     await topicCollectionRef.add({
@@ -233,6 +246,8 @@ void main() {
       'articleLink': 'https://www.javatpoint.com/heap-sort',
       'videoUrl':
           'https://firebasestorage.googleapis.com/v0/b/team-todo-38f76.appspot.com/o/videos%2F2024-02-01%2018:28:20.745204.mp4?alt=media&token=6d6e3aee-240d-470f-ab22-58e274a04010',
+      'likes': 0,
+      'dislikes': 0,
     });
 
     QuerySnapshot data = await topicCollectionRef.orderBy('title').get();
@@ -240,8 +255,9 @@ void main() {
     // Pass a valid URL when creating the VideoPlayerController instance
     await tester.pumpWidget(MaterialApp(
       home: ViewTopicScreen(
-        topic: data.docs[0] as QueryDocumentSnapshot<Object>,
-      ),
+          firestore: firestore,
+          topic: data.docs[0] as QueryDocumentSnapshot<Object>,
+          auth: auth),
     ));
     await tester.pumpAndSettle();
 
@@ -256,6 +272,7 @@ void main() {
 
   testWidgets('Test article link opens', (WidgetTester tester) async {
     final firestore = FakeFirebaseFirestore();
+    final auth = MockFirebaseAuth();
     CollectionReference topicCollectionRef = firestore.collection('topics');
 
     await topicCollectionRef.add({
@@ -264,13 +281,16 @@ void main() {
       'articleLink': 'http://www.javatpoint.com/heap-sort',
       'videoUrl':
           'https://firebasestorage.googleapis.com/v0/b/team-todo-38f76.appspot.com/o/videos%2F2024-02-01%2018:28:20.745204.mp4?alt=media&token=6d6e3aee-240d-470f-ab22-58e274a04010',
+      'likes': 0,
+      'dislikes': 0,
     });
 
     QuerySnapshot data = await topicCollectionRef.orderBy('title').get();
     await tester.pumpWidget(MaterialApp(
       home: ViewTopicScreen(
-        topic: data.docs[0] as QueryDocumentSnapshot<Object>,
-      ),
+          firestore: firestore,
+          topic: data.docs[0] as QueryDocumentSnapshot<Object>,
+          auth: auth),
     ));
 
     mock
@@ -297,6 +317,8 @@ void main() {
       (tester) async {
     final logs = [];
     final firestore = FakeFirebaseFirestore();
+    final auth = MockFirebaseAuth();
+
     CollectionReference topicCollectionRef = firestore.collection('topics');
 
     await topicCollectionRef.add({
@@ -305,6 +327,8 @@ void main() {
       'articleLink': 'http://www.javatpoint.com/heap-sort',
       'videoUrl':
           'https://firebasestorage.googleapis.com/v0/b/team-todo-38f76.appspot.com/o/videos%2F2024-02-01%2018:28:20.745204.mp4?alt=media&token=6d6e3aee-240d-470f-ab22-58e274a04010',
+      'likes': 0,
+      'dislikes': 0,
     });
 
     QuerySnapshot data = await topicCollectionRef.orderBy('title').get();
@@ -321,8 +345,9 @@ void main() {
 
     await tester.pumpWidget(MaterialApp(
       home: ViewTopicScreen(
-        topic: data.docs[0] as QueryDocumentSnapshot<Object>,
-      ),
+          firestore: firestore,
+          topic: data.docs[0] as QueryDocumentSnapshot<Object>,
+          auth: auth),
     ));
 
     await tester.pumpAndSettle();

@@ -12,7 +12,8 @@ class DatabaseService {
   // Create a notification
   Future<String> createNotification(
       String title, String body, DateTime timestamp) async {
-        CollectionReference notificationsCollection = firestore.collection('notifications');
+    CollectionReference notificationsCollection =
+        firestore.collection('notifications');
     try {
       if (kDebugMode) {
         print('Creating notification');
@@ -34,7 +35,8 @@ class DatabaseService {
 
   // Delete a notification
   Future<void> deleteNotification(String id) async {
-    CollectionReference notificationsCollection = firestore.collection('notifications');
+    CollectionReference notificationsCollection =
+        firestore.collection('notifications');
     try {
       if (kDebugMode) {
         print('Deleting notification');
@@ -74,7 +76,8 @@ class DatabaseService {
 
   // Get notifications stream
   Stream<List<custom.Notification>> get notifications {
-    CollectionReference notificationsCollection = firestore.collection('notifications');
+    CollectionReference notificationsCollection =
+        firestore.collection('notifications');
     if (kDebugMode) {
       print('Getting notifications');
     }
@@ -85,13 +88,22 @@ class DatabaseService {
         .snapshots()
         .map(notificationListFromSnapshot);
   }
-   Future addUserData(String firstName, String lastName,String email,String roleType) async {
+
+  Future addUserData(
+      String firstName,
+      String lastName,
+      String email,
+      String roleType,
+      List<String> likedTopics,
+      List<String> dislikedTopics) async {
     CollectionReference usersCollectionRef = firestore.collection('Users');
-    return await usersCollectionRef.add({
+    return await usersCollectionRef.doc(uid).set({
       'firstName': firstName,
       'lastName': lastName,
       'email': email,
       'roleType': roleType,
+      'likedTopics': likedTopics,
+      'dislikedTopics': dislikedTopics
     });
   }
 }

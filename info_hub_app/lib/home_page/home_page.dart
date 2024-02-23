@@ -13,12 +13,14 @@ import 'package:info_hub_app/services/database.dart';
 
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/cupertino.dart';
-
+import 'package:firebase_auth/firebase_auth.dart';
 
 class HomePage extends StatefulWidget {
   FirebaseFirestore firestore;
+  FirebaseAuth auth;
+
   //User? user = FirebaseAuth.instance.currentUser;
-  HomePage({super.key, required this.firestore});
+  HomePage({super.key, required this.auth, required this.firestore});
   @override
   State<HomePage> createState() => _HomePageState();
 }
@@ -86,7 +88,7 @@ class _HomePageState extends State<HomePage> {
             child: ListView.builder(
                 itemCount: topicLength == 0 ? 0 : topicLength,
                 itemBuilder: (context, index) {
-                  return TopicCard(
+                  return TopicCard(widget.firestore, widget.auth,
                       _topicsList[index] as QueryDocumentSnapshot<Object>);
                 }),
           ),
