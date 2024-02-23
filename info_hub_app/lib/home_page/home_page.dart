@@ -6,6 +6,7 @@
  */
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:info_hub_app/patient_experience/patient_experience_view.dart';
 import 'package:info_hub_app/topics/topics_card.dart';
 import 'package:info_hub_app/notifications/notifications.dart';
 import 'package:info_hub_app/threads/threads.dart';
@@ -89,6 +90,15 @@ class _HomePageState extends State<HomePage> {
                   return TopicCard(
                       _topicsList[index] as QueryDocumentSnapshot<Object>);
                 }),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ExperienceView(firestore: widget.firestore)),
+              );
+            },
+            child: const Text('Patient Experience'),
           ),
           ElevatedButton(
             onPressed: () async {
