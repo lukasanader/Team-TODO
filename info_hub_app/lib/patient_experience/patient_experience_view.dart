@@ -24,14 +24,23 @@ class _ExperienceViewState extends State<ExperienceView> {
       appBar: AppBar(
         title: const Text("Paitent's Experiences"),
       ),
-      body: ElevatedButton(
-        onPressed: () {
-          _showPostDialog();
-        },
-        child: const Text("Share your experience!"),
-      )
+      body: Column(
+        children: [
+          ElevatedButton(
+            onPressed: () {
+              _showPostDialog();
+            },
+            child: const Text("Share your experience!"),
+          )
+        ],
+
+      ) 
+      
+
     );
   }
+
+
 
   void _showPostDialog() {
     _descriptionController.clear();
@@ -90,6 +99,7 @@ class _ExperienceViewState extends State<ExperienceView> {
     // if (user != null) {
     //   _experience.uid = user.uid;
     // }
+    _experience.verified = true;
 
     CollectionReference db = widget.firestore.collection('experiences');
     await db.add(_experience.toJson());
