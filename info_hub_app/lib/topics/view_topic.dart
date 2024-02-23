@@ -145,29 +145,33 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
 
   Future<void> _likeTopic() async {
     final user = widget.auth.currentUser;
+
     if (user != null) {
       final userDocRef = widget.firestore.collection('Users').doc(user.uid);
-      setState(() {
-        if (hasLiked) {
-          likes -= 1;
-          hasLiked = false;
-        } else {
-          likes += 1;
-          hasLiked = true;
-          if (hasDisliked) {
-            dislikes -= 1;
-            hasDisliked = false;
-          }
+
+      if (hasLiked) {
+        likes -= 1;
+        await userDocRef.update({
+          'likedTopics': FieldValue.arrayRemove([widget.topic.id])
+        });
+        hasLiked = false;
+      } else {
+        likes += 1;
+        await userDocRef.update({
+          'likedTopics': FieldValue.arrayUnion([widget.topic.id])
+        });
+        hasLiked = true;
+
+        if (hasDisliked) {
+          dislikes -= 1;
+          await userDocRef.update({
+            'dislikedTopics': FieldValue.arrayRemove([widget.topic.id])
+          });
+          hasDisliked = false;
         }
-      });
-      await userDocRef.update({
-        'likedTopics': hasLiked
-            ? FieldValue.arrayUnion([widget.topic.id])
-            : FieldValue.arrayRemove([widget.topic.id]),
-        'dislikedTopics': hasDisliked
-            ? FieldValue.arrayUnion([widget.topic.id])
-            : FieldValue.arrayRemove([widget.topic.id]),
-      });
+      }
+
+      setState(() {});
 
       widget.firestore
           .collection('topics')
@@ -178,34 +182,38 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
 
   Future<void> _dislikeTopic() async {
     final user = widget.auth.currentUser;
+
     if (user != null) {
       final userDocRef = widget.firestore.collection('Users').doc(user.uid);
-      setState(() {
-        if (hasDisliked) {
-          dislikes -= 1;
-          hasDisliked = false;
-        } else {
-          dislikes += 1;
-          hasDisliked = true;
-          if (hasLiked) {
-            likes -= 1;
-            hasLiked = false;
-          }
+
+      if (hasDisliked) {
+        dislikes -= 1;
+        await userDocRef.update({
+          'dislikedTopics': FieldValue.arrayRemove([widget.topic.id])
+        });
+        hasDisliked = false;
+      } else {
+        dislikes += 1;
+        await userDocRef.update({
+          'dislikedTopics': FieldValue.arrayUnion([widget.topic.id])
+        });
+        hasDisliked = true;
+
+        if (hasLiked) {
+          likes -= 1;
+          await userDocRef.update({
+            'likedTopics': FieldValue.arrayRemove([widget.topic.id])
+          });
+          hasLiked = false;
         }
-      });
-      await userDocRef.update({
-        'dislikedTopics': hasDisliked
-            ? FieldValue.arrayUnion([widget.topic.id])
-            : FieldValue.arrayRemove([widget.topic.id]),
-        'likedTopics': hasLiked
-            ? FieldValue.arrayUnion([widget.topic.id])
-            : FieldValue.arrayRemove([widget.topic.id]),
-      });
+      }
+
+      setState(() {});
 
       widget.firestore
           .collection('topics')
           .doc(widget.topic.id)
-          .update({'likes': likes, 'dislikes': dislikes});
+          .update({'dislikes': dislikes, 'likes': likes});
     }
   }
 

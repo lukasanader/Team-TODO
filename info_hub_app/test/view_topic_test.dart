@@ -190,13 +190,24 @@ class MockUrlLauncher extends Fake
 void main() {
   late MockUrlLauncher mock;
   late FakeFirebaseFirestore firestore;
+  late MockFirebaseAuth auth;
   setUp(() {
-    firestore = FakeFirebaseFirestore();
+    final MockUser mockUser = MockUser(
+      isAnonymous: false,
+      uid: 'user123',
+      email: 'test@example.com',
+    );
+
+    auth = MockFirebaseAuth(mockUser: mockUser, signedIn: true);
 
     firestore = FakeFirebaseFirestore();
 
-    firestore.collection('users').doc('1').set(
-        {'name': 'John Doe', 'email': 'john@example.com', 'likedTopics': []});
+    firestore.collection('Users').doc('user123').set({
+      'name': 'John Doe',
+      'email': 'john@example.com',
+      'likedTopics': [],
+      'dislikedTopics': [],
+    });
 
     final fakeVideoPlayerPlatform = FakeVideoPlayerPlatform();
 
@@ -207,7 +218,6 @@ void main() {
   });
 
   testWidgets('ViewTopicScreen shows title', (WidgetTester tester) async {
-    final auth = MockFirebaseAuth();
     CollectionReference topicCollectionRef = firestore.collection('topics');
 
     await topicCollectionRef.add({
@@ -237,7 +247,7 @@ void main() {
   testWidgets('ViewTopicScreen shows correct fields with video',
       (WidgetTester tester) async {
     final firestore = FakeFirebaseFirestore();
-    final auth = MockFirebaseAuth();
+
     CollectionReference topicCollectionRef = firestore.collection('topics');
 
     await topicCollectionRef.add({
@@ -272,7 +282,7 @@ void main() {
 
   testWidgets('Test article link opens', (WidgetTester tester) async {
     final firestore = FakeFirebaseFirestore();
-    final auth = MockFirebaseAuth();
+
     CollectionReference topicCollectionRef = firestore.collection('topics');
 
     await topicCollectionRef.add({
@@ -317,7 +327,6 @@ void main() {
       (tester) async {
     final logs = [];
     final firestore = FakeFirebaseFirestore();
-    final auth = MockFirebaseAuth();
 
     CollectionReference topicCollectionRef = firestore.collection('topics');
 
@@ -374,5 +383,295 @@ void main() {
             'It should be in the portrait view after the fullscreen actions done');
 
     await tester.pumpAndSettle();
+  });
+
+  testWidgets('ViewTopicScreen shows like and dislike buttons',
+      (WidgetTester tester) async {
+    CollectionReference topicCollectionRef = firestore.collection('topics');
+
+    await topicCollectionRef.add({
+      'title': 'no video topic',
+      'description': 'Test Description',
+      'articleLink': 'https://www.javatpoint.com/heap-sort',
+      'videoUrl': '',
+      'likes': 0,
+      'dislikes': 0,
+    });
+
+    QuerySnapshot data = await topicCollectionRef.orderBy('title').get();
+
+    await tester.pumpWidget(MaterialApp(
+      home: ViewTopicScreen(
+          firestore: firestore,
+          topic: data.docs[0] as QueryDocumentSnapshot<Object>,
+          auth: auth),
+    ));
+    await tester.pumpAndSettle();
+
+    expect(find.byIcon(Icons.thumb_up), findsOneWidget);
+    expect(find.byIcon(Icons.thumb_down), findsOneWidget);
+  });
+
+  testWidgets('Test tapping thumb up icon increments likes by one',
+      (WidgetTester tester) async {
+    CollectionReference topicCollectionRef = firestore.collection('topics');
+
+    // Add a topic with initial likes count of 0
+    DocumentReference topicDocRef = await topicCollectionRef.add({
+      'title': 'no video topic',
+      'description': 'Test Description',
+      'articleLink': 'https://www.javatpoint.com/heap-sort',
+      'videoUrl': '',
+      'likes': 0, // Initial likes count
+      'dislikes': 0,
+    });
+
+    QuerySnapshot data = await topicCollectionRef.orderBy('title').get();
+
+    // Create the ViewTopicScreen widget with the test topic
+    await tester.pumpWidget(MaterialApp(
+      home: ViewTopicScreen(
+          firestore: firestore,
+          topic: data.docs[0] as QueryDocumentSnapshot<Object>,
+          auth: auth),
+    ));
+    await tester.pumpAndSettle();
+
+    // Tap the thumb up icon
+    await tester.tap(find.byIcon(Icons.thumb_up));
+
+    await tester.pumpAndSettle();
+
+    DocumentSnapshot topicSnapshot = await topicDocRef.get();
+
+    // Verify that the 'likes' field has been incremented by one
+    expect(topicSnapshot['likes'], 1);
+  });
+
+  testWidgets('Test tapping thumb down icon increments dislikes by one',
+      (WidgetTester tester) async {
+    CollectionReference topicCollectionRef = firestore.collection('topics');
+
+    // topic with initial likes and dislikes count of 0
+    DocumentReference topicDocRef = await topicCollectionRef.add({
+      'title': 'no video topic',
+      'description': 'Test Description',
+      'articleLink': 'https://www.javatpoint.com/heap-sort',
+      'videoUrl': '',
+      'likes': 0, // Initial likes count
+      'dislikes': 0,
+    });
+
+    QuerySnapshot data = await topicCollectionRef.orderBy('title').get();
+
+    await tester.pumpWidget(MaterialApp(
+      home: ViewTopicScreen(
+          firestore: firestore,
+          topic: data.docs[0] as QueryDocumentSnapshot<Object>,
+          auth: auth),
+    ));
+    await tester.pumpAndSettle();
+
+    // Tap the thumb up icon
+    await tester.tap(find.byIcon(Icons.thumb_down));
+
+    await tester.pumpAndSettle();
+
+    DocumentSnapshot topicSnapshot = await topicDocRef.get();
+
+    // Verify that the 'disikes' field has been incremented by one
+    expect(topicSnapshot['dislikes'], 1);
+  });
+
+  testWidgets('Test tapping dislike button removes past like',
+      (WidgetTester tester) async {
+    CollectionReference topicCollectionRef = firestore.collection('topics');
+
+    // Add a topic with initial likes count of 0
+    DocumentReference topicDocRef = await topicCollectionRef.add({
+      'title': 'no video topic',
+      'description': 'Test Description',
+      'articleLink': 'https://www.javatpoint.com/heap-sort',
+      'videoUrl': '',
+      'likes': 0, // Initial likes count
+      'dislikes': 0,
+    });
+
+    QuerySnapshot data = await topicCollectionRef.orderBy('title').get();
+
+    // Create the ViewTopicScreen widget with the test topic
+    await tester.pumpWidget(MaterialApp(
+      home: ViewTopicScreen(
+          firestore: firestore,
+          topic: data.docs[0] as QueryDocumentSnapshot<Object>,
+          auth: auth),
+    ));
+    await tester.pumpAndSettle();
+
+    // Tap the thumb up icon
+    await tester.tap(find.byIcon(Icons.thumb_up));
+
+    // Wait for the asynchronous operations to complete
+    await tester.pumpAndSettle();
+
+    // Retrieve the updated topic document from Firestore
+    DocumentSnapshot topicSnapshot = await topicDocRef.get();
+
+    // Verify that the 'likes' field has been incremented by one
+    expect(topicSnapshot['likes'], 1);
+
+    // Tap the thumb up icon
+    await tester.tap(find.byIcon(Icons.thumb_down));
+
+    // Wait for the asynchronous operations to complete
+    await tester.pumpAndSettle();
+
+    // Retrieve the updated topic document from Firestore
+    DocumentSnapshot dislikeSnapshot = await topicDocRef.get();
+
+    // Verify that the 'likes' field has been incremented by one
+    expect(dislikeSnapshot['dislikes'], 1);
+
+    // check that likes field is back to 0
+    expect(dislikeSnapshot['likes'], 0);
+  });
+
+  testWidgets('Test tapping like button removes past dislike',
+      (WidgetTester tester) async {
+    CollectionReference topicCollectionRef = firestore.collection('topics');
+
+    // topic with initial likes and dislikes count of 0
+    DocumentReference topicDocRef = await topicCollectionRef.add({
+      'title': 'no video topic',
+      'description': 'Test Description',
+      'articleLink': 'https://www.javatpoint.com/heap-sort',
+      'videoUrl': '',
+      'likes': 0, // Initial likes count
+      'dislikes': 0,
+    });
+
+    QuerySnapshot data = await topicCollectionRef.orderBy('title').get();
+
+    await tester.pumpWidget(MaterialApp(
+      home: ViewTopicScreen(
+          firestore: firestore,
+          topic: data.docs[0] as QueryDocumentSnapshot<Object>,
+          auth: auth),
+    ));
+    await tester.pumpAndSettle();
+
+    // dislike topic
+    await tester.tap(find.byIcon(Icons.thumb_down));
+
+    await tester.pumpAndSettle();
+
+    DocumentSnapshot topicSnapshot = await topicDocRef.get();
+
+    // Verify that the 'dislikes' field has been incremented by one
+    expect(topicSnapshot['dislikes'], 1);
+
+    // like topic
+    await tester.tap(find.byIcon(Icons.thumb_up));
+
+    await tester.pumpAndSettle();
+
+    DocumentSnapshot likeSnapshot = await topicDocRef.get();
+
+    // Verify that the 'likes' field has been incremented by one
+    expect(likeSnapshot['likes'], 1);
+
+    // check that dislikes field is back to 0
+    expect(likeSnapshot['dislikes'], 0);
+  });
+
+  testWidgets('Test tapping like button twice removes like',
+      (WidgetTester tester) async {
+    CollectionReference topicCollectionRef = firestore.collection('topics');
+
+    // topic with initial likes and dislikes count of 0
+    DocumentReference topicDocRef = await topicCollectionRef.add({
+      'title': 'no video topic',
+      'description': 'Test Description',
+      'articleLink': 'https://www.javatpoint.com/heap-sort',
+      'videoUrl': '',
+      'likes': 0, // Initial likes count
+      'dislikes': 0,
+    });
+
+    QuerySnapshot data = await topicCollectionRef.orderBy('title').get();
+
+    await tester.pumpWidget(MaterialApp(
+      home: ViewTopicScreen(
+          firestore: firestore,
+          topic: data.docs[0] as QueryDocumentSnapshot<Object>,
+          auth: auth),
+    ));
+    await tester.pumpAndSettle();
+
+    // Like topic
+    await tester.tap(find.byIcon(Icons.thumb_up));
+
+    await tester.pumpAndSettle();
+
+    DocumentSnapshot topicSnapshot = await topicDocRef.get();
+
+    // Verify that the 'likes' field has been incremented by one
+    expect(topicSnapshot['likes'], 1);
+
+    // like topic again
+    await tester.tap(find.byIcon(Icons.thumb_up));
+
+    // Wait for the asynchronous operations to complete
+    await tester.pumpAndSettle();
+
+    DocumentSnapshot likeSnapshot = await topicDocRef.get();
+
+    // Verify that the 'dislikes' field has been reset
+    expect(likeSnapshot['likes'], 0);
+  });
+
+  testWidgets('Test tapping dislike button twice removes dislike',
+      (WidgetTester tester) async {
+    CollectionReference topicCollectionRef = firestore.collection('topics');
+
+    DocumentReference topicDocRef = await topicCollectionRef.add({
+      'title': 'no video topic',
+      'description': 'Test Description',
+      'articleLink': 'https://www.javatpoint.com/heap-sort',
+      'videoUrl': '',
+      'likes': 0,
+      'dislikes': 0,
+    });
+
+    QuerySnapshot data = await topicCollectionRef.orderBy('title').get();
+
+    await tester.pumpWidget(MaterialApp(
+      home: ViewTopicScreen(
+          firestore: firestore,
+          topic: data.docs[0] as QueryDocumentSnapshot<Object>,
+          auth: auth),
+    ));
+    await tester.pumpAndSettle();
+
+    // dislike topic
+    await tester.tap(find.byIcon(Icons.thumb_down));
+
+    await tester.pumpAndSettle();
+
+    DocumentSnapshot topicSnapshot = await topicDocRef.get();
+
+    // Verify that the 'dislikes' field has been incremented by one
+    expect(topicSnapshot['dislikes'], 1);
+
+    // dislike topic again
+    await tester.tap(find.byIcon(Icons.thumb_down));
+
+    await tester.pumpAndSettle();
+
+    DocumentSnapshot dislikeSnapshot = await topicDocRef.get();
+
+    // Verify that the 'dislikes' field has been reset
+
+    expect(dislikeSnapshot['dislikes'], 0);
   });
 }
