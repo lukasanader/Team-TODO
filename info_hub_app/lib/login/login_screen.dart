@@ -1,5 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:info_hub_app/admin/admin_dash.dart';
 import 'package:info_hub_app/services/auth.dart';
 import 'package:info_hub_app/helpers/base.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -7,7 +9,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class LoginScreen extends StatefulWidget {
   final FirebaseFirestore firestore;
   final FirebaseAuth auth;
-  const LoginScreen({super.key, required this.firestore,required this.auth});
+  final FirebaseStorage storage;
+  const LoginScreen({super.key, required this.firestore,required this.auth,required this.storage});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -78,13 +81,23 @@ class _LoginScreenState extends State<LoginScreen> {
                     if (_formKey.currentState!.validate()) {
                       User? user = await _auth.signInUser(emailController.text, passwordController.text);
                       if (user != null) {
-                        Navigator.pushReplacement(context,
-                        MaterialPageRoute(
-                          builder :(context) => Base(firestore: widget.firestore,),
-                        ),
-                        );
-                  }
-                  else{
+                        DocumentSnapshot snapshot = await widget.firestore.collection('Users').doc(user.uid).get();
+                        print(snapshot.data());
+                        if(snapshot['roleType']== 'admin'){
+                          Navigator.pushReplacement(context,
+                          MaterialPageRoute(
+                            builder :(context) => AdminHomepage(firestore: widget.firestore,storage: widget.storage,),
+                          ),
+                          );
+                        }else{
+                          Navigator.pushReplacement(context,
+                          MaterialPageRoute(
+                            builder :(context) => Base(firestore: widget.firestore,),
+                          ),
+                          );
+                        }
+                        
+                  }else{
                     ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text('Email or password is incorrect. Please try again.'),
