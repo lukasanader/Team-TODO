@@ -21,7 +21,6 @@ class _ExperienceCardState extends State<ExperienceCard> {
   @override
   Widget build(BuildContext context) {
     return Card(
-      
       child: Padding(
         padding: const EdgeInsets.all(12.0),
         child: Column(
@@ -36,14 +35,17 @@ class _ExperienceCardState extends State<ExperienceCard> {
               ],
             ),
             Row(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 10.0),
-                  child: Text(widget._experience.description.toString()),
-                )
+              children: [ 
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 10.0),
+                      child: Text(widget._experience.description.toString()),
+                    )
+                  )
               ],
             ),
-          ]),
+          ]
+        ),
       ),
     );
   }

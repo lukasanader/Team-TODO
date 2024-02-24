@@ -71,6 +71,7 @@ class _ExperienceViewState extends State<ExperienceView> {
             children: [
               TextField(
                 maxLines: 1,
+                maxLength: 70,
                 controller: _titleController,
                 decoration: const InputDecoration(
                   labelText: 'Title',
