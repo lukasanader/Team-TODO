@@ -1,12 +1,19 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/topics/topics_card.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class DiscoveryView extends StatefulWidget {
   final FirebaseFirestore firestore;
   final FirebaseAuth auth;
-  const DiscoveryView({super.key, required this.auth, required this.firestore});
+  final FirebaseStorage storage;
+
+  const DiscoveryView(
+      {super.key,
+      required this.auth,
+      required this.storage,
+      required this.firestore});
   @override
   _DiscoveryViewState createState() => _DiscoveryViewState();
 }
@@ -54,7 +61,10 @@ class _DiscoveryViewState extends State<DiscoveryView> {
                 );
               } else {
                 if (_searchController.text.isEmpty) {
-                  return TopicCard(widget.firestore, widget.auth,
+                  return TopicCard(
+                      widget.firestore,
+                      widget.auth,
+                      widget.storage,
                       _topicsList[index] as QueryDocumentSnapshot<Object>);
                 } else if (_searchedTopicsList.isEmpty) {
                   return const ListTile(
@@ -64,6 +74,7 @@ class _DiscoveryViewState extends State<DiscoveryView> {
                   return TopicCard(
                       widget.firestore,
                       widget.auth,
+                      widget.storage,
                       _searchedTopicsList[index]
                           as QueryDocumentSnapshot<Object>);
                 }

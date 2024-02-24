@@ -5,16 +5,19 @@ import 'package:chewie/chewie.dart';
 import 'package:video_player/video_player.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class ViewTopicScreen extends StatefulWidget {
   final QueryDocumentSnapshot topic;
   final FirebaseFirestore firestore;
+  final FirebaseStorage storage;
 
   final FirebaseAuth auth;
 
   const ViewTopicScreen(
       {required this.firestore,
       required this.topic,
+      required this.storage,
       required this.auth,
       Key? key})
       : super(key: key);
@@ -86,6 +89,7 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
       _initializeVideoPlayer();
       vidAvailable = true;
     }
+    _isAdmin();
     checkUserLikedAndDislikedTopics();
     updateLikesAndDislikesCount();
   }
@@ -222,6 +226,8 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
     hasDisliked = await hasDislikedTopic();
   }
 
+  bool userIsAdmin = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -304,8 +310,126 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
                 ),
               ),
             ),
+          if (userIsAdmin)
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Center(
+                child: ElevatedButton(
+                  key: Key('delete_topic_button'),
+                  onPressed: () {
+                    // Show confirmation dialog
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: const Text('Confirm Deletion'),
+                          content: const Text(
+                              'Are you sure you want to delete this topic?'),
+                          actions: <Widget>[
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop(); // Close the dialog
+                              },
+                              child: const Text('Cancel'),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                // Delete the topic
+                                deleteTopic();
+
+                                Navigator.of(context).pop(); // Close the dialog
+                              },
+                              child: const Text('Delete'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all(Colors.red),
+                  ),
+                  child: const Text(
+                    'Delete Topic',
+                    style: TextStyle(color: Colors.white),
+                  ), // Te
+                ),
+              ),
+            ),
         ],
       ),
     );
+  }
+
+  Future<void> _isAdmin() async {
+    User? user = widget.auth.currentUser;
+
+    // Check if the user exists and if the user's roleType is 'admin'
+    if (user != null) {
+      DocumentSnapshot userSnapshot =
+          await widget.firestore.collection('Users').doc(user.uid).get();
+
+      if (userSnapshot.exists) {
+        Map<String, dynamic>? userData =
+            userSnapshot.data() as Map<String, dynamic>?;
+
+        if (userData != null) {
+          userIsAdmin = userData['roleType'] == 'admin';
+        }
+      }
+    }
+  }
+
+  deleteTopic() async {
+    removeTopicFromUsers();
+    // If the topic has a video URL, delete the corresponding video from storage
+    if (widget.topic['videoUrl'] != '' && widget.topic['videoUrl'] != null) {
+      await deleteVideoFromStorage(widget.topic['videoUrl']);
+    }
+
+    // Delete the topic document from Firestore
+    await widget.firestore.collection('topics').doc(widget.topic.id).delete();
+
+    if (mounted) {
+      Navigator.pop(context, true);
+    }
+  }
+
+  Future<void> deleteVideoFromStorage(String videoUrl) async {
+    String fileUrl = widget.topic['videoUrl'];
+
+    // get reference to the video file
+    Reference videoRef = widget.storage.refFromURL(fileUrl);
+
+    // Delete the file
+    await videoRef.delete();
+  }
+
+  Future<void> removeTopicFromUsers() async {
+    // get all users
+    QuerySnapshot<Map<String, dynamic>> usersSnapshot =
+        await widget.firestore.collection('Users').get();
+
+    // go through each user
+    for (QueryDocumentSnapshot<Map<String, dynamic>> userSnapshot
+        in usersSnapshot.docs) {
+      Map<String, dynamic> userData = userSnapshot.data();
+
+      // Check if user has liked topic
+      if (userData.containsKey('likedTopics') &&
+          userData['likedTopics'].contains(widget.topic.id)) {
+        // Remove the topic from liked topics list
+        userData['likedTopics'].remove(widget.topic.id);
+      }
+
+      // Check if user has disliked topic
+      if (userData.containsKey('dislikedTopics') &&
+          userData['dislikedTopics'].contains(widget.topic.id)) {
+        // Remove the topic from disliked topics list
+        userData['dislikedTopics'].remove(widget.topic.id);
+      }
+
+      await userSnapshot.reference.update(userData);
+    }
   }
 }

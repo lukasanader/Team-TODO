@@ -3,11 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:info_hub_app/services/auth.dart';
 import 'package:info_hub_app/helpers/base.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class LoginScreen extends StatefulWidget {
   final FirebaseFirestore firestore;
   final FirebaseAuth auth;
-  const LoginScreen({super.key, required this.firestore, required this.auth});
+  final FirebaseStorage storage;
+  const LoginScreen(
+      {super.key,
+      required this.firestore,
+      required this.auth,
+      required this.storage});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -81,6 +87,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 MaterialPageRoute(
                                   builder: (context) => Base(
                                     auth: widget.auth,
+                                    storage: widget.storage,
                                     firestore: widget.firestore,
                                   ),
                                 ),

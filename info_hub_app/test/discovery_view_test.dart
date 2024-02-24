@@ -3,17 +3,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:info_hub_app/discovery_view/discovery_view.dart';
+import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 
 void main() {
   late FakeFirebaseFirestore firestore;
   late MockFirebaseAuth auth;
+  late MockFirebaseStorage storage;
   late CollectionReference topicsCollectionRef;
   late Widget discoveryViewWidget;
 
   setUp(() {
     firestore = FakeFirebaseFirestore();
     auth = MockFirebaseAuth();
+    storage = MockFirebaseStorage();
     topicsCollectionRef = firestore.collection('topics');
 
     topicsCollectionRef.add({
@@ -42,7 +45,7 @@ void main() {
     });
 
     discoveryViewWidget = MaterialApp(
-      home: DiscoveryView(auth: auth, firestore: firestore),
+      home: DiscoveryView(storage: storage, auth: auth, firestore: firestore),
     );
   });
 

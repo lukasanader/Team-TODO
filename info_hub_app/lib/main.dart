@@ -6,19 +6,30 @@ import 'notifications/notification.dart' as custom;
 import 'registration/start_page.dart';
 import 'package:provider/provider.dart';
 import 'package:info_hub_app/services/database.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   FirebaseAuth auth = FirebaseAuth.instance;
   FirebaseFirestore firestore = FirebaseFirestore.instance;
-  runApp(MyApp(firestore: firestore, auth: auth));
+  FirebaseStorage storage = FirebaseStorage.instance;
+  runApp(MyApp(
+    firestore: firestore,
+    auth: auth,
+    storage: storage,
+  ));
 }
 
 class MyApp extends StatelessWidget {
   final FirebaseFirestore firestore;
   final FirebaseAuth auth;
-  const MyApp({super.key, required this.firestore, required this.auth});
+  final FirebaseStorage storage;
+  const MyApp(
+      {super.key,
+      required this.firestore,
+      required this.auth,
+      required this.storage});
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +42,11 @@ class MyApp extends StatelessWidget {
         ),
       ],
       child: MaterialApp(
-        home: StartPage(firestore: firestore, auth: auth,),
+        home: StartPage(
+          firestore: firestore,
+          storage: storage,
+          auth: auth,
+        ),
       ),
     );
   }

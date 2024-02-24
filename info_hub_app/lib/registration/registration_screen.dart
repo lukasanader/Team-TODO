@@ -4,12 +4,17 @@ import 'package:info_hub_app/helpers/base.dart';
 import 'package:info_hub_app/services/auth.dart';
 import 'package:info_hub_app/registration/user_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class RegistrationScreen extends StatefulWidget {
   final FirebaseFirestore firestore;
   final FirebaseAuth auth;
+  final FirebaseStorage storage;
   const RegistrationScreen(
-      {super.key, required this.firestore, required this.auth});
+      {super.key,
+      required this.firestore,
+      required this.storage,
+      required this.auth});
 
   @override
   State<RegistrationScreen> createState() => _RegistrationScreenState();
@@ -199,6 +204,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         MaterialPageRoute(
                           builder: (context) => Base(
                             auth: widget.auth,
+                            storage: widget.storage,
                             firestore: widget.firestore,
                           ),
                         ),

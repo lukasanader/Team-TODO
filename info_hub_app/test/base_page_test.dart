@@ -16,10 +16,12 @@ import 'package:info_hub_app/services/database.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:provider/provider.dart';
 import 'mock.dart';
+import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 
 void main() {
   late FirebaseFirestore firestore = FakeFirebaseFirestore();
   late MockFirebaseAuth auth = MockFirebaseAuth();
+  late MockFirebaseStorage storage = MockFirebaseStorage();
 
   setupFirebaseAuthMocks();
   setUpAll(() async {
@@ -29,6 +31,7 @@ void main() {
   testWidgets('Bottom Nav Bar to Home Page', (WidgetTester tester) async {
     await tester.pumpWidget(MaterialApp(
         home: Base(
+      storage: storage,
       auth: auth,
       firestore: firestore,
     )));
@@ -45,6 +48,7 @@ void main() {
   testWidgets('Bottom Nav Bar to Search Page', (WidgetTester tester) async {
     await tester.pumpWidget(MaterialApp(
         home: Base(
+      storage: storage,
       auth: auth,
       firestore: firestore,
     )));
@@ -58,6 +62,7 @@ void main() {
   testWidgets('Bottom Nav Bar to Setting Page', (WidgetTester tester) async {
     await tester.pumpWidget(MaterialApp(
         home: Base(
+      storage: storage,
       auth: auth,
       firestore: firestore,
     )));
@@ -71,6 +76,7 @@ void main() {
   testWidgets('HomePage UI Test', (WidgetTester tester) async {
     await tester.pumpWidget(MaterialApp(
       home: HomePage(
+        storage: storage,
         auth: auth,
         firestore: firestore,
       ),
@@ -93,6 +99,7 @@ void main() {
       ],
       child: MaterialApp(
         home: HomePage(
+          storage: storage,
           auth: auth,
           firestore: firestore,
         ),
@@ -107,6 +114,7 @@ void main() {
   testWidgets('HomePage to Profile Page', (WidgetTester tester) async {
     await tester.pumpWidget(MaterialApp(
       home: HomePage(
+        storage: storage,
         auth: auth,
         firestore: firestore,
       ),

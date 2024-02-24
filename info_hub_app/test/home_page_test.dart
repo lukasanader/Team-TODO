@@ -11,14 +11,16 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:info_hub_app/helpers/base.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
+import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 
 void main() {
   late FakeFirebaseFirestore firestore = FakeFirebaseFirestore();
   late MockFirebaseAuth auth = MockFirebaseAuth();
+  late MockFirebaseStorage storage = MockFirebaseStorage();
   late Widget trendingTopicWidget;
   setUp(() {
     trendingTopicWidget = MaterialApp(
-      home: Base(auth: auth, firestore: firestore),
+      home: Base(storage: storage, auth: auth, firestore: firestore),
     );
   });
   testWidgets('Trendings topic are in right order',

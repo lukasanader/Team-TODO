@@ -11,6 +11,8 @@ import 'package:url_launcher_platform_interface/link.dart';
 import 'package:url_launcher_platform_interface/url_launcher_platform_interface.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
+import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class FakeVideoPlayerPlatform extends VideoPlayerPlatform {
   final Completer<bool> initialized = Completer<bool>();
@@ -191,6 +193,7 @@ void main() {
   late MockUrlLauncher mock;
   late FakeFirebaseFirestore firestore;
   late MockFirebaseAuth auth;
+  late MockFirebaseStorage storage;
   setUp(() {
     final MockUser mockUser = MockUser(
       isAnonymous: false,
@@ -201,10 +204,27 @@ void main() {
     auth = MockFirebaseAuth(mockUser: mockUser, signedIn: true);
 
     firestore = FakeFirebaseFirestore();
+    storage = MockFirebaseStorage();
 
     firestore.collection('Users').doc('user123').set({
       'name': 'John Doe',
       'email': 'john@example.com',
+      'likedTopics': [],
+      'dislikedTopics': [],
+    });
+
+    firestore.collection('Users').doc('adminUser').set({
+      'name': 'John Doe',
+      'email': 'john@example.com',
+      'roleType': 'admin',
+      'likedTopics': [],
+      'dislikedTopics': [],
+    });
+
+    firestore.collection('Users').doc('nonAdminUser').set({
+      'name': 'John Doe',
+      'email': 'john@example.com',
+      'roleType': 'Patient',
       'likedTopics': [],
       'dislikedTopics': [],
     });
@@ -226,7 +246,9 @@ void main() {
       'articleLink': 'https://www.javatpoint.com/heap-sort',
       'videoUrl': '',
       'likes': 0,
+      'views': 0,
       'dislikes': 0,
+      'date': DateTime.now()
     });
 
     QuerySnapshot data = await topicCollectionRef.orderBy('title').get();
@@ -234,6 +256,7 @@ void main() {
     await tester.pumpWidget(MaterialApp(
       home: ViewTopicScreen(
           firestore: firestore,
+          storage: storage,
           topic: data.docs[0] as QueryDocumentSnapshot<Object>,
           auth: auth),
     ));
@@ -257,7 +280,9 @@ void main() {
       'videoUrl':
           'https://firebasestorage.googleapis.com/v0/b/team-todo-38f76.appspot.com/o/videos%2F2024-02-01%2018:28:20.745204.mp4?alt=media&token=6d6e3aee-240d-470f-ab22-58e274a04010',
       'likes': 0,
+      'views': 0,
       'dislikes': 0,
+      'date': DateTime.now()
     });
 
     QuerySnapshot data = await topicCollectionRef.orderBy('title').get();
@@ -266,6 +291,7 @@ void main() {
     await tester.pumpWidget(MaterialApp(
       home: ViewTopicScreen(
           firestore: firestore,
+          storage: storage,
           topic: data.docs[0] as QueryDocumentSnapshot<Object>,
           auth: auth),
     ));
@@ -292,13 +318,16 @@ void main() {
       'videoUrl':
           'https://firebasestorage.googleapis.com/v0/b/team-todo-38f76.appspot.com/o/videos%2F2024-02-01%2018:28:20.745204.mp4?alt=media&token=6d6e3aee-240d-470f-ab22-58e274a04010',
       'likes': 0,
+      'views': 0,
       'dislikes': 0,
+      'date': DateTime.now()
     });
 
     QuerySnapshot data = await topicCollectionRef.orderBy('title').get();
     await tester.pumpWidget(MaterialApp(
       home: ViewTopicScreen(
           firestore: firestore,
+          storage: storage,
           topic: data.docs[0] as QueryDocumentSnapshot<Object>,
           auth: auth),
     ));
@@ -337,7 +366,9 @@ void main() {
       'videoUrl':
           'https://firebasestorage.googleapis.com/v0/b/team-todo-38f76.appspot.com/o/videos%2F2024-02-01%2018:28:20.745204.mp4?alt=media&token=6d6e3aee-240d-470f-ab22-58e274a04010',
       'likes': 0,
+      'views': 0,
       'dislikes': 0,
+      'date': DateTime.now()
     });
 
     QuerySnapshot data = await topicCollectionRef.orderBy('title').get();
@@ -355,6 +386,7 @@ void main() {
     await tester.pumpWidget(MaterialApp(
       home: ViewTopicScreen(
           firestore: firestore,
+          storage: storage,
           topic: data.docs[0] as QueryDocumentSnapshot<Object>,
           auth: auth),
     ));
@@ -395,7 +427,9 @@ void main() {
       'articleLink': 'https://www.javatpoint.com/heap-sort',
       'videoUrl': '',
       'likes': 0,
+      'views': 0,
       'dislikes': 0,
+      'date': DateTime.now()
     });
 
     QuerySnapshot data = await topicCollectionRef.orderBy('title').get();
@@ -403,6 +437,7 @@ void main() {
     await tester.pumpWidget(MaterialApp(
       home: ViewTopicScreen(
           firestore: firestore,
+          storage: storage,
           topic: data.docs[0] as QueryDocumentSnapshot<Object>,
           auth: auth),
     ));
@@ -422,8 +457,10 @@ void main() {
       'description': 'Test Description',
       'articleLink': 'https://www.javatpoint.com/heap-sort',
       'videoUrl': '',
-      'likes': 0, // Initial likes count
+      'likes': 0,
+      'views': 0, // Initial likes count
       'dislikes': 0,
+      'date': DateTime.now()
     });
 
     QuerySnapshot data = await topicCollectionRef.orderBy('title').get();
@@ -432,6 +469,7 @@ void main() {
     await tester.pumpWidget(MaterialApp(
       home: ViewTopicScreen(
           firestore: firestore,
+          storage: storage,
           topic: data.docs[0] as QueryDocumentSnapshot<Object>,
           auth: auth),
     ));
@@ -458,8 +496,10 @@ void main() {
       'description': 'Test Description',
       'articleLink': 'https://www.javatpoint.com/heap-sort',
       'videoUrl': '',
-      'likes': 0, // Initial likes count
+      'likes': 0,
+      'views': 0, // Initial likes count
       'dislikes': 0,
+      'date': DateTime.now()
     });
 
     QuerySnapshot data = await topicCollectionRef.orderBy('title').get();
@@ -467,6 +507,7 @@ void main() {
     await tester.pumpWidget(MaterialApp(
       home: ViewTopicScreen(
           firestore: firestore,
+          storage: storage,
           topic: data.docs[0] as QueryDocumentSnapshot<Object>,
           auth: auth),
     ));
@@ -493,8 +534,10 @@ void main() {
       'description': 'Test Description',
       'articleLink': 'https://www.javatpoint.com/heap-sort',
       'videoUrl': '',
-      'likes': 0, // Initial likes count
+      'likes': 0,
+      'views': 0, // Initial likes count
       'dislikes': 0,
+      'date': DateTime.now()
     });
 
     QuerySnapshot data = await topicCollectionRef.orderBy('title').get();
@@ -503,6 +546,7 @@ void main() {
     await tester.pumpWidget(MaterialApp(
       home: ViewTopicScreen(
           firestore: firestore,
+          storage: storage,
           topic: data.docs[0] as QueryDocumentSnapshot<Object>,
           auth: auth),
     ));
@@ -546,8 +590,10 @@ void main() {
       'description': 'Test Description',
       'articleLink': 'https://www.javatpoint.com/heap-sort',
       'videoUrl': '',
-      'likes': 0, // Initial likes count
+      'likes': 0,
+      'views': 0, // Initial likes count
       'dislikes': 0,
+      'date': DateTime.now()
     });
 
     QuerySnapshot data = await topicCollectionRef.orderBy('title').get();
@@ -555,6 +601,7 @@ void main() {
     await tester.pumpWidget(MaterialApp(
       home: ViewTopicScreen(
           firestore: firestore,
+          storage: storage,
           topic: data.docs[0] as QueryDocumentSnapshot<Object>,
           auth: auth),
     ));
@@ -594,8 +641,10 @@ void main() {
       'description': 'Test Description',
       'articleLink': 'https://www.javatpoint.com/heap-sort',
       'videoUrl': '',
-      'likes': 0, // Initial likes count
+      'likes': 0,
+      'views': 0, // Initial likes count
       'dislikes': 0,
+      'date': DateTime.now()
     });
 
     QuerySnapshot data = await topicCollectionRef.orderBy('title').get();
@@ -603,6 +652,7 @@ void main() {
     await tester.pumpWidget(MaterialApp(
       home: ViewTopicScreen(
           firestore: firestore,
+          storage: storage,
           topic: data.docs[0] as QueryDocumentSnapshot<Object>,
           auth: auth),
     ));
@@ -640,7 +690,9 @@ void main() {
       'articleLink': 'https://www.javatpoint.com/heap-sort',
       'videoUrl': '',
       'likes': 0,
+      'views': 0,
       'dislikes': 0,
+      'date': DateTime.now()
     });
 
     QuerySnapshot data = await topicCollectionRef.orderBy('title').get();
@@ -648,6 +700,7 @@ void main() {
     await tester.pumpWidget(MaterialApp(
       home: ViewTopicScreen(
           firestore: firestore,
+          storage: storage,
           topic: data.docs[0] as QueryDocumentSnapshot<Object>,
           auth: auth),
     ));
@@ -673,5 +726,298 @@ void main() {
     // Verify that the 'dislikes' field has been reset
 
     expect(dislikeSnapshot['dislikes'], 0);
+  });
+
+  testWidgets('Admin user sees delete topic button',
+      (WidgetTester tester) async {
+    // Mock user data
+    CollectionReference topicCollectionRef = firestore.collection('topics');
+
+    await topicCollectionRef.add({
+      'title': 'no video topic',
+      'description': 'Test Description',
+      'articleLink': 'https://www.javatpoint.com/heap-sort',
+      'videoUrl': '',
+      'likes': 0,
+      'views': 0,
+      'dislikes': 0,
+      'date': DateTime.now()
+    });
+
+    QuerySnapshot data = await topicCollectionRef.orderBy('title').get();
+
+    await tester.pumpWidget(MaterialApp(
+      home: ViewTopicScreen(
+        firestore: firestore,
+        storage: storage,
+        topic: data.docs[0] as QueryDocumentSnapshot<Object>,
+        auth: MockFirebaseAuth(
+            signedIn: true, mockUser: MockUser(uid: 'adminUser')),
+      ),
+    ));
+
+    await tester.pumpAndSettle();
+    // check that admin user sees delete topic button
+
+    expect(find.byKey(const Key('delete_topic_button')), findsOneWidget);
+  });
+
+  testWidgets('Non-Admin user cannot see delete topic button',
+      (WidgetTester tester) async {
+    CollectionReference topicCollectionRef = firestore.collection('topics');
+
+    await topicCollectionRef.add({
+      'title': 'no video topic',
+      'description': 'Test Description',
+      'articleLink': 'https://www.javatpoint.com/heap-sort',
+      'videoUrl': '',
+      'likes': 0,
+      'views': 0,
+      'dislikes': 0,
+      'date': DateTime.now()
+    });
+
+    QuerySnapshot data = await topicCollectionRef.orderBy('title').get();
+
+    await tester.pumpWidget(MaterialApp(
+      home: ViewTopicScreen(
+        firestore: firestore,
+        storage: storage,
+        topic: data.docs[0] as QueryDocumentSnapshot<Object>,
+        auth: MockFirebaseAuth(
+            signedIn: true, mockUser: MockUser(uid: 'nonAdminUser')),
+      ),
+    ));
+
+    await tester.pumpAndSettle();
+    // check that non-admin user cannot see the delete topic button
+    expect(find.byKey(const Key('delete_topic_button')), findsNothing);
+  });
+
+  testWidgets('Test tapping delete topic button deletes the topic',
+      (WidgetTester tester) async {
+    CollectionReference topicCollectionRef = firestore.collection('topics');
+
+    // Add a topic
+    DocumentReference topicDocRef = await topicCollectionRef.add({
+      'title': 'Test Topic',
+      'description': 'Test Description',
+      'articleLink': 'https://www.example.com',
+      'videoUrl':
+          'https://firebasestorage.googleapis.com/v0/b/team-todo-38f76.appspot.com/o/videos%2F2024-02-01%2018:28:20.745204.mp4?alt=media&token=6d6e3aee-240d-470f-ab22-58e274a04010',
+      'likes': 0,
+      'views': 0,
+      'dislikes': 0,
+      'date': DateTime.now()
+    });
+
+    QuerySnapshot data = await topicCollectionRef.orderBy('title').get();
+
+    await tester.pumpWidget(MaterialApp(
+      home: ViewTopicScreen(
+        firestore: firestore,
+        storage: storage,
+        topic: data.docs[0] as QueryDocumentSnapshot<Object>,
+        auth: MockFirebaseAuth(
+            signedIn: true, mockUser: MockUser(uid: 'adminUser')),
+      ),
+    ));
+
+    await tester.pumpAndSettle();
+
+    // Find the delete topic button and tap it
+    await tester.tap(find.byKey(const Key('delete_topic_button')));
+
+    // Wait for the asynchronous operations to complete
+    await tester.pumpAndSettle();
+
+    expect(find.byType(AlertDialog), findsOneWidget);
+
+    await tester.tap(find.text('Delete'));
+
+    await tester.pumpAndSettle();
+
+    // topic is deleted from firebase
+
+    DocumentSnapshot topicSnapshot = await topicDocRef.get();
+
+    expect(topicSnapshot.exists, false);
+
+    final ListResult result = await storage.ref().child('videos').listAll();
+
+    expect(result.items.length, equals(0));
+  });
+
+  testWidgets(
+      'Test tapping delete topic button then cancel does not delete topic',
+      (WidgetTester tester) async {
+    CollectionReference topicCollectionRef = firestore.collection('topics');
+
+    // Add a topic
+    DocumentReference topicDocRef = await topicCollectionRef.add({
+      'title': 'Test Topic',
+      'description': 'Test Description',
+      'articleLink': 'https://www.example.com',
+      'videoUrl': '',
+      'likes': 0,
+      'views': 0,
+      'dislikes': 0,
+      'date': DateTime.now()
+    });
+
+    QuerySnapshot data = await topicCollectionRef.orderBy('title').get();
+
+    await tester.pumpWidget(MaterialApp(
+      home: ViewTopicScreen(
+        firestore: firestore,
+        storage: storage,
+        topic: data.docs[0] as QueryDocumentSnapshot<Object>,
+        auth: MockFirebaseAuth(
+            signedIn: true, mockUser: MockUser(uid: 'adminUser')),
+      ),
+    ));
+
+    await tester.pumpAndSettle();
+
+    // Find the delete topic button and tap it
+    await tester.tap(find.byKey(const Key('delete_topic_button')));
+
+    // Wait for the asynchronous operations to complete
+    await tester.pumpAndSettle();
+
+    expect(find.byType(AlertDialog), findsOneWidget);
+
+    await tester.tap(find.text('Cancel'));
+
+    await tester.pumpAndSettle();
+
+    DocumentSnapshot topicSnapshot = await topicDocRef.get();
+
+    expect(topicSnapshot.exists, true);
+
+    expect(find.byKey(const Key('delete_topic_button')), findsOneWidget);
+  });
+
+  testWidgets('Test delete topic button removes topic from user liked topics',
+      (WidgetTester tester) async {
+    CollectionReference topicCollectionRef = firestore.collection('topics');
+
+    // Add a topic
+    DocumentReference topicDocRef = await topicCollectionRef.add({
+      'title': 'Test Topic',
+      'description': 'Test Description',
+      'articleLink': 'https://www.example.com',
+      'videoUrl': '',
+      'likes': 0,
+      'views': 0,
+      'dislikes': 0,
+      'date': DateTime.now()
+    });
+
+    QuerySnapshot data = await topicCollectionRef.orderBy('title').get();
+
+    await tester.pumpWidget(MaterialApp(
+      home: ViewTopicScreen(
+        firestore: firestore,
+        storage: storage,
+        topic: data.docs[0] as QueryDocumentSnapshot<Object>,
+        auth: MockFirebaseAuth(
+            signedIn: true, mockUser: MockUser(uid: 'adminUser')),
+      ),
+    ));
+
+    await tester.pumpAndSettle();
+
+    DocumentReference adminUserDocRef =
+        firestore.collection('Users').doc('adminUser');
+
+    // like topic
+    await tester.tap(find.byIcon(Icons.thumb_up));
+
+    await tester.pumpAndSettle();
+
+    DocumentSnapshot adminUserSnapshot = await adminUserDocRef.get();
+
+    List<dynamic> listAfterLike =
+        List<dynamic>.from(adminUserSnapshot['likedTopics']);
+
+    expect(listAfterLike.contains(topicDocRef.id), true);
+
+    await tester.tap(find.byKey(const Key('delete_topic_button')));
+
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Delete'));
+
+    await tester.pumpAndSettle();
+
+    DocumentSnapshot secondSnapshot = await adminUserDocRef.get();
+
+    List<dynamic> listAfterDelete =
+        List<dynamic>.from(secondSnapshot['likedTopics']);
+
+    expect(listAfterDelete.contains(topicDocRef.id), false);
+  });
+
+  testWidgets(
+      'Test delete topic button removes topic from user disliked topics',
+      (WidgetTester tester) async {
+    CollectionReference topicCollectionRef = firestore.collection('topics');
+
+    // Add a topic
+    DocumentReference topicDocRef = await topicCollectionRef.add({
+      'title': 'Test Topic',
+      'description': 'Test Description',
+      'articleLink': 'https://www.example.com',
+      'videoUrl': '',
+      'likes': 0,
+      'views': 0,
+      'dislikes': 0,
+      'date': DateTime.now()
+    });
+
+    QuerySnapshot data = await topicCollectionRef.orderBy('title').get();
+
+    await tester.pumpWidget(MaterialApp(
+      home: ViewTopicScreen(
+        firestore: firestore,
+        storage: storage,
+        topic: data.docs[0] as QueryDocumentSnapshot<Object>,
+        auth: MockFirebaseAuth(
+            signedIn: true, mockUser: MockUser(uid: 'adminUser')),
+      ),
+    ));
+
+    await tester.pumpAndSettle();
+
+    DocumentReference adminUserDocRef =
+        firestore.collection('Users').doc('adminUser');
+
+    // like topic
+    await tester.tap(find.byIcon(Icons.thumb_down));
+
+    await tester.pumpAndSettle();
+
+    DocumentSnapshot adminUserSnapshot = await adminUserDocRef.get();
+
+    List<dynamic> listAfterDislike =
+        List<dynamic>.from(adminUserSnapshot['dislikedTopics']);
+
+    expect(listAfterDislike.contains(topicDocRef.id), true);
+
+    await tester.tap(find.byKey(const Key('delete_topic_button')));
+
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Delete'));
+
+    await tester.pumpAndSettle();
+
+    DocumentSnapshot secondSnapshot = await adminUserDocRef.get();
+
+    List<dynamic> listAfterDelete =
+        List<dynamic>.from(secondSnapshot['dislikedTopics']);
+
+    expect(listAfterDelete.contains(topicDocRef.id), false);
   });
 }
