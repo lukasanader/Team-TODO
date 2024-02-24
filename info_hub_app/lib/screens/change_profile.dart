@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'home_page.dart';
+import 'dashboard.dart';
 
 
 class ChangeProfile extends StatefulWidget {
@@ -116,7 +116,7 @@ class _ChangeProfileState extends State<ChangeProfile> {
                 await _updateProfile();
 
                 // Navigate to the RegistrationScreen after changes saved
-                _navigatorState.push(MaterialPageRoute(builder: (context) => HomePage(firestore: widget.firestore, auth: widget.auth,)));
+                _navigatorState.push(MaterialPageRoute(builder: (context) => MainPage(firestore: widget.firestore, auth: widget.auth,)));
 
                 // Show a SnackBar if changes were saved successfully
                 ScaffoldMessenger.of(context).showSnackBar(
