@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:info_hub_app/patient_experience/patient_experience_model.dart';
+import 'package:info_hub_app/patient_experience/experience_model.dart';
 
 
 

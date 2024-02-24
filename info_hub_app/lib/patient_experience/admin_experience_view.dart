@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/patient_experience/experiences_card.dart';
-import 'package:info_hub_app/patient_experience/patient_experience_model.dart';
+import 'package:info_hub_app/patient_experience/experience_model.dart';
 
 class AdminExperienceView extends StatefulWidget {
   final FirebaseFirestore firestore;
@@ -31,11 +31,12 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
       appBar: AppBar(
         title: const Text("All Submitted Experiences"),
       ),
-      body: SafeArea(
+      body: SingleChildScrollView(
         child: Column(
           children: [
             const Text("Verified experiences"),
-            Expanded(child: ListView.builder(
+            ListView.builder(
+              shrinkWrap: true,
               itemCount: _verifiedExperienceList.length,
               itemBuilder: (context, index) {
                 return Row(
@@ -55,12 +56,12 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
                     )
                   ],
                 );
-
               }
-              ),
             ),
+            const SizedBox(height: 30),
             const Text("Unverified experiences"),
-            Expanded(child: ListView.builder(
+            ListView.builder(
+              shrinkWrap: true,
               itemCount: _unverifiedExperienceList.length,
               itemBuilder: (context, index) {
                 return Row(
@@ -81,7 +82,6 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
                   ],
                 );
               }
-              ),
             ),
           ],
         )

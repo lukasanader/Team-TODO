@@ -1,7 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:info_hub_app/patient_experience/patient_experience_model.dart';
+import 'package:info_hub_app/patient_experience/experience_model.dart';
+import 'package:info_hub_app/patient_experience/experiences_card.dart';
 
 class ExperienceView extends StatefulWidget {
   final FirebaseFirestore firestore;
@@ -15,7 +16,14 @@ class _ExperienceViewState extends State<ExperienceView> {
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _titleController = TextEditingController();
   final Experience _experience = Experience();
+  List<Experience> _experienceList = [];
   
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    getExperienceList();
+  }
 
 
   @override
@@ -24,20 +32,27 @@ class _ExperienceViewState extends State<ExperienceView> {
       appBar: AppBar(
         title: const Text("Paitent's Experiences"),
       ),
-      body: Column(
-        children: [
-          ElevatedButton(
-            onPressed: () {
-              _showPostDialog();
-            },
-            child: const Text("Share your experience!"),
-          )
-        ],
-
-      ) 
-      
-
-    );
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded( 
+              child: ListView.builder(
+                itemCount: _experienceList.length,
+                itemBuilder: (context, index) {
+                  return ExperienceCard(_experienceList[index]);
+                }
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                _showPostDialog();
+              },
+              child: const Text("Share your experience!"),
+            )
+          ],
+        ) 
+      )
+    ); 
   }
 
 
@@ -90,6 +105,15 @@ class _ExperienceViewState extends State<ExperienceView> {
     );
   }
 
+  Future getExperienceList() async {
+    QuerySnapshot data = await widget.firestore.collection('experiences').where('verified', isEqualTo: true).get();
+
+    setState(() {
+      _experienceList = List.from(data.docs.map((doc) => Experience.fromSnapshot(doc)));
+    });
+  }
+
+
   void _saveExperience() async {
     // FirebaseAuth auth = FirebaseAuth.instance;
     // User? user = auth.currentUser;
@@ -103,7 +127,6 @@ class _ExperienceViewState extends State<ExperienceView> {
 
     CollectionReference db = widget.firestore.collection('experiences');
     await db.add(_experience.toJson());
-    
   }
 
 }
