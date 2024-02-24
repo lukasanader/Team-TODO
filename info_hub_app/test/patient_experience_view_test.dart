@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -18,11 +20,13 @@ void main() {
 
     topicsCollectionRef.add({
       'title' : 'Example 1',
-      'experience' : 'Example experience'
+      'description' : 'Example experience',
+      'verified' : true
     });
     topicsCollectionRef.add({
       'title' : 'Example 2',
-      'experience' : 'Example experience'
+      'description' : 'Example experience',
+      'verified' : false
     });
 
     experienceViewWidget = MaterialApp(
@@ -31,8 +35,21 @@ void main() {
 
   });
 
+  testWidgets('The verified experiences are being displayed', (WidgetTester tester) async {
+    // Build our app and trigger a frame.
+    await tester.pumpWidget(experienceViewWidget);
+    await tester.pumpAndSettle();
+
+    Finder listViewFinder = find.byType(ListView);
+    expect(listViewFinder, findsOneWidget);
+
+    Finder cardFinder = find.byType(Card);
+    expect(cardFinder, findsNWidgets(1));
 
 
+
+    expect(find.text('Example 1'), findsOneWidget);
+  });
 
   testWidgets('Share experience works', (WidgetTester tester) async {
     // Build our app and trigger a frame.

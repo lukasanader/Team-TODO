@@ -15,8 +15,6 @@ class ExperienceCard extends StatefulWidget {
 }
 
 class _ExperienceCardState extends State<ExperienceCard> {
-  bool isSwitched = false;
-
 
   @override
   Widget build(BuildContext context) {
@@ -49,10 +47,5 @@ class _ExperienceCardState extends State<ExperienceCard> {
       ),
     );
   }
-
-  
-
-
-
 
 }
