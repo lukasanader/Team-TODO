@@ -38,7 +38,24 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
             Expanded(child: ListView.builder(
               itemCount: _verifiedExperienceList.length,
               itemBuilder: (context, index) {
-                return AdminExperienceCard(_verifiedExperienceList[index], widget.firestore);
+                return Row(
+                  children: [
+                    Flexible(
+                      flex: 9,
+                      child: ExperienceCard(_verifiedExperienceList[index])
+                    ),
+                    Flexible(
+                      flex: 1,
+                      child: IconButton(
+                        onPressed: () {
+                          updateVerification(_verifiedExperienceList[index]);
+                        }, 
+                        icon: const Icon(Icons.check)
+                      )                    
+                    )
+                  ],
+                );
+
               }
               ),
             ),
@@ -46,17 +63,31 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
             Expanded(child: ListView.builder(
               itemCount: _unverifiedExperienceList.length,
               itemBuilder: (context, index) {
-                return AdminExperienceCard(_unverifiedExperienceList[index], widget.firestore);
+                return Row(
+                  children: [
+                    Flexible(
+                      flex: 9,
+                      child: ExperienceCard(_unverifiedExperienceList[index])
+                    ),
+                    Flexible(
+                      flex: 1,
+                      child: IconButton(
+                        onPressed: () {
+                          updateVerification(_unverifiedExperienceList[index]);
+                        }, 
+                        icon: const Icon(Icons.check)
+                      )                    
+                    )
+                  ],
+                );
               }
               ),
             ),
-            ElevatedButton(onPressed: () {print(_experienceList);}, child: Text("test"))
           ],
         )
       )
     );
   }
-
 
 
   Future getExperienceList() async {
@@ -67,7 +98,16 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
       _verifiedExperienceList = _experienceList.where((experience) => experience.verified == true).toList();
       _unverifiedExperienceList = _experienceList.where((experience) => experience.verified == false).toList();
     });
+  }
 
+  Future<void> updateVerification(Experience experience) async {
+    bool newValue = experience.verified == true ? false : true;
+
+    await widget.firestore.collection('experiences').doc(experience.id).update({
+      'verified' : newValue,
+    });
+
+    getExperienceList();
   }
 
 }
