@@ -14,6 +14,8 @@ class AdminExperienceView extends StatefulWidget {
 
 class _AdminExperienceViewState extends State<AdminExperienceView> {
   List<Experience> _experienceList = [];
+  List<Experience> _verifiedExperienceList = [];
+  List<Experience> _unverifiedExperienceList = [];
 
   @override
   void didChangeDependencies() {
@@ -32,13 +34,23 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
       body: SafeArea(
         child: Column(
           children: [
+            const Text("Verified experiences"),
             Expanded(child: ListView.builder(
-              itemCount: _experienceList.length,
+              itemCount: _verifiedExperienceList.length,
               itemBuilder: (context, index) {
-                return AdminExperienceCard(_experienceList[index]);
+                return AdminExperienceCard(_verifiedExperienceList[index], widget.firestore);
               }
               ),
-            )
+            ),
+            const Text("Unverified experiences"),
+            Expanded(child: ListView.builder(
+              itemCount: _unverifiedExperienceList.length,
+              itemBuilder: (context, index) {
+                return AdminExperienceCard(_unverifiedExperienceList[index], widget.firestore);
+              }
+              ),
+            ),
+            ElevatedButton(onPressed: () {print(_experienceList);}, child: Text("test"))
           ],
         )
       )
@@ -52,6 +64,8 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
 
     setState(() {
       _experienceList = List.from(data.docs.map((doc) => Experience.fromSnapshot(doc)));
+      _verifiedExperienceList = _experienceList.where((experience) => experience.verified == true).toList();
+      _unverifiedExperienceList = _experienceList.where((experience) => experience.verified == false).toList();
     });
 
   }

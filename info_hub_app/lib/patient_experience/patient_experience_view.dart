@@ -99,7 +99,7 @@ class _ExperienceViewState extends State<ExperienceView> {
     // if (user != null) {
     //   _experience.uid = user.uid;
     // }
-    _experience.verified = true;
+    _experience.verified = false;
 
     CollectionReference db = widget.firestore.collection('experiences');
     await db.add(_experience.toJson());
