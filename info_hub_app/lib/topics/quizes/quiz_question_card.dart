@@ -20,6 +20,8 @@ class QuizQuestionCard extends StatefulWidget {
 class _QuizQuestionCardState extends State<QuizQuestionCard> {
   List<String> answers = [];
   List<bool> selected = [];
+  bool invalidAnswer = false;
+  bool invalid =false;
   bool saved = false;
   final TextEditingController _answerController = TextEditingController();
 
@@ -43,6 +45,7 @@ class _QuizQuestionCardState extends State<QuizQuestionCard> {
                 itemCount: answers.length,
                 itemBuilder: (context, index) {
                   return AnswerCard(
+                    key: Key('answerCard_$index'),
                     answer: answers[index],
                     anserNo: index + 1,
                     onSelected: onSelected,
@@ -55,6 +58,7 @@ class _QuizQuestionCardState extends State<QuizQuestionCard> {
               children: [
                 Expanded(
                   child: TextFormField(
+                    key: const Key('answerField'),
                     controller: _answerController,
                     decoration: const InputDecoration(
                       hintText: 'Enter a possible answer',
@@ -68,9 +72,16 @@ class _QuizQuestionCardState extends State<QuizQuestionCard> {
                   child: ElevatedButton(
                     onPressed: () {
                       setState(() {
-                        answers.add(_answerController.text);
-                        selected.add(false);
-                        _answerController.clear();
+                        if(_answerController.text.isEmpty){
+                          invalidAnswer =true;
+                          saved=false;
+                        }else{
+                          invalidAnswer = false;
+                          invalid =false;
+                          answers.add(_answerController.text);
+                          selected.add(false);
+                          _answerController.clear();
+                        }
                       });
                     },
                     child: const Icon(Icons.add),
@@ -82,15 +93,26 @@ class _QuizQuestionCardState extends State<QuizQuestionCard> {
             ElevatedButton(
               onPressed: () {
                 setState(() {
+                if(!selected.contains(true)){
+                  saved =false;
+                  invalid = true;
+                }else{
+                  invalid = false;
+                  invalidAnswer = false;
                   saved = true;
                   _answerController.clear();
+                  QuizService(firestore: widget.firestore).addQuestion(widget.question,getCorrectAnswers(),getWrongAnswers(),widget.quizID);
+                }
                 });
-              QuizService(firestore: widget.firestore).addQuestion(widget.question,getCorrectAnswers(),getWrongAnswers(),widget.quizID);
               },
               child: const Text('Save'),
             ),
           if (saved)
           const Text('Question has been saved!')
+          else if (invalidAnswer)
+          const Text('Enter a valid answer')
+          else if (invalid)
+          const Text('Enter a valid question')
           ],
         ),
 

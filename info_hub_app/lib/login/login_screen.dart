@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -82,21 +84,17 @@ class _LoginScreenState extends State<LoginScreen> {
                       User? user = await _auth.signInUser(emailController.text, passwordController.text);
                       if (user != null) {
                         DocumentSnapshot snapshot = await widget.firestore.collection('Users').doc(user.uid).get();
-                        print(snapshot.data());
+                        Widget nextPage;
                         if(snapshot['roleType']== 'admin'){
-                          Navigator.pushReplacement(context,
+                           nextPage = AdminHomepage(firestore: widget.firestore,storage: widget.storage,);
+                          }else{
+                            nextPage = Base(firestore: widget.firestore,);
+                          }
+                         Navigator.pushReplacement(context,
                           MaterialPageRoute(
-                            builder :(context) => AdminHomepage(firestore: widget.firestore,storage: widget.storage,),
+                            builder :(context) => nextPage
                           ),
                           );
-                        }else{
-                          Navigator.pushReplacement(context,
-                          MaterialPageRoute(
-                            builder :(context) => Base(firestore: widget.firestore,),
-                          ),
-                          );
-                        }
-                        
                   }else{
                     ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(

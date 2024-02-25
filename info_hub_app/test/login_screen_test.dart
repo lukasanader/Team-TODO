@@ -57,6 +57,13 @@ void main() {
 
   testWidgets('test if log in works on a valid user', (WidgetTester test) async{
     await auth.createUserWithEmailAndPassword(email: 'gamer@gmail.com', password: 'G@mer123');
+    String uid = auth.currentUser!.uid;
+    await firestore.collection('Users').doc(uid).set({
+      'email': 'gamer@gmail.com',
+      'firstName': 'John',
+      'lastName': 'Doe',
+      'roleType': 'Patient'
+    });
     await test.pumpWidget(MaterialApp(home: LoginScreen(firestore: firestore, auth: auth,storage: storage,)));
     final emailField = find.ancestor(
       of: find.text('Email'), 

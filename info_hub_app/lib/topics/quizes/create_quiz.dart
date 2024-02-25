@@ -74,10 +74,12 @@ String quizID = const Uuid().v4();
              SizedBox(
                   child: ElevatedButton(
                     onPressed: () {
+                      if(questions.isNotEmpty){
                       setState(() {
                         widget.addQuiz(quizID);
-                        Navigator.pop(context);
                       });
+                      }
+                      Navigator.pop(context);
                     },
                     child: const Text('Save Quiz'),
                   ),
