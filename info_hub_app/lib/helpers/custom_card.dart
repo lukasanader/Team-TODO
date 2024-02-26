@@ -108,6 +108,20 @@ class _CustomCardState extends State<CustomCard> {
                     icon: const Icon(FontAwesomeIcons.trashAlt, size: 15),
                     onPressed: () async {
                       if (!mounted) return;
+                      // batch delete removes up to 500 replies at a time from the replies collection due to firestore limitations
+                      final replyQuerySnapshot = await widget.firestore
+                          .collection("replies")
+                          .where('threadId', isEqualTo: docId)
+                          .get();
+
+                      final WriteBatch batch = widget.firestore.batch();
+                      for (DocumentSnapshot replyDoc
+                          in replyQuerySnapshot.docs) {
+                        batch.delete(replyDoc.reference);
+                      }
+
+                      await batch.commit();
+
                       await widget.firestore
                           .collection("thread")
                           .doc(docId)

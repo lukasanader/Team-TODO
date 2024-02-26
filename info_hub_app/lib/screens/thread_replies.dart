@@ -29,6 +29,7 @@ class _ThreadRepliesState extends State<ThreadReplies> {
     replyStream = FirebaseFirestore.instance
         .collection("replies")
         .where('threadId', isEqualTo: widget.threadId)
+        //.orderBy('timestamp', descending: false)
         .snapshots();
     contentInputController = TextEditingController();
     authorInputController = TextEditingController();
