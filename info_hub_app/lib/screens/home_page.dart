@@ -77,8 +77,8 @@ class _HomePageState extends State<HomePage> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.of(context).push(CupertinoPageRoute(
-              builder: (BuildContext context) =>
-                  ThreadApp(firestore: widget.firestore)));
+              builder: (BuildContext context) => ThreadApp(
+                  firestore: widget.firestore, auth: FirebaseAuth.instance)));
         },
         child: Icon(FontAwesomeIcons.comment),
       ),
