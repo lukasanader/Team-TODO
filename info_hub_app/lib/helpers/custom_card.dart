@@ -64,7 +64,6 @@ class _CustomCardState extends State<CustomCard> {
 
     return Column(
       children: <Widget>[
-        //Container(
         SizedBox(
           height: 140,
           child: Card(
@@ -82,8 +81,9 @@ class _CustomCardState extends State<CustomCard> {
                       child: InkWell(
                         onTap: () {
                           Navigator.of(context).push(CupertinoPageRoute(
-                              builder: (BuildContext context) =>
-                                  const ThreadReplies())); // Replace with actual thread replies page
+                              builder: (BuildContext context) => ThreadReplies(
+                                    threadId: docId,
+                                  )));
                         },
                         child: Text(
                           title,
@@ -173,7 +173,6 @@ class _CustomCardState extends State<CustomCard> {
 
     if (!mounted) return;
 
-    // Reinitialize the TextEditingController instances with the latest document data
     titleInputController.text = docData['title'] ?? '';
     descriptionInputController.text = docData['description'] ?? '';
     nameInputController.text = docData['name'] ?? '';
