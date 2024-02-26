@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'dashboard.dart';
-
+import '../screens/dashboard.dart';
 
 class ChangeProfile extends StatefulWidget {
   final FirebaseFirestore firestore;
@@ -25,7 +24,9 @@ class _ChangeProfileState extends State<ChangeProfile> {
   final TextEditingController _confirmPasswordController = TextEditingController();
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
-  String _errorText = '';
+  String _firstNameErrorText = '';
+  String _lastNameErrorText = '';
+  String _passwordErrorText = '';
   bool _passwordsMatch = true;
 
   @override
@@ -48,24 +49,25 @@ class _ChangeProfileState extends State<ChangeProfile> {
             const SizedBox(height: 10),
             TextField(
               controller: _firstNameController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'First Name',
                 border: OutlineInputBorder(),
+                errorText: _firstNameErrorText.isNotEmpty ? _firstNameErrorText : null,
               ),
             ),
             const SizedBox(height: 10),
             TextField(
               controller: _lastNameController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Last Name',
                 border: OutlineInputBorder(),
+                errorText: _lastNameErrorText.isNotEmpty ? _lastNameErrorText : null,
               ),
             ),
             const SizedBox(height: 10),
             TextField(
               controller: _newPasswordController,
               obscureText: true,
-              
               decoration: const InputDecoration(
                 labelText: 'New Password',
                 border: OutlineInputBorder(),
@@ -78,66 +80,85 @@ class _ChangeProfileState extends State<ChangeProfile> {
               decoration: InputDecoration(
                 labelText: 'Confirm Password',
                 border: const OutlineInputBorder(),
-                errorText: !_passwordsMatch ? 'Passwords do not match' : null,
+                errorText: _passwordErrorText.isNotEmpty ? _passwordErrorText : null,
               ),
             ),
             const SizedBox(height: 10),
             ElevatedButton(
               onPressed: () async {
-                // Check if the first name consists of only letters
-                if (!_isAlpha(_firstNameController.text)) {
-                  setState(() {
-                    _errorText = 'First name must consist of letters only';
-                  });
+                setState(() {
+                  // Reset error text
+                  _firstNameErrorText = '';
+                  _lastNameErrorText = '';
+                  _passwordErrorText = '';
+                });
+
+                // Validation logic
+                if (!_validateInputs()) {
                   return;
                 }
 
-                // Check if the last name consists of only letters
-                if (!_isAlpha(_lastNameController.text)) {
-                  setState(() {
-                    _errorText = 'Last name must consist of letters only';
-                  });
-                  return;
-                }
-
-                // Check if the password meets the criteria
-                if (!_isPasswordValid(_newPasswordController.text)) {
-                  setState(() {
-                    _errorText = 'Password must contain:\n'
-                        '- At least one lowercase letter\n'
-                        '- One uppercase letter\n'
-                        '- One number\n'
-                        '- One special character';
-                  });
-                  return;
-                }
-
-                // Update first name, last name, and password
+                // Update profile
                 await _updateProfile();
 
-                // Navigate to the RegistrationScreen after changes saved
+                // Navigate and show success message
                 _navigatorState.push(MaterialPageRoute(builder: (context) => MainPage(firestore: widget.firestore, auth: widget.auth,)));
-
-                // Show a SnackBar if changes were saved successfully
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text('Changes saved'),
                     duration: Duration(seconds: 5),
-                    backgroundColor: Colors.green, // Set the background color to green
+                    backgroundColor: Colors.green,
                   ),
                 );
               },
               child: const Text('Save Changes'),
             ),
-            const SizedBox(height: 10),
-            Text(
-              _errorText,
-              style: TextStyle(color: _passwordsMatch ? Colors.green : Colors.red),
-            ),
           ],
         ),
       ),
     );
+  }
+
+  bool _validateInputs() {
+    bool isValid = true;
+
+    // Check first name
+    if (!_isAlpha(_firstNameController.text)) {
+      setState(() {
+        _firstNameErrorText = 'First name must consist of letters only';
+      });
+      isValid = false;
+    }
+
+    // Check last name
+    if (!_isAlpha(_lastNameController.text)) {
+      setState(() {
+        _lastNameErrorText = 'Last name must consist of letters only';
+      });
+      isValid = false;
+    }
+
+    // Check password match
+    if (_newPasswordController.text != _confirmPasswordController.text) {
+      setState(() {
+        _passwordErrorText = 'Passwords do not match';
+      });
+      isValid = false;
+    }
+
+    // Check password requirements
+    if (!_isPasswordValid(_newPasswordController.text)) {
+      setState(() {
+        _passwordErrorText = 'Password must contain:\n'
+                  '- At least one lowercase letter\n'
+                  '- One uppercase letter\n'
+                  '- One number\n'
+                  '- One special character';
+      });
+      isValid = false;
+    }
+
+    return isValid;
   }
 
   bool _isAlpha(String text) {
@@ -150,38 +171,51 @@ class _ChangeProfileState extends State<ChangeProfile> {
     return passwordRegExp.hasMatch(password);
   }
 
-  Future<void> _updateProfile() async {
-    final user = widget.auth.currentUser;
-    
-    if (user != null) {
-      // Update first name and last name in Firestore
-      try {
-        final docRef = widget.firestore.collection('Users');
-        docRef.get().then((querySnapshot) {
-          querySnapshot.docs.forEach((doc) {
-            if (doc['uid'] == user.uid) {
-              docRef.doc(doc.id).update({
-                'firstName': _firstNameController.text,
-                'lastName': _lastNameController.text,
-              });
-            }
-          });
-        });
-      } catch (e) {
-        //notification if profile update failed
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Profile Update failed. Please try again.'),
-            duration: Duration(seconds: 3),
-          ),
-        );
-      }
+Future<void> _updateProfile() async {
+  final user = widget.auth.currentUser;
 
-      // Update password
-      await user.updatePassword(_newPasswordController.text);
-    }
+  if (user != null) {
+    // Update first name and last name in Firestore
+    final docRef = widget.firestore.collection('Users');
+
+    final querySnapshot = await docRef.get();
+    final userDoc = querySnapshot.docs.firstWhere((doc) => doc.id == user.uid);
+    
+    await docRef.doc(userDoc.id).update({
+      'firstName': _firstNameController.text,
+      'lastName': _lastNameController.text,
+    });
+
+    // Update password
+    await user.updatePassword(_newPasswordController.text);
   }
 }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
