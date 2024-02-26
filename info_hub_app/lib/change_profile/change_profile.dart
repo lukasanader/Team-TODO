@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../screens/dashboard.dart';
 
 class ChangeProfile extends StatefulWidget {
   final FirebaseFirestore firestore;
@@ -18,7 +17,7 @@ class ChangeProfile extends StatefulWidget {
 }
 
 class _ChangeProfileState extends State<ChangeProfile> {
-  late NavigatorState _navigatorState;
+
 
   final TextEditingController _newPasswordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
@@ -27,12 +26,10 @@ class _ChangeProfileState extends State<ChangeProfile> {
   String _firstNameErrorText = '';
   String _lastNameErrorText = '';
   String _passwordErrorText = '';
-  bool _passwordsMatch = true;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _navigatorState = Navigator.of(context);
   }
 
   @override
@@ -102,7 +99,7 @@ class _ChangeProfileState extends State<ChangeProfile> {
                 await _updateProfile();
 
                 // Navigate and show success message
-                _navigatorState.push(MaterialPageRoute(builder: (context) => MainPage(firestore: widget.firestore, auth: widget.auth,)));
+                Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text('Changes saved'),
@@ -191,92 +188,3 @@ Future<void> _updateProfile() async {
   }
 }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

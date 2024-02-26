@@ -120,10 +120,13 @@ testWidgets('Test if "Email sent" green notification is displayed', (WidgetTeste
       await tester.enterText(emailField, 'john.doe@example.org');
 
       // Tap the "Send Email" button to trigger sending the email
+
+      await tester.ensureVisible(find.text('Send Email'));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Send Email'));
 
       // Wait for the UI to update
-      await tester.pumpAndSettle();
+      await tester.pump();
 
       // Verify that the "Email sent" green notification is displayed
       expect(find.text('Email sent'), findsWidgets);

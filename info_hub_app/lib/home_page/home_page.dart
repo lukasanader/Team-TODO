@@ -62,10 +62,16 @@ class _HomePageState extends State<HomePage> {
             onPressed: () {
               // Placeholder method for profile picture icon
               // Navigate to profile page
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) =>  ChangeProfile(firestore: widget.firestore, auth: widget.auth )),
-              );
+              Navigator.of(context).push(
+                      CupertinoPageRoute(
+                        builder: (BuildContext context) {
+                          return ChangeProfile(
+                            firestore: widget.firestore,
+                            auth: widget.auth,
+                          );
+                        },
+                      ),
+                    );
             },
           ),
         ],
