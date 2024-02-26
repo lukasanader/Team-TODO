@@ -102,7 +102,7 @@ class _ChangeProfileState extends State<ChangeProfile> {
                 await _updateProfile();
 
                 // Navigate and show success message
-                _navigatorState.push(MaterialPageRoute(builder: (context) => MainPage(firestore: widget.firestore, auth: widget.auth,)));
+                Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text('Changes saved'),
@@ -171,112 +171,30 @@ class _ChangeProfileState extends State<ChangeProfile> {
     return passwordRegExp.hasMatch(password);
   }
 
-Future<void> _updateProfile() async {
+  Future<void> _updateProfile() async {
   final user = widget.auth.currentUser;
 
   if (user != null) {
-    // Update first name and last name in Firestore
     final docRef = widget.firestore.collection('Users');
 
-    final querySnapshot = await docRef.get();
-    final userDoc = querySnapshot.docs.firstWhere((doc) => doc.id == user.uid);
+    final querySnapshot = await docRef.where('uid', isEqualTo: user.uid).get();
     
-    await docRef.doc(userDoc.id).update({
-      'firstName': _firstNameController.text,
-      'lastName': _lastNameController.text,
-    });
+    if (querySnapshot.docs.isNotEmpty) {
+      final userDoc = querySnapshot.docs.first;
+      
+      await docRef.doc(userDoc.id).update({
+        'firstName': _firstNameController.text,
+        'lastName': _lastNameController.text,
+      });
+    } else {
+      // Handle case where no user document is found
+      print('No user document found');
+      return;
+    }
 
     // Update password
     await user.updatePassword(_newPasswordController.text);
   }
 }
+
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
