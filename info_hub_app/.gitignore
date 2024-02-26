@@ -9,6 +9,7 @@
 .history
 .svn/
 migrate_working_dir/
+.vscode
 
 # IntelliJ related
 *.iml
@@ -142,6 +143,11 @@ lib/generated_plugin_registrant.dart
 # Icon must end with two \r
 Icon
 
+# Desktop files
+
+/linux/
+/macos/
+/windows/
 
 # Thumbnails
 ._*

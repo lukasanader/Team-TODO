@@ -1,130 +1,165 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
+/*
+ * This is a skeleton home page, which contains an app bar with the 
+ * notifications and profile icons. This also contains a placeholder 
+ * NotificationPage() and ProfilePage(), which should be replaced with the 
+ * genuine article.
+ */
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../screens/registration_screen.dart';
-import '../reset_password/reset_password.dart'; 
+import 'package:flutter/material.dart';
+import 'package:info_hub_app/topics/topics_card.dart';
+import 'package:info_hub_app/notifications/notifications.dart';
+import 'package:info_hub_app/threads/threads.dart';
+import 'package:info_hub_app/services/database.dart';
 
-class HomePage extends StatelessWidget {
-  final FirebaseFirestore firestore;
-  final FirebaseAuth auth;
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:flutter/cupertino.dart';
 
-  const HomePage({Key? key, required this.firestore, required this.auth})
-      : super(key: key);
+
+class HomePage extends StatefulWidget {
+  FirebaseFirestore firestore;
+  //User? user = FirebaseAuth.instance.currentUser;
+  HomePage({super.key, required this.firestore});
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  List<Object> _topicsList = [];
+  int topicLength = 0;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    getTopicsList();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: SingleChildScrollView( // Wrap with SingleChildScrollView
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image.asset(
-                'assets/base_image.png',
-                width: 180.0,
-                height: 180.0,
-                fit: BoxFit.cover,
-              ),
-              const SizedBox(height: 16.0),
-              const Text(
-                'Team TODO',
-                style: TextStyle(
-                  fontSize: 24.0,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-              ),
-              const SizedBox(height: 250.0),
-              // Register Button
-              SizedBox(
-                width: 250.0,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => RegistrationScreen(
-                          firestore: firestore,
-                          auth: auth,
-                        ),
-                      ),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                  ),
-                  child: const Padding(
-                    padding: EdgeInsets.all(10.0),
-                    child: Text(
-                      'Register',
-                      style: TextStyle(fontSize: 16, color: Colors.white),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20.0),
-              // Login Button
-              SizedBox(
-                width: 250.0,
-                child: OutlinedButton(
-                  onPressed: () {
-                    // ADD LOGIN HERE
-                  },
-                  style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: Colors.red),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                  ),
-                  child: const Padding(
-                    padding: EdgeInsets.all(10.0),
-                    child: Text(
-                      'Login',
-                      style: TextStyle(fontSize: 16, color: Colors.black),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20.0),
-              // Reset Password Button
-              SizedBox(
-                width: 250.0,
-                child: OutlinedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ResetPassword(
-                          firestore: firestore,
-                          auth: auth,
-                        ),
-                      ),
-                    );
-                  },
-                  style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: Colors.blue),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                  ),
-                  child: const Padding(
-                    padding: EdgeInsets.all(10.0),
-                    child: Text(
-                      'Reset Password',
-                      style: TextStyle(fontSize: 16, color: Colors.blue),
-                    ),
-                  ),
-                ),
-              ),
-            ],
+      appBar: AppBar(
+        title: const Text('Team TODO'),
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(Icons.notifications),
+            onPressed: () {
+              // Placeholder method for notification icon
+              // Navigate to notification page
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => Notifications(
+                          currentUser: '1',
+                          firestore: widget.firestore,
+                        )),
+              );
+            },
           ),
-        ),
+          IconButton(
+            icon: const Icon(Icons.account_circle),
+            onPressed: () {
+              // Placeholder method for profile picture icon
+              // Navigate to profile page
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ProfilePage()),
+              );
+            },
+          ),
+        ],
+      ),
+
+      //below is the floating action button placeholder for thread navigation
+
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.of(context).push(CupertinoPageRoute(
+              builder: (BuildContext context) =>
+                  ThreadApp(firestore: widget.firestore)));
+        },
+        child: const Icon(FontAwesomeIcons.comment),
+      ),
+
+      //above is the floating action button
+      body: Center(
+        child: Column(children: [
+          Expanded(
+            child: ListView.builder(
+                itemCount: topicLength == 0 ? 0 : topicLength,
+                itemBuilder: (context, index) {
+                  return TopicCard(
+                      _topicsList[index] as QueryDocumentSnapshot<Object>);
+                }),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              await DatabaseService(firestore: widget.firestore, uid: '1')
+                  .createNotification('Test Notification',
+                      'This is a test notification', DateTime.now());
+            },
+            child: const Text('Create Test Notification'),
+          ),
+        ]),
+      ),
+    );
+  }
+
+  Future getTopicsList() async {
+    QuerySnapshot data = await widget.firestore.collection('topics').get();
+
+    double getTrending(QueryDocumentSnapshot topic) {
+      Timestamp timestamp = topic['date'];
+      DateTime date = timestamp.toDate();
+      int difference = DateTime.now().difference(date).inDays;
+      if (difference == 0) {
+        difference = 1;
+      }
+      return topic['views'] / difference;
+    }
+
+    setState(() {
+      _topicsList = List.from(data.docs);
+      _topicsList.sort((b, a) =>
+          getTrending(a as QueryDocumentSnapshot<Object?>)
+              .compareTo(getTrending(b as QueryDocumentSnapshot<Object?>)));
+      topicLength = _topicsList.length;
+      if (topicLength > 6) {
+        _topicsList.removeRange(6, topicLength);
+      }
+      topicLength = _topicsList.length;
+    });
+  }
+}
+
+// PlaceHolder for Notification Page
+class NotificationPage extends StatelessWidget {
+  const NotificationPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Notifications'),
+      ),
+      body: const Center(
+        child: Text('Notification Page'),
       ),
     );
   }
 }
 
+// PlaceHolder for Profile Page
+class ProfilePage extends StatelessWidget {
+  const ProfilePage({super.key});
 
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Profile'),
+      ),
+      body: const Center(
+        child: Text('Profile Page'),
+      ),
+    );
+  }
+}

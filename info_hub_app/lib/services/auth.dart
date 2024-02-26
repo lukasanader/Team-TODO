@@ -1,7 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:info_hub_app/models/user_model.dart';
-import 'package:info_hub_app/services/database_service.dart';
+import 'package:flutter/foundation.dart';
+import 'package:info_hub_app/registration/user_model.dart';
+import 'package:info_hub_app/services/database.dart';
 
 class AuthService {
   final FirebaseAuth auth;
@@ -17,7 +18,6 @@ class AuthService {
   Stream<User?> get user {
     return auth.authStateChanges();
   }
-
   // register user
   Future registerUser(String firstName, String lastName, String email, String password,String roleType) async {
     try {
@@ -29,9 +29,25 @@ class AuthService {
         return _userFromFirebaseUser(user,firstName, lastName, email, roleType);
       }
     } catch (e) {
-      print(e.toString());
+      if (kDebugMode) {
+        print(e.toString());
+      }
       return null;
     }
   }
 
+  Future signInUser(String email, String password) async {
+    try {
+      UserCredential result = await auth.signInWithEmailAndPassword(email: email, password: password);
+      User? user = result.user;
+      if (user != null) {
+        return user;
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print(e.toString());
+      }
+      return null;
+    }
+  }
 }
