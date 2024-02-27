@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/patient_experience/experiences_card.dart';
 import 'package:info_hub_app/patient_experience/experience_model.dart';
@@ -23,80 +22,76 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
     getExperienceList();
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("All Submitted Experiences"),
-      ),
-      body: SingleChildScrollView(
-        child: Column(
+        appBar: AppBar(
+          title: const Text("All Submitted Experiences"),
+        ),
+        body: SingleChildScrollView(
+            child: Column(
           children: [
             const Text("Verified experiences"),
             ListView.builder(
-              shrinkWrap: true,
-              itemCount: _verifiedExperienceList.length,
-              itemBuilder: (context, index) {
-                return Row(
-                  children: [
-                    Flexible(
-                      flex: 9,
-                      child: ExperienceCard(_verifiedExperienceList[index])
-                    ),
-                    Flexible(
-                      flex: 1,
-                      child: IconButton(
-                        onPressed: () {
-                          updateVerification(_verifiedExperienceList[index]);
-                        }, 
-                        icon: const Icon(Icons.check)
-                      )                    
-                    )
-                  ],
-                );
-              }
-            ),
+                shrinkWrap: true,
+                itemCount: _verifiedExperienceList.length,
+                itemBuilder: (context, index) {
+                  return Row(
+                    children: [
+                      Flexible(
+                          flex: 9,
+                          child:
+                              ExperienceCard(_verifiedExperienceList[index])),
+                      Flexible(
+                          flex: 1,
+                          child: IconButton(
+                              onPressed: () {
+                                updateVerification(
+                                    _verifiedExperienceList[index]);
+                              },
+                              icon: const Icon(Icons.check)))
+                    ],
+                  );
+                }),
             const SizedBox(height: 30),
             const Text("Unverified experiences"),
             ListView.builder(
-              shrinkWrap: true,
-              itemCount: _unverifiedExperienceList.length,
-              itemBuilder: (context, index) {
-                return Row(
-                  children: [
-                    Flexible(
-                      flex: 9,
-                      child: ExperienceCard(_unverifiedExperienceList[index])
-                    ),
-                    Flexible(
-                      flex: 1,
-                      child: IconButton(
-                        onPressed: () {
-                          updateVerification(_unverifiedExperienceList[index]);
-                        }, 
-                        icon: const Icon(Icons.check)
-                      )                    
-                    )
-                  ],
-                );
-              }
-            ),
+                shrinkWrap: true,
+                itemCount: _unverifiedExperienceList.length,
+                itemBuilder: (context, index) {
+                  return Row(
+                    children: [
+                      Flexible(
+                          flex: 9,
+                          child:
+                              ExperienceCard(_unverifiedExperienceList[index])),
+                      Flexible(
+                          flex: 1,
+                          child: IconButton(
+                              onPressed: () {
+                                updateVerification(
+                                    _unverifiedExperienceList[index]);
+                              },
+                              icon: const Icon(Icons.check)))
+                    ],
+                  );
+                }),
           ],
-        )
-      )
-    );
+        )));
   }
-
 
   Future getExperienceList() async {
     QuerySnapshot data = await widget.firestore.collection('experiences').get();
 
     setState(() {
-      _experienceList = List.from(data.docs.map((doc) => Experience.fromSnapshot(doc)));
-      _verifiedExperienceList = _experienceList.where((experience) => experience.verified == true).toList();
-      _unverifiedExperienceList = _experienceList.where((experience) => experience.verified == false).toList();
+      _experienceList =
+          List.from(data.docs.map((doc) => Experience.fromSnapshot(doc)));
+      _verifiedExperienceList = _experienceList
+          .where((experience) => experience.verified == true)
+          .toList();
+      _unverifiedExperienceList = _experienceList
+          .where((experience) => experience.verified == false)
+          .toList();
     });
   }
 
@@ -104,10 +99,9 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
     bool newValue = experience.verified == true ? false : true;
 
     await widget.firestore.collection('experiences').doc(experience.id).update({
-      'verified' : newValue,
+      'verified': newValue,
     });
 
     getExperienceList();
   }
-
 }

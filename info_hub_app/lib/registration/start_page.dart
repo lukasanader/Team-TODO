@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'registration_screen.dart';
 import 'package:info_hub_app/login/login_screen.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 
 class StartPage extends StatelessWidget {
   final FirebaseFirestore firestore;
@@ -85,7 +84,7 @@ class StartPage extends StatelessWidget {
                           firestore: firestore,
                           auth: auth,
                           storage: storage,
-                    ),
+                        ),
                       ),
                     );
                   },

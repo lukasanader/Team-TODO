@@ -1,32 +1,26 @@
-import 'dart:math';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:info_hub_app/admin/admin_dash.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import 'package:info_hub_app/topics/create_topic.dart';
 import 'package:info_hub_app/topics/quiz/create_quiz.dart';
 
 void main() {
-
   late FirebaseFirestore firestore = FakeFirebaseFirestore();
   late MockFirebaseStorage mockStorage = MockFirebaseStorage();
   late Widget quizWidget;
 
   setUp(() {
-    
     quizWidget = MaterialApp(
       home: CreateTopicScreen(firestore: firestore, storage: mockStorage),
-
     );
   });
 
-    testWidgets('Test Create Quiz Screen', (WidgetTester tester) async {
+  testWidgets('Test Create Quiz Screen', (WidgetTester tester) async {
     await tester.pumpWidget(quizWidget);
     await tester.pumpAndSettle();
-    
+
     expect(find.text('ADD QUIZ'), findsOneWidget);
     await tester.tap(find.text('ADD QUIZ'));
     await tester.pumpAndSettle();
@@ -47,7 +41,7 @@ void main() {
 
     final addAnswerButton = find.byIcon(Icons.add);
     expect(addAnswerButton, findsOne);
-    
+
     await tester.tap(addAnswerButton); //Enter an invalid answer
     await tester.pumpAndSettle();
     expect(find.text('Enter a valid answer'), findsOneWidget);
@@ -55,7 +49,6 @@ void main() {
     await tester.tap(addAnswerButton);
     await tester.pumpAndSettle();
     expect(find.text('1. An organ'), findsOne); //answer card has been added
-
 
     final saveQuestionButton = find.text('Save');
     expect(saveQuestionButton, findsOne);
@@ -65,7 +58,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Enter a valid question'), findsOneWidget);
-     //prompts user to add valid question
+    //prompts user to add valid question
     await tester.enterText(find.byKey(const Key('answerField')), 'A person');
     await tester.tap(addAnswerButton);
     await tester.pumpAndSettle();
@@ -78,7 +71,8 @@ void main() {
     await tester.tap(saveQuestionButton);
     await tester.pumpAndSettle();
 
-    expect(find.text('Question has been saved!'), findsOne); //check to see if question has been saved correctly
+    expect(find.text('Question has been saved!'),
+        findsOne); //check to see if question has been saved correctly
 
     final saveQuizButton = find.text('Save Quiz');
     expect(saveQuizButton, findsOne);
@@ -89,10 +83,11 @@ void main() {
     expect(find.byType(CreateTopicScreen), findsOne);
   });
 
-testWidgets('Test quiz questions saved correctly', (WidgetTester tester) async {
+  testWidgets('Test quiz questions saved correctly',
+      (WidgetTester tester) async {
     await tester.pumpWidget(quizWidget);
     await tester.pumpAndSettle();
-    
+
     await tester.tap(find.text('ADD QUIZ'));
     await tester.pumpAndSettle();
     final addQuestionButton = find.text('Add Question');
@@ -122,22 +117,23 @@ testWidgets('Test quiz questions saved correctly', (WidgetTester tester) async {
     await tester.tap(saveQuestionButton);
     await tester.pumpAndSettle();
 
-
     bool correctAnswers = false;
     bool wrongAnswers = false;
     final querySnapshot = await firestore.collection('quizQuestions').get();
     querySnapshot.docs.forEach((doc) {
       // Check if the correctAnswers field exists and contains "organ"
       if (doc.data().containsKey('correctAnswers') &&
-          (doc.data()['correctAnswers'] as List).contains('An organ') && (doc.data()['correctAnswers'] as List).length==1) {
+          (doc.data()['correctAnswers'] as List).contains('An organ') &&
+          (doc.data()['correctAnswers'] as List).length == 1) {
         correctAnswers = true;
-          }
+      }
       if (doc.data().containsKey('wrongAnswers') &&
-          (doc.data()['wrongAnswers'] as List).contains('A person') && (doc.data()['wrongAnswers'] as List).length==1) {
+          (doc.data()['wrongAnswers'] as List).contains('A person') &&
+          (doc.data()['wrongAnswers'] as List).length == 1) {
         wrongAnswers = true;
       }
     });
     expect(correctAnswers, true); //contains the right correct answers
     expect(wrongAnswers, true); //contains the right wrong answers
-});
+  });
 }

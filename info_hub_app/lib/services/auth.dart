@@ -49,6 +49,8 @@ class AuthService {
       if (user != null) {
         await DatabaseService(firestore: firestore, uid: user.uid).addUserData(
             firstName, lastName, email, roleType, likedTopics, dislikedTopics);
+        await DatabaseService(firestore: firestore, uid: user.uid)
+            .createPreferences();
         // create user model
         return _userFromFirebaseUser(user, firstName, lastName, email, roleType,
             likedTopics, dislikedTopics);

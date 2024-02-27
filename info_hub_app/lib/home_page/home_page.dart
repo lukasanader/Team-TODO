@@ -17,7 +17,6 @@ import 'package:info_hub_app/change_profile/change_profile.dart';
 
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
 class HomePage extends StatefulWidget {
@@ -68,7 +67,7 @@ class _HomePageState extends State<HomePage> {
                 context,
                 MaterialPageRoute(
                     builder: (context) => Notifications(
-                          currentUser: '1',
+                          auth: widget.auth,
                           firestore: widget.firestore,
                         )),
               );
@@ -80,15 +79,15 @@ class _HomePageState extends State<HomePage> {
               // Placeholder method for profile picture icon
               // Navigate to profile page
               Navigator.of(context).push(
-                      CupertinoPageRoute(
-                        builder: (BuildContext context) {
-                          return ChangeProfile(
-                            firestore: widget.firestore,
-                            auth: widget.auth,
-                          );
-                        },
-                      ),
+                CupertinoPageRoute(
+                  builder: (BuildContext context) {
+                    return ChangeProfile(
+                      firestore: widget.firestore,
+                      auth: widget.auth,
                     );
+                  },
+                ),
+              );
             },
           ),
         ],

@@ -15,7 +15,6 @@ import 'package:info_hub_app/notifications/notifications.dart';
 import 'package:info_hub_app/settings/settings_view.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:info_hub_app/services/database.dart';
-import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:provider/provider.dart';
 import 'mock.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
@@ -139,12 +138,11 @@ void main() {
       ],
       child: MaterialApp(
         home: Notifications(
-          currentUser: '1',
+          auth: auth,
           firestore: firestore,
         ),
       ),
     ));
     expect(find.byType(Notifications), findsOneWidget);
   });
-
 }
