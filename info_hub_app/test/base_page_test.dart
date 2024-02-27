@@ -3,8 +3,10 @@
  */
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
+import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:info_hub_app/change_profile/change_profile.dart';
 import 'package:info_hub_app/notifications/notification.dart' as custom;
 import 'package:info_hub_app/helpers/base.dart';
 import 'package:info_hub_app/discovery_view/discovery_view.dart';
@@ -17,8 +19,10 @@ import 'package:provider/provider.dart';
 import 'mock.dart';
 
 
+
 void main() {
   late FirebaseFirestore firestore = FakeFirebaseFirestore();
+  final auth = MockFirebaseAuth();
 
   setupFirebaseAuthMocks();
   setUpAll(() async {
@@ -27,7 +31,7 @@ void main() {
 
 
   testWidgets('Bottom Nav Bar to Home Page', (WidgetTester tester) async {
-    await tester.pumpWidget(MaterialApp(home: Base(firestore: firestore,)));
+    await tester.pumpWidget(MaterialApp(home: Base(firestore: firestore, auth: auth,)));
     await tester.pumpAndSettle();
     await tester.tap(find.byIcon(Icons.home));
     await tester.pump();
@@ -39,7 +43,7 @@ void main() {
     expect(find.byType(HomePage), findsOneWidget);
   });
   testWidgets('Bottom Nav Bar to Search Page', (WidgetTester tester) async {
-    await tester.pumpWidget(MaterialApp(home: Base(firestore: firestore,)));
+    await tester.pumpWidget(MaterialApp(home: Base(firestore: firestore, auth: auth,)));
 
     await tester.tap(find.byIcon(Icons.search));
     await tester.pump();
@@ -48,7 +52,7 @@ void main() {
   });
 
   testWidgets('Bottom Nav Bar to Setting Page', (WidgetTester tester) async {
-    await tester.pumpWidget(MaterialApp(home: Base(firestore: firestore,)));
+    await tester.pumpWidget(MaterialApp(home: Base(firestore: firestore, auth: auth)));
 
     await tester.tap(find.byIcon(Icons.settings));
     await tester.pump();
@@ -58,7 +62,7 @@ void main() {
 
   testWidgets('HomePage UI Test', (WidgetTester tester) async {
     await tester.pumpWidget(MaterialApp(
-      home: HomePage(firestore: firestore,),
+      home: HomePage(firestore: firestore, auth: auth),
     ));
 
     expect(find.text('Team TODO'), findsOneWidget);
@@ -77,7 +81,7 @@ void main() {
   
       ],
       child: MaterialApp(
-        home: HomePage(firestore: firestore,),
+        home: HomePage(firestore: firestore,auth: auth),
       ),
     ));
     await tester.tap(find.byIcon(Icons.notifications));
@@ -88,13 +92,13 @@ void main() {
 
   testWidgets('HomePage to Profile Page', (WidgetTester tester) async {
     await tester.pumpWidget(MaterialApp(
-      home: HomePage(firestore: firestore,),
+      home: HomePage(firestore: firestore, auth: auth),
     ));
 
     await tester.tap(find.byIcon(Icons.account_circle));
     await tester.pumpAndSettle();
 
-    expect(find.text('Profile'), findsOneWidget);
+    expect(find.byType(ChangeProfile), findsOneWidget);
   });
 
   testWidgets('NotificationPage UI Test', (WidgetTester tester) async {
@@ -113,12 +117,4 @@ void main() {
     expect(find.byType(Notifications), findsOneWidget);
   });
 
-  testWidgets('ProfilePage UI Test', (WidgetTester tester) async {
-    await tester.pumpWidget(const MaterialApp(
-      home: ProfilePage(),
-    ));
-
-    expect(find.text('Profile'), findsOneWidget);
-    expect(find.text('Profile Page'), findsOneWidget);
-  });
 }

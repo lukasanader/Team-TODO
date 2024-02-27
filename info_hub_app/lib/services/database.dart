@@ -87,7 +87,7 @@ class DatabaseService {
   }
    Future addUserData(String firstName, String lastName,String email,String roleType) async {
     CollectionReference usersCollectionRef = firestore.collection('Users');
-    return await usersCollectionRef.add({
+    return await usersCollectionRef.doc(uid).set({
       'firstName': firstName,
       'lastName': lastName,
       'email': email,

@@ -13,14 +13,16 @@ import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:info_hub_app/home_page/home_page.dart';
 
 class Base extends StatelessWidget {
+  FirebaseAuth auth;
   FirebaseFirestore firestore;
-  Base({super.key, required this.firestore});
+  Base({super.key, required this.firestore, required this.auth});
 
   @override
   Widget build(BuildContext context) {
     // Bottom Navigation Bar
     List<Widget> buildScreens() {
       return [
+<<<<<<< HEAD
         HomePage(
           firestore: firestore,
           auth: FirebaseAuth.instance,
@@ -28,6 +30,10 @@ class Base extends StatelessWidget {
         DiscoveryView(
           firestore: firestore,
         ), // Should be replaced with the genuine page
+=======
+        HomePage(firestore: firestore, auth: auth,),
+        DiscoveryView(firestore: firestore,), // Should be replaced with the genuine page
+>>>>>>> origin/main
         const SettingsView(), // Should be replaced with the genuine page
       ];
     }
