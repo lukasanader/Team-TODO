@@ -1,12 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:info_hub_app/models/notification.dart' as custom;
-import 'package:info_hub_app/screens/notifications.dart';
+import 'package:info_hub_app/notifications/notification.dart' as custom;
+import 'package:info_hub_app/notifications/notifications.dart';
 import 'package:info_hub_app/services/database.dart';
 import 'package:provider/provider.dart';
 
@@ -58,7 +57,7 @@ Future<void> main() async {
           ],
           child: MaterialApp(
             home: Notifications(
-              currentUser: auth.currentUser!.uid,
+              auth: auth,
               firestore: firestore,
             ),
           ),
@@ -139,7 +138,7 @@ Future<void> main() async {
           ],
           child: MaterialApp(
             home: Notifications(
-              currentUser: auth.currentUser!.uid,
+              auth: auth,
               firestore: firestore,
             ),
           ),

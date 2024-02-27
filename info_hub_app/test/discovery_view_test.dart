@@ -2,16 +2,21 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
-import 'package:info_hub_app/screens/discovery_view.dart';
-
+import 'package:info_hub_app/discovery_view/discovery_view.dart';
+import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
+import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 
 void main() {
   late FakeFirebaseFirestore firestore;
+  late MockFirebaseAuth auth;
+  late MockFirebaseStorage storage;
   late CollectionReference topicsCollectionRef;
   late Widget discoveryViewWidget;
 
   setUp(() {
     firestore = FakeFirebaseFirestore();
+    auth = MockFirebaseAuth();
+    storage = MockFirebaseStorage();
     topicsCollectionRef = firestore.collection('topics');
 
     topicsCollectionRef.add({
@@ -40,19 +45,16 @@ void main() {
     });
 
     discoveryViewWidget = MaterialApp(
-      home: DiscoveryView(firestore: firestore),
+      home: DiscoveryView(storage: storage, auth: auth, firestore: firestore),
     );
-
   });
 
-
-  testWidgets('DiscoveryView has appbar, search bar and search icon', (WidgetTester tester) async {
+  testWidgets('DiscoveryView has appbar, search bar and search icon',
+      (WidgetTester tester) async {
     await tester.pumpWidget(discoveryViewWidget);
 
-   
     expect(find.byType(TextField), findsOneWidget);
     expect(find.widgetWithIcon(IconButton, Icons.search), findsOneWidget);
-
   });
 
   /*
@@ -71,7 +73,8 @@ void main() {
   });
   */
 
-  testWidgets('DiscoveryView search button does nothing (is null)', (WidgetTester tester) async {
+  testWidgets('DiscoveryView search button does nothing (is null)',
+      (WidgetTester tester) async {
     await tester.pumpWidget(discoveryViewWidget);
 
     final searchButton = find.widgetWithIcon(IconButton, Icons.search);
@@ -80,10 +83,10 @@ void main() {
     await tester.pump();
 
     expect(find.byWidget(discoveryViewWidget), findsOneWidget);
-
   });
 
-  testWidgets('DiscoveryView will display topics based on search accurately', (WidgetTester tester) async {
+  testWidgets('DiscoveryView will display topics based on search accurately',
+      (WidgetTester tester) async {
     topicsCollectionRef.add({
       'title': 'Multiple will show',
       'description': 'this is a test',
@@ -103,7 +106,6 @@ void main() {
       'videoUrl': '',
     });
 
-
     await tester.pumpWidget(discoveryViewWidget);
 
     final searchTextField = find.byType(TextField);
@@ -121,14 +123,17 @@ void main() {
 
     final textFinders = find.byType(Text);
 
-    expect((textFinders.first.evaluate().single.widget as Text).data, 'Multiple will show');
-    expect((textFinders.at(1).evaluate().single.widget as Text).data, 'Multiple will show 2');
-    expect((textFinders.at(2).evaluate().single.widget as Text).data, 'Multiple will show 3');
+    expect((textFinders.first.evaluate().single.widget as Text).data,
+        'Multiple will show');
+    expect((textFinders.at(1).evaluate().single.widget as Text).data,
+        'Multiple will show 2');
+    expect((textFinders.at(2).evaluate().single.widget as Text).data,
+        'Multiple will show 3');
   });
 
-
-
-  testWidgets('DiscoveryView will display "Sorry there are no topics for this!" if no existing topic exists', (WidgetTester tester) async {
+  testWidgets(
+      'DiscoveryView will display "Sorry there are no topics for this!" if no existing topic exists',
+      (WidgetTester tester) async {
     await tester.pumpWidget(discoveryViewWidget);
 
     final searchTextField = find.byType(TextField);
@@ -139,8 +144,8 @@ void main() {
     expect(find.text('Sorry there are no topics for this!'), findsOneWidget);
   });
 
-  testWidgets('DiscoveryView topics are in alphabetical order', (WidgetTester tester) async {
-
+  testWidgets('DiscoveryView topics are in alphabetical order',
+      (WidgetTester tester) async {
     await tester.pumpWidget(discoveryViewWidget);
     await tester.pumpAndSettle();
 
@@ -174,11 +179,11 @@ void main() {
     // Tap the Submit button
     await tester.tap(find.text('Submit'));
     await tester.pumpAndSettle();
-    
+
     final QuerySnapshot<Map<String, dynamic>> querySnapshot =
-      await firestore.collection("questions").get();
+        await firestore.collection("questions").get();
     final List<DocumentSnapshot<Map<String, dynamic>>> documents =
-      querySnapshot.docs;
+        querySnapshot.docs;
     // Check if the collection contains a document with the expected question
     expect(
       documents.any(
@@ -190,4 +195,3 @@ void main() {
     expect(find.byType(AlertDialog), findsNothing);
   });
 }
-

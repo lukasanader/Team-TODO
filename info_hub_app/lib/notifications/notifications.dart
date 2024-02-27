@@ -1,16 +1,15 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:info_hub_app/models/notification.dart' as custom;
-import 'package:info_hub_app/helpers/notification_card.dart';
+import 'package:info_hub_app/notifications/notification.dart' as custom;
+import 'package:info_hub_app/notifications/notification_card.dart';
 import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:info_hub_app/services/database.dart';
 
 class Notifications extends StatefulWidget {
-  final String currentUser;
+  FirebaseAuth auth;
   FirebaseFirestore firestore;
-  Notifications({Key? key, required this.currentUser, required this.firestore})
-      : super(key: key);
+  Notifications({super.key, required this.auth, required this.firestore});
 
   @override
   State<Notifications> createState() => _NotificationsState();
@@ -23,7 +22,8 @@ class _NotificationsState extends State<Notifications> {
         Provider.of<List<custom.Notification>>(context);
 
     final List<custom.Notification> userNotifications = allNotifications
-        .where((notification) => notification.uid == widget.currentUser)
+        .where(
+            (notification) => notification.uid == widget.auth.currentUser!.uid)
         .toList();
 
     return Scaffold(
@@ -40,7 +40,8 @@ class _NotificationsState extends State<Notifications> {
             child: NotificationCard(notification: notification),
             onDismissed: (direction) {
               DatabaseService(
-                      uid: widget.currentUser, firestore: widget.firestore)
+                      uid: widget.auth.currentUser!.uid,
+                      firestore: widget.firestore)
                   .deleteNotification(notification.id);
             },
           );

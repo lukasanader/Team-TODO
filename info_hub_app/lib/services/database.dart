@@ -1,8 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:info_hub_app/models/notification.dart' as custom;
-import 'package:info_hub_app/models/user_model.dart';
-import 'package:info_hub_app/models/preferences.dart';
+import 'package:info_hub_app/notifications/notification.dart' as custom;
+import 'package:info_hub_app/registration/user_model.dart';
+import 'package:info_hub_app/notifications/preferences.dart';
 
 class DatabaseService {
   final String uid;
@@ -54,14 +53,21 @@ class DatabaseService {
         .map(notificationListFromSnapshot);
   }
 
-  Future<void> addUserData(
-      String firstName, String lastName, String email, String roleType) async {
+  Future addUserData(
+      String firstName,
+      String lastName,
+      String email,
+      String roleType,
+      List<String> likedTopics,
+      List<String> dislikedTopics) async {
     CollectionReference usersCollectionRef = firestore.collection('Users');
-    await usersCollectionRef.doc(uid).set({
+    return await usersCollectionRef.doc(uid).set({
       'firstName': firstName,
       'lastName': lastName,
       'email': email,
       'roleType': roleType,
+      'likedTopics': likedTopics,
+      'dislikedTopics': dislikedTopics
     });
   }
 
@@ -73,6 +79,8 @@ class DatabaseService {
         lastName: doc.get('lastName') ?? '',
         email: doc.get('email') ?? '',
         roleType: doc.get('roleType') ?? '',
+        likedTopics: doc.get('likedTopics') ?? [],
+        dislikedTopics: doc.get('dislikedTopics') ?? [],
       );
     }).toList();
   }

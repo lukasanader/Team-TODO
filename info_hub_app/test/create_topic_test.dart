@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:info_hub_app/screens/create_topic.dart';
+import 'package:info_hub_app/topics/create_topic.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/services.dart';
 import 'package:integration_test/integration_test.dart';
@@ -200,7 +200,7 @@ void main() async {
     await tester.enterText(
         find.byKey(const Key('descField')), 'Test description');
 
-    await tester.tap(find.byType(OutlinedButton));
+    await tester.tap(find.text('PUBLISH TOPIC'));
 
     await tester.pumpAndSettle();
 
@@ -239,7 +239,7 @@ void main() async {
     await tester.enterText(
         find.byKey(const Key('descField')), 'Test description');
 
-    await tester.tap(find.byType(OutlinedButton));
+    await tester.tap(find.text('PUBLISH TOPIC'));
 
     await tester.pumpAndSettle();
 
@@ -266,7 +266,7 @@ void main() async {
 
     await tester.enterText(find.byKey(const Key('titleField')), 'Test title');
 
-    await tester.tap(find.byType(OutlinedButton));
+    await tester.tap(find.text('PUBLISH TOPIC'));
 
     await tester.pumpAndSettle();
 
@@ -298,7 +298,7 @@ void main() async {
 
     await tester.enterText(find.byKey(const Key('linkField')), 'invalidLink');
 
-    await tester.tap(find.byType(OutlinedButton));
+    await tester.tap(find.text('PUBLISH TOPIC'));
 
     await tester.pumpAndSettle();
 
@@ -331,7 +331,7 @@ void main() async {
     await tester.enterText(find.byKey(const Key('linkField')),
         'https://pub.dev/packages?q=cloud_firestore_mocks');
 
-    await tester.tap(find.byType(OutlinedButton));
+    await tester.tap(find.text('PUBLISH TOPIC'));
 
     await tester.pumpAndSettle();
 
@@ -401,7 +401,7 @@ void main() async {
     await tester.enterText(
         find.byKey(const Key('descField')), 'Test description');
 
-    await tester.tap(find.byType(OutlinedButton));
+    await tester.tap(find.text('PUBLISH TOPIC'));
     await tester.pumpAndSettle();
 
     expect(find.byType(CreateTopicScreen), findsNothing);
@@ -423,7 +423,7 @@ void main() async {
     await tester.enterText(
         find.byKey(const Key('descField')), 'Test description');
 
-    await tester.tap(find.byType(OutlinedButton));
+    await tester.tap(find.text('PUBLISH TOPIC'));
     await tester.pumpAndSettle();
 
     expect(find.byType(CreateTopicScreen), findsNothing);
@@ -442,6 +442,9 @@ void main() async {
       ),
     ));
     expect(find.text('Upload a video'), findsOneWidget);
+
+    await tester.ensureVisible(find.byKey(const Key('uploadVideoButton')));
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('uploadVideoButton')));
     await tester.pumpAndSettle();
 
@@ -479,6 +482,9 @@ void main() async {
       ),
     ));
     expect(find.text('Upload a video'), findsOneWidget);
+
+    await tester.ensureVisible(find.byKey(const Key('uploadVideoButton')));
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('uploadVideoButton')));
     await tester.pumpAndSettle();
 
@@ -531,6 +537,8 @@ void main() async {
       ),
     ));
 
+    await tester.ensureVisible(find.byKey(const Key('uploadVideoButton')));
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('uploadVideoButton')));
     await tester.pumpAndSettle();
 
@@ -558,7 +566,7 @@ void main() async {
 
     // submit form
 
-    await tester.tap(find.byType(OutlinedButton));
+    await tester.tap(find.text('PUBLISH TOPIC'));
 
     final ListResult result = await mockStorage.ref().child('videos').listAll();
 
@@ -587,6 +595,8 @@ void main() async {
       ),
     ));
 
+    await tester.ensureVisible(find.byKey(const Key('uploadVideoButton')));
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('uploadVideoButton')));
     await tester.pumpAndSettle();
 

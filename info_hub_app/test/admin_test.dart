@@ -2,9 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:info_hub_app/screens/admin_dash.dart';
-import 'package:info_hub_app/screens/create_topic.dart';
-import 'package:info_hub_app/screens/question_view.dart';
+import 'package:info_hub_app/admin/admin_dash.dart';
+import 'package:info_hub_app/topics/create_topic.dart';
+import 'package:info_hub_app/ask_question/question_view.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 
 void main() {
