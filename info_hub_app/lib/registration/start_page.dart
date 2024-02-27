@@ -51,6 +51,7 @@ class StartPage extends StatelessWidget {
                       context,
                       MaterialPageRoute(
                         builder: (context) => RegistrationScreen(
+                          storage: storage,
                           firestore: firestore,
                           auth: auth,
                         ),

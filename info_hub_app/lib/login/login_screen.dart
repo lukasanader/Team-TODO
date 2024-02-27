@@ -49,7 +49,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(),
       body: Form(
@@ -96,7 +95,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         if(snapshot['roleType']== 'admin'){
                            nextPage = AdminHomepage(firestore: widget.firestore,storage: widget.storage,);
                           }else{
-                            nextPage = Base(firestore: widget.firestore, auth: widget.auth,);
+                            nextPage = Base(firestore: widget.firestore, auth: widget.auth,storage: widget.storage,);
                           }
                          Navigator.pushReplacement(context,
                           MaterialPageRoute(

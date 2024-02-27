@@ -17,7 +17,6 @@ import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 void main() {
   final auth = MockFirebaseAuth();
   late FakeFirebaseFirestore firestore = FakeFirebaseFirestore();
-  late MockFirebaseAuth auth = MockFirebaseAuth();
   late MockFirebaseStorage storage = MockFirebaseStorage();
   late Widget trendingTopicWidget;
   setUp(() {

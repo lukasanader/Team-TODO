@@ -18,7 +18,6 @@ class Base extends StatelessWidget {
   FirebaseAuth auth;
   FirebaseFirestore firestore;
   FirebaseStorage storage;
-  FirebaseAuth auth;
   Base(
       {super.key,
       required this.auth,
