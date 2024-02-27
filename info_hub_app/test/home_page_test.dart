@@ -15,13 +15,12 @@ import 'package:info_hub_app/helpers/base.dart';
 
 
 void main() {
+  final auth = MockFirebaseAuth();
   late FakeFirebaseFirestore firestore = FakeFirebaseFirestore();
   late Widget trendingTopicWidget;
-  late MockFirebaseAuth auth = MockFirebaseAuth();
-  
   setUp(() {
     trendingTopicWidget = MaterialApp(
-      home:Base(firestore: firestore,),
+      home:Base(firestore: firestore, auth: auth,),
     );
   });
   testWidgets('Trendings topic are in right order', (WidgetTester tester) async {
