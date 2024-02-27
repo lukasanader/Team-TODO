@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/patient_experience/experience_model.dart';
 import 'package:info_hub_app/patient_experience/experiences_card.dart';
@@ -17,7 +16,6 @@ class _ExperienceViewState extends State<ExperienceView> {
   final TextEditingController _titleController = TextEditingController();
   final Experience _experience = Experience();
   List<Experience> _experienceList = [];
-  
 
   @override
   void didChangeDependencies() {
@@ -25,23 +23,21 @@ class _ExperienceViewState extends State<ExperienceView> {
     getExperienceList();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Paitent's Experiences"),
-      ),
-      body: SafeArea(
-        child: Column(
+        appBar: AppBar(
+          title: const Text("Paitent's Experiences"),
+        ),
+        body: SafeArea(
+            child: Column(
           children: [
-            Expanded( 
+            Expanded(
               child: ListView.builder(
-                itemCount: _experienceList.length,
-                itemBuilder: (context, index) {
-                  return ExperienceCard(_experienceList[index]);
-                }
-              ),
+                  itemCount: _experienceList.length,
+                  itemBuilder: (context, index) {
+                    return ExperienceCard(_experienceList[index]);
+                  }),
             ),
             ElevatedButton(
               onPressed: () {
@@ -50,12 +46,8 @@ class _ExperienceViewState extends State<ExperienceView> {
               child: const Text("Share your experience!"),
             )
           ],
-        ) 
-      )
-    ); 
+        )));
   }
-
-
 
   void _showPostDialog() {
     _descriptionController.clear();
@@ -74,8 +66,7 @@ class _ExperienceViewState extends State<ExperienceView> {
                 maxLength: 70,
                 controller: _titleController,
                 decoration: const InputDecoration(
-                  labelText: 'Title',
-                  border: OutlineInputBorder()),
+                    labelText: 'Title', border: OutlineInputBorder()),
               ),
               const SizedBox(
                 height: 20,
@@ -85,15 +76,15 @@ class _ExperienceViewState extends State<ExperienceView> {
                 keyboardType: TextInputType.multiline,
                 controller: _descriptionController,
                 decoration: const InputDecoration(
-                  labelText: 'Share your experience!',
-                  border: OutlineInputBorder()),
+                    labelText: 'Share your experience!',
+                    border: OutlineInputBorder()),
               ),
               const SizedBox(
                 height: 20,
                 width: 100000,
-                ),
+              ),
               ElevatedButton(
-                onPressed: () async{
+                onPressed: () async {
                   _saveExperience();
                   Navigator.of(context).pop(); // Close the dialog
                 },
@@ -107,13 +98,16 @@ class _ExperienceViewState extends State<ExperienceView> {
   }
 
   Future getExperienceList() async {
-    QuerySnapshot data = await widget.firestore.collection('experiences').where('verified', isEqualTo: true).get();
+    QuerySnapshot data = await widget.firestore
+        .collection('experiences')
+        .where('verified', isEqualTo: true)
+        .get();
 
     setState(() {
-      _experienceList = List.from(data.docs.map((doc) => Experience.fromSnapshot(doc)));
+      _experienceList =
+          List.from(data.docs.map((doc) => Experience.fromSnapshot(doc)));
     });
   }
-
 
   void _saveExperience() async {
     // FirebaseAuth auth = FirebaseAuth.instance;
@@ -129,5 +123,4 @@ class _ExperienceViewState extends State<ExperienceView> {
     CollectionReference db = widget.firestore.collection('experiences');
     await db.add(_experience.toJson());
   }
-
 }
