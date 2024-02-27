@@ -40,28 +40,24 @@ class _TestViewState extends State<TestView> {
         child: const Icon(FontAwesomeIcons.comment),
       ),
       body: SafeArea(
-        child: Column(
-          children: [
-            ElevatedButton(
-              onPressed: () async {
-                await DatabaseService(firestore: widget.firestore, uid: '1')
-                    .createNotification('Test Notification',
-                        'This is a test notification', DateTime.now());
-              },
-              style: ElevatedButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                )
+        child: Center(
+          child: Column(
+            children: [
+              ElevatedButton(
+                onPressed: () async {
+                  await DatabaseService(
+                          firestore: widget.firestore,
+                          uid: widget.auth.currentUser!.uid)
+                      .createNotification('Test Notification',
+                          'This is a test notification', DateTime.now());
+                },
+                child: const Text('Create Test Notification'),
               ),
-              child: const Text('Create Test Notification'),
-            ),
-      //below is the floating action button placeholder for thread navigation
-
-
-          ],
+            ]
+         ) 
+      
         ) 
-      
-      
+
       ),
     );
 

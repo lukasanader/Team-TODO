@@ -16,46 +16,90 @@ class _WebinarViewState extends State<WebinarView> {
         title: const Text("Webinars"),
       ),
       body: 1 == 1
-      ? SafeArea(
+      ? SingleChildScrollView(
         child: Column(
           children: [
             const Text("Currently Live"),
-            Expanded(
-              flex: 1,
-              child: ListView.builder(
-                itemCount: 2,
-                itemBuilder: (context, index) {
-                  return Card(                    
+            const SizedBox(
+              height: 20),
+            ListView.builder(
+              shrinkWrap: true,
+              itemCount: 2,
+              itemBuilder: (context, index) {
+                return Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
                     child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start, // Align children to the start of the row
                       children: [
                         Image.asset(
                           'assets/base_image.png',
                           width: 100,
                           height: 100,
-                          fit: BoxFit.fill),
-                        const Column(
-                          children: [
-                            Text("Name of Webinar",),
-                            Text("20/03/2024"),
-                          ],
-                        )
+                        ),
+                        const SizedBox(width: 12), // Add some spacing between the image and the column
+                        const Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Title of webinar",
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              SizedBox(height: 30), // Add some spacing between the title and the date
+                              Text(
+                                "20/03/2024",
+                                style: TextStyle(color: Colors.grey),
+                              ),
+                            ],
+                          ),
+                        ),
                       ],
                     ),
-                  );
-                }
-              ),
+                  ),
+                );
+              }
             ),
+            const SizedBox(
+              height: 20),
             const Text("Upcoming Webinars"),
-            Expanded(
-              flex: 1,
-              child: ListView.builder(
-                itemCount: 5,
-                itemBuilder: (context, index) {
-                  return Card(
-                    child: Text(index.toString()),
-                  );
-                }
-              ),
+            ListView.builder(
+              shrinkWrap: true,
+              itemCount: 5,
+              itemBuilder: (context, index) {
+                return Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start, // Align children to the start of the row
+                      children: [
+                        Image.asset(
+                          'assets/base_image.png',
+                          width: 100,
+                          height: 100,
+                        ),
+                        const SizedBox(width: 12), // Add some spacing between the image and the column
+                        const Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Title of webinar",
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              SizedBox(height: 30), // Add some spacing between the title and the date
+                              Text(
+                                "20/03/2024",
+                                style: TextStyle(color: Colors.grey),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }
             ),
           ],
         ),
@@ -64,6 +108,8 @@ class _WebinarViewState extends State<WebinarView> {
           child: Column(
             children: [
               const Text("Upcoming Webinars"),
+              const SizedBox(
+                height: 20),
               Expanded(
                 child: ListView.builder(
                 itemCount: 5,
