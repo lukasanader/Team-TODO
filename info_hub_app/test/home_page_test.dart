@@ -6,6 +6,7 @@
 // tree, read text, and verify that the values of widget properties are correct.
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
@@ -16,9 +17,11 @@ import 'package:info_hub_app/helpers/base.dart';
 void main() {
   late FakeFirebaseFirestore firestore = FakeFirebaseFirestore();
   late Widget trendingTopicWidget;
+  late MockFirebaseAuth auth = MockFirebaseAuth();
+  
   setUp(() {
     trendingTopicWidget = MaterialApp(
-      home:Base(firestore: firestore),
+      home:Base(firestore: firestore,),
     );
   });
   testWidgets('Trendings topic are in right order', (WidgetTester tester) async {

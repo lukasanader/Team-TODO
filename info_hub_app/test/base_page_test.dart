@@ -3,6 +3,7 @@
  */
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
+import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:info_hub_app/notifications/notification.dart' as custom;
@@ -19,7 +20,7 @@ import 'mock.dart';
 
 void main() {
   late FirebaseFirestore firestore = FakeFirebaseFirestore();
-
+  late MockFirebaseAuth auth = MockFirebaseAuth();
   setupFirebaseAuthMocks();
   setUpAll(() async {
     await Firebase.initializeApp();

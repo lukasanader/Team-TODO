@@ -7,9 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:info_hub_app/admin/admin_dash.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import 'package:info_hub_app/topics/create_topic.dart';
-import 'package:info_hub_app/topics/quizes/create_quiz.dart';
-import 'package:info_hub_app/topics/quizes/quiz_answer_card.dart';
-
+import 'package:info_hub_app/topics/quiz/create_quiz.dart';
 
 void main() {
 

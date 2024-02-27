@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:info_hub_app/topics/quizes/quiz_service.dart';
 import 'package:uuid/uuid.dart';
 
 import 'quiz_question_card.dart';

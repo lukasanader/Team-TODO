@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:info_hub_app/topics/quizes/create_quiz.dart';
+import 'package:info_hub_app/topics/quiz/create_quiz.dart';
+
 import 'package:video_player/video_player.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:chewie/chewie.dart';
@@ -304,7 +305,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
       'description': descriptionController.text,
       'articleLink': articleLinkController.text,
       'videoUrl': _downloadURL,
-       'views': 0,
+      'views': 0,
       'date': DateTime.now(),
       'quizID': quizID,
     };
