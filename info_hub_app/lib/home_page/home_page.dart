@@ -17,13 +17,20 @@ import 'package:info_hub_app/change_profile/change_profile.dart';
 
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/cupertino.dart';
-
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class HomePage extends StatefulWidget {
   FirebaseFirestore firestore;
   FirebaseAuth auth;
+  FirebaseStorage storage;
+
   //User? user = FirebaseAuth.instance.currentUser;
-  HomePage({super.key, required this.firestore, required this.auth});
+  HomePage(
+      {super.key,
+      required this.auth,
+      required this.firestore,
+      required this.storage});
   @override
   State<HomePage> createState() => _HomePageState();
 }
@@ -36,6 +43,14 @@ class _HomePageState extends State<HomePage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     getTopicsList();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    widget.firestore.collection('topics').snapshots().listen((snapshot) {
+      getTopicsList();
+    });
   }
 
   @override
@@ -98,6 +113,9 @@ class _HomePageState extends State<HomePage> {
                 itemCount: topicLength == 0 ? 0 : topicLength,
                 itemBuilder: (context, index) {
                   return TopicCard(
+                      widget.firestore,
+                      widget.auth,
+                      widget.storage,
                       _topicsList[index] as QueryDocumentSnapshot<Object>);
                 }),
           ),

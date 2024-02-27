@@ -11,19 +11,34 @@ import 'package:info_hub_app/discovery_view/discovery_view.dart';
 import 'package:info_hub_app/settings/settings_view.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:info_hub_app/home_page/home_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class Base extends StatelessWidget {
   FirebaseAuth auth;
   FirebaseFirestore firestore;
-  Base({super.key, required this.firestore, required this.auth});
+  FirebaseStorage storage;
+  Base(
+      {super.key,
+      required this.auth,
+      required this.storage,
+      required this.firestore});
 
   @override
   Widget build(BuildContext context) {
     // Bottom Navigation Bar
     List<Widget> buildScreens() {
       return [
-        HomePage(firestore: firestore, auth: auth,),
-        DiscoveryView(firestore: firestore,), // Should be replaced with the genuine page
+        HomePage(
+          auth: auth,
+          storage: storage,
+          firestore: firestore,
+        ),
+        DiscoveryView(
+          auth: auth,
+          storage: storage,
+          firestore: firestore,
+        ), // Should be replaced with the genuine page
         const SettingsView(), // Should be replaced with the genuine page
       ];
     }

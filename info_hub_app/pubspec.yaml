@@ -55,8 +55,8 @@ dependencies:
 
   timeago: ^3.0.2
 
-  file: ^7.0.0
-
+  file: 
+  
   url_launcher: ^6.2.4
 
   video_player_platform_interface: ^6.2.2

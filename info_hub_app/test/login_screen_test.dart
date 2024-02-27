@@ -6,8 +6,6 @@ import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 
-
-
 void main() {
   final firestore = FakeFirebaseFirestore();
   final auth = MockFirebaseAuth();
@@ -15,22 +13,21 @@ void main() {
   testWidgets('test if login text exists', (WidgetTester test) async{
     await test.pumpWidget(MaterialApp(home: LoginScreen(firestore: firestore, auth: auth,storage: storage,)));
     expect(find.text('Please fill in the login details.'), findsOneWidget);
-});
+  });
 
   testWidgets('test if email textfield exists', (WidgetTester test) async {
     await test.pumpWidget(MaterialApp(home: LoginScreen(firestore: firestore, auth: auth,storage: storage,)));
     final emailField = find.ancestor(
-      of: find.text('Email'), 
+      of: find.text('Email'),
       matching: find.byType(TextFormField),
     );
     await test.enterText(emailField, 'test');
     expect(find.text('test'), findsOneWidget);
-    
   });
   testWidgets('test if password textfield exists', (WidgetTester test) async {
     await test.pumpWidget(MaterialApp(home: LoginScreen(firestore: firestore, auth: auth,storage: storage,)));
     final passwordField = find.ancestor(
-      of: find.text('Password'), 
+      of: find.text('Password'),
       matching: find.byType(TextFormField),
     );
     await test.enterText(passwordField, 'test');
@@ -40,11 +37,11 @@ void main() {
   testWidgets('test if log in validation works', (WidgetTester test) async {
     await test.pumpWidget(MaterialApp(home: LoginScreen(firestore: firestore, auth: auth,storage: storage,)));
     final emailField = find.ancestor(
-      of: find.text('Email'), 
+      of: find.text('Email'),
       matching: find.byType(TextFormField),
     );
     final passwordField = find.ancestor(
-      of: find.text('Password'), 
+      of: find.text('Password'),
       matching: find.byType(TextFormField),
     );
     await test.enterText(emailField, 'test');
@@ -52,7 +49,8 @@ void main() {
     final loginButton = find.text('Login');
     await test.tap(loginButton);
     await test.pumpAndSettle();
-    expect(find.text('Email or password is incorrect. Please try again'), findsNothing);
+    expect(find.text('Email or password is incorrect. Please try again'),
+        findsNothing);
   });
 
   testWidgets('test if log in works on a valid user', (WidgetTester test) async{
@@ -66,11 +64,11 @@ void main() {
     });
     await test.pumpWidget(MaterialApp(home: LoginScreen(firestore: firestore, auth: auth,storage: storage,)));
     final emailField = find.ancestor(
-      of: find.text('Email'), 
+      of: find.text('Email'),
       matching: find.byType(TextFormField),
     );
     final passwordField = find.ancestor(
-      of: find.text('Password'), 
+      of: find.text('Password'),
       matching: find.byType(TextFormField),
     );
     await test.enterText(emailField, 'gamer@gmail.com');
@@ -78,17 +76,17 @@ void main() {
     final loginButton = find.text('Login');
     await test.tap(loginButton);
     await test.pumpAndSettle();
-    expect(find.byType(HomePage), findsOneWidget) ;
+    expect(find.byType(HomePage), findsOneWidget);
   });
 
   testWidgets('test if stops when email is empty', (WidgetTester test) async{
     await test.pumpWidget(MaterialApp(home: LoginScreen(firestore: firestore, auth: auth,storage: storage,)));
     final emailField = find.ancestor(
-      of: find.text('Email'), 
+      of: find.text('Email'),
       matching: find.byType(TextFormField),
     );
     final passwordField = find.ancestor(
-      of: find.text('Password'), 
+      of: find.text('Password'),
       matching: find.byType(TextFormField),
     );
     await test.enterText(passwordField, 'test');
@@ -101,11 +99,11 @@ void main() {
   testWidgets('test if stops when password is empty', (WidgetTester test) async{
     await test.pumpWidget(MaterialApp(home: LoginScreen(firestore: firestore, auth: auth,storage: storage,)));
     final emailField = find.ancestor(
-      of: find.text('Email'), 
+      of: find.text('Email'),
       matching: find.byType(TextFormField),
     );
     final passwordField = find.ancestor(
-      of: find.text('Password'), 
+      of: find.text('Password'),
       matching: find.byType(TextFormField),
     );
     await test.enterText(emailField, 'test');

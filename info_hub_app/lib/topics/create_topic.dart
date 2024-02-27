@@ -306,8 +306,9 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
       'articleLink': articleLinkController.text,
       'videoUrl': _downloadURL,
       'views': 0,
+      'likes': 0,
+      'dislikes': 0,
       'date': DateTime.now(),
-      'quizID': quizID,
     };
 
     CollectionReference topicCollectionRef =

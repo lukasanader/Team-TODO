@@ -8,13 +8,17 @@ import 'package:info_hub_app/reset_password/reset_password.dart';
 import 'package:info_hub_app/services/auth.dart';
 import 'package:info_hub_app/helpers/base.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
+import 'package:firebase_storage/firebase_storage.dart';
 
 class LoginScreen extends StatefulWidget {
   final FirebaseFirestore firestore;
   final FirebaseAuth auth;
   final FirebaseStorage storage;
-  const LoginScreen({super.key, required this.firestore,required this.auth,required this.storage});
+  const LoginScreen(
+      {super.key,
+      required this.firestore,
+      required this.auth,
+      required this.storage});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -91,7 +95,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         if(snapshot['roleType']== 'admin'){
                            nextPage = AdminHomepage(firestore: widget.firestore,storage: widget.storage,);
                           }else{
-                            nextPage = Base(firestore: widget.firestore, auth: widget.auth,);
+                            nextPage = Base(firestore: widget.firestore, auth: widget.auth,storage: widget.storage,);
                           }
                          Navigator.pushReplacement(context,
                           MaterialPageRoute(
@@ -138,6 +142,7 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
+
 
   Widget buildTextFormField({
     required TextEditingController controller,

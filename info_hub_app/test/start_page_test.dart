@@ -5,6 +5,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:info_hub_app/registration/start_page.dart';
 import 'package:info_hub_app/registration/registration_screen.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
+import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
+
 void main() {
   final storage = MockFirebaseStorage();
   
@@ -36,10 +38,11 @@ void main() {
     expect(find.text('Team TODO'), findsOneWidget);
   });
 
-  testWidgets('Register button press leads to register screen', (WidgetTester tester) async {
+  testWidgets('Register button press leads to register screen',
+      (WidgetTester tester) async {
     final firestore = FakeFirebaseFirestore();
     final auth = MockFirebaseAuth();
-    
+    final storage = MockFirebaseStorage();
     await tester.pumpWidget(
       MaterialApp(
         home: StartPage(firestore: firestore,auth: auth,storage: storage,),
@@ -53,10 +56,12 @@ void main() {
     expect(find.byType(RegistrationScreen), findsOneWidget);
   });
 
-  testWidgets('Login button press leads to login screen', (WidgetTester tester) async {
+  testWidgets('Login button press leads to login screen',
+      (WidgetTester tester) async {
     final firestore = FakeFirebaseFirestore();
     final auth = MockFirebaseAuth();
-    
+    final storage = MockFirebaseStorage();
+
     await tester.pumpWidget(
       MaterialApp(
         home: StartPage(firestore: firestore,auth: auth,storage: storage,),
@@ -69,5 +74,4 @@ void main() {
     await tester.pumpAndSettle();
     //expect(find.byType(LoginScreen), findsOneWidget);
   });
-
 }
