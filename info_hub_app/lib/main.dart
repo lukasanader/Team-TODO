@@ -45,12 +45,12 @@ class MyApp extends StatelessWidget {
         ),
       ],
       child: MaterialApp(
-        // home: StartPage(
-        //   firestore: firestore,
-        //   storage: storage,
-        //   auth: auth,
-        // ),
-        home: HomePage(auth: auth, firestore: firestore, storage: storage)
+        home: StartPage(
+          firestore: firestore,
+          storage: storage,
+          auth: auth,
+        ),
+        // home: HomePage(auth: auth, firestore: firestore, storage: storage)
         // home: AdminHomepage(firestore: firestore, storage: storage),
       ),
     );
