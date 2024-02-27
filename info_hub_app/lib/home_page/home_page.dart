@@ -106,37 +106,73 @@ class _HomePageState extends State<HomePage> {
       ),
 
       //above is the floating action button
-      body: Center(
-        child: Column(children: [
-          ListView.builder(
-              shrinkWrap: true,
-              itemCount: topicLength == 0 ? 0 : topicLength,
-              itemBuilder: (context, index) {
-                return TopicCard(
-                    widget.firestore,
-                    widget.auth,
-                    widget.storage,
-                    _topicsList[index] as QueryDocumentSnapshot<Object>);
-              }),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => ExperienceView(firestore: widget.firestore)),
-              );
-            },
-            child: const Text('Patient Experience'),
+      body: Column(children: [
+        const Text(
+          "Trending topics",
+          textAlign: TextAlign.left,
+          style: TextStyle(
+            fontSize: 18,
           ),
-          ElevatedButton(
-            onPressed: () async {
-              await DatabaseService(firestore: widget.firestore, uid: '1')
-                  .createNotification('Test Notification',
-                      'This is a test notification', DateTime.now());
-            },
-            child: const Text('Create Test Notification'),
+        ),
+        ListView.builder(
+            shrinkWrap: true,
+            itemCount: topicLength == 0 ? 0 : topicLength,
+            itemBuilder: (context, index) {
+              return TopicCard(
+                  widget.firestore,
+                  widget.auth,
+                  widget.storage,
+                  _topicsList[index] as QueryDocumentSnapshot<Object>);
+            }),
+        const SizedBox(
+          height: 10,
+        ),
+        const Text(
+          "Explore",
+          textAlign: TextAlign.left,
+          style: TextStyle(
+            fontSize: 18,
           ),
-        ]),
-      ),
+        ),
+        GridView.extent(
+          shrinkWrap: true,
+          maxCrossAxisExtent: 150,
+          crossAxisSpacing: 50,
+          mainAxisSpacing: 50,
+          padding: const EdgeInsets.all(20),
+          children: [
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ExperienceView(firestore: widget.firestore)),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                )
+              ),
+              child: const Text('Patient Experience'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                await DatabaseService(firestore: widget.firestore, uid: '1')
+                    .createNotification('Test Notification',
+                        'This is a test notification', DateTime.now());
+              },
+              style: ElevatedButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                )
+              ),
+              child: const Text('Create Test Notification'),
+            ),
+          ],)
+
+
+      ]),
+      
     );
   }
 
