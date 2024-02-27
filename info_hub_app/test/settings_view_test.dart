@@ -41,7 +41,7 @@ void main() {
     expect(find.text("About TEAM TODO"), findsOneWidget);
   });
 
-  testWidgets('', (WidgetTester tester) async {
+  testWidgets('Test entering privacy settings works', (WidgetTester tester) async {
     // Build our PrivacyPage widget and trigger a frame.
     await tester.pumpWidget(settingsViewWidget);
 
