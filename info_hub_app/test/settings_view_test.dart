@@ -1,28 +1,24 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:info_hub_app/settings/settings_view.dart';
 
-
-
 void main() {
   late Widget settingsViewWidget;
 
-
   setUp(() {
-    settingsViewWidget = const MaterialApp(
-      home: SettingsView()
-    );
+    settingsViewWidget = const MaterialApp(home: SettingsView());
   });
 
-  testWidgets('SettingsView has appbar with back button and title "Settings"', (WidgetTester tester) async {
+  testWidgets('SettingsView has appbar with back button and title "Settings"',
+      (WidgetTester tester) async {
     await tester.pumpWidget(settingsViewWidget);
 
-    
     expect(find.text("Settings"), findsOneWidget);
   });
 
-  testWidgets('SettingsView has account profile pic with title (username) and role (patient, parent, or medical professional)', (WidgetTester tester) async {
+  testWidgets(
+      'SettingsView has account profile pic with title (username) and role (patient, parent, or medical professional)',
+      (WidgetTester tester) async {
     await tester.pumpWidget(settingsViewWidget);
 
     expect(find.byType(CircleAvatar), findsOneWidget);
@@ -43,8 +39,20 @@ void main() {
     expect(find.text("History"), findsOneWidget);
     expect(find.text("Help"), findsOneWidget);
     expect(find.text("About TEAM TODO"), findsOneWidget);
-
   });
 
+  testWidgets('Test entering privacy settings works', (WidgetTester tester) async {
+    // Build our PrivacyPage widget and trigger a frame.
+    await tester.pumpWidget(settingsViewWidget);
 
+    // Tap on the ListTile to navigate to TermsOfServicesPage.
+    await tester.tap(find.text('Manage Privacy Settings'));
+    await tester.pumpAndSettle();
+
+    // Verify that TermsOfServicesPage renders an AppBar with the title "Terms of Services".
+    expect(find.text('Privacy'), findsOneWidget);
+
+    // Verify that TermsOfServicesPage renders the specified text.
+    expect(find.text('TeamTODO Terms of Services'), findsOneWidget);
+  });
 }

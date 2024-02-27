@@ -5,6 +5,7 @@
  */
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/discovery_view/discovery_view.dart';
 import 'package:info_hub_app/settings/settings_view.dart';
@@ -14,6 +15,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
 class Base extends StatelessWidget {
+  FirebaseAuth auth;
   FirebaseFirestore firestore;
   FirebaseStorage storage;
   FirebaseAuth auth;

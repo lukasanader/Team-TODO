@@ -1,4 +1,5 @@
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
+import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:info_hub_app/registration/start_page.dart';
@@ -7,40 +8,33 @@ import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 
 void main() {
+  final storage = MockFirebaseStorage();
+  
   testWidgets('Register button is present', (WidgetTester tester) async {
     final firestore = FakeFirebaseFirestore();
     final auth = MockFirebaseAuth();
-    final storage = MockFirebaseStorage();
-    await tester.pumpWidget(MaterialApp(
-        home: StartPage(firestore: firestore, storage: storage, auth: auth)));
+    await tester.pumpWidget(MaterialApp(home: StartPage(firestore: firestore,auth:auth,storage: storage,)));
     expect(find.text('Register'), findsOneWidget);
   });
 
   testWidgets('Login button is present', (WidgetTester tester) async {
     final firestore = FakeFirebaseFirestore();
     final auth = MockFirebaseAuth();
-    final storage = MockFirebaseStorage();
-    await tester.pumpWidget(MaterialApp(
-        home: StartPage(firestore: firestore, storage: storage, auth: auth)));
+    await tester.pumpWidget(MaterialApp(home: StartPage(firestore: firestore,auth:auth,storage: storage,)));
     expect(find.text('Login'), findsOneWidget);
   });
 
   testWidgets('Image is present', (WidgetTester tester) async {
     final firestore = FakeFirebaseFirestore();
     final auth = MockFirebaseAuth();
-    final storage = MockFirebaseStorage();
-    await tester.pumpWidget(MaterialApp(
-        home: StartPage(firestore: firestore, storage: storage, auth: auth)));
-    expect(
-        find.image(const AssetImage('assets/base_image.png')), findsOneWidget);
+    await tester.pumpWidget(MaterialApp(home: StartPage(firestore: firestore,auth:auth,storage: storage,)));
+    expect(find.image(const AssetImage('assets/base_image.png')), findsOneWidget); 
   });
 
   testWidgets('Team text is present', (WidgetTester tester) async {
     final firestore = FakeFirebaseFirestore();
     final auth = MockFirebaseAuth();
-    final storage = MockFirebaseStorage();
-    await tester.pumpWidget(MaterialApp(
-        home: StartPage(firestore: firestore, storage: storage, auth: auth)));
+    await tester.pumpWidget(MaterialApp(home: StartPage(firestore: firestore,auth:auth,storage: storage,)));
     expect(find.text('Team TODO'), findsOneWidget);
   });
 
@@ -51,10 +45,12 @@ void main() {
     final storage = MockFirebaseStorage();
     await tester.pumpWidget(
       MaterialApp(
-        home: StartPage(firestore: firestore, storage: storage, auth: auth),
-      ),
+        home: StartPage(firestore: firestore,auth: auth,storage: storage,),
+        ),
     );
 
+    await tester.ensureVisible(find.text('Register'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Register'));
     await tester.pumpAndSettle();
     expect(find.byType(RegistrationScreen), findsOneWidget);
@@ -68,10 +64,12 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
-        home: StartPage(firestore: firestore, storage: storage, auth: auth),
-      ),
+        home: StartPage(firestore: firestore,auth: auth,storage: storage,),
+        ),
     );
 
+    await tester.ensureVisible(find.text('Login'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Login'));
     await tester.pumpAndSettle();
     //expect(find.byType(LoginScreen), findsOneWidget);

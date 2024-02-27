@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:info_hub_app/screens/privacy_base.dart';
+import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 
 class SettingsView extends StatefulWidget {
   const SettingsView({super.key});
@@ -44,9 +46,16 @@ class _SettingsViewState extends State<SettingsView> {
               // decoration: BoxDecoration(
               //   border: Border.all(color: Colors.black)
               // ),
-              child: const ListTile(
+              child: ListTile(
                 leading: Icon(Icons.privacy_tip),
                 title: Text('Manage Privacy Settings'),
+                onTap: () {
+                  PersistentNavBarNavigator.pushNewScreen(
+                    context,
+                    screen: PrivacyPage(),
+                    withNavBar: false,
+                  );
+                },
               ),
             ),
             Container(

@@ -3,8 +3,10 @@
  */
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
+import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:info_hub_app/change_profile/change_profile.dart';
 import 'package:info_hub_app/notifications/notification.dart' as custom;
 import 'package:info_hub_app/helpers/base.dart';
 import 'package:info_hub_app/discovery_view/discovery_view.dart';
@@ -123,7 +125,7 @@ void main() {
     await tester.tap(find.byIcon(Icons.account_circle));
     await tester.pumpAndSettle();
 
-    expect(find.text('Profile'), findsOneWidget);
+    expect(find.byType(ChangeProfile), findsOneWidget);
   });
 
   testWidgets('NotificationPage UI Test', (WidgetTester tester) async {
@@ -145,12 +147,4 @@ void main() {
     expect(find.byType(Notifications), findsOneWidget);
   });
 
-  testWidgets('ProfilePage UI Test', (WidgetTester tester) async {
-    await tester.pumpWidget(const MaterialApp(
-      home: ProfilePage(),
-    ));
-
-    expect(find.text('Profile'), findsOneWidget);
-    expect(find.text('Profile Page'), findsOneWidget);
-  });
 }
