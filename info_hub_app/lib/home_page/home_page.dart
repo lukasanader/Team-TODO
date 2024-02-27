@@ -7,6 +7,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:info_hub_app/helpers/test_page.dart';
 import 'package:info_hub_app/patient_experience/admin_experience_view.dart';
 import 'package:info_hub_app/patient_experience/patient_experience_view.dart';
 import 'package:info_hub_app/topics/topics_card.dart';
@@ -18,6 +19,7 @@ import 'package:info_hub_app/change_profile/change_profile.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:info_hub_app/webinar/webinar_view.dart';
 
 class HomePage extends StatefulWidget {
   FirebaseFirestore firestore;
@@ -156,6 +158,19 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             ElevatedButton(
+              onPressed: ()  {
+                Navigator.push(
+                  context, 
+                  MaterialPageRoute(builder: (context) => const WebinarView()));
+              },
+              style: ElevatedButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                )
+              ),
+              child: const Text('Enter webinar view'),
+            ),
+            ElevatedButton(
               onPressed: () async {
                 await DatabaseService(firestore: widget.firestore, uid: '1')
                     .createNotification('Test Notification',
@@ -168,9 +183,21 @@ class _HomePageState extends State<HomePage> {
               ),
               child: const Text('Create Test Notification'),
             ),
-          ],)
+          ],),
 
-
+          ElevatedButton(
+              onPressed: ()  {
+                Navigator.push(
+                  context, 
+                  MaterialPageRoute(builder: (context) => TestView(firestore: widget.firestore, auth: widget.auth, storage: widget.storage,)));
+              },
+            style: ElevatedButton.styleFrom(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              )
+            ),
+            child: const Text('Page for testing purposes'),
+          )
       ]),
       
     );
