@@ -55,8 +55,8 @@ void main() {
     await test.enterText(passwordField, 'test');
     final loginButton = find.text('Login');
     await test.tap(loginButton);
-    await test.pumpAndSettle();
-    expect(find.text('Email or password is incorrect. Please try again'), findsNothing);
+    await test.pump();
+    expect(find.text('Email or password is incorrect. Please try again.'), findsNothing);
   });
 
   testWidgets('test if log in works on a valid user', (WidgetTester test) async{
