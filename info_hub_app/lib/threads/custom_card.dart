@@ -56,7 +56,8 @@ class _CustomCardState extends State<CustomCard> {
 
     var title = docData['title'] ?? 'No title';
     var description = docData['description'] ?? 'No description';
-    var name = docData['name'] ?? 'Unknown';
+
+    var name = docData[''] ?? 'Unknown';
     var timestamp = docData['timestamp']?.toDate();
     var formatter = timestamp != null
         ? DateFormat("dd-MMM-yyyy 'at' HH:mm").format(timestamp)

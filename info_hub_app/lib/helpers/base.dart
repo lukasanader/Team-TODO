@@ -5,6 +5,7 @@
  */
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/discovery_view/discovery_view.dart';
 import 'package:info_hub_app/settings/settings_view.dart';
@@ -20,8 +21,13 @@ class Base extends StatelessWidget {
     // Bottom Navigation Bar
     List<Widget> buildScreens() {
       return [
-        HomePage(firestore: firestore,),
-        DiscoveryView(firestore: firestore,), // Should be replaced with the genuine page
+        HomePage(
+          firestore: firestore,
+          auth: FirebaseAuth.instance,
+        ),
+        DiscoveryView(
+          firestore: firestore,
+        ), // Should be replaced with the genuine page
         const SettingsView(), // Should be replaced with the genuine page
       ];
     }
