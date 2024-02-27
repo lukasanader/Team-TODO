@@ -108,26 +108,16 @@ class _HomePageState extends State<HomePage> {
       //above is the floating action button
       body: Center(
         child: Column(children: [
-          Expanded(
-            child: ListView.builder(
-                itemCount: topicLength == 0 ? 0 : topicLength,
-                itemBuilder: (context, index) {
-                  return TopicCard(
-                      widget.firestore,
-                      widget.auth,
-                      widget.storage,
-                      _topicsList[index] as QueryDocumentSnapshot<Object>);
-                }),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => AdminExperienceView(firestore: widget.firestore)),
-              );
-            },
-            child: const Text('Admin Experience view'),
-          ),
+          ListView.builder(
+              shrinkWrap: true,
+              itemCount: topicLength == 0 ? 0 : topicLength,
+              itemBuilder: (context, index) {
+                return TopicCard(
+                    widget.firestore,
+                    widget.auth,
+                    widget.storage,
+                    _topicsList[index] as QueryDocumentSnapshot<Object>);
+              }),
           ElevatedButton(
             onPressed: () {
               Navigator.push(
