@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -20,9 +22,11 @@ Future<void> main() async {
 
   group('Notifications tests', () {
     late FakeFirebaseFirestore firestore;
+    late MockFirebaseAuth auth;
 
     setUp(() {
       firestore = FakeFirebaseFirestore();
+      auth = MockFirebaseAuth(signedIn: true);
     });
 
     tearDown(() async {
@@ -35,10 +39,10 @@ Future<void> main() async {
 
     testWidgets('shows notifications', (WidgetTester tester) async {
       await firestore.collection(NotificationCollection).add({
-        'user': 'user1',
+        'uid': auth.currentUser!.uid,
         'title': 'title1',
         'body': 'body1',
-        'timestamp': Timestamp.now(),
+        'timestamp': DateTime.now(),
       });
 
       await tester.pumpWidget(
@@ -46,7 +50,7 @@ Future<void> main() async {
           providers: [
             StreamProvider<List<custom.Notification>>(
               create: (_) => DatabaseService(
-                uid: 'user1',
+                uid: auth.currentUser!.uid,
                 firestore: firestore,
               ).notifications,
               initialData: [],
@@ -54,7 +58,7 @@ Future<void> main() async {
           ],
           child: MaterialApp(
             home: Notifications(
-              currentUser: 'user1',
+              currentUser: auth.currentUser!.uid,
               firestore: firestore,
             ),
           ),
@@ -80,7 +84,7 @@ Future<void> main() async {
                 ElevatedButton(
                   onPressed: () async {
                     String notificationId = await DatabaseService(
-                      uid: 'user1',
+                      uid: 'user',
                       firestore: firestore,
                     ).createNotification(
                       'Test Title',
@@ -91,7 +95,7 @@ Future<void> main() async {
                     expect(notificationId, isNotEmpty);
 
                     await DatabaseService(
-                      uid: 'user1',
+                      uid: 'user',
                       firestore: firestore,
                     ).deleteNotification(notificationId);
 
@@ -116,7 +120,7 @@ Future<void> main() async {
 
     testWidgets('delete notification on dismiss', (WidgetTester tester) async {
       await firestore.collection(NotificationCollection).add({
-        'user': 'user1',
+        'uid': auth.currentUser!.uid,
         'title': 'Test Title',
         'body': 'Test Body',
         'timestamp': Timestamp.now(),
@@ -127,7 +131,7 @@ Future<void> main() async {
           providers: [
             StreamProvider<List<custom.Notification>>(
               create: (_) => DatabaseService(
-                uid: 'user1',
+                uid: auth.currentUser!.uid,
                 firestore: firestore,
               ).notifications,
               initialData: [],
@@ -135,7 +139,7 @@ Future<void> main() async {
           ],
           child: MaterialApp(
             home: Notifications(
-              currentUser: 'user1',
+              currentUser: auth.currentUser!.uid,
               firestore: firestore,
             ),
           ),

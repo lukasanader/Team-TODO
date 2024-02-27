@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/models/notification.dart' as custom;
 import 'package:info_hub_app/helpers/notification_card.dart';
@@ -22,7 +23,7 @@ class _NotificationsState extends State<Notifications> {
         Provider.of<List<custom.Notification>>(context);
 
     final List<custom.Notification> userNotifications = allNotifications
-        .where((notification) => notification.user == widget.currentUser)
+        .where((notification) => notification.uid == widget.currentUser)
         .toList();
 
     return Scaffold(

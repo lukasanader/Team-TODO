@@ -7,30 +7,42 @@ class AuthService {
   final FirebaseAuth auth;
   final FirebaseFirestore firestore;
 
-  AuthService({required this.firestore,required this.auth});
+  AuthService({required this.firestore, required this.auth});
 
   // create user model
-  UserModel? _userFromFirebaseUser(User user, String firstName, String lastName,String email, String roleType) {
-    return UserModel(uid: user.uid,firstName: firstName, email: email, lastName: lastName,roleType: roleType);
+  UserModel? _userFromFirebaseUser(User user, String firstName, String lastName,
+      String email, String roleType) {
+    return UserModel(
+        uid: user.uid,
+        firstName: firstName,
+        email: email,
+        lastName: lastName,
+        roleType: roleType);
   }
 
   Stream<User?> get user {
     return auth.authStateChanges();
   }
+
   // register user
-  Future registerUser(String firstName, String lastName, String email, String password,String roleType) async {
+  Future registerUser(String firstName, String lastName, String email,
+      String password, String roleType) async {
     try {
-      UserCredential result = await auth.createUserWithEmailAndPassword(email: email, password: password);
+      UserCredential result = await auth.createUserWithEmailAndPassword(
+          email: email, password: password);
       User? user = result.user;
       if (user != null) {
-        await DatabaseService(firestore: firestore, uid: user.uid).addUserData(firstName, lastName, email, roleType);
+        await DatabaseService(firestore: firestore, uid: user.uid)
+            .addUserData(firstName, lastName, email, roleType);
+        await DatabaseService(firestore: firestore, uid: user.uid)
+            .createPreferences();
         // create user model
-        return _userFromFirebaseUser(user,firstName, lastName, email, roleType);
+        return _userFromFirebaseUser(
+            user, firstName, lastName, email, roleType);
       }
     } catch (e) {
       print(e.toString());
       return null;
     }
   }
-
 }
