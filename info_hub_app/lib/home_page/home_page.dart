@@ -5,6 +5,7 @@
  * genuine article.
  */
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/patient_experience/admin_experience_view.dart';
 import 'package:info_hub_app/patient_experience/patient_experience_view.dart';
@@ -12,6 +13,7 @@ import 'package:info_hub_app/topics/topics_card.dart';
 import 'package:info_hub_app/notifications/notifications.dart';
 import 'package:info_hub_app/threads/threads.dart';
 import 'package:info_hub_app/services/database.dart';
+import 'package:info_hub_app/change_profile/change_profile.dart';
 
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/cupertino.dart';
@@ -19,8 +21,9 @@ import 'package:flutter/cupertino.dart';
 
 class HomePage extends StatefulWidget {
   FirebaseFirestore firestore;
+  FirebaseAuth auth;
   //User? user = FirebaseAuth.instance.currentUser;
-  HomePage({super.key, required this.firestore});
+  HomePage({super.key, required this.firestore, required this.auth});
   @override
   State<HomePage> createState() => _HomePageState();
 }
@@ -61,10 +64,16 @@ class _HomePageState extends State<HomePage> {
             onPressed: () {
               // Placeholder method for profile picture icon
               // Navigate to profile page
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const ProfilePage()),
-              );
+              Navigator.of(context).push(
+                      CupertinoPageRoute(
+                        builder: (BuildContext context) {
+                          return ChangeProfile(
+                            firestore: widget.firestore,
+                            auth: widget.auth,
+                          );
+                        },
+                      ),
+                    );
             },
           ),
         ],

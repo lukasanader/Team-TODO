@@ -185,7 +185,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => Base(firestore: widget.firestore,),
+                          builder: (context) => Base(firestore: widget.firestore, auth : widget.auth),
                         ),
                       );
                     } else {
