@@ -4,19 +4,21 @@ import 'package:info_hub_app/home_page/home_page.dart';
 import 'package:info_hub_app/login/login_screen.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
+import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
+
+
 
 void main() {
+  final firestore = FakeFirebaseFirestore();
+  final auth = MockFirebaseAuth();
+  final storage = MockFirebaseStorage();
   testWidgets('test if login text exists', (WidgetTester test) async{
-    final firestore = FakeFirebaseFirestore();
-    final auth = MockFirebaseAuth();
-    await test.pumpWidget(MaterialApp(home: LoginScreen(firestore: firestore, auth: auth)));
+    await test.pumpWidget(MaterialApp(home: LoginScreen(firestore: firestore, auth: auth,storage: storage,)));
     expect(find.text('Please fill in the login details.'), findsOneWidget);
 });
 
   testWidgets('test if email textfield exists', (WidgetTester test) async {
-    final firestore = FakeFirebaseFirestore();
-    final auth = MockFirebaseAuth();
-    await test.pumpWidget(MaterialApp(home: LoginScreen(firestore: firestore, auth: auth)));
+    await test.pumpWidget(MaterialApp(home: LoginScreen(firestore: firestore, auth: auth,storage: storage,)));
     final emailField = find.ancestor(
       of: find.text('Email'), 
       matching: find.byType(TextFormField),
@@ -26,9 +28,7 @@ void main() {
     
   });
   testWidgets('test if password textfield exists', (WidgetTester test) async {
-    final firestore = FakeFirebaseFirestore();
-    final auth = MockFirebaseAuth();
-    await test.pumpWidget(MaterialApp(home: LoginScreen(firestore: firestore, auth: auth)));
+    await test.pumpWidget(MaterialApp(home: LoginScreen(firestore: firestore, auth: auth,storage: storage,)));
     final passwordField = find.ancestor(
       of: find.text('Password'), 
       matching: find.byType(TextFormField),
@@ -38,9 +38,7 @@ void main() {
   });
 
   testWidgets('test if log in validation works', (WidgetTester test) async {
-    final firestore = FakeFirebaseFirestore();
-    final auth = MockFirebaseAuth();
-    await test.pumpWidget(MaterialApp(home: LoginScreen(firestore: firestore, auth: auth)));
+    await test.pumpWidget(MaterialApp(home: LoginScreen(firestore: firestore, auth: auth,storage: storage,)));
     final emailField = find.ancestor(
       of: find.text('Email'), 
       matching: find.byType(TextFormField),
@@ -58,10 +56,15 @@ void main() {
   });
 
   testWidgets('test if log in works on a valid user', (WidgetTester test) async{
-    final firestore = FakeFirebaseFirestore();
-    final auth = MockFirebaseAuth();
     await auth.createUserWithEmailAndPassword(email: 'gamer@gmail.com', password: 'G@mer123');
-    await test.pumpWidget(MaterialApp(home: LoginScreen(firestore: firestore, auth: auth)));
+    String uid = auth.currentUser!.uid;
+    await firestore.collection('Users').doc(uid).set({
+      'email': 'gamer@gmail.com',
+      'firstName': 'John',
+      'lastName': 'Doe',
+      'roleType': 'Patient'
+    });
+    await test.pumpWidget(MaterialApp(home: LoginScreen(firestore: firestore, auth: auth,storage: storage,)));
     final emailField = find.ancestor(
       of: find.text('Email'), 
       matching: find.byType(TextFormField),
@@ -79,9 +82,7 @@ void main() {
   });
 
   testWidgets('test if stops when email is empty', (WidgetTester test) async{
-    final firestore = FakeFirebaseFirestore();
-    final auth = MockFirebaseAuth();
-    await test.pumpWidget(MaterialApp(home: LoginScreen(firestore: firestore, auth: auth)));
+    await test.pumpWidget(MaterialApp(home: LoginScreen(firestore: firestore, auth: auth,storage: storage,)));
     final emailField = find.ancestor(
       of: find.text('Email'), 
       matching: find.byType(TextFormField),
@@ -98,9 +99,7 @@ void main() {
   });
 
   testWidgets('test if stops when password is empty', (WidgetTester test) async{
-    final firestore = FakeFirebaseFirestore();
-    final auth = MockFirebaseAuth();
-    await test.pumpWidget(MaterialApp(home: LoginScreen(firestore: firestore, auth: auth)));
+    await test.pumpWidget(MaterialApp(home: LoginScreen(firestore: firestore, auth: auth,storage: storage,)));
     final emailField = find.ancestor(
       of: find.text('Email'), 
       matching: find.byType(TextFormField),
@@ -117,9 +116,7 @@ void main() {
   });
 
   testWidgets('test if stops when both are empty', (WidgetTester test)  async{
-    final firestore = FakeFirebaseFirestore();
-    final auth = MockFirebaseAuth();
-    await test.pumpWidget(MaterialApp(home: LoginScreen(firestore: firestore, auth: auth)));
+    await test.pumpWidget(MaterialApp(home: LoginScreen(firestore: firestore, auth: auth,storage: storage,)));
     final loginButton = find.text('Login');
     await test.tap(loginButton);
     await test.pumpAndSettle();

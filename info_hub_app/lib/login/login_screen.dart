@@ -1,5 +1,9 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:info_hub_app/admin/admin_dash.dart';
 import 'package:info_hub_app/reset_password/reset_password.dart';
 import 'package:info_hub_app/services/auth.dart';
 import 'package:info_hub_app/helpers/base.dart';
@@ -9,7 +13,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class LoginScreen extends StatefulWidget {
   final FirebaseFirestore firestore;
   final FirebaseAuth auth;
-  const LoginScreen({Key? key, required this.firestore, required this.auth});
+  final FirebaseStorage storage;
+  const LoginScreen({super.key, required this.firestore,required this.auth,required this.storage});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -74,23 +79,27 @@ class _LoginScreenState extends State<LoginScreen> {
                   }
                   return null;
                 },
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () async {
-                  if (_formKey.currentState!.validate()) {
-                    User? user = await _auth.signInUser(
-                        emailController.text, passwordController.text);
-                    if (user != null) {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              Base(firestore: widget.firestore, auth: widget.auth),
-                        ),
-                      );
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () async {
+                    if (_formKey.currentState!.validate()) {
+                      User? user = await _auth.signInUser(emailController.text, passwordController.text);
+                      if (user != null) {
+                        DocumentSnapshot snapshot = await widget.firestore.collection('Users').doc(user.uid).get();
+                        Widget nextPage;
+                        if(snapshot['roleType']== 'admin'){
+                           nextPage = AdminHomepage(firestore: widget.firestore,storage: widget.storage,);
+                          }else{
+                            nextPage = Base(firestore: widget.firestore, auth: widget.auth,);
+                          }
+                         Navigator.pushReplacement(context,
+                          MaterialPageRoute(
+                            builder :(context) => nextPage
+                          ),
+                          );
+                  }else{
+                    ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text(
                               'Email or password is incorrect. Please try again.'),

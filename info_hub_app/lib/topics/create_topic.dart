@@ -1,5 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:info_hub_app/topics/quiz/create_quiz.dart';
+
 import 'package:video_player/video_player.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:chewie/chewie.dart';
@@ -22,6 +24,8 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
   final descriptionController = TextEditingController();
   final articleLinkController = TextEditingController();
   final _topicFormKey = GlobalKey<FormState>();
+  String quizID = '';
+  bool quizAdded=false;
 
   String? validateTitle(String? value) {
     if (value == null || value.isEmpty) {
@@ -166,6 +170,37 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                   minimumSize: const Size(double.infinity, 50),
                 ),
                 onPressed: () {
+                  Navigator.push(context,
+                          MaterialPageRoute(
+                            builder :(context) => CreateQuiz(firestore: widget.firestore,addQuiz: addQuiz),
+                          ),
+                          );
+                },
+                child: 
+                Row(
+                  children: [
+                    const SizedBox(width: 150,),
+                    const Text(
+                      "ADD QUIZ",
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontWeight: FontWeight.bold,
+                      
+                      ),
+                    ),
+                    if(quizAdded)
+                      const Icon(Icons.check, color: Colors.green,)
+                    ]
+                )
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10.0),
+              child: OutlinedButton(
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 50),
+                ),
+                onPressed: () {
                   if (_topicFormKey.currentState!.validate()) {
                     _uploadTopic();
 
@@ -270,6 +305,9 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
       'description': descriptionController.text,
       'articleLink': articleLinkController.text,
       'videoUrl': _downloadURL,
+      'views': 0,
+      'date': DateTime.now(),
+      'quizID': quizID,
     };
 
     CollectionReference topicCollectionRef =
@@ -295,6 +333,14 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
     });
 
     // SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+  }
+
+  void addQuiz(String qid){
+    setState(() {
+      quizID=qid;
+      quizAdded=true;
+    });
+    
   }
 }
 
