@@ -2,8 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:info_hub_app/screens/threads.dart';
-import 'package:info_hub_app/helpers/custom_card.dart';
+import 'package:info_hub_app/threads/threads.dart';
+import 'package:info_hub_app/threads/custom_card.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 void main() {

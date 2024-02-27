@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:info_hub_app/screens/settings_view.dart';
+import 'package:info_hub_app/settings/settings_view.dart';
 
 void main() {
   late Widget settingsViewWidget;

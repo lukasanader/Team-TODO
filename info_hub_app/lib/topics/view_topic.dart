@@ -8,7 +8,7 @@ import 'package:flutter/services.dart';
 class ViewTopicScreen extends StatefulWidget {
   final QueryDocumentSnapshot topic;
 
-  const ViewTopicScreen({required this.topic, Key? key}) : super(key: key);
+  const ViewTopicScreen({required this.topic, super.key});
 
   @override
   State<ViewTopicScreen> createState() => _ViewTopicScreenState();

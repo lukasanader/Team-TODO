@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:info_hub_app/helpers/custom_card.dart';
+import 'package:info_hub_app/threads/custom_card.dart';
 
 class ThreadApp extends StatefulWidget {
   final FirebaseFirestore firestore;
 
-  const ThreadApp({Key? key, required this.firestore}) : super(key: key);
+  const ThreadApp({super.key, required this.firestore});
 
   @override
   _ThreadAppState createState() => _ThreadAppState();
@@ -27,6 +27,7 @@ class _ThreadAppState extends State<ThreadApp> {
     descriptionInputController = TextEditingController();
   }
 
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
 //current appbar is placeholder, replace with actual appbar or equivalent
@@ -64,7 +65,7 @@ class _ThreadAppState extends State<ThreadApp> {
           ), 
         ],*/
         bottom: PreferredSize(
-          preferredSize: Size.fromHeight(0.0),
+          preferredSize: const Size.fromHeight(0.0),
           child: Container(),
         ),
         shape: const RoundedRectangleBorder(

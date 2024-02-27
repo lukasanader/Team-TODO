@@ -1,7 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:info_hub_app/helpers/question_card.dart';
+import 'package:info_hub_app/ask_question/question_card.dart';
 
 
 class ViewQuestionPage extends StatefulWidget {

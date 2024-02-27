@@ -370,7 +370,7 @@ packages:
     source: hosted
     version: "2.25.4"
   firebase_core_platform_interface:
-    dependency: transitive
+    dependency: "direct dev"
     description:
       name: firebase_core_platform_interface
       sha256: c437ae5d17e6b5cc7981cf6fd458a5db4d12979905f9aafd1fea930428a9fe63
@@ -550,7 +550,7 @@ packages:
     source: sdk
     version: "0.0.0"
   font_awesome_flutter:
-    dependency: "direct dev"
+    dependency: "direct main"
     description:
       name: font_awesome_flutter
       sha256: "1f93e5799f0e6c882819e8393a05c6ca5226010f289190f2242ec19f3f0fdba5"
@@ -928,7 +928,7 @@ packages:
     source: hosted
     version: "4.2.4"
   provider:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: provider
       sha256: "9a96a0a19b594dbc5bf0f1f27d2bc67d5f95957359b461cd9feb44ed6ae75096"
@@ -1117,7 +1117,7 @@ packages:
     source: hosted
     version: "3.1.0"
   url_launcher_platform_interface:
-    dependency: transitive
+    dependency: "direct dev"
     description:
       name: url_launcher_platform_interface
       sha256: "552f8a1e663569be95a8190206a38187b531910283c3e982193e4f2733f01029"
