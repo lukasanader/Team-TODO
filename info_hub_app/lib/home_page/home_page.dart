@@ -13,6 +13,7 @@ import 'package:info_hub_app/topics/topics_card.dart';
 import 'package:info_hub_app/notifications/notifications.dart';
 import 'package:info_hub_app/threads/threads.dart';
 import 'package:info_hub_app/services/database.dart';
+import 'package:info_hub_app/change_profile/change_profile.dart';
 
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/cupertino.dart';

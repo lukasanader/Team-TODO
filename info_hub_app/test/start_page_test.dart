@@ -44,6 +44,8 @@ void main() {
         ),
     );
 
+    await tester.ensureVisible(find.text('Register'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Register'));
     await tester.pumpAndSettle();
     expect(find.byType(RegistrationScreen), findsOneWidget);
@@ -59,6 +61,8 @@ void main() {
         ),
     );
 
+    await tester.ensureVisible(find.text('Login'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Login'));
     await tester.pumpAndSettle();
     //expect(find.byType(LoginScreen), findsOneWidget);
