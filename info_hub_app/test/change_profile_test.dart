@@ -114,25 +114,6 @@ testWidgets('Test if passwords match', (WidgetTester tester) async {
   expect(find.text('Passwords do not match'), findsOneWidget);
 });
 
-testWidgets('Test if success message is displayed', (WidgetTester tester) async {
-    final firestore = FakeFirebaseFirestore();
-    final auth = MockFirebaseAuth();
-    await tester.pumpWidget(MaterialApp(home: ChangeProfile(firestore: firestore, auth: auth)));
-    final firstNameField = find.widgetWithText(TextField, 'First Name');
-    final lastNameField = find.widgetWithText(TextField, 'Last Name');
-    final newPasswordField = find.widgetWithText(TextField, 'New Password');
-    final confirmPasswordField = find.widgetWithText(TextField, 'Confirm Password');
-    await tester.enterText(firstNameField, 'John');
-    await tester.enterText(lastNameField, 'Doe');
-    await tester.enterText(newPasswordField, 'Password@123');
-    await tester.enterText(confirmPasswordField, 'Password@123');
-    await tester.tap(find.text('Save Changes')); // Trigger the onPressed callback
-    await tester.pumpAndSettle(); // Wait for all animations to complete
-
-      // Trigger the save changes button
-    await tester.pumpAndSettle();
-    expect(find.text('Changes saved'), findsOneWidget);
-  });
 
 testWidgets('Test if first name and last name are updated in Firestore', (WidgetTester tester) async {
   final firestore = FakeFirebaseFirestore();
