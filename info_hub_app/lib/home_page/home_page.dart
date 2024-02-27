@@ -5,12 +5,10 @@
  * genuine article.
  */
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:info_hub_app/helpers/topics_card.dart';
-import 'package:info_hub_app/screens/notifications.dart';
-import 'package:info_hub_app/screens/threads.dart';
+import 'package:info_hub_app/topics/topics_card.dart';
+import 'package:info_hub_app/notifications/notifications.dart';
+import 'package:info_hub_app/threads/threads.dart';
 import 'package:info_hub_app/services/database.dart';
 
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';

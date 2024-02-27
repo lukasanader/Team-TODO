@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:info_hub_app/models/notification.dart' as custom;
+import 'package:flutter/foundation.dart';
+import 'package:info_hub_app/notifications/notification.dart' as custom;
 
 class DatabaseService {
   final String uid;
@@ -13,7 +14,9 @@ class DatabaseService {
       String title, String body, DateTime timestamp) async {
         CollectionReference notificationsCollection = firestore.collection('notifications');
     try {
-      print('Creating notification');
+      if (kDebugMode) {
+        print('Creating notification');
+      }
       var docRef = await notificationsCollection.add({
         'user': uid,
         'title': title,
@@ -22,7 +25,9 @@ class DatabaseService {
       });
       return docRef.id;
     } catch (e) {
-      print('Error creating notification: $e');
+      if (kDebugMode) {
+        print('Error creating notification: $e');
+      }
       rethrow;
     }
   }
@@ -31,10 +36,14 @@ class DatabaseService {
   Future<void> deleteNotification(String id) async {
     CollectionReference notificationsCollection = firestore.collection('notifications');
     try {
-      print('Deleting notification');
+      if (kDebugMode) {
+        print('Deleting notification');
+      }
       await notificationsCollection.doc(id).delete();
     } catch (e) {
-      print('Error deleting notification: $e');
+      if (kDebugMode) {
+        print('Error deleting notification: $e');
+      }
       rethrow;
     }
   }
@@ -42,9 +51,13 @@ class DatabaseService {
   // Convert a Firestore snapshot to a list of custom notifications
   List<custom.Notification> notificationListFromSnapshot(
       QuerySnapshot snapshot) {
-    print('Converting notification list from snapshot');
+    if (kDebugMode) {
+      print('Converting notification list from snapshot');
+    }
     final notifications = snapshot.docs.map((doc) {
-      print('Converting notification');
+      if (kDebugMode) {
+        print('Converting notification');
+      }
       return custom.Notification(
         id: doc.id,
         user: doc.get('user') ?? '',
@@ -62,8 +75,12 @@ class DatabaseService {
   // Get notifications stream
   Stream<List<custom.Notification>> get notifications {
     CollectionReference notificationsCollection = firestore.collection('notifications');
-    print('Getting notifications');
-    print(notificationsCollection.snapshots().toString());
+    if (kDebugMode) {
+      print('Getting notifications');
+    }
+    if (kDebugMode) {
+      print(notificationsCollection.snapshots().toString());
+    }
     return notificationsCollection
         .snapshots()
         .map(notificationListFromSnapshot);

@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:info_hub_app/screens/create_topic.dart';
+import 'package:info_hub_app/topics/create_topic.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/services.dart';
 import 'package:integration_test/integration_test.dart';

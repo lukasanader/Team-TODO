@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:info_hub_app/screens/create_topic.dart';
-import 'package:info_hub_app/screens/question_view.dart';
+import 'package:info_hub_app/topics/create_topic.dart';
+import 'package:info_hub_app/ask_question/question_view.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
 class AdminHomepage extends StatefulWidget {
@@ -155,7 +155,7 @@ class _AdminHomepageState extends State<AdminHomepage> {
                     addAdmins();
                     Navigator.of(context).pop();
                   },
-                  child: Text("OK"),
+                  child: const Text("OK"),
                 ),
               ],
             );

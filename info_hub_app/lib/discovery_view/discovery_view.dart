@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:info_hub_app/helpers/topics_card.dart';
+import 'package:info_hub_app/topics/topics_card.dart';
 
 
 

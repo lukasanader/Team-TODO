@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
-import 'package:info_hub_app/screens/discovery_view.dart';
+import 'package:info_hub_app/discovery_view/discovery_view.dart';
 
 
 void main() {
