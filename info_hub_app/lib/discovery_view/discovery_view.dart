@@ -51,8 +51,8 @@ class _DiscoveryViewState extends State<DiscoveryView> {
       body: SafeArea(
           child: Column(
         children: [
-          Expanded(
-              child: ListView.builder(
+          ListView.builder(
+            shrinkWrap: true,
             itemCount: topicLength == 0 ? 1 : topicLength,
             itemBuilder: (context, index) {
               if (_topicsList.isEmpty) {
@@ -80,7 +80,10 @@ class _DiscoveryViewState extends State<DiscoveryView> {
                 }
               }
             },
-          )),
+          ),
+          const SizedBox(
+            height: 20,
+          ),
           ElevatedButton(
               onPressed: () {
                 _showPostDialog();

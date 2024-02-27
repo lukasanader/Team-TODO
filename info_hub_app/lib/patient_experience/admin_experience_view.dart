@@ -29,7 +29,7 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
           title: const Text("All Submitted Experiences"),
         ),
         body: SingleChildScrollView(
-            child: Column(
+          child: Column(
           children: [
             const Text("Verified experiences"),
             ListView.builder(
