@@ -33,6 +33,7 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
           children: [
             const Text("Verified experiences"),
             ListView.builder(
+                physics: const NeverScrollableScrollPhysics(),
                 shrinkWrap: true,
                 itemCount: _verifiedExperienceList.length,
                 itemBuilder: (context, index) {
@@ -56,6 +57,7 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
             const SizedBox(height: 30),
             const Text("Unverified experiences"),
             ListView.builder(
+                physics: const NeverScrollableScrollPhysics(),
                 shrinkWrap: true,
                 itemCount: _unverifiedExperienceList.length,
                 itemBuilder: (context, index) {
@@ -72,7 +74,7 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
                                 updateVerification(
                                     _unverifiedExperienceList[index]);
                               },
-                              icon: const Icon(Icons.check)))
+                              icon: const Icon(Icons.close)))
                     ],
                   );
                 }),

@@ -168,7 +168,7 @@ class _HomePageState extends State<HomePage> {
                     borderRadius: BorderRadius.circular(10),
                   )
                 ),
-                child: const Text('Enter webinar view'),
+                child: const Text('Webinars'),
               ),
             ],),
 

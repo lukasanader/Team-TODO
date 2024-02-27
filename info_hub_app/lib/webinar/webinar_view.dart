@@ -23,6 +23,7 @@ class _WebinarViewState extends State<WebinarView> {
             const SizedBox(
               height: 20),
             ListView.builder(
+              physics: const NeverScrollableScrollPhysics(),
               shrinkWrap: true,
               itemCount: 2,
               itemBuilder: (context, index) {
@@ -64,6 +65,7 @@ class _WebinarViewState extends State<WebinarView> {
               height: 20),
             const Text("Upcoming Webinars"),
             ListView.builder(
+              physics: const NeverScrollableScrollPhysics(),
               shrinkWrap: true,
               itemCount: 5,
               itemBuilder: (context, index) {
