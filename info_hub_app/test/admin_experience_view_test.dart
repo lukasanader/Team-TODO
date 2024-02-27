@@ -72,6 +72,7 @@ void main() {
 
     List<Experience> experienceList = List.from(data.docs.map((doc) => Experience.fromSnapshot(doc)));
     
+    expect(experienceList[0].title, equals('Example 2'));
     expect(experienceList[0].verified, isTrue);
     
   });
