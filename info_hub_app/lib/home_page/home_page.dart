@@ -128,7 +128,6 @@ class _HomePageState extends State<HomePage> {
         ),
         const Text(
           "Explore",
-          textAlign: TextAlign.left,
           style: TextStyle(
             fontSize: 18,
           ),
@@ -152,7 +151,9 @@ class _HomePageState extends State<HomePage> {
                   borderRadius: BorderRadius.circular(10),
                 )
               ),
-              child: const Text('Patient Experience'),
+              child: const Text(
+                'Patient Experience',
+              ),
             ),
             ElevatedButton(
               onPressed: () async {
