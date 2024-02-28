@@ -20,6 +20,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:info_hub_app/webinar/webinar_view.dart';
+import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 
 class HomePage extends StatefulWidget {
   FirebaseFirestore firestore;
@@ -143,9 +144,10 @@ class _HomePageState extends State<HomePage> {
             children: [
               ElevatedButton(
                 onPressed: () {
-                  Navigator.push(
+                  PersistentNavBarNavigator.pushNewScreen(
                     context,
-                    MaterialPageRoute(builder: (context) => ExperienceView(firestore: widget.firestore)),
+                    screen: ExperienceView(firestore: widget.firestore,),
+                    withNavBar: false,
                   );
                 },
                 style: ElevatedButton.styleFrom(
@@ -159,9 +161,11 @@ class _HomePageState extends State<HomePage> {
               ),
               ElevatedButton(
                 onPressed: ()  {
-                  Navigator.push(
-                    context, 
-                    MaterialPageRoute(builder: (context) => const WebinarView()));
+                  PersistentNavBarNavigator.pushNewScreen(
+                    context,
+                    screen: const WebinarView(),
+                    withNavBar: false,
+                  );
                 },
                 style: ElevatedButton.styleFrom(
                   shape: RoundedRectangleBorder(

@@ -50,12 +50,13 @@ class _SettingsViewState extends State<SettingsView> {
               ),
               GestureDetector(
                 onTap: () {
-                  Navigator.push(
+                  PersistentNavBarNavigator.pushNewScreen(
                     context,
-                    MaterialPageRoute(
-                        builder: (context) => ManageNotifications(
-                            firestore: FirebaseFirestore.instance,
-                            auth: FirebaseAuth.instance)),
+                    screen: ManageNotifications(
+                      firestore: FirebaseFirestore.instance,
+                      auth: FirebaseAuth.instance,
+                    ),
+                    withNavBar: false,
                   );
                 },
                 child: Container(
