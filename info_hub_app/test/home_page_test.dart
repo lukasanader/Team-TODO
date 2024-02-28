@@ -12,6 +12,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:info_hub_app/helpers/base.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
+import 'package:info_hub_app/topics/view_topic.dart';
 
 void main() {
   final auth = MockFirebaseAuth();
@@ -35,6 +36,8 @@ void main() {
       'videoUrl': '',
       'views': 10,
       'date': DateTime.now(),
+      'likes': 0,
+      'dislikes': 0,
     });
     topicCollectionRef.add({
       'title': 'test 2',
@@ -43,6 +46,8 @@ void main() {
       'videoUrl': '',
       'views': 9,
       'date': DateTime.now(),
+      'likes': 0,
+      'dislikes': 0,
     });
     topicCollectionRef.add({
       'title': 'test 3',
@@ -51,6 +56,8 @@ void main() {
       'videoUrl': '',
       'views': 8,
       'date': DateTime.now(),
+      'likes': 0,
+      'dislikes': 0,
     });
     await tester.pumpWidget(trendingTopicWidget);
     await tester.pumpAndSettle();
@@ -81,6 +88,8 @@ void main() {
       'videoUrl': '',
       'views': 5,
       'date': DateTime.now(),
+      'likes': 0,
+      'dislikes': 0,
     });
     topicCollectionRef.add({
       'title': 'test 5',
@@ -89,6 +98,8 @@ void main() {
       'videoUrl': '',
       'views': 4,
       'date': DateTime.now(),
+      'likes': 0,
+      'dislikes': 0,
     });
     topicCollectionRef.add({
       'title': 'test 6',
@@ -97,6 +108,8 @@ void main() {
       'videoUrl': '',
       'views': 3,
       'date': DateTime.now(),
+      'likes': 0,
+      'dislikes': 0,
     });
     topicCollectionRef.add({
       'title': 'test 7',
@@ -105,6 +118,8 @@ void main() {
       'videoUrl': '',
       'views': 1,
       'date': DateTime.now(),
+      'likes': 0,
+      'dislikes': 0,
     });
 
     await tester.pumpWidget(trendingTopicWidget);
@@ -122,4 +137,15 @@ void main() {
     // // Check that test 7 is ignored
     // expect((textFinders.at(5).evaluate().single.widget as Text).data, 'test 6');
   });
+
+ testWidgets('Click into a topic test',
+      (WidgetTester tester) async {
+
+      await tester.pumpWidget(trendingTopicWidget);
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byType(Card).first);
+      await tester.pumpAndSettle();
+      expect(find.byType(ViewTopicScreen), findsOne);
+      });
 }

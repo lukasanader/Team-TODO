@@ -207,37 +207,3 @@ class _HomePageState extends State<HomePage> {
     });
   }
 }
-
-// PlaceHolder for Notification Page
-class NotificationPage extends StatelessWidget {
-  const NotificationPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Notifications'),
-      ),
-      body: const Center(
-        child: Text('Notification Page'),
-      ),
-    );
-  }
-}
-
-// PlaceHolder for Profile Page
-class ProfilePage extends StatelessWidget {
-  const ProfilePage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Profile'),
-      ),
-      body: const Center(
-        child: Text('Profile Page'),
-      ),
-    );
-  }
-}
