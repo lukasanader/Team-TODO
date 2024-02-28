@@ -50,7 +50,7 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
                                 updateVerification(
                                     _verifiedExperienceList[index]);
                               },
-                              icon: const Icon(Icons.check)))
+                              icon: const Icon(Icons.close)))
                     ],
                   );
                 }),
@@ -74,7 +74,7 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
                                 updateVerification(
                                     _unverifiedExperienceList[index]);
                               },
-                              icon: const Icon(Icons.close)))
+                              icon: const Icon(Icons.check)))
                     ],
                   );
                 }),
