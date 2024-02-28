@@ -16,12 +16,15 @@ import 'package:info_hub_app/topics/topics_card.dart';
 import 'package:info_hub_app/topics/view_topic.dart';
 
 void main() {
-  final auth = MockFirebaseAuth();
-  late FakeFirebaseFirestore firestore = FakeFirebaseFirestore();
-  late MockFirebaseStorage storage = MockFirebaseStorage();
+  MockFirebaseAuth auth;
+  late FakeFirebaseFirestore firestore;
+  late MockFirebaseStorage storage;
   late Widget trendingTopicWidget;
+
   setUp(() {
-    
+    auth = MockFirebaseAuth();
+    firestore = FakeFirebaseFirestore();
+    storage = MockFirebaseStorage();
     CollectionReference topicCollectionRef = firestore.collection('topics');
     topicCollectionRef.add({
       'title': 'test 1',
@@ -140,6 +143,7 @@ void main() {
     expect(cardFinder, findsNWidgets(6));
 
     final textFinders = find.byType(Text);
+
     // Check that test 7 is ignored
     expect((textFinders.at(6).evaluate().single.widget as Text).data, 'test 6');
   });
