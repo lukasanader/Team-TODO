@@ -8,7 +8,6 @@ import 'package:info_hub_app/reset_password/reset_password.dart';
 import 'package:info_hub_app/services/auth.dart';
 import 'package:info_hub_app/helpers/base.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 
 class LoginScreen extends StatefulWidget {
   final FirebaseFirestore firestore;
@@ -83,27 +82,37 @@ class _LoginScreenState extends State<LoginScreen> {
                   }
                   return null;
                 },
-                ),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () async {
-                    if (_formKey.currentState!.validate()) {
-                      User? user = await _auth.signInUser(emailController.text, passwordController.text);
-                      if (user != null) {
-                        DocumentSnapshot snapshot = await widget.firestore.collection('Users').doc(user.uid).get();
-                        Widget nextPage;
-                        if(snapshot['roleType']== 'admin'){
-                           nextPage = AdminHomepage(firestore: widget.firestore,storage: widget.storage,);
-                          }else{
-                            nextPage = Base(firestore: widget.firestore, auth: widget.auth,storage: widget.storage,);
-                          }
-                         Navigator.pushReplacement(context,
-                          MaterialPageRoute(
-                            builder :(context) => nextPage
-                          ),
-                          );
-                  }else{
-                    ScaffoldMessenger.of(context).showSnackBar(
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () async {
+                  if (_formKey.currentState!.validate()) {
+                    User? user = await _auth.signInUser(
+                        emailController.text, passwordController.text);
+                    if (user != null) {
+                      DocumentSnapshot snapshot = await widget.firestore
+                          .collection('Users')
+                          .doc(user.uid)
+                          .get();
+                      Widget nextPage;
+                      if (snapshot['roleType'] == 'admin') {
+                        nextPage = AdminHomepage(
+                          firestore: widget.firestore,
+                          storage: widget.storage,
+                        );
+                      } else {
+                        nextPage = Base(
+                          firestore: widget.firestore,
+                          auth: widget.auth,
+                          storage: widget.storage,
+                        );
+                      }
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => nextPage),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text(
                               'Email or password is incorrect. Please try again.'),
@@ -143,7 +152,6 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-
   Widget buildTextFormField({
     required TextEditingController controller,
     required String hintText,
@@ -167,4 +175,3 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
-

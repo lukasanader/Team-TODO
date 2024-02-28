@@ -7,7 +7,6 @@ import 'notifications/notification.dart' as custom;
 import 'registration/start_page.dart';
 import 'package:provider/provider.dart';
 import 'package:info_hub_app/services/database.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -38,7 +37,8 @@ class MyApp extends StatelessWidget {
       providers: [
         StreamProvider<List<custom.Notification>>(
           create: (_) =>
-              DatabaseService(uid: '', firestore: firestore).notifications,
+              DatabaseService(uid: auth.currentUser!.uid, firestore: firestore)
+                  .notifications,
           initialData: const [], // Initial data while waiting for Firebase data
         ),
       ],
@@ -52,5 +52,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
-

@@ -1,68 +1,39 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart';
 import 'package:info_hub_app/notifications/notification.dart' as custom;
+import 'package:info_hub_app/registration/user_model.dart';
+import 'package:info_hub_app/notifications/preferences.dart';
 
 class DatabaseService {
   final String uid;
   final FirebaseFirestore firestore;
 
-  // Constructor
   DatabaseService({required this.uid, required this.firestore});
 
-  // Create a notification
   Future<String> createNotification(
       String title, String body, DateTime timestamp) async {
     CollectionReference notificationsCollection =
         firestore.collection('notifications');
-    try {
-      if (kDebugMode) {
-        print('Creating notification');
-      }
-      var docRef = await notificationsCollection.add({
-        'user': uid,
-        'title': title,
-        'body': body,
-        'timestamp': timestamp,
-      });
-      return docRef.id;
-    } catch (e) {
-      if (kDebugMode) {
-        print('Error creating notification: $e');
-      }
-      rethrow;
-    }
+    var docRef = await notificationsCollection.add({
+      'uid': uid,
+      'title': title,
+      'body': body,
+      'timestamp': timestamp,
+    });
+    return docRef.id;
   }
 
-  // Delete a notification
   Future<void> deleteNotification(String id) async {
     CollectionReference notificationsCollection =
         firestore.collection('notifications');
-    try {
-      if (kDebugMode) {
-        print('Deleting notification');
-      }
-      await notificationsCollection.doc(id).delete();
-    } catch (e) {
-      if (kDebugMode) {
-        print('Error deleting notification: $e');
-      }
-      rethrow;
-    }
+    await notificationsCollection.doc(id).delete();
   }
 
-  // Convert a Firestore snapshot to a list of custom notifications
   List<custom.Notification> notificationListFromSnapshot(
       QuerySnapshot snapshot) {
-    if (kDebugMode) {
-      print('Converting notification list from snapshot');
-    }
     final notifications = snapshot.docs.map((doc) {
-      if (kDebugMode) {
-        print('Converting notification');
-      }
       return custom.Notification(
         id: doc.id,
-        user: doc.get('user') ?? '',
+        uid: doc.get('uid') ?? '',
         title: doc.get('title') ?? '',
         body: doc.get('body') ?? '',
         timestamp: doc.get('timestamp').toDate() ?? DateTime.now(),
@@ -74,16 +45,9 @@ class DatabaseService {
     return notifications;
   }
 
-  // Get notifications stream
   Stream<List<custom.Notification>> get notifications {
     CollectionReference notificationsCollection =
         firestore.collection('notifications');
-    if (kDebugMode) {
-      print('Getting notifications');
-    }
-    if (kDebugMode) {
-      print(notificationsCollection.snapshots().toString());
-    }
     return notificationsCollection
         .snapshots()
         .map(notificationListFromSnapshot);
@@ -105,5 +69,46 @@ class DatabaseService {
       'likedTopics': likedTopics,
       'dislikedTopics': dislikedTopics
     });
+  }
+
+  List<UserModel> userListFromSnapshot(QuerySnapshot snapshot) {
+    return snapshot.docs.map((doc) {
+      return UserModel(
+        uid: doc.id,
+        firstName: doc.get('firstName') ?? '',
+        lastName: doc.get('lastName') ?? '',
+        email: doc.get('email') ?? '',
+        roleType: doc.get('roleType') ?? '',
+        likedTopics: doc.get('likedTopics') ?? [],
+        dislikedTopics: doc.get('dislikedTopics') ?? [],
+      );
+    }).toList();
+  }
+
+  Stream<List<UserModel>> get users {
+    CollectionReference usersCollectionRef = firestore.collection('Users');
+    return usersCollectionRef.snapshots().map(userListFromSnapshot);
+  }
+
+  Future<void> createPreferences() async {
+    CollectionReference prefCollection = firestore.collection('preferences');
+    await prefCollection.add({
+      'uid': uid,
+      'push_notifications': true,
+    });
+  }
+
+  List<Preferences> prefListFromSnapshot(QuerySnapshot snapshot) {
+    return snapshot.docs.map((doc) {
+      return Preferences(
+        uid: uid,
+        push_notifications: doc.get('push_notifications') ?? true,
+      );
+    }).toList();
+  }
+
+  Stream<List<Preferences>> get preferences {
+    CollectionReference prefCollectionRef = firestore.collection('preferences');
+    return prefCollectionRef.snapshots().map(prefListFromSnapshot);
   }
 }
