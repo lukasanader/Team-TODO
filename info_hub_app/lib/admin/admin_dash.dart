@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:info_hub_app/message_feature/message_view.dart';
 import 'package:info_hub_app/patient_experience/admin_experience_view.dart';
 import 'package:info_hub_app/topics/create_topic.dart';
 import 'package:info_hub_app/ask_question/question_view.dart';
@@ -125,6 +126,28 @@ class _AdminHomepageState extends State<AdminHomepage> {
                 ],
               ),
             ),
+            ElevatedButton(
+              onPressed: () => Navigator.of(context).push(
+                CupertinoPageRoute(
+                  builder: (BuildContext context) {
+                    return MessageView(
+                      firestore: widget.firestore,
+                    );
+                  },
+                ),
+              ),
+              child: const Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.message),
+                  Text(
+                    'Message feature',
+                    style: TextStyle(color: Colors.black),
+                  ),
+                ],
+              ),
+            ),
+
           ])),
     );
   }
