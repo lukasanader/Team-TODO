@@ -22,18 +22,13 @@ class Base extends StatelessWidget {
     // Bottom Navigation Bar
     List<Widget> buildScreens() {
       return [
-<<<<<<< HEAD
         HomePage(
           firestore: firestore,
-          auth: FirebaseAuth.instance,
+          auth: auth,
         ),
         DiscoveryView(
           firestore: firestore,
         ), // Should be replaced with the genuine page
-=======
-        HomePage(firestore: firestore, auth: auth,),
-        DiscoveryView(firestore: firestore,), // Should be replaced with the genuine page
->>>>>>> origin/main
         const SettingsView(), // Should be replaced with the genuine page
       ];
     }
