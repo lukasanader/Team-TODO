@@ -73,6 +73,7 @@ dependencies:
 
   font_awesome_flutter: ^9.2.0
 
+  uuid: ^4.3.3
 
 
 

@@ -1,8 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:info_hub_app/login/login_screen.dart';
-import '../home_page/home_page.dart';
 
 class ResetPassword extends StatefulWidget {
   final FirebaseFirestore firestore;
@@ -82,42 +80,37 @@ class _ResetPasswordState extends State<ResetPassword> {
   }
 
   Future<void> _sendPasswordResetEmail(String email) async {
-  // Check if the email exists in the Firebase database
-  final QuerySnapshot<Map<String, dynamic>> result = await widget.firestore
-      .collection('Users')
-      .where('email', isEqualTo: email)
-      .get();
+    // Check if the email exists in the Firebase database
+    final QuerySnapshot<Map<String, dynamic>> result = await widget.firestore
+        .collection('Users')
+        .where('email', isEqualTo: email)
+        .get();
 
-  if (result.docs.isEmpty) {
-    // If the email does not exist in the database, show an error message
+    if (result.docs.isEmpty) {
+      // If the email does not exist in the database, show an error message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Email does not exist'),
+          duration: Duration(seconds: 3),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    // If the email exists, send password reset email
+    await widget.auth.sendPasswordResetEmail(email: email);
+
+    // Show a green notification saying "Email sent"
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Email does not exist'),
+        content: Text('Email sent'),
         duration: Duration(seconds: 3),
-        backgroundColor: Colors.red,
+        backgroundColor: Colors.green,
       ),
     );
-    return;
+
+    // Navigate back to the previous screen
+    Navigator.pop(context);
   }
-
-  // If the email exists, send password reset email
-  await widget.auth.sendPasswordResetEmail(email: email);
-
-  // Show a green notification saying "Email sent"
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      content: Text('Email sent'),
-      duration: Duration(seconds: 3),
-      backgroundColor: Colors.green,
-    ),
-  );
-
-  // Navigate back to the previous screen
-  Navigator.pop(context);
 }
-
-}
-
-
-
-

@@ -11,23 +11,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:info_hub_app/helpers/base.dart';
-
-
+import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
+import 'package:info_hub_app/topics/topics_card.dart';
+import 'package:info_hub_app/topics/view_topic.dart';
 
 void main() {
-  final auth = MockFirebaseAuth();
-  late FakeFirebaseFirestore firestore = FakeFirebaseFirestore();
+  MockFirebaseAuth auth;
+  late FakeFirebaseFirestore firestore;
+  late MockFirebaseStorage storage;
   late Widget trendingTopicWidget;
+
   setUp(() {
-    trendingTopicWidget = MaterialApp(
-      home:Base(firestore: firestore, auth: auth,),
-    );
-  });
-  testWidgets('Trendings topic are in right order', (WidgetTester tester) async {
-    // Build your widget
-    
-    CollectionReference topicCollectionRef =
-        firestore.collection('topics');
+    auth = MockFirebaseAuth();
+    firestore = FakeFirebaseFirestore();
+    storage = MockFirebaseStorage();
+    CollectionReference topicCollectionRef = firestore.collection('topics');
     topicCollectionRef.add({
       'title': 'test 1',
       'description': 'this is a test',
@@ -35,6 +33,8 @@ void main() {
       'videoUrl': '',
       'views': 10,
       'date': DateTime.now(),
+      'likes': 0,
+      'dislikes': 0,
     });
     topicCollectionRef.add({
       'title': 'test 2',
@@ -43,6 +43,8 @@ void main() {
       'videoUrl': '',
       'views': 9,
       'date': DateTime.now(),
+      'likes': 0,
+      'dislikes': 0,
     });
     topicCollectionRef.add({
       'title': 'test 3',
@@ -51,7 +53,21 @@ void main() {
       'videoUrl': '',
       'views': 8,
       'date': DateTime.now(),
+      'likes': 0,
+      'dislikes': 0,
     });
+
+    trendingTopicWidget = MaterialApp(
+      home: Base(storage: storage, auth: auth, firestore: firestore),
+    );
+  });
+
+  
+  testWidgets('Trendings topic are in right order',
+      (WidgetTester tester) async {
+    // Build your widget
+
+
     await tester.pumpWidget(trendingTopicWidget);
     await tester.pumpAndSettle();
 
@@ -65,16 +81,15 @@ void main() {
 
     final textFinders = find.byType(Text);
     // Check the order of card titles
-    expect((textFinders.first.evaluate().single.widget as Text).data, 'test 1');
-    expect((textFinders.at(1).evaluate().single.widget as Text).data, 'test 2');
-    expect((textFinders.at(2).evaluate().single.widget as Text).data, 'test 3');
+    expect((textFinders.at(1).evaluate().single.widget as Text).data, 'test 1');
+    expect((textFinders.at(2).evaluate().single.widget as Text).data, 'test 2');
+    expect((textFinders.at(3).evaluate().single.widget as Text).data, 'test 3');
   });
 
-   testWidgets('Shows only first 6 trending topics', (WidgetTester tester) async {
-   
+  testWidgets('Shows only first 6 trending topics',
+      (WidgetTester tester) async {
     // Build your widget
-    CollectionReference topicCollectionRef =
-        firestore.collection('topics');
+    CollectionReference topicCollectionRef = firestore.collection('topics');
     topicCollectionRef.add({
       'title': 'test 4',
       'description': 'this is a test',
@@ -82,6 +97,8 @@ void main() {
       'videoUrl': '',
       'views': 5,
       'date': DateTime.now(),
+      'likes': 0,
+      'dislikes': 0,
     });
     topicCollectionRef.add({
       'title': 'test 5',
@@ -90,6 +107,8 @@ void main() {
       'videoUrl': '',
       'views': 4,
       'date': DateTime.now(),
+      'likes': 0,
+      'dislikes': 0,
     });
     topicCollectionRef.add({
       'title': 'test 6',
@@ -98,6 +117,8 @@ void main() {
       'videoUrl': '',
       'views': 3,
       'date': DateTime.now(),
+      'likes': 0,
+      'dislikes': 0,
     });
     topicCollectionRef.add({
       'title': 'test 7',
@@ -106,6 +127,8 @@ void main() {
       'videoUrl': '',
       'views': 1,
       'date': DateTime.now(),
+      'likes': 0,
+      'dislikes': 0,
     });
 
     await tester.pumpWidget(trendingTopicWidget);
@@ -120,8 +143,19 @@ void main() {
     expect(cardFinder, findsNWidgets(6));
 
     final textFinders = find.byType(Text);
-    // Check that test 7 is ignored
-    expect((textFinders.at(5).evaluate().single.widget as Text).data, 'test 6');
-  });
-}
 
+    // Check that test 7 is ignored
+    expect((textFinders.at(6).evaluate().single.widget as Text).data, 'test 6');
+  });
+
+ testWidgets('Click into a topic test',
+      (WidgetTester tester) async {
+
+      await tester.pumpWidget(trendingTopicWidget);
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byType(Card).first);
+      await tester.pumpAndSettle();
+      expect(find.byType(ViewTopicScreen), findsOne);
+      });
+}

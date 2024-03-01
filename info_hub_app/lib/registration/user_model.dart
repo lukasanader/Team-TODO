@@ -5,6 +5,8 @@ class UserModel {
   final String lastName;
   final String email;
   final String roleType;
+  final List<String> likedTopics;
+  final List<String> dislikedTopics;
 
   UserModel({
     required this.uid,
@@ -12,7 +14,7 @@ class UserModel {
     required this.lastName,
     required this.email,
     required this.roleType,
+    required this.likedTopics,
+    required this.dislikedTopics,
   });
-
-  
 }
