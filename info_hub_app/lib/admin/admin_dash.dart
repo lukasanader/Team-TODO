@@ -1,7 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:info_hub_app/message_feature/message_view.dart';
+import 'package:info_hub_app/message_feature/admin_message_view.dart';
 import 'package:info_hub_app/patient_experience/admin_experience_view.dart';
 import 'package:info_hub_app/topics/create_topic.dart';
 import 'package:info_hub_app/ask_question/question_view.dart';
@@ -9,9 +10,10 @@ import 'package:firebase_storage/firebase_storage.dart';
 
 class AdminHomepage extends StatefulWidget {
   final FirebaseFirestore firestore;
+  final FirebaseAuth auth;
   final FirebaseStorage storage;
   const AdminHomepage(
-      {super.key, required this.firestore, required this.storage});
+      {super.key, required this.firestore, required this.auth, required this.storage});
   @override
   _AdminHomepageState createState() => _AdminHomepageState();
 }
@@ -132,6 +134,7 @@ class _AdminHomepageState extends State<AdminHomepage> {
                   builder: (BuildContext context) {
                     return MessageView(
                       firestore: widget.firestore,
+                      auth: widget.auth,
                     );
                   },
                 ),

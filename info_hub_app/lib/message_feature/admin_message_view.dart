@@ -1,13 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:info_hub_app/message_feature/messaging_room_view.dart';
 import 'package:info_hub_app/registration/user_model.dart';
 import 'package:info_hub_app/services/database.dart';
 import 'package:provider/provider.dart';
 
 class MessageView extends StatefulWidget {
   final FirebaseFirestore firestore;
-  const MessageView({super.key, required this.firestore});
+  final FirebaseAuth auth;
+  const MessageView({super.key, required this.firestore, required this.auth});
 
   @override
   State<MessageView> createState() => _MessageViewState();
@@ -18,17 +20,34 @@ class _MessageViewState extends State<MessageView> {
   List<Object> _userList = [];
   List<bool> selected = [];
 
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    getUserList();
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
           title: const Text("Message a user"),
         ),
-        body: ElevatedButton(
-          onPressed: () {
-            selectUserDialog();
-          },
-          child: const Text("hello"),)
+        body: SingleChildScrollView(
+          child : Center(
+            child: Column(
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    selectUserDialog();
+                  }, 
+                  child: const Text('Message new patient'))
+              ],
+            )
+          )
+      )
+        
     );
   }
 
@@ -57,31 +76,36 @@ class _MessageViewState extends State<MessageView> {
                         if (_userList.isEmpty) {
                           return const ListTile(
                             title: Text(
-                                "Sorry there are no healthcare professionals matching this email."),
+                                "Sorry there are no patients matching this email."),
                           );
                         } else {
                           return ListTile(
                             title: Text(getEmail(
                                 _userList[index] as QueryDocumentSnapshot)),
                             onTap: () {
-                              setState(() {
-                                selected[index] = !selected[index];
-                              });
+                              dynamic receiverUser = _userList[index];
+                              User? currentUser = widget.auth.currentUser;
+                              String currentUserId = '';
+
+                              if (currentUser != null) {
+                                currentUserId = currentUser.uid;
+                              }
+
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => MessageRoomView(
+                                          senderId: currentUserId,
+                                          receiverId: receiverUser.id,
+                                        )),
+                              );
+
+
+
                             },
-                            tileColor: selected[index]
-                                ? Colors.blue.withOpacity(0.5)
-                                : null,
                           );
                         }
                       })),
-              actions: [
-                ElevatedButton(
-                  onPressed: () {
-                    print("hello");
-                  },
-                  child: const Text("OK"),
-                ),
-              ],
             );
           });
         });

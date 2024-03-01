@@ -98,6 +98,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       if (snapshot['roleType'] == 'admin') {
                         nextPage = AdminHomepage(
                           firestore: widget.firestore,
+                          auth: widget.auth,
                           storage: widget.storage,
                         );
                       } else {
