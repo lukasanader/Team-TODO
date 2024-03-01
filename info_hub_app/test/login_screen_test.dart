@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:info_hub_app/admin/admin_dash.dart';
 import 'package:info_hub_app/home_page/home_page.dart';
 import 'package:info_hub_app/login/login_screen.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
+import 'package:info_hub_app/reset_password/reset_password.dart';
 
 void main() {
   final firestore = FakeFirebaseFirestore();
@@ -79,6 +81,32 @@ void main() {
     expect(find.byType(HomePage), findsOneWidget);
   });
 
+    testWidgets('test if log in works on a valid admin', (WidgetTester test) async{
+    await auth.createUserWithEmailAndPassword(email: 'admin@gmail.com', password: 'Admin123!');
+    String uid = auth.currentUser!.uid;
+    await firestore.collection('Users').doc(uid).set({
+      'email': 'admin@gmail.com',
+      'firstName': 'John',
+      'lastName': 'Doe',
+      'roleType': 'admin'
+    });
+    await test.pumpWidget(MaterialApp(home: LoginScreen(firestore: firestore, auth: auth,storage: storage,)));
+    final emailField = find.ancestor(
+      of: find.text('Email'),
+      matching: find.byType(TextFormField),
+    );
+    final passwordField = find.ancestor(
+      of: find.text('Password'),
+      matching: find.byType(TextFormField),
+    );
+    await test.enterText(emailField, 'admin@gmail.com');
+    await test.enterText(passwordField, 'Admin123!');
+    final loginButton = find.text('Login');
+    await test.tap(loginButton);
+    await test.pumpAndSettle();
+    expect(find.byType(AdminHomepage), findsOneWidget);
+  });
+
   testWidgets('test if stops when email is empty', (WidgetTester test) async{
     await test.pumpWidget(MaterialApp(home: LoginScreen(firestore: firestore, auth: auth,storage: storage,)));
     final emailField = find.ancestor(
@@ -120,5 +148,15 @@ void main() {
     await test.pumpAndSettle();
     expect(find.text('Please enter your email'), findsOneWidget);
     expect(find.text('Please enter your password'), findsOneWidget);
+  });
+
+  testWidgets('test if user forgets password', (WidgetTester test) async {
+    await test.pumpWidget(MaterialApp(home: LoginScreen(firestore: firestore, auth: auth,storage: storage,)));
+    await test.pumpAndSettle();
+
+    await test.tap(find.text('Forgot Password?'));
+    await test.pumpAndSettle();
+    
+    expect(find.byType(ResetPassword), findsOne);
   });
 }

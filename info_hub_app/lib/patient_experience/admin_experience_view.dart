@@ -29,10 +29,11 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
           title: const Text("All Submitted Experiences"),
         ),
         body: SingleChildScrollView(
-            child: Column(
+          child: Column(
           children: [
             const Text("Verified experiences"),
             ListView.builder(
+                physics: const NeverScrollableScrollPhysics(),
                 shrinkWrap: true,
                 itemCount: _verifiedExperienceList.length,
                 itemBuilder: (context, index) {
@@ -49,13 +50,14 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
                                 updateVerification(
                                     _verifiedExperienceList[index]);
                               },
-                              icon: const Icon(Icons.check)))
+                              icon: const Icon(Icons.close)))
                     ],
                   );
                 }),
             const SizedBox(height: 30),
             const Text("Unverified experiences"),
             ListView.builder(
+                physics: const NeverScrollableScrollPhysics(),
                 shrinkWrap: true,
                 itemCount: _unverifiedExperienceList.length,
                 itemBuilder: (context, index) {

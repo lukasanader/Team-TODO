@@ -7,6 +7,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:info_hub_app/helpers/test_page.dart';
 import 'package:info_hub_app/patient_experience/admin_experience_view.dart';
 import 'package:info_hub_app/patient_experience/patient_experience_view.dart';
 import 'package:info_hub_app/topics/topics_card.dart';
@@ -18,6 +19,8 @@ import 'package:info_hub_app/change_profile/change_profile.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:info_hub_app/webinar/webinar_view.dart';
+import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 
 class HomePage extends StatefulWidget {
   FirebaseFirestore firestore;
@@ -93,65 +96,88 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
 
-      //below is the floating action button placeholder for thread navigation
-
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.of(context).push(CupertinoPageRoute(
-              builder: (BuildContext context) =>
-                  ThreadApp(firestore: widget.firestore)));
+        onPressed: ()  {
+          Navigator.push(
+            context, 
+            MaterialPageRoute(builder: (context) => TestView(firestore: widget.firestore, auth: widget.auth, storage: widget.storage,)));
         },
-        child: const Icon(FontAwesomeIcons.comment),
+      child: const Text('tests'),
       ),
+
 
       //above is the floating action button
-      body: Center(
+      body: SingleChildScrollView(
         child: Column(children: [
-          Expanded(
-            child: ListView.builder(
-                itemCount: topicLength == 0 ? 0 : topicLength,
-                itemBuilder: (context, index) {
-                  return TopicCard(
-                      widget.firestore,
-                      widget.auth,
-                      widget.storage,
-                      _topicsList[index] as QueryDocumentSnapshot<Object>);
-                }),
+          const Text(
+            "Trending topics",
+            textAlign: TextAlign.left,
+            style: TextStyle(
+              fontSize: 18,
+            ),
           ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        AdminExperienceView(firestore: widget.firestore)),
-              );
-            },
-            child: const Text('Admin Experience view'),
+          ListView.builder(
+              shrinkWrap: true,
+              itemCount: topicLength == 0 ? 0 : topicLength,
+              itemBuilder: (context, index) {
+                return TopicCard(
+                    widget.firestore,
+                    widget.auth,
+                    widget.storage,
+                    _topicsList[index] as QueryDocumentSnapshot<Object>);
+              }),
+          const SizedBox(
+            height: 10,
           ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        ExperienceView(firestore: widget.firestore)),
-              );
-            },
-            child: const Text('Patient Experience'),
+          const Text(
+            "Explore",
+            style: TextStyle(
+              fontSize: 18,
+            ),
           ),
-          ElevatedButton(
-            onPressed: () async {
-              await DatabaseService(
-                      firestore: widget.firestore,
-                      uid: widget.auth.currentUser!.uid)
-                  .createNotification('Test Notification',
-                      'This is a test notification', DateTime.now());
-            },
-            child: const Text('Create Test Notification'),
-          ),
-        ]),
-      ),
+          GridView.extent(
+            shrinkWrap: true,
+            maxCrossAxisExtent: 150,
+            crossAxisSpacing: 50,
+            mainAxisSpacing: 50,
+            padding: const EdgeInsets.all(20),
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  PersistentNavBarNavigator.pushNewScreen(
+                    context,
+                    screen: ExperienceView(firestore: widget.firestore,),
+                    withNavBar: false,
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  )
+                ),
+                child: const Text(
+                  'Patient Experience',
+                ),
+              ),
+              ElevatedButton(
+                onPressed: ()  {
+                  PersistentNavBarNavigator.pushNewScreen(
+                    context,
+                    screen: const WebinarView(),
+                    withNavBar: false,
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  )
+                ),
+                child: const Text('Webinars'),
+              ),
+            ],),
+
+      ]),
+      ) 
     );
   }
 
@@ -179,39 +205,5 @@ class _HomePageState extends State<HomePage> {
       }
       topicLength = _topicsList.length;
     });
-  }
-}
-
-// PlaceHolder for Notification Page
-class NotificationPage extends StatelessWidget {
-  const NotificationPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Notifications'),
-      ),
-      body: const Center(
-        child: Text('Notification Page'),
-      ),
-    );
-  }
-}
-
-// PlaceHolder for Profile Page
-class ProfilePage extends StatelessWidget {
-  const ProfilePage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Profile'),
-      ),
-      body: const Center(
-        child: Text('Profile Page'),
-      ),
-    );
   }
 }
