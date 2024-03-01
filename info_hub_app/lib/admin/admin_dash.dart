@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:info_hub_app/patient_experience/admin_experience_view.dart';
 import 'package:info_hub_app/topics/create_topic.dart';
 import 'package:info_hub_app/ask_question/question_view.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -98,6 +99,27 @@ class _AdminHomepageState extends State<AdminHomepage> {
                   Icon(Icons.question_mark),
                   Text(
                     'View Questions',
+                    style: TextStyle(color: Colors.black),
+                  ),
+                ],
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.of(context).push(
+                CupertinoPageRoute(
+                  builder: (BuildContext context) {
+                    return AdminExperienceView(
+                      firestore: widget.firestore,
+                    );
+                  },
+                ),
+              ),
+              child: const Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.book),
+                  Text(
+                    'View experiences',
                     style: TextStyle(color: Colors.black),
                   ),
                 ],

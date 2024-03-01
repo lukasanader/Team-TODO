@@ -59,7 +59,9 @@ void main() {
     await tester.pumpAndSettle();
 
     Finder checkButton = find.byIcon(Icons.check);
-    await tester.tap(checkButton.last);
+
+    await tester.ensureVisible(checkButton);
+    await tester.tap(checkButton.first);
     await tester.pumpAndSettle();
 
     QuerySnapshot<Map<String, dynamic>> data = await firestore
@@ -80,7 +82,9 @@ void main() {
     await tester.pumpWidget(experienceViewWidget);
     await tester.pumpAndSettle();
 
-    Finder checkButton = find.byIcon(Icons.check);
+    Finder checkButton = find.byIcon(Icons.close);
+
+    await tester.ensureVisible(checkButton);
     await tester.tap(checkButton.first);
     await tester.pumpAndSettle();
 

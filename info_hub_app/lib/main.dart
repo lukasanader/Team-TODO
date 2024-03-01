@@ -3,6 +3,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:info_hub_app/admin/admin_dash.dart';
+import 'package:info_hub_app/home_page/home_page.dart';
 import 'notifications/notification.dart' as custom;
 import 'registration/start_page.dart';
 import 'package:provider/provider.dart';
@@ -48,6 +50,8 @@ class MyApp extends StatelessWidget {
           storage: storage,
           auth: auth,
         ),
+        // home: HomePage(auth: auth, firestore: firestore, storage: storage)
+        // home: AdminHomepage(firestore: firestore, storage: storage),
       ),
     );
   }
