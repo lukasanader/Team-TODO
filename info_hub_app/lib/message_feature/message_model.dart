@@ -18,7 +18,7 @@ class Message {
       'senderId' : senderId,
       'receiverId' : receiverId,
       'message' : message,
-      'timestap' : timestamp,
+      'timestamp' : timestamp,
     };
   }
 

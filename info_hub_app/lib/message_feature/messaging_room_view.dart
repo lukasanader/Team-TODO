@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:info_hub_app/message_feature/message_bubble.dart';
+import 'package:info_hub_app/message_feature/message_service.dart';
 import 'package:info_hub_app/registration/user_model.dart';
 import 'package:info_hub_app/notifications/manage_notifications.dart';
 import 'package:info_hub_app/services/database.dart';
@@ -10,10 +12,17 @@ import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 
 
 class MessageRoomView extends StatefulWidget {
+  final FirebaseFirestore firestore;
+  final FirebaseAuth auth;
   final String senderId;
   final String receiverId;
 
-  const MessageRoomView({super.key, required this.senderId, required this.receiverId});
+  const MessageRoomView({
+    super.key,
+    required this.firestore,
+    required this.auth, 
+    required this.senderId, 
+    required this.receiverId});
   
 
   @override
@@ -21,12 +30,99 @@ class MessageRoomView extends StatefulWidget {
 }
 
 class _MessageRoomViewState extends State<MessageRoomView> {
+  final TextEditingController _messageController = TextEditingController();
+  final MessageService _messageService = MessageService();
+  
+
+  void sendMessage() async {
+    if (_messageController.text.isNotEmpty) {
+      await _messageService.sendMessage(widget.receiverId, _messageController.text);
+
+      _messageController.clear();
+    }
+  }
 
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Text(widget.receiverId),
+      appBar: AppBar(
+        title: Text(widget.receiverId),
+
+      ),
+
+      body: Column(
+        children: [
+          Expanded(child: _buildMessageList()),
+
+
+          _buildMessageInput(),
+        ],
+      ),
     );
   }
+  
+  Widget _buildMessageList() {
+    return StreamBuilder(
+      stream: _messageService.getMessages(
+        widget.receiverId, 
+        widget.auth.currentUser!.uid),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Text('Error${snapshot.error}');
+        }
+
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Text('Loading...');
+        }
+
+        return ListView(
+          children: snapshot.data!.docs.map((document) => _buildMessageItem(document)).toList(),
+        );
+
+      }
+      );
+
+  }
+
+
+
+
+  Widget _buildMessageItem(DocumentSnapshot document) {
+    Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+
+    var alignment = (data['senderId'] == widget.auth.currentUser!.uid) ? Alignment.centerRight : Alignment.centerLeft;
+
+
+    return Container(
+      alignment: alignment,
+      child: Column(
+        children: [
+          const SizedBox(height: 10),
+          MessageBubble(message: data['message'])
+        ],
+      ),
+    );
+
+  }
+
+  Widget _buildMessageInput() {
+    return Row(
+      children: [
+        Expanded(
+          child: TextField(
+            controller: _messageController,
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              hintText: 'Type here' 
+            ),
+          )
+        ),
+        IconButton(onPressed: sendMessage, icon: const Icon(Icons.arrow_upward))
+
+      ],
+    );
+  }
+
+
 }

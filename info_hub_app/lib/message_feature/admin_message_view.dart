@@ -95,6 +95,8 @@ class _MessageViewState extends State<MessageView> {
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => MessageRoomView(
+                                          firestore: widget.firestore,
+                                          auth: widget.auth,
                                           senderId: currentUserId,
                                           receiverId: receiverUser.id,
                                         )),
