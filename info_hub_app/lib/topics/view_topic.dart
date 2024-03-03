@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:info_hub_app/topics/edit_topic.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:chewie/chewie.dart';
 import 'package:video_player/video_player.dart';
@@ -92,6 +93,7 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
     _isAdmin();
     checkUserLikedAndDislikedTopics();
     updateLikesAndDislikesCount();
+    print('WE INITTTT');
   }
 
   void updateLikesAndDislikesCount() {
@@ -112,6 +114,7 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
     if (videoUrl != null && videoUrl.isNotEmpty) {
       _videoPlayerController =
           VideoPlayerController.networkUrl(Uri.parse(videoUrl));
+
       await _videoPlayerController!.initialize();
       _chewieController = ChewieController(
         videoPlayerController: _videoPlayerController!,
@@ -224,6 +227,13 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
   Future<void> checkUserLikedAndDislikedTopics() async {
     hasLiked = await hasLikedTopic();
     hasDisliked = await hasDislikedTopic();
+  }
+
+  void _pauseVideo() {
+    if (_videoPlayerController != null &&
+        _videoPlayerController!.value.isPlaying) {
+      _videoPlayerController!.pause();
+    }
   }
 
   bool userIsAdmin = false;
@@ -356,6 +366,22 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
                 ),
               ),
             ),
+          IconButton(
+              icon: const Icon(Icons.edit),
+              onPressed: () {
+                _pauseVideo();
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => EditTopicScreen(
+                      topic: widget.topic, // Pass your original topic data
+                      firestore: widget.firestore,
+                      auth: widget.auth,
+                      storage: widget.storage,
+                    ),
+                  ),
+                );
+              })
         ],
       ),
     );
@@ -374,7 +400,7 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
             userSnapshot.data() as Map<String, dynamic>?;
 
         if (userData != null) {
-          userIsAdmin = userData['roleType'] == 'admin';
+          userIsAdmin = userData['roleType'] == 'Patient';
         }
       }
     }

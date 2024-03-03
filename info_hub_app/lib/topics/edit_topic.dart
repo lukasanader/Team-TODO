@@ -1,0 +1,403 @@
+import 'dart:io';
+import 'package:flutter/material.dart';
+import 'package:info_hub_app/topics/quiz/create_quiz.dart';
+
+import 'package:video_player/video_player.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:chewie/chewie.dart';
+import 'package:flutter/services.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:info_hub_app/topics/view_topic.dart';
+import 'package:info_hub_app/discovery_view/discovery_view.dart';
+
+class EditTopicScreen extends StatefulWidget {
+  final FirebaseFirestore firestore;
+  final FirebaseStorage storage;
+  final QueryDocumentSnapshot topic;
+  final FirebaseAuth auth;
+
+  const EditTopicScreen(
+      {Key? key,
+      required this.topic,
+      required this.firestore,
+      required this.auth,
+      required this.storage})
+      : super(key: key);
+
+  @override
+  State<EditTopicScreen> createState() => _EditTopicScreenState();
+}
+
+class _EditTopicScreenState extends State<EditTopicScreen> {
+  late String prevTitle;
+  late String prevDescription;
+  late String prevArticleLink;
+
+  late TextEditingController titleController;
+  late TextEditingController descriptionController;
+  late TextEditingController articleLinkController;
+  final _topicFormKey = GlobalKey<FormState>();
+  String quizID = '';
+  bool quizAdded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    prevTitle = widget.topic['title'];
+    prevDescription = widget.topic['description'];
+    prevArticleLink = widget.topic['articleLink'];
+
+    titleController = TextEditingController(text: prevTitle);
+    descriptionController = TextEditingController(text: prevDescription);
+    articleLinkController = TextEditingController(text: prevArticleLink);
+
+    // Initialize the video player if there's a video URL available
+    _videoURL = widget.topic['videoUrl'];
+    _initializeVideoPlayer();
+  }
+
+  String? validateTitle(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter a Title.';
+    }
+    return null;
+  }
+
+  String? validateArticleLink(String? value) {
+    if (value != null && value.isNotEmpty) {
+      final url = Uri.tryParse(value);
+      if (url == null || !url.hasAbsolutePath || !url.isAbsolute) {
+        return 'Link is not valid, please enter a valid link';
+      }
+    }
+    return null;
+  }
+
+  String? validateDescription(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter a Description';
+    }
+    return null;
+  }
+
+  String? _videoURL;
+  VideoPlayerController? _videoPlayerController;
+  ChewieController? _chewieController;
+
+  @override
+  void dispose() {
+    super.dispose();
+    _chewieController?.dispose();
+    _videoPlayerController?.dispose();
+
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.red,
+        title: const Text(
+          'Edit Topic',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+      ),
+      body: Form(
+        key: _topicFormKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    TextFormField(
+                      key: const Key('titleField'),
+                      controller: titleController,
+                      maxLength: 70,
+                      decoration: const InputDecoration(
+                        labelText: 'Title *',
+                        prefixIcon:
+                            Icon(Icons.drive_file_rename_outline_outlined),
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: validateTitle,
+                    ),
+                    const SizedBox(height: 10.0),
+                    TextFormField(
+                      key: const Key('descField'),
+                      controller: descriptionController,
+                      maxLines: 5, // Reduced maxLines
+                      maxLength: 350,
+                      decoration: const InputDecoration(
+                        labelText: 'Description *',
+                        prefixIcon: Icon(Icons.description_outlined),
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: validateDescription,
+                    ),
+                    const SizedBox(height: 10.0),
+                    TextFormField(
+                      key: const Key('linkField'),
+                      controller: articleLinkController,
+                      decoration: const InputDecoration(
+                        labelText: 'Link article',
+                        prefixIcon: Icon(Icons.link_outlined),
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: validateArticleLink,
+                    ),
+                    const SizedBox(height: 10.0),
+                    ElevatedButton.icon(
+                      key: const Key('uploadVideoButton'),
+                      onPressed: () async {
+                        _videoPlayerController?.pause();
+                        String? videoURL;
+                        videoURL = await pickVideoFromDevice();
+
+                        if (videoURL != null) {
+                          if (_videoURL != null) {
+                            // Dispose the old video player if exists
+                            _videoPlayerController?.dispose();
+                            _chewieController?.dispose();
+                          }
+                          setState(() {
+                            _videoURL = videoURL;
+                          });
+                          _initializeVideoPlayer();
+                        }
+                      },
+                      icon: const Icon(
+                        Icons.cloud_upload_outlined,
+                      ),
+                      label: _videoURL == null
+                          ? const Text(
+                              'Upload a video',
+                              style: TextStyle(
+                                  color: Colors.red,
+                                  fontWeight: FontWeight.bold),
+                            )
+                          : const Text(
+                              'Change video',
+                              style: TextStyle(
+                                  color: Colors.red,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                      style: ElevatedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                      ),
+                    ),
+                    if (_videoURL != null && _chewieController != null)
+                      SizedBox(
+                        height: 250,
+                        child: Chewie(controller: _chewieController!),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10.0),
+              child: OutlinedButton(
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size(double.infinity, 50),
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => CreateQuiz(
+                            firestore: widget.firestore, addQuiz: addQuiz),
+                      ),
+                    );
+                  },
+                  child: Row(children: [
+                    const SizedBox(
+                      width: 150,
+                    ),
+                    const Text(
+                      "ADD QUIZ",
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    if (quizAdded)
+                      const Icon(
+                        Icons.check,
+                        color: Colors.green,
+                      )
+                  ])),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10.0),
+              child: OutlinedButton(
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 50),
+                ),
+                onPressed: () async {
+                  if (_topicFormKey.currentState!.validate()) {
+                    _uploadTopic();
+
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => DiscoveryView(
+                          firestore: widget.firestore,
+                          storage: widget.storage,
+                          auth: widget.auth,
+                        ),
+                      ),
+                    );
+                  }
+                },
+                child: const Text(
+                  "PUBLISH TOPIC",
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Map<String, dynamic> updatedData = {};
+
+  Future<String?> pickVideoFromDevice() async {
+    try {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['mp4', 'mov', 'avi', 'mkv', 'wmv'],
+      );
+      return result!.files.first.path;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  void _initializeVideoPlayer() async {
+    if (_videoURL != null && _videoURL!.isNotEmpty) {
+      if (_videoURL!.startsWith('http') || _videoURL!.startsWith('https')) {
+        // Network URL
+        _videoPlayerController =
+            VideoPlayerController.networkUrl(Uri.parse(_videoURL!));
+      } else {
+        // File URL
+        _videoPlayerController = VideoPlayerController.file(File(_videoURL!));
+      }
+
+      await _videoPlayerController!.initialize();
+      _chewieController = ChewieController(
+        videoPlayerController: _videoPlayerController!,
+        autoInitialize: true,
+        looping: false,
+        aspectRatio: 16 / 9,
+        deviceOrientationsAfterFullScreen: [
+          DeviceOrientation.portraitUp,
+          DeviceOrientation.portraitDown,
+        ],
+        allowedScreenSleep: false,
+      );
+      _chewieController!.addListener(() {
+        if (!_chewieController!.isFullScreen) {
+          SystemChrome.setPreferredOrientations([
+            DeviceOrientation.portraitUp,
+          ]);
+        }
+      });
+      setState(() {});
+    }
+  }
+
+  Future<void> deleteVideoFromStorage(String videoUrl) async {
+    String fileUrl = widget.topic['videoUrl'];
+
+    // get reference to the video file
+    Reference videoRef = widget.storage.refFromURL(fileUrl);
+
+    // Delete the file
+    await videoRef.delete();
+  }
+
+  void _uploadTopic() async {
+    String? newVideoURL;
+
+    // Check if a new video was selected
+    if (_videoPlayerController != null &&
+        _videoURL != widget.topic['videoUrl']) {
+      // Upload the new video and get its download URL
+      newVideoURL = await StoreData(widget.storage).uploadVideo(_videoURL!);
+      await deleteVideoFromStorage(widget.topic['videoUrl']);
+    } else {
+      // Keep the existing video URL if no new video was selected
+      newVideoURL = widget.topic['videoUrl'];
+    }
+
+    final topicDetails = {
+      'title': titleController.text,
+      'description': descriptionController.text,
+      'articleLink': articleLinkController.text,
+      'videoUrl': newVideoURL,
+      'views': widget.topic['views'],
+      'likes': widget.topic['likes'],
+      'dislikes': widget.topic['dislikes'],
+      'date': widget.topic['date'],
+    };
+
+    CollectionReference topicCollectionRef =
+        widget.firestore.collection('topics');
+
+    await topicCollectionRef.doc(widget.topic.id).update(topicDetails);
+  }
+
+  void _clearVideoSelection() {
+    setState(() {
+      _videoURL = null;
+      if (_videoPlayerController != null) {
+        _videoPlayerController!.pause();
+        _videoPlayerController!.dispose();
+        _videoPlayerController = null;
+      }
+      if (_chewieController != null) {
+        _chewieController!.pause();
+        _chewieController!.dispose();
+        _chewieController = null;
+      }
+    });
+
+    // SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+  }
+
+  void addQuiz(String qid) {
+    setState(() {
+      quizID = qid;
+      quizAdded = true;
+    });
+  }
+}
+
+class StoreData {
+  final FirebaseStorage _storage;
+
+  StoreData(this._storage);
+
+  Future<String> uploadVideo(String videoUrl) async {
+    print(videoUrl);
+    Reference ref = _storage.ref().child('videos/${DateTime.now()}.mp4');
+    await ref.putFile(File(videoUrl));
+    String downloadURL = await ref.getDownloadURL();
+    return downloadURL;
+  }
+}
