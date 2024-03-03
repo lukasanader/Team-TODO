@@ -20,38 +20,39 @@ class _AnalyticsTopicView extends State<AnalyticsBase> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        appBar: AppBar(title: const Text("All Analytics")),
         body: Center(
-      child: GridView.extent(
-        maxCrossAxisExtent: 150,
-        shrinkWrap: true,
-        crossAxisSpacing: 50.0,
-        mainAxisSpacing: 50.0,
-        padding: const EdgeInsets.all(20.0),
-        children: <Widget>[
-          ElevatedButton(
-              onPressed: () => Navigator.of(context).push(
-                    CupertinoPageRoute(
-                      builder: (BuildContext context) {
-                        return AnalyticsTopicView(
-                          storage: widget.storage,
-                          firestore: widget.firestore,
-                        );
-                      },
-                    ),
-                  ),
-              child: const Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.article),
-                  Text(
-                    "Topics",
-                    style: TextStyle(color: Colors.black),
-                  )
-                ],
-              )),
-        ],
-      ),
-    ));
+          child: GridView.extent(
+            maxCrossAxisExtent: 150,
+            shrinkWrap: true,
+            crossAxisSpacing: 50.0,
+            mainAxisSpacing: 50.0,
+            padding: const EdgeInsets.all(20.0),
+            children: <Widget>[
+              ElevatedButton(
+                  onPressed: () => Navigator.of(context).push(
+                        CupertinoPageRoute(
+                          builder: (BuildContext context) {
+                            return AnalyticsTopicView(
+                              storage: widget.storage,
+                              firestore: widget.firestore,
+                            );
+                          },
+                        ),
+                      ),
+                  child: const Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.article),
+                      Text(
+                        "Topics",
+                        style: TextStyle(color: Colors.black),
+                      )
+                    ],
+                  )),
+            ],
+          ),
+        ));
   }
 
   // @override
