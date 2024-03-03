@@ -53,9 +53,8 @@ class _MessageRoomViewState extends State<MessageRoomView> {
 
       body: Column(
         children: [
-          Expanded(child: _buildMessageList()),
-
-
+          Expanded(
+            child: _buildMessageList()),
           _buildMessageInput(),
         ],
       ),
@@ -81,7 +80,7 @@ class _MessageRoomViewState extends State<MessageRoomView> {
         );
 
       }
-      );
+    );
 
   }
 
@@ -91,7 +90,9 @@ class _MessageRoomViewState extends State<MessageRoomView> {
   Widget _buildMessageItem(DocumentSnapshot document) {
     Map<String, dynamic> data = document.data() as Map<String, dynamic>;
 
-    var alignment = (data['senderId'] == widget.auth.currentUser!.uid) ? Alignment.centerRight : Alignment.centerLeft;
+    var alignment = (data['senderId'] == widget.auth.currentUser!.uid) 
+      ? Alignment.centerRight 
+      : Alignment.centerLeft;
 
 
     return Container(

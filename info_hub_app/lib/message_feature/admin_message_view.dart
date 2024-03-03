@@ -1,6 +1,9 @@
+import 'dart:ffi';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:info_hub_app/message_feature/message_service.dart';
 import 'package:info_hub_app/message_feature/messaging_room_view.dart';
 import 'package:info_hub_app/registration/user_model.dart';
 import 'package:info_hub_app/services/database.dart';
@@ -18,12 +21,18 @@ class MessageView extends StatefulWidget {
 class _MessageViewState extends State<MessageView> {
   final TextEditingController _searchController = TextEditingController();
   List<Object> _userList = [];
+  List<Object> _chatList = [];
   List<bool> selected = [];
+
+
+
+
 
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    getChatList();
     getUserList();
   }
 
@@ -31,23 +40,42 @@ class _MessageViewState extends State<MessageView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: const Text("Message a user"),
-        ),
-        body: SingleChildScrollView(
-          child : Center(
-            child: Column(
-              children: [
-                ElevatedButton(
+      appBar: AppBar(
+        title: const Text("Message a user"),
+      ),
+      floatingActionButton: ElevatedButton(
+        onPressed: () {
+          selectUserDialog();
+        }, 
+        child: const Text('Message new patient')
+      ),
+    
+      
+      body: Center(
+        child: Column(
+          children: [
+            ListView.builder(
+              shrinkWrap: true,
+              itemCount: _chatList.length,
+              itemBuilder: (context, index) {
+                return ElevatedButton(
                   onPressed: () {
-                    selectUserDialog();
+                    dynamic chat = _chatList[index];
+
+                    print(chat['patientId']);
                   }, 
-                  child: const Text('Message new patient'))
-              ],
-            )
-          )
+                  child: Text(index.toString()));
+              }
+            ),
+            ElevatedButton(
+              onPressed: () {
+                print(_chatList.length);
+              }, 
+              child: const Text('testing button'))
+
+          ],
+        )
       )
-        
     );
   }
 
@@ -140,4 +168,15 @@ class _MessageViewState extends State<MessageView> {
     });
   }
 
+  Future getChatList() async {
+    QuerySnapshot data = await widget.firestore
+        .collection('message_rooms_exists')
+        .where('adminId', isEqualTo: widget.auth.currentUser!.uid)
+        .get();
+    List<Object> tempList = List.from(data.docs);
+    
+    setState(() {
+      _chatList = tempList;
+    });
+  }
 }

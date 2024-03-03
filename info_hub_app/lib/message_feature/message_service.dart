@@ -26,7 +26,22 @@ class MessageService extends ChangeNotifier {
 
     String chatRoomId = ids.join('_');
 
-    await _firestore.collection('message_rooms').doc(chatRoomId).collection('messages').add(newMessage.toMap());
+    DocumentSnapshot chatRoomDocument = await _firestore.collection('message_rooms_exists').doc(chatRoomId).get();
+  
+
+    if (!chatRoomDocument.exists) {
+      await _firestore.collection('message_rooms_members').doc(chatRoomId).set({
+        'adminId': currentUserId,
+        'patientId': receiverId,
+      });
+    }
+
+
+    await _firestore
+      .collection('message_rooms')
+      .doc(chatRoomId)
+      .collection('messages')
+      .add(newMessage.toMap());
   }
 
 
@@ -43,7 +58,5 @@ class MessageService extends ChangeNotifier {
       .snapshots();
 
   }
-
-
 
 }
