@@ -2,6 +2,7 @@ import 'dart:ffi';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/message_feature/message_rooms_card.dart';
 import 'package:info_hub_app/message_feature/message_service.dart';
@@ -53,27 +54,25 @@ class _MessageViewState extends State<MessageView> {
       ),
     
       
-      body: Center(
-        child: Column(
-          children: [
-            const Text('Messages'),
-            ListView.builder(
-              shrinkWrap: true,
-              itemCount: _chatList.length,
-              itemBuilder: (context, index) {
-                dynamic chat = _chatList[index]; 
-                return MessageRoomCard(widget.firestore, widget.auth, chat);
-              }
-            ),
-            ElevatedButton(
-              onPressed: () {
-                didChangeDependencies();
-              }, 
-              child: const Text('testing button'))
+      body: SingleChildScrollView(
+        child: Center(
+            child: Column(
+              children: [
+                const Text('Messages'),
+                ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: _chatList.length,
+                  itemBuilder: (context, index) {
+                    dynamic chat = _chatList[index]; 
+                    return MessageRoomCard(widget.firestore, widget.auth, chat);
+                  }
+                ),
+              ],
+            )
+          )
+      ) 
+      
 
-          ],
-        )
-      )
     );
   }
 
@@ -110,24 +109,34 @@ class _MessageViewState extends State<MessageView> {
                                 _userList[index] as QueryDocumentSnapshot)),
                             onTap: () {
                               dynamic receiverUser = _userList[index];
-                              User? currentUser = widget.auth.currentUser;
-                              String currentUserId = '';
+          
 
-                              if (currentUser != null) {
-                                currentUserId = currentUser.uid;
-                              }
+                              // Navigator.pop(context);
+                              // Navigator.pop(context);
 
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => MessageRoomView(
-                                          firestore: widget.firestore,
-                                          auth: widget.auth,
-                                          senderId: currentUserId,
-                                          receiverId: receiverUser.id,
-                                        )),
+                              // Navigator.push(
+                              //   context,
+                              //   MaterialPageRoute(
+                              //       builder: (context) => MessageRoomView(
+                              //             firestore: widget.firestore,
+                              //             auth: widget.auth,
+                              //             senderId: widget.auth.currentUser!.uid,
+                              //             receiverId: receiverUser.id,
+                              //           )),
+                              // );
+
+                              Navigator.of(context).push(
+                                CupertinoPageRoute(
+                                  builder: (BuildContext context) {
+                                    return MessageRoomView(
+                                      firestore: widget.firestore,
+                                      auth: widget.auth,
+                                      senderId: widget.auth.currentUser!.uid,
+                                      receiverId: receiverUser.id,
+                                    );
+                                  }
+                                )
                               );
-
 
 
                             },
