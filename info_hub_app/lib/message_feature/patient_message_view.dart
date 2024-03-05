@@ -23,6 +23,7 @@ class _PatientMessageViewState extends State<PatientMessageView> {
     getChatList();
   }
 
+  
 
   @override
   Widget build(BuildContext context) {

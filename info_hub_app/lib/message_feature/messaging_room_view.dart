@@ -47,7 +47,15 @@ class _MessageRoomViewState extends State<MessageRoomView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          onPressed: () {  
+            Navigator.pop(context);
+          },
+          icon: const Icon(Icons.arrow_back)
+        ),
+
         title: Text(widget.receiverId),
+
 
       ),
 

@@ -26,7 +26,7 @@ class MessageService extends ChangeNotifier {
 
     String chatRoomId = ids.join('_');
 
-    DocumentSnapshot chatRoomDocument = await _firestore.collection('message_rooms_exists').doc(chatRoomId).get();
+    DocumentSnapshot chatRoomDocument = await _firestore.collection('message_rooms_members').doc(chatRoomId).get();
   
 
     if (!chatRoomDocument.exists) {

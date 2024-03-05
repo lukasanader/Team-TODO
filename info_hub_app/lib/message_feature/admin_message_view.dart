@@ -24,7 +24,6 @@ class _MessageViewState extends State<MessageView> {
   final TextEditingController _searchController = TextEditingController();
   List<Object> _userList = [];
   List<Object> _chatList = [];
-  List<bool> selected = [];
 
 
 
@@ -41,6 +40,7 @@ class _MessageViewState extends State<MessageView> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Message a user"),
@@ -67,7 +67,7 @@ class _MessageViewState extends State<MessageView> {
             ),
             ElevatedButton(
               onPressed: () {
-                print(_chatList.length);
+                didChangeDependencies();
               }, 
               child: const Text('testing button'))
 
@@ -162,7 +162,6 @@ class _MessageViewState extends State<MessageView> {
     }
     setState(() {
       _userList = tempList;
-      selected = List<bool>.filled(_userList.length, false);
     });
   }
 
