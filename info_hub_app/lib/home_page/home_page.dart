@@ -8,6 +8,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/helpers/test_page.dart';
+import 'package:info_hub_app/message_feature/patient_message_view.dart';
 import 'package:info_hub_app/patient_experience/admin_experience_view.dart';
 import 'package:info_hub_app/patient_experience/patient_experience_view.dart';
 import 'package:info_hub_app/topics/topics_card.dart';
@@ -85,6 +86,23 @@ class _HomePageState extends State<HomePage> {
                 CupertinoPageRoute(
                   builder: (BuildContext context) {
                     return ChangeProfile(
+                      firestore: widget.firestore,
+                      auth: widget.auth,
+                    );
+                  },
+                ),
+              );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.email),
+            onPressed: () {
+              // Placeholder method for profile picture icon
+              // Navigate to profile page
+              Navigator.of(context).push(
+                CupertinoPageRoute(
+                  builder: (BuildContext context) {
+                    return PatientMessageView(
                       firestore: widget.firestore,
                       auth: widget.auth,
                     );

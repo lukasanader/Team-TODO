@@ -3,10 +3,12 @@ import 'dart:ffi';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:info_hub_app/message_feature/message_rooms_card.dart';
 import 'package:info_hub_app/message_feature/message_service.dart';
 import 'package:info_hub_app/message_feature/messaging_room_view.dart';
 import 'package:info_hub_app/registration/user_model.dart';
 import 'package:info_hub_app/services/database.dart';
+import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:provider/provider.dart';
 
 class MessageView extends StatefulWidget {
@@ -54,17 +56,13 @@ class _MessageViewState extends State<MessageView> {
       body: Center(
         child: Column(
           children: [
+            const Text('Messages'),
             ListView.builder(
               shrinkWrap: true,
               itemCount: _chatList.length,
               itemBuilder: (context, index) {
-                return ElevatedButton(
-                  onPressed: () {
-                    dynamic chat = _chatList[index];
-
-                    print(chat['patientId']);
-                  }, 
-                  child: Text(index.toString()));
+                dynamic chat = _chatList[index]; 
+                return MessageRoomCard(widget.firestore, widget.auth, chat);
               }
             ),
             ElevatedButton(
@@ -170,7 +168,7 @@ class _MessageViewState extends State<MessageView> {
 
   Future getChatList() async {
     QuerySnapshot data = await widget.firestore
-        .collection('message_rooms_exists')
+        .collection('message_rooms_members')
         .where('adminId', isEqualTo: widget.auth.currentUser!.uid)
         .get();
     List<Object> tempList = List.from(data.docs);
