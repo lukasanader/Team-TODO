@@ -1,9 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:info_hub_app/analytics/analytics_topic.dart';
+import 'package:info_hub_app/analytics/topics/analytics_topic.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 
 class AnalyticsBase extends StatefulWidget {
   final FirebaseFirestore firestore;
@@ -54,29 +53,4 @@ class _AnalyticsTopicView extends State<AnalyticsBase> {
           ),
         ));
   }
-
-  // @override
-  // Widget build(BuildContext context) {
-  //   return Scaffold(
-  //       appBar: AppBar(
-  //         title: Text("All Analytics"),
-  //       ),
-  //       body: ListView(
-  //         children: [
-  //           Container(
-  //             child: ListTile(
-  //               title: Text("Topics"),
-  //               onTap: () {
-  //                 PersistentNavBarNavigator.pushNewScreen(
-  //                   context,
-  //                   screen: AnalyticsTopicView(
-  //                       firestore: widget.firestore, storage: widget.storage),
-  //                   withNavBar: false,
-  //                 );
-  //               },
-  //             ),
-  //           )
-  //         ],
-  //       ));
-  // }
 }

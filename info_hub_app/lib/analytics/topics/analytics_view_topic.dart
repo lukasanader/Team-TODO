@@ -9,11 +9,11 @@ class AdminAnalyticsTopic extends StatefulWidget {
   final FirebaseStorage storage;
 
   const AdminAnalyticsTopic({
-    Key? key,
+    super.key,
     required this.firestore,
     required this.storage,
     required this.topic,
-  }) : super(key: key);
+  });
 
   @override
   State<AdminAnalyticsTopic> createState() => AdminAnalyticsTopicState();
@@ -32,8 +32,8 @@ class AdminAnalyticsTopicState extends State<AdminAnalyticsTopic> {
           _buildInfoRow("Likes", "${widget.topic['likes']}"),
           _buildInfoRow("Dislikes", "${widget.topic['dislikes']}"),
           _buildInfoRow("Views", "${widget.topic['views']}"),
-          _buildInfoRow("Date", "${formatDate(widget.topic['date'])}"),
-          _buildInfoRow("Time", "${formatTime(widget.topic['date'])}"),
+          _buildInfoRow("Uploaded Date", formatDate(widget.topic['date'])),
+          _buildInfoRow("Uploaded Time", formatTime(widget.topic['date'])),
         ],
       ),
     );
@@ -41,20 +41,20 @@ class AdminAnalyticsTopicState extends State<AdminAnalyticsTopic> {
 
   Widget _buildInfoRow(String title, String value) {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
             title,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
             ),
           ),
           Text(
             value,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 16,
             ),
           ),
@@ -66,12 +66,12 @@ class AdminAnalyticsTopicState extends State<AdminAnalyticsTopic> {
   String formatDate(Timestamp timestamp) {
     var dateTime =
         DateTime.fromMillisecondsSinceEpoch(timestamp.seconds * 1000);
-    return DateFormat('yyyy-MM-dd').format(dateTime);
+    return DateFormat('dd-mm-yyyy').format(dateTime);
   }
 
   String formatTime(Timestamp timestamp) {
     var dateTime =
         DateTime.fromMillisecondsSinceEpoch(timestamp.seconds * 1000);
-    return DateFormat('HH:mm:ss').format(dateTime);
+    return DateFormat('hh:mm').format(dateTime);
   }
 }

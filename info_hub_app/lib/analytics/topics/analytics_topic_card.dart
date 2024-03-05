@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:info_hub_app/analytics/analytics_view_topic.dart';
+import 'package:info_hub_app/analytics/topics/analytics_view_topic.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 
 class AdminTopicCard extends StatelessWidget {
