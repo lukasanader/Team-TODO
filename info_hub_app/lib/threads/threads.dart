@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:info_hub_app/threads/custom_card.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:info_hub_app/threads/name_generator.dart';
 
 class ThreadApp extends StatefulWidget {
   final FirebaseFirestore firestore;
@@ -106,6 +107,7 @@ class _ThreadAppState extends State<ThreadApp> {
                 snapshot: snapshot.data,
                 index: index,
                 firestore: widget.firestore,
+                auth: widget.auth,
               );
             },
           );
@@ -150,7 +152,9 @@ class _ThreadAppState extends State<ThreadApp> {
                       decoration: InputDecoration(
                         labelText: "Title",
                         errorText:
-                            showErrorTitle ? "Please enter a title" : null,
+                            showErrorTitle && titleInputController.text.isEmpty
+                                ? "Please enter a title"
+                                : null,
                       ),
                       controller: titleInputController,
                     ),
@@ -160,7 +164,8 @@ class _ThreadAppState extends State<ThreadApp> {
                       autocorrect: true,
                       decoration: InputDecoration(
                         labelText: "Description",
-                        errorText: showErrorDescription
+                        errorText: showErrorDescription &&
+                                descriptionInputController.text.isEmpty
                             ? "Please enter a description"
                             : null,
                       ),
@@ -213,18 +218,28 @@ class _ThreadAppState extends State<ThreadApp> {
                   */
                 TextButton(
                   onPressed: () {
-                    String authorName =
-                        widget.auth.currentUser!.email ?? "Anonymous";
-                    widget.firestore.collection("thread").add({
-                      "author": authorName, // Using logged in user details
-                      "title": titleInputController.text,
-                      "description": descriptionInputController.text,
-                      "timestamp": FieldValue.serverTimestamp(),
-                    }).then((response) {
-                      titleInputController.clear();
-                      descriptionInputController.clear();
-                      Navigator.pop(context);
+                    setState(() {
+                      showErrorTitle = titleInputController.text.isEmpty;
+                      showErrorDescription =
+                          descriptionInputController.text.isEmpty;
                     });
+
+                    if (!showErrorTitle && !showErrorDescription) {
+                      String docId = widget.auth.currentUser!.uid;
+                      String authorName = generateUniqueName(docId);
+
+                      widget.firestore.collection("thread").add({
+                        "author": authorName, // Using logged in user details
+                        "title": titleInputController.text,
+                        "description": descriptionInputController.text,
+                        "timestamp": FieldValue.serverTimestamp(),
+                        "creator": docId,
+                      }).then((response) {
+                        titleInputController.clear();
+                        descriptionInputController.clear();
+                        Navigator.pop(context);
+                      });
+                    }
                   },
                   child: const Text("Submit"),
                 ),

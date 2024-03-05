@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
-import 'package:info_hub_app/helpers/reply_card.dart';
+import 'package:info_hub_app/threads/reply_card.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:info_hub_app/threads/name_generator.dart';
 
 class ThreadReplies extends StatefulWidget {
   final String threadId;
@@ -17,7 +19,7 @@ class _ThreadRepliesState extends State<ThreadReplies> {
   late Stream<QuerySnapshot> replyStream;
   late Future<DocumentSnapshot> threadFuture;
   late TextEditingController contentInputController;
-  late TextEditingController authorInputController;
+  //late TextEditingController authorInputController;
 
   @override
   void initState() {
@@ -32,7 +34,14 @@ class _ThreadRepliesState extends State<ThreadReplies> {
         //.orderBy('timestamp', descending: false)
         .snapshots();
     contentInputController = TextEditingController();
-    authorInputController = TextEditingController();
+    //authorInputController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    contentInputController.dispose();
+    //authorInputController.dispose();
+    super.dispose();
   }
 
   @override
@@ -103,6 +112,7 @@ class _ThreadRepliesState extends State<ThreadReplies> {
                           snapshot: snapshot.data!,
                           index: index,
                           firestore: FirebaseFirestore.instance,
+                          auth: FirebaseAuth.instance,
                         );
                       },
                     );
@@ -117,7 +127,7 @@ class _ThreadRepliesState extends State<ThreadReplies> {
   }
 
   void _showDialog(BuildContext context) async {
-    bool showErrorAuthor = false;
+    //bool showErrorAuthor = false;
     bool showErrorContent = false;
 
     await showDialog(
@@ -132,7 +142,7 @@ class _ThreadRepliesState extends State<ThreadReplies> {
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
                     const Text("Please fill out the form"),
-                    TextField(
+                    /*TextField(
                       key: const Key('Author'),
                       autofocus: true,
                       autocorrect: true,
@@ -142,7 +152,7 @@ class _ThreadRepliesState extends State<ThreadReplies> {
                             showErrorAuthor ? "Please enter your name" : null,
                       ),
                       controller: authorInputController,
-                    ),
+                    ),*/
                     TextField(
                       key: const Key('Content'),
                       autofocus: true,
@@ -160,7 +170,7 @@ class _ThreadRepliesState extends State<ThreadReplies> {
               actions: <Widget>[
                 TextButton(
                   onPressed: () {
-                    authorInputController.clear();
+                    //authorInputController.clear();
                     contentInputController.clear();
                     Navigator.pop(context);
                   },
@@ -169,18 +179,23 @@ class _ThreadRepliesState extends State<ThreadReplies> {
                 TextButton(
                   onPressed: () {
                     setState(() {
-                      showErrorAuthor = authorInputController.text.isEmpty;
+                      //showErrorAuthor = authorInputController.text.isEmpty;
                       showErrorContent = contentInputController.text.isEmpty;
                     });
 
-                    if (!showErrorAuthor && !showErrorContent) {
+                    if ( //!showErrorAuthor &&
+                        !showErrorContent) {
+                      String docId = FirebaseAuth.instance.currentUser!.uid;
+                      String authorName = generateUniqueName(docId);
+
                       FirebaseFirestore.instance.collection("replies").add({
-                        "author": authorInputController.text,
+                        "author": authorName,
                         "content": contentInputController.text,
                         "threadId": widget.threadId,
                         "timestamp": FieldValue.serverTimestamp(),
+                        "creator": docId,
                       }).then((response) {
-                        authorInputController.clear();
+                        //authorInputController.clear();
                         contentInputController.clear();
                         Navigator.pop(context);
                       });

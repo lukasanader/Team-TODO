@@ -4,17 +4,21 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:info_hub_app/threads/thread_replies.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:info_hub_app/threads/name_generator.dart';
 
 class CustomCard extends StatefulWidget {
   final QuerySnapshot? snapshot;
   final int index;
   final FirebaseFirestore firestore;
+  final FirebaseAuth auth;
 
   const CustomCard({
     Key? key,
     this.snapshot,
     required this.index,
     required this.firestore,
+    required this.auth,
   }) : super(key: key);
 
   @override
@@ -24,7 +28,7 @@ class CustomCard extends StatefulWidget {
 class _CustomCardState extends State<CustomCard> {
   late TextEditingController titleInputController;
   late TextEditingController descriptionInputController;
-  late TextEditingController nameInputController;
+  //late TextEditingController nameInputController;
 
   @override
   void initState() {
@@ -37,14 +41,14 @@ class _CustomCardState extends State<CustomCard> {
     nameInputController = TextEditingController(text: docData['name']); */
     titleInputController = TextEditingController();
     descriptionInputController = TextEditingController();
-    nameInputController = TextEditingController();
+    //nameInputController = TextEditingController();
   }
 
   @override
   void dispose() {
     titleInputController.dispose();
     descriptionInputController.dispose();
-    nameInputController.dispose();
+    //nameInputController.dispose();
     super.dispose();
   }
 
@@ -56,12 +60,14 @@ class _CustomCardState extends State<CustomCard> {
 
     var title = docData['title'] ?? 'No title';
     var description = docData['description'] ?? 'No description';
-
-    var name = docData[''] ?? 'Unknown';
+    var creator = docData['creator'] ?? 'Unknown';
+    var currentUserId = widget.auth.currentUser!.uid;
+    //var name = docData[''] ?? 'Unknown';
     var timestamp = docData['timestamp']?.toDate();
     var formatter = timestamp != null
         ? DateFormat("dd-MMM-yyyy 'at' HH:mm").format(timestamp)
         : 'Timestamp not available';
+    var authorName = generateUniqueName(creator);
 
     return Column(
       children: <Widget>[
@@ -99,36 +105,38 @@ class _CustomCardState extends State<CustomCard> {
                     ),
                   ),
                   const SizedBox(width: 8),
-                  IconButton(
-                    icon: const Icon(FontAwesomeIcons.edit, size: 15),
-                    onPressed: () {
-                      _showDialog(context, docId);
-                    },
-                  ),
-                  IconButton(
-                    icon: const Icon(FontAwesomeIcons.trashAlt, size: 15),
-                    onPressed: () async {
-                      if (!mounted) return;
-                      // batch delete removes up to 500 replies at a time from the replies collection due to firestore limitations
-                      final replyQuerySnapshot = await widget.firestore
-                          .collection("replies")
-                          .where('threadId', isEqualTo: docId)
-                          .get();
+                  if (currentUserId == creator)
+                    IconButton(
+                      icon: const Icon(FontAwesomeIcons.edit, size: 15),
+                      onPressed: () {
+                        _showDialog(context, docId);
+                      },
+                    ),
+                  if (currentUserId == creator)
+                    IconButton(
+                      icon: const Icon(FontAwesomeIcons.trashAlt, size: 15),
+                      onPressed: () async {
+                        if (!mounted) return;
+                        // batch delete removes up to 500 replies at a time from the replies collection due to firestore limitations
+                        final replyQuerySnapshot = await widget.firestore
+                            .collection("replies")
+                            .where('threadId', isEqualTo: docId)
+                            .get();
 
-                      final WriteBatch batch = widget.firestore.batch();
-                      for (DocumentSnapshot replyDoc
-                          in replyQuerySnapshot.docs) {
-                        batch.delete(replyDoc.reference);
-                      }
+                        final WriteBatch batch = widget.firestore.batch();
+                        for (DocumentSnapshot replyDoc
+                            in replyQuerySnapshot.docs) {
+                          batch.delete(replyDoc.reference);
+                        }
 
-                      await batch.commit();
+                        await batch.commit();
 
-                      await widget.firestore
-                          .collection("thread")
-                          .doc(docId)
-                          .delete();
-                    },
-                  ),
+                        await widget.firestore
+                            .collection("thread")
+                            .doc(docId)
+                            .delete();
+                      },
+                    ),
                 ],
               ),
               subtitle: Column(
@@ -146,7 +154,7 @@ class _CustomCardState extends State<CustomCard> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: <Widget>[
                       Text(
-                        "$name: ",
+                        "$authorName: ",
                         style: const TextStyle(
                           fontSize: 14,
                           color: Color.fromARGB(255, 255, 0, 0),
@@ -190,7 +198,7 @@ class _CustomCardState extends State<CustomCard> {
 
     titleInputController.text = docData['title'] ?? '';
     descriptionInputController.text = docData['description'] ?? '';
-    nameInputController.text = docData['name'] ?? '';
+    //nameInputController.text = docData['name'] ?? '';
 
     await showDialog(
       context: context,
@@ -204,7 +212,7 @@ class _CustomCardState extends State<CustomCard> {
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
                     const Text("Please fill out the form"),
-                    TextField(
+                    /*TextField(
                       key: const Key('Author'),
                       autofocus: true,
                       autocorrect: true,
@@ -214,7 +222,7 @@ class _CustomCardState extends State<CustomCard> {
                             showErrorName ? "Please enter your name" : null,
                       ),
                       controller: nameInputController,
-                    ),
+                    ), */
                     TextField(
                       key: const Key('Title'),
                       autofocus: true,
@@ -254,7 +262,7 @@ class _CustomCardState extends State<CustomCard> {
                 TextButton(
                   onPressed: () {
                     setState(() {
-                      showErrorName = nameInputController.text.isEmpty;
+                      //showErrorName = nameInputController.text.isEmpty;
                       showErrorTitle = titleInputController.text.isEmpty;
                       showErrorDescription =
                           descriptionInputController.text.isEmpty;
@@ -264,7 +272,6 @@ class _CustomCardState extends State<CustomCard> {
                         !showErrorTitle &&
                         !showErrorDescription) {
                       widget.firestore.collection("thread").doc(docId).update({
-                        "name": nameInputController.text,
                         "title": titleInputController.text,
                         "description": descriptionInputController.text,
                         "timestamp": FieldValue.serverTimestamp(),

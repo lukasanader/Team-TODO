@@ -3,17 +3,21 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:info_hub_app/threads/name_generator.dart';
 
 class ReplyCard extends StatefulWidget {
   final QuerySnapshot snapshot;
   final int index;
   final FirebaseFirestore firestore;
+  final FirebaseAuth auth;
 
   const ReplyCard({
     Key? key,
     required this.snapshot,
     required this.index,
     required this.firestore,
+    required this.auth,
   }) : super(key: key);
 
   @override
@@ -22,20 +26,20 @@ class ReplyCard extends StatefulWidget {
 
 class _ReplyCardState extends State<ReplyCard> {
   late DocumentSnapshot replyDoc;
-  late TextEditingController authorController;
+  //late TextEditingController authorController;
   late TextEditingController contentController;
 
   @override
   void initState() {
     super.initState();
     replyDoc = widget.snapshot.docs[widget.index];
-    authorController = TextEditingController();
+    //authorController = TextEditingController();
     contentController = TextEditingController();
   }
 
   @override
   void dispose() {
-    authorController.dispose();
+    //authorController.dispose();
     contentController.dispose();
     super.dispose();
   }
@@ -45,12 +49,15 @@ class _ReplyCardState extends State<ReplyCard> {
     var docData = replyDoc.data() as Map<String, dynamic>;
     var docId = replyDoc.id;
 
-    var author = docData['author'] ?? 'Anonymous';
+    //var author = docData['author'] ?? 'Anonymous';
     var content = docData['content'] ?? 'No content provided';
+    var creator = docData['creator'] ?? 'Anonymous';
+    var currentUserId = widget.auth.currentUser!.uid;
     var timestamp = docData['timestamp']?.toDate();
     var formatter = timestamp != null
         ? DateFormat("dd-MMM-yyyy 'at' HH:mm").format(timestamp)
         : 'Timestamp not available';
+    var authorName = generateUniqueName(creator);
 
     return Column(
       children: <Widget>[
@@ -63,10 +70,10 @@ class _ReplyCardState extends State<ReplyCard> {
             elevation: 5,
             child: ListTile(
               leading: CircleAvatar(
-                child: Text(author[0].toUpperCase()),
+                child: Text(authorName[0].toUpperCase()),
               ),
               title: Text(
-                author,
+                authorName,
                 style: TextStyle(
                   fontSize: 20.0,
                   fontWeight: FontWeight.bold,
@@ -96,22 +103,24 @@ class _ReplyCardState extends State<ReplyCard> {
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  IconButton(
-                    icon: Icon(FontAwesomeIcons.edit, size: 15),
-                    onPressed: () {
-                      _showDialog(context, docId);
-                    },
-                  ),
-                  IconButton(
-                    icon: Icon(FontAwesomeIcons.trash, size: 15),
-                    onPressed: () async {
-                      if (!mounted) return;
-                      await widget.firestore
-                          .collection('replies')
-                          .doc(docId)
-                          .delete();
-                    },
-                  ),
+                  if (currentUserId == creator)
+                    IconButton(
+                      icon: Icon(FontAwesomeIcons.edit, size: 15),
+                      onPressed: () {
+                        _showDialog(context, docId);
+                      },
+                    ),
+                  if (currentUserId == creator)
+                    IconButton(
+                      icon: Icon(FontAwesomeIcons.trash, size: 15),
+                      onPressed: () async {
+                        if (!mounted) return;
+                        await widget.firestore
+                            .collection('replies')
+                            .doc(docId)
+                            .delete();
+                      },
+                    ),
                 ],
               ),
             ),
@@ -122,7 +131,7 @@ class _ReplyCardState extends State<ReplyCard> {
   }
 
   void _showDialog(BuildContext context, String docId) async {
-    bool showErrorAuthor = false;
+    //bool showErrorAuthor = false;
     bool showErrorContent = false;
 
     var docSnapshot =
@@ -131,7 +140,7 @@ class _ReplyCardState extends State<ReplyCard> {
 
     if (!mounted) return;
 
-    authorController.text = docData['author'] ?? '';
+    //authorController.text = docData['author'] ?? '';
     contentController.text = docData['content'] ?? '';
 
     await showDialog(
@@ -144,7 +153,7 @@ class _ReplyCardState extends State<ReplyCard> {
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
                 Text("Edit your reply"),
-                TextField(
+                /*TextField(
                   autofocus: true,
                   autocorrect: true,
                   decoration: InputDecoration(
@@ -153,7 +162,7 @@ class _ReplyCardState extends State<ReplyCard> {
                         showErrorAuthor ? "Please enter your name" : null,
                   ),
                   controller: authorController,
-                ),
+                ),*/
                 TextField(
                   autofocus: true,
                   autocorrect: true,
@@ -175,19 +184,18 @@ class _ReplyCardState extends State<ReplyCard> {
             ),
             TextButton(
               onPressed: () async {
-                if (authorController.text.isNotEmpty &&
-                    contentController.text.isNotEmpty) {
+                if (contentController.text.isNotEmpty) {
                   await widget.firestore
                       .collection('replies')
                       .doc(docId)
                       .update({
-                    'author': authorController.text,
+                    //'author': authorController.text,
                     'content': contentController.text,
                     'timestamp': FieldValue.serverTimestamp(),
                   });
                   Navigator.pop(context);
                 } else {
-                  showErrorAuthor = authorController.text.isEmpty;
+                  //showErrorAuthor = authorController.text.isEmpty;
                   showErrorContent = contentController.text.isEmpty;
                   setState(() {});
                 }
