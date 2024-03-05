@@ -44,11 +44,6 @@ class _PatientMessageViewState extends State<PatientMessageView> {
                 return MessageRoomCard(widget.firestore, widget.auth, chat);
               }
             ),
-            ElevatedButton(
-              onPressed: () {
-                print(_chatList.length);
-              }, 
-              child: const Text('testing button'))
 
           ],
         )

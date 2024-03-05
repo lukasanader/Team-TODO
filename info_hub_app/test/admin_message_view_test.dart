@@ -14,20 +14,22 @@ import 'package:info_hub_app/ask_question/question_view.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import 'package:mockito/mockito.dart';
 
-void main() {
-  late FirebaseFirestore firestore = FakeFirebaseFirestore();
-  late MockFirebaseAuth auth = MockFirebaseAuth();
-  late Widget adminMessageViewWidget;
-  late CollectionReference chatRoomMembersCollectionReference;
-  CollectionReference userCollectionRef = firestore.collection('Users');
-  late String uid;
+import 'mock.dart';
 
+void main() {
+  late MockFirebaseAuth auth;
+  late FirebaseFirestore firestore;
+  late Widget adminMessageViewWidget;
 
 
 
   setUp(() async {
+    auth = MockFirebaseAuth();
+    firestore = FakeFirebaseFirestore();
+
+
     await auth.createUserWithEmailAndPassword(email: 'admin@gmail.com', password: 'Admin123!');
-    uid = auth.currentUser!.uid;
+    String uid = auth.currentUser!.uid;
     await firestore.collection('Users').doc(uid).set({
       'email': 'admin@gmail.com',
       'firstName': 'John',
@@ -35,6 +37,7 @@ void main() {
       'roleType': 'admin'
     });
 
+    CollectionReference userCollectionRef = firestore.collection('Users');
     userCollectionRef.doc('1').set({
       'email': 'user@gmail.com',
       'firstName': 'John',
@@ -42,7 +45,8 @@ void main() {
       'roleType': 'Patient'
     });
 
-    chatRoomMembersCollectionReference = firestore.collection('message_rooms_members');
+
+    CollectionReference chatRoomMembersCollectionReference = firestore.collection('message_rooms_members');
 
     chatRoomMembersCollectionReference.add({
       'adminId' : uid,
@@ -58,12 +62,14 @@ void main() {
 
 
   testWidgets('Will display 3 existing chats', (WidgetTester tester) async {
+    CollectionReference chatRoomMembersCollectionReference = firestore.collection('message_rooms_members');
+
     chatRoomMembersCollectionReference.add({
-      'adminId' : uid,
+      'adminId' : auth.currentUser!.uid,
       'patientId' : '2'
     });
     chatRoomMembersCollectionReference.add({
-      'adminId' : uid,
+      'adminId' : auth.currentUser!.uid,
       'patientId' : '3'
     });
   
@@ -79,6 +85,7 @@ void main() {
 
 
   testWidgets('Show dialogue to message patient test', (WidgetTester tester) async {
+    CollectionReference userCollectionRef = firestore.collection('Users');
     userCollectionRef.add({
       'email': 'john@nhs.com',
       'firstName': 'John',
@@ -126,19 +133,12 @@ void main() {
     Finder textFinder = find.text('user@gmail.com');
     expect(tester.widget<Text>(textFinder).data, 'user@gmail.com');
 
-    // QuerySnapshot data = await firestore
-    //   .collection('Users')
-    //   .where('roleType', isEqualTo: 'Patient')
-    //   .get();
-    // List<dynamic> users = List.from(data.docs);
-    // dynamic test = users[0];
-    // print(test.id);
-    // print(test['email']);
+
 
 
     await tester.tap(find.text('user@gmail.com'));
     await tester.pumpAndSettle();
-    // expect(find.byType(MessageRoomView), findsOne);
+    expect(find.byType(MessageRoomView), findsOne);
 
 
   });

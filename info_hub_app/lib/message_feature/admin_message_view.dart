@@ -114,25 +114,15 @@ class _MessageViewState extends State<MessageView> {
                               // Navigator.pop(context);
                               // Navigator.pop(context);
 
-                              // Navigator.push(
-                              //   context,
-                              //   MaterialPageRoute(
-                              //       builder: (context) => MessageRoomView(
-                              //             firestore: widget.firestore,
-                              //             auth: widget.auth,
-                              //             senderId: widget.auth.currentUser!.uid,
-                              //             receiverId: receiverUser.id,
-                              //           )),
-                              // );
 
                               Navigator.of(context).push(
                                 CupertinoPageRoute(
                                   builder: (BuildContext context) {
                                     return MessageRoomView(
-                                      firestore: widget.firestore,
                                       auth: widget.auth,
                                       senderId: widget.auth.currentUser!.uid,
                                       receiverId: receiverUser.id,
+                                      messageService: MessageService(widget.auth, widget.firestore),
                                     );
                                   }
                                 )

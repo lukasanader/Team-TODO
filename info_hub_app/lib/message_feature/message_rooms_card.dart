@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:info_hub_app/message_feature/message_service.dart';
 import 'package:info_hub_app/message_feature/messaging_room_view.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -8,7 +9,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 class MessageRoomCard extends StatelessWidget {
   final dynamic _chat;
   final FirebaseFirestore firestore;
-
   final FirebaseAuth auth;
 
   const MessageRoomCard(this.firestore, this.auth, this._chat,
@@ -33,7 +33,11 @@ class MessageRoomCard extends StatelessWidget {
         onTap: () {
           PersistentNavBarNavigator.pushNewScreen(
             context,
-            screen: MessageRoomView(firestore: firestore, auth: auth, senderId: senderId, receiverId: receiverId, ),
+            screen: MessageRoomView(
+              auth: auth, 
+              senderId: senderId, 
+              receiverId: receiverId, 
+              messageService: MessageService(auth, firestore)),
             withNavBar: false,
           );
         },

@@ -5,8 +5,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:info_hub_app/message_feature/message_model.dart';
 
 class MessageService extends ChangeNotifier {
-  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _firebaseAuth;
+  final FirebaseFirestore _firestore;
+
+  MessageService(
+    this._firebaseAuth,
+    this._firestore,
+  );
+
 
   Future<void> sendMessage(String receiverId, String message) async {
     final String currentUserId = _firebaseAuth.currentUser!.uid;
