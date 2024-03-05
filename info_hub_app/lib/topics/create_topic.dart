@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:info_hub_app/ask_question/question_service.dart';
 import 'package:info_hub_app/topics/quiz/create_quiz.dart';
 
 import 'package:video_player/video_player.dart';
@@ -202,8 +203,8 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                 ),
                 onPressed: () {
                   if (_topicFormKey.currentState!.validate()) {
+                    QuestionService(firestore: widget.firestore).deleteRelevantQuestions(titleController.text);
                     _uploadTopic();
-
                     Navigator.pop(context);
                   }
                 },

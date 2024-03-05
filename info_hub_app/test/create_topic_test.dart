@@ -640,4 +640,36 @@ void main() async {
         reason:
             'It should be in the portrait view after the fullscreen actions done');
   });
+
+  testWidgets('Relevant topic questions are deleted upon creating a topic', (WidgetTester tester) async{
+    final firestore = FakeFirebaseFirestore();
+    final mockStorage = MockFirebaseStorage();
+
+    await tester.pumpWidget(MaterialApp(
+      home: CreateTopicScreen(
+        firestore: firestore,
+        storage: mockStorage,
+      ),
+    ));
+    await firestore.collection('questions').add({
+      'question': 'Can i go to the gym with liver failure?',
+      'date': DateTime.now(),
+      'uid': 1,    
+    });
+    await firestore.collection('questions').add({
+      'question': 'Advice on going university',
+      'date': DateTime.now(),
+      'uid': 1,    
+    });
+    await tester.enterText(find.byKey(const Key('titleField')), 'Tips on going to the gym');
+    await tester.enterText(
+        find.byKey(const Key('descField')), 'Test description');
+
+    await tester.tap(find.text('PUBLISH TOPIC'));
+    await tester.pumpAndSettle();
+    final snapshot = await firestore.collection('questions').get();
+    expect(snapshot.docs.length, 1);
+    final questionDoc = snapshot.docs.first.data();
+    expect(questionDoc['question'], 'Advice on going university');
+  });
 }
