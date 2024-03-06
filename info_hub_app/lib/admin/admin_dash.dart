@@ -120,7 +120,7 @@ class _AdminHomepageState extends State<AdminHomepage> {
                 children: [
                   Icon(Icons.book),
                   Text(
-                    'View experiences',
+                    'View Experiences',
                     style: TextStyle(color: Colors.black),
                   ),
                 ],
@@ -142,7 +142,7 @@ class _AdminHomepageState extends State<AdminHomepage> {
                 children: [
                   Icon(Icons.analytics),
                   Text(
-                    'View analytics',
+                    'View Analytics',
                     style: TextStyle(color: Colors.black),
                   ),
                 ],

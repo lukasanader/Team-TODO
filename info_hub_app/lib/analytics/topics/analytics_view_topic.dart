@@ -3,12 +3,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:intl/intl.dart';
 
-class AdminAnalyticsTopic extends StatefulWidget {
+class AdminTopicAnalytics extends StatefulWidget {
   final QueryDocumentSnapshot topic;
   final FirebaseFirestore firestore;
   final FirebaseStorage storage;
 
-  const AdminAnalyticsTopic({
+  const AdminTopicAnalytics({
     super.key,
     required this.firestore,
     required this.storage,
@@ -16,10 +16,10 @@ class AdminAnalyticsTopic extends StatefulWidget {
   });
 
   @override
-  State<AdminAnalyticsTopic> createState() => AdminAnalyticsTopicState();
+  State<AdminTopicAnalytics> createState() => AdminAnalyticsTopicState();
 }
 
-class AdminAnalyticsTopicState extends State<AdminAnalyticsTopic> {
+class AdminAnalyticsTopicState extends State<AdminTopicAnalytics> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(

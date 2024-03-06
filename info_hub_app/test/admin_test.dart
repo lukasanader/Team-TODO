@@ -3,6 +3,8 @@ import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:info_hub_app/admin/admin_dash.dart';
+import 'package:info_hub_app/analytics/analytics_base.dart';
+import 'package:info_hub_app/patient_experience/admin_experience_view.dart';
 import 'package:info_hub_app/topics/create_topic.dart';
 import 'package:info_hub_app/ask_question/question_view.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
@@ -43,6 +45,20 @@ void main() {
     await tester.tap(find.text('View Thread'));
     await tester.pumpAndSettle();
     //expect(find.byType(CreateTopicScreen), findsOneWidget);
+  });
+
+  testWidgets('Test view experiences button', (WidgetTester tester) async {
+    await tester.pumpWidget(adminWidget);
+    await tester.tap(find.text('View Experiences'));
+    await tester.pumpAndSettle();
+    expect(find.byType(AdminExperienceView), findsOneWidget);
+  });
+
+  testWidgets('Test view analytics button', (WidgetTester tester) async {
+    await tester.pumpWidget(adminWidget);
+    await tester.tap(find.text('View Analytics'));
+    await tester.pumpAndSettle();
+    expect(find.byType(AnalyticsBase), findsOneWidget);
   });
 
   testWidgets('Add admin test', (WidgetTester tester) async {

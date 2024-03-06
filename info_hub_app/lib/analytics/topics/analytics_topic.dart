@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:info_hub_app/analytics/topics/analytics_topic_card.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:info_hub_app/topics/topics_card.dart';
 
 class AnalyticsTopicView extends StatefulWidget {
   final FirebaseFirestore firestore;
@@ -101,8 +101,8 @@ class _AnalyticsTopicView extends State<AnalyticsTopicView> {
                   child: Text("Most Likes"),
                 ),
                 DropdownMenuItem<String>(
-                  value: "Most Disliked",
-                  child: Text("Most Disliked"),
+                  value: "Most Dislikes",
+                  child: Text("Most Dislikes"),
                 ),
               ],
             ),
@@ -166,7 +166,7 @@ class _AnalyticsTopicView extends State<AnalyticsTopicView> {
         _topicsList.sort((b, a) =>
             _getTopicLikes(a as QueryDocumentSnapshot<Object?>).compareTo(
                 _getTopicLikes(b as QueryDocumentSnapshot<Object?>)));
-      } else if (dropdownvalue == "Most Disliked") {
+      } else if (dropdownvalue == "Most Dislikes") {
         _topicsList.sort((b, a) =>
             _getTopicDislikes(a as QueryDocumentSnapshot<Object?>).compareTo(
                 _getTopicDislikes(b as QueryDocumentSnapshot<Object?>)));
