@@ -33,7 +33,7 @@ class _ChatState extends State<Chat> {
     super.initState();
 
     // Initialize the Firestore stream
-    _chatStream = FirebaseFirestore.instance
+    _chatStream = widget.firestore
         .collection('Webinar')
         .doc(widget.channelId)
         .collection('comments')
@@ -89,63 +89,66 @@ class _ChatState extends State<Chat> {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Expanded(
-            child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-              stream: _chatStream,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(
-                    child: CircularProgressIndicator(),
+    return Material(
+      child: SizedBox(
+        width: double.infinity,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Expanded(
+              child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                stream: _chatStream,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+
+                  if (snapshot.hasError) {
+                    return const Text('Error loading chat');
+                  }
+
+                  return ListView.builder(
+                    itemCount: snapshot.data!.docs.length,
+                    itemBuilder: (context, index) => _buildChatItem(snapshot.data!.docs[index]),
                   );
-                }
-
-                if (snapshot.hasError) {
-                  return const Text('Error loading chat');
-                }
-
-                return ListView.builder(
-                  itemCount: snapshot.data!.docs.length,
-                  itemBuilder: (context, index) => _buildChatItem(snapshot.data!.docs[index]),
-                );
-              },
+                },
+              ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _chatController,
-                    decoration: const InputDecoration(
-                      hintText: 'Type your message...',
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _chatController,
+                      decoration: const InputDecoration(
+                        hintText: 'Type your message...',
+                      ),
                     ),
                   ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.send),
-                  onPressed: () async {
-                    debugPrint(filter.hasProfanity(_chatController.text).toString());
-                    if (!filter.hasProfanity(_chatController.text) && !_namePresent(_chatController.text)) {
-                      await DatabaseService(firestore: widget.firestore, uid: widget.user.uid,)
-                        .chat(_chatController.text, widget.channelId, widget.user.roleType);
-                    } else {
-                      _showWarningDialog();
-                    }
-                    setState(() {
-                      _chatController.text = "";
-                    });
-                  },
-                ),
-              ],
+                  IconButton(
+                    icon: const Icon(Icons.send),
+                    onPressed: () async {
+                      bool hasProfanities = filter.hasProfanity(_chatController.text);
+                      bool hasName = _namePresent(_chatController.text); 
+                      if (!hasProfanities && !hasName) {
+                        await DatabaseService(firestore: widget.firestore, uid: widget.user.uid,)
+                          .chat(_chatController.text, widget.channelId, widget.user.roleType);
+                      } else {
+                        _showWarningDialog();
+                      }
+                      setState(() {
+                        _chatController.text = "";
+                      });
+                    },
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

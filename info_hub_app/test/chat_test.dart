@@ -1,57 +1,124 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:info_hub_app/models/user_model.dart';
-import 'package:info_hub_app/services/database_service.dart';
 import 'package:info_hub_app/screens/webinar-screens/chat.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
 
 void main() {
-  setUpAll(() async {
-    WidgetsFlutterBinding.ensureInitialized();
-    await Firebase.initializeApp();
+  late FakeFirebaseFirestore firestore;
+  late Widget ChatScreenWidget;
+  late UserModel user;
+
+  setUp(() {
+    firestore = FakeFirebaseFirestore();
+    user = UserModel(
+      uid: 'mockUid',
+      firstName: 'John',
+      lastName: 'Doe',
+      roleType: 'Patient',
+      email: 'testemail@email.com',
+    );
+    ChatScreenWidget = MaterialApp(
+      home: Chat(firestore: firestore, user: user, channelId: 'test'),
+    );
   });
-  testWidgets('Chat Widget Test', (WidgetTester tester) async {
-    // Mock data
-    final String channelId = 'mockChannelId';
-    final UserModel user = UserModel(uid: 'mockUid', firstName: 'John',lastName: 'Doe', roleType: 'Patient',email: 'testemail@email.com');
-    final firestore = FakeFirebaseFirestore();
 
-  
-    // Build our widget and trigger a frame.
-    await tester.pumpWidget(MaterialApp(
-      home: Chat(channelId: channelId, user: user, firestore: firestore),
-    ));
+  testWidgets('Chat Widget Test - Loading State', (WidgetTester tester) async {
+    await tester.pumpWidget(ChatScreenWidget);
 
-    // Verify that the Chat widget initializes correctly
-    // expect(find.byType(Chat), findsOneWidget);
-    // expect(find.byType(StreamBuilder), findsOneWidget);
+    // Verify that the loading state is displayed
+    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+  });
 
-    // // Simulate loading state
-    // expect(find.byType(CircularProgressIndicator), findsOneWidget);
+  testWidgets('Chat Widget Test - Error State', (WidgetTester tester) async {
+    firestore.collection('Webinar').doc('test').collection('comments').add({
+      'uid': 'mockUid',
+      'roleType': 'Patient',
+      'message': 'Test message',
+      'createdAt': DateTime.now(),
+    });
 
-    // // Simulate loaded state
-    // await tester.pump();
+    await tester.pumpWidget(ChatScreenWidget);
+    await tester.pumpAndSettle();
 
-    // // Verify that the chat messages are displayed
-    // expect(find.text('Anonymous Beaver'), findsOneWidget);
+    // Verify that there is no error message displayed
+    expect(find.text('Error loading chat'), findsNothing);
+  });
 
-    // // Simulate sending a message with profanity
-    // await tester.enterText(find.byType(TextField), 'Profanity message');
-    // await tester.tap(find.byType(IconButton));
-    // await tester.pump();
+  testWidgets('Chat Widget Test - Loaded State', (WidgetTester tester) async {
+    firestore.collection('Webinar').doc('test').collection('comments').add({
+      'uid': 'mockUid',
+      'roleType': 'Patient',
+      'message': 'Test message',
+      'createdAt': DateTime.now(),
+    });
 
-    // // Verify that the warning dialog is shown
-    // expect(find.text('Warning'), findsOneWidget);
+    await tester.pumpWidget(ChatScreenWidget);
+    await tester.pumpAndSettle();
 
-    // // Simulate sending a message with the user's name
-    // await tester.enterText(find.byType(TextField), 'John, check this out!');
-    // await tester.tap(find.byType(IconButton));
-    // await tester.pump();
+    // Verify that the chat message is displayed
+    expect(find.text('Test message'), findsOneWidget);
+  });
 
-    // // Verify that the warning dialog is shown
-    // expect(find.text('Warning'), findsOneWidget);
-  }
-  );
+  testWidgets('Test Anonymous name displays correctly', (WidgetTester tester) async {
+    firestore.collection('Webinar').doc('test').collection('comments').add({
+      'uid': 'mockUid',
+      'roleType': user.roleType,
+      'message': 'Test message',
+      'createdAt': DateTime.now(),
+    });
+
+    await tester.pumpWidget(ChatScreenWidget);
+    await tester.pumpAndSettle();
+
+    // Verify that the chat message is displayed
+    expect(find.text('Anonymous Beaver'), findsOneWidget);
+  });
+
+  testWidgets('Test Doctor name displays correctly', (WidgetTester tester) async {
+    firestore.collection('Webinar').doc('test').collection('comments').add({
+      'uid': 'mockUid',
+      'roleType': 'Healthcare Professional',
+      'message': 'Test message',
+      'createdAt': DateTime.now(),
+    });
+
+    await tester.pumpWidget(ChatScreenWidget);
+    await tester.pumpAndSettle();
+
+    // Verify that the chat message is displayed
+    expect(find.text(user.firstName), findsOneWidget);
+  });
+
+  testWidgets('Test User can not write profanities in their messages', (WidgetTester tester) async {
+    await tester.pumpWidget(ChatScreenWidget);
+    await tester.pumpAndSettle();
+    final enterMessageField = find.ancestor(
+      of: find.text('Type your message...'),
+      matching: find.byType(TextField),
+    );
+    await tester.enterText(enterMessageField, 'You are an ass');
+    await tester.tap(find.byIcon(Icons.send));
+    await tester.pumpAndSettle();
+    expect(find.text('Please refrain from using language that may be rude to others or writing your name in your messages.'), findsOneWidget);
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+    expect(find.text('Please refrain from using language that may be rude to others or writing your name in your messages.'), findsNothing);
+  });
+
+  testWidgets('Test User can not write their name in their messages', (WidgetTester tester) async {
+    await tester.pumpWidget(ChatScreenWidget);
+    await tester.pumpAndSettle();
+    final enterMessageField = find.ancestor(
+      of: find.text('Type your message...'),
+      matching: find.byType(TextField),
+    );
+    await tester.enterText(enterMessageField, 'I am ${user.firstName}');
+    await tester.tap(find.byIcon(Icons.send));
+    await tester.pumpAndSettle();
+    expect(find.text('Please refrain from using language that may be rude to others or writing your name in your messages.'), findsOneWidget);
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+    expect(find.text('Please refrain from using language that may be rude to others or writing your name in your messages.'), findsNothing);
+  });
 }
-
