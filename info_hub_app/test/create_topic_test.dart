@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:info_hub_app/topics/create_topic.dart';
@@ -183,7 +184,7 @@ void main() async {
 
     VideoPlayerPlatform.instance = fakeVideoPlayerPlatform;
   });
-  testWidgets('Topic with title and description save',
+  testWidgets('Topic with title,description and tag save',
       (WidgetTester tester) async {
     final firestore = FakeFirebaseFirestore();
     final mockStorage = MockFirebaseStorage();
@@ -200,6 +201,10 @@ void main() async {
     await tester.enterText(
         find.byKey(const Key('descField')), 'Test description');
 
+    await tester.ensureVisible(find.text('Patient'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Patient'));    
+    
     await tester.tap(find.text('PUBLISH TOPIC'));
 
     await tester.pumpAndSettle();
@@ -209,7 +214,7 @@ void main() async {
 
     final List<DocumentSnapshot<Map<String, dynamic>>> documents =
         querySnapshot.docs;
-
+    
     expect(
       documents.any(
         (doc) => doc.data()?['title'] == 'Test title',
@@ -223,6 +228,15 @@ void main() async {
       ),
       isTrue,
     );
+    
+    expect(
+      documents.any(
+        (doc) => (doc.data()?['tags'] as List).contains('Patient') && (doc.data()?['tags'] as List).length==1,
+      ),
+      isTrue,
+    );
+
+    expect(documents.length, 1);
   });
 
   testWidgets('Topic with no title does not save', (WidgetTester tester) async {
@@ -240,6 +254,10 @@ void main() async {
         find.byKey(const Key('descField')), 'Test description');
 
     await tester.tap(find.text('PUBLISH TOPIC'));
+
+    await tester.ensureVisible(find.text('Patient'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Patient'));
 
     await tester.pumpAndSettle();
 
@@ -278,7 +296,35 @@ void main() async {
 
     expect(documents.isEmpty, isTrue);
   });
+  testWidgets('Topic no tags does not save',
+      (WidgetTester tester) async {
+    final firestore = FakeFirebaseFirestore();
+    final mockStorage = MockFirebaseStorage();
 
+    await tester.pumpWidget(MaterialApp(
+      home: CreateTopicScreen(
+        firestore: firestore,
+        storage: mockStorage,
+      ),
+    ));
+
+    await tester.enterText(find.byKey(const Key('titleField')), 'Test title');
+
+    await tester.tap(find.text('PUBLISH TOPIC'));
+
+    await tester.enterText(
+        find.byKey(const Key('descField')), 'Test description');
+
+    await tester.pumpAndSettle();
+
+    final QuerySnapshot<Map<String, dynamic>> querySnapshot =
+        await firestore.collection("topics").get();
+
+    final List<DocumentSnapshot<Map<String, dynamic>>> documents =
+        querySnapshot.docs;
+
+    expect(documents.isEmpty, isTrue);
+  });
   testWidgets('Topic invalid article link does not save',
       (WidgetTester tester) async {
     final firestore = FakeFirebaseFirestore();
@@ -296,7 +342,12 @@ void main() async {
     await tester.enterText(
         find.byKey(const Key('descField')), 'Test description');
 
+    await tester.ensureVisible(find.text('Patient'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Patient'));   
+
     await tester.enterText(find.byKey(const Key('linkField')), 'invalidLink');
+
 
     await tester.tap(find.text('PUBLISH TOPIC'));
 
@@ -327,6 +378,10 @@ void main() async {
 
     await tester.enterText(
         find.byKey(const Key('descField')), 'Test description');
+
+    await tester.ensureVisible(find.text('Patient'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Patient'));   
 
     await tester.enterText(find.byKey(const Key('linkField')),
         'https://pub.dev/packages?q=cloud_firestore_mocks');
@@ -383,6 +438,12 @@ void main() async {
     expect(find.text('Link article'), findsOneWidget);
 
     expect(find.text('Upload a video'), findsOneWidget);
+    
+    expect(find.text('Patient'), findsOneWidget);
+
+    expect(find.text('Parent'), findsOneWidget);
+
+    expect(find.text('Healthcare Professional'), findsOneWidget);
   });
 
   testWidgets('Navigates back after submitting form',
@@ -400,7 +461,9 @@ void main() async {
     await tester.enterText(find.byKey(const Key('titleField')), 'Test title');
     await tester.enterText(
         find.byKey(const Key('descField')), 'Test description');
-
+    await tester.ensureVisible(find.text('Patient'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Patient'));
     await tester.tap(find.text('PUBLISH TOPIC'));
     await tester.pumpAndSettle();
 
@@ -420,6 +483,9 @@ void main() async {
     ));
 
     await tester.enterText(find.byKey(const Key('titleField')), 'Test title');
+    await tester.ensureVisible(find.text('Patient'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Patient'));
     await tester.enterText(
         find.byKey(const Key('descField')), 'Test description');
 
@@ -563,6 +629,10 @@ void main() async {
     await tester.enterText(find.byKey(const Key('titleField')), 'Test title');
     await tester.enterText(
         find.byKey(const Key('descField')), 'Test description');
+
+    await tester.ensureVisible(find.text('Patient'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Patient'));    
 
     // submit form
 
