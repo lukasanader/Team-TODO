@@ -1,3 +1,4 @@
+
 import "package:flutter/material.dart";
 import "package:info_hub_app/models/user_model.dart";
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -9,7 +10,6 @@ class Chat extends StatefulWidget {
   final String channelId;
   final UserModel user;
   final FirebaseFirestore firestore;
-
   const Chat({super.key, required this.channelId, required this.user, required this.firestore});
 
   @override

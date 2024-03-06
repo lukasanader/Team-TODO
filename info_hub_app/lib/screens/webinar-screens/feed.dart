@@ -17,7 +17,7 @@ class FeedScreen extends StatefulWidget {
   });
 
   @override
-  State<FeedScreen> createState() => _FeedScreenState();
+  _FeedScreenState createState() => _FeedScreenState();
 }
 
 class _FeedScreenState extends State<FeedScreen> {
