@@ -66,12 +66,12 @@ class AdminAnalyticsTopicState extends State<AdminTopicAnalytics> {
   String formatDate(Timestamp timestamp) {
     var dateTime =
         DateTime.fromMillisecondsSinceEpoch(timestamp.seconds * 1000);
-    return DateFormat('dd-mm-yyyy').format(dateTime);
+    return DateFormat('dd-MM-yyyy').format(dateTime);
   }
 
   String formatTime(Timestamp timestamp) {
     var dateTime =
         DateTime.fromMillisecondsSinceEpoch(timestamp.seconds * 1000);
-    return DateFormat('hh:mm').format(dateTime);
+    return DateFormat('HH:mm').format(dateTime);
   }
 }
