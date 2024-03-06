@@ -4,6 +4,7 @@ import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:info_hub_app/notifications/manage_notifications.dart';
 import 'package:info_hub_app/registration/start_page.dart';
 import 'package:info_hub_app/settings/settings_view.dart';
 import 'package:info_hub_app/registration/registration_screen.dart';
@@ -66,6 +67,32 @@ void main() {
 
     // Verify that TermsOfServicesPage renders the specified text.
     expect(find.text('TeamTODO Terms of Services'), findsOneWidget);
+  });
+
+  testWidgets('Test entering manage settings works', (WidgetTester tester) async {
+    await firebaseAuth.createUserWithEmailAndPassword(email: 'user@gmail.com', password: 'User123!');
+    String uid = firebaseAuth.currentUser!.uid;
+    await firestore.collection('Users').doc(uid).set({
+      'email': 'user@gmail.com',
+      'firstName': 'John',
+      'lastName': 'Doe',
+      'roleType': 'Patient'
+    });
+
+    CollectionReference preferenceCollection = firestore.collection('preferences');
+    preferenceCollection.add({
+      'push_notifications' : false,
+      'uid' : uid
+    });
+
+    await tester.pumpWidget(settingsViewWidget);
+
+    // Tap on the ListTile to navigate to TermsOfServicesPage.
+    await tester.tap(find.text('Manage Notifications'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(ManageNotifications), findsOneWidget);
+
   });
 
   testWidgets('test if logout works', (WidgetTester tester) async {
