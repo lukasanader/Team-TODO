@@ -47,18 +47,16 @@ class _ThreadRepliesState extends State<ThreadReplies> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Thread Replies"),
-        backgroundColor: Color.fromARGB(255, 0, 48, 194),
-        elevation: 4.0,
-      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showDialog(context),
         child: Icon(FontAwesomeIcons.reply),
       ),
-      body: FutureBuilder<DocumentSnapshot>(
-        future: threadFuture,
-        builder: (context, threadSnapshot) {
+      body: StreamBuilder<DocumentSnapshot>(
+        stream: FirebaseFirestore.instance
+            .collection("thread")
+            .doc(widget.threadId)
+            .snapshots(),
+        builder: (context, AsyncSnapshot<DocumentSnapshot> threadSnapshot) {
           if (!threadSnapshot.hasData) return CircularProgressIndicator();
           var threadData = threadSnapshot.data!.data() as Map<String, dynamic>;
           var threadTitle = threadData['title'] ?? 'No Title';
@@ -81,10 +79,22 @@ class _ThreadRepliesState extends State<ThreadReplies> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(threadTitle,
-                          style: TextStyle(
-                              fontSize: 20.0, fontWeight: FontWeight.bold)),
-                      SizedBox(height: 8.0),
+                      Row(
+                        children: [
+                          IconButton(
+                            icon: Icon(Icons.arrow_back),
+                            onPressed: () => Navigator.of(context).pop(),
+                          ),
+                          Expanded(
+                            child: Text(
+                              threadTitle,
+                              style: TextStyle(
+                                  fontSize: 20.0, fontWeight: FontWeight.bold),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
                       Text(threadDescription, style: TextStyle(fontSize: 16.0)),
                       SizedBox(height: 10.0),
                       Row(
@@ -125,6 +135,97 @@ class _ThreadRepliesState extends State<ThreadReplies> {
       ),
     );
   }
+  /*
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _showDialog(context),
+        child: Icon(FontAwesomeIcons.reply),
+      ),
+      body: FutureBuilder<DocumentSnapshot>(
+        future: threadFuture,
+        builder: (context, threadSnapshot) {
+          if (!threadSnapshot.hasData) return CircularProgressIndicator();
+          var threadData = threadSnapshot.data!.data() as Map<String, dynamic>;
+          var threadTitle = threadData['title'] ?? 'No Title';
+          var threadDescription = threadData['description'] ?? 'No Description';
+          var threadAuthor = threadData['author'] ?? 'Anonymous';
+          var threadTimestamp = threadData['timestamp']?.toDate();
+          var formattedDate = threadTimestamp != null
+              ? DateFormat("dd-MMM-yyyy 'at' HH:mm").format(threadTimestamp)
+              : 'Date Unknown';
+
+          return Column(
+            children: [
+              Card(
+                margin: EdgeInsets.all(8.0),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.zero,
+                ),
+                child: Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          IconButton(
+                            icon: Icon(Icons.arrow_back),
+                            onPressed: () => Navigator.of(context).pop(),
+                          ),
+                          Expanded(
+                            child: Text(
+                              threadTitle,
+                              style: TextStyle(
+                                  fontSize: 20.0, fontWeight: FontWeight.bold),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Text(threadDescription, style: TextStyle(fontSize: 16.0)),
+                      SizedBox(height: 10.0),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text("By $threadAuthor",
+                              style: TextStyle(
+                                  fontSize: 14.0, fontStyle: FontStyle.italic)),
+                          Text(formattedDate, style: TextStyle(fontSize: 14.0)),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Expanded(
+                child: StreamBuilder<QuerySnapshot>(
+                  stream: replyStream,
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) return CircularProgressIndicator();
+                    return ListView.builder(
+                      itemCount: snapshot.data!.docs.length,
+                      itemBuilder: (context, index) {
+                        return ReplyCard(
+                          snapshot: snapshot.data!,
+                          index: index,
+                          firestore: FirebaseFirestore.instance,
+                          auth: FirebaseAuth.instance,
+                        );
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  */
 
   void _showDialog(BuildContext context) async {
     //bool showErrorAuthor = false;

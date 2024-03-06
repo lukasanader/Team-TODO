@@ -273,7 +273,8 @@ class _CustomCardState extends State<CustomCard> {
                         !showErrorDescription) {
                       widget.firestore.collection("thread").doc(docId).update({
                         "title": titleInputController.text,
-                        "description": descriptionInputController.text,
+                        "description":
+                            "${descriptionInputController.text} (edited)",
                         "timestamp": FieldValue.serverTimestamp(),
                       }).then((response) {
                         //print(response.id);

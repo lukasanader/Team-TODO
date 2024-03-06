@@ -7,9 +7,16 @@ import 'package:info_hub_app/threads/name_generator.dart';
 
 class ThreadApp extends StatefulWidget {
   final FirebaseFirestore firestore;
-  final FirebaseAuth auth; // add this line
+  final FirebaseAuth auth;
+  final String topicId;
+  final String topicTitle;
 
-  const ThreadApp({Key? key, required this.firestore, required this.auth})
+  const ThreadApp(
+      {Key? key,
+      required this.firestore,
+      required this.auth,
+      required this.topicId,
+      required this.topicTitle})
       : super(key: key);
 
   @override
@@ -25,7 +32,10 @@ class _ThreadAppState extends State<ThreadApp> {
   @override
   void initState() {
     super.initState();
-    firestoreDb = widget.firestore.collection("thread").snapshots();
+    firestoreDb = widget.firestore
+        .collection("thread")
+        .where('topicId', isEqualTo: widget.topicId)
+        .snapshots();
     //nameInputController = TextEditingController();
     titleInputController = TextEditingController();
     descriptionInputController = TextEditingController();
@@ -36,9 +46,9 @@ class _ThreadAppState extends State<ThreadApp> {
     return Scaffold(
 //current appbar is placeholder, replace with actual appbar or equivalent
       appBar: AppBar(
-        title: const Text(
-          "Topic Threads",
-          style: TextStyle(
+        title: Text(
+          widget.topicTitle,
+          style: const TextStyle(
             color: Colors.white,
             fontSize: 20.0,
             fontFamily: 'Roboto',
@@ -234,6 +244,7 @@ class _ThreadAppState extends State<ThreadApp> {
                         "description": descriptionInputController.text,
                         "timestamp": FieldValue.serverTimestamp(),
                         "creator": docId,
+                        "topicId": widget.topicId,
                       }).then((response) {
                         titleInputController.clear();
                         descriptionInputController.clear();

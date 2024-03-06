@@ -31,14 +31,14 @@ class _TestViewState extends State<TestView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
+      /*floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.of(context).push(CupertinoPageRoute(
               builder: (BuildContext context) =>
                   ThreadApp(firestore: widget.firestore, auth: widget.auth)));
         },
         child: const Icon(FontAwesomeIcons.comment),
-      ),
+      ), */ //commented out test code
       body: SafeArea(
           child: Center(
               child: Column(children: [
