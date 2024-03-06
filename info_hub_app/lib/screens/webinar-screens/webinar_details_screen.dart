@@ -3,11 +3,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/config/app_id.dart';
 import 'package:info_hub_app/models/user_model.dart';
-import 'package:info_hub_app/screens/random_screen.dart';
 import 'package:info_hub_app/screens/webinar-screens/chat.dart';
 import 'package:info_hub_app/services/database_service.dart';
 import 'package:permission_handler/permission_handler.dart';
-
 // Displays base broadcasting screen
 class BroadcastScreen extends StatefulWidget {
   final bool isBroadcaster;
@@ -16,12 +14,12 @@ class BroadcastScreen extends StatefulWidget {
   final FirebaseFirestore firestore;
 
   const BroadcastScreen({
-    Key? key,
+    super.key,
     required this.isBroadcaster,
     required this.channelId,
     required this.currentUser,
     required this.firestore,
-  }) : super(key: key);
+  });
 
   @override
   State<BroadcastScreen> createState() => _BroadcastScreenState();
@@ -29,6 +27,8 @@ class BroadcastScreen extends StatefulWidget {
 
 class _BroadcastScreenState extends State<BroadcastScreen> {
   late final RtcEngine _engine = createAgoraRtcEngine();
+  int localUid = 0;
+
   bool switchCamera = true;
   bool isMuted = false;
   int? _remoteUid;
@@ -42,41 +42,41 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
 
   // initialises broadcasting engine according to user privelleges
   void _initEngine() async {
-    int userUID = 1;
     await [Permission.microphone, Permission.camera].request();
     await _engine.initialize(const RtcEngineContext(
       appId: appID,
       channelProfile: ChannelProfileType.channelProfileLiveBroadcasting,
     ));
-    _addListeners();
-
     if (widget.isBroadcaster) {
       _engine.setClientRole(role: ClientRoleType.clientRoleBroadcaster);
-      userUID = 0;
     } else {
       _engine.setClientRole(role: ClientRoleType.clientRoleAudience);
     }
     await _engine.enableVideo();
-    await _engine.startPreview();
+    _addListeners();
 
-    await _engine.joinChannel(
-      token: tempToken,
-      channelId: 'howdoesthiswork',
-      uid: 0,
-      options: const ChannelMediaOptions(),
-    );
+    await _engine.joinChannelWithUserAccount(token: tempToken, channelId: widget.channelId, userAccount: widget.currentUser.uid);
+    // joinChannel(
+    //   token: tempToken,
+    //   channelId: widget.channelId,
+    //   uid: 0,
+    //   options: const ChannelMediaOptions(),
+    // );
+    await _engine.startPreview();
   }
 
   // establishes events and how to handle them
   void _addListeners() {
     _engine.registerEventHandler(RtcEngineEventHandler(
+      // local user
       onJoinChannelSuccess: (channel, uid) {
         debugPrint('joinChannelSuccess $channel $uid ');
       },
+      // remote user
       onUserJoined: (connection, remoteUid, elapsed) {
         debugPrint('userJoined $connection $remoteUid $elapsed');
         setState(() {
-          _remoteUid = remoteUid;
+          userUIDs.add(remoteUid);
         });
       },
       onUserOffline: (connection, remoteUid, reason) {
@@ -96,14 +96,17 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
 
   // allows for the ability for webinar lead to switch camera
   void _switchCamera() {
-    _engine.switchCamera().then((value) {
-      setState(() {
-        switchCamera = !switchCamera;
+    if (widget.isBroadcaster) {
+      _engine.switchCamera().then((value) {
+        setState(() {
+          switchCamera = !switchCamera;
+        });
+      }).catchError((err) {
+        debugPrint('switchCamera $err');
       });
-    }).catchError((err) {
-      debugPrint('switchCamera $err');
-    });
+    }
   }
+
 
   // allows for the ability for webinar lead to toggle their microphone on and off
   void onToggleMute() async {
@@ -124,15 +127,6 @@ _leaveChannel() async {
   } else {
     await DatabaseService(firestore: widget.firestore, uid: widget.currentUser.uid).updateViewCount(widget.channelId, false);
   }
-
-  if (mounted) { // Check if the widget is still mounted before navigation
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (context) => RandomScreen(),
-      ),
-    );
-  }
 }
 
 
@@ -142,11 +136,12 @@ _leaveChannel() async {
     return PopScope(
       onPopInvoked: (didPop) async {
         await _leaveChannel();
+        // ignore: void_checks
         return Future.value(true);
       },
       child: Scaffold(
         appBar: AppBar(
-          title: Text('${widget.currentUser.firstName}\'s Webinar'),
+          title: Text('${widget.channelId}\'s Webinar'),
         ),
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -158,7 +153,8 @@ _leaveChannel() async {
                   width: 300,
                   height: 250,
                   child: Center(
-                    child: AgoraVideoView(
+                    child: 
+                    AgoraVideoView(
                       controller: VideoViewController(
                         rtcEngine: _engine,
                         canvas: const VideoCanvas(uid: 0),
@@ -172,18 +168,17 @@ _leaveChannel() async {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Switch camera button
                   InkWell(
                     onTap: _switchCamera,
                     child: Container(
-                      padding: EdgeInsets.all(12.0),
-                      margin: EdgeInsets.all(8.0),
+                      padding: const EdgeInsets.all(12.0),
+                      margin: const EdgeInsets.all(8.0),
                       decoration: BoxDecoration(
                         color: Colors.red,
                         borderRadius: BorderRadius.circular(16.0),
                       ),
                       child: const Text(
-                        'Switch',
+                        'Switch Camera',
                         style: TextStyle(
                           color: Colors.white,
                         ),
@@ -194,14 +189,31 @@ _leaveChannel() async {
                   InkWell(
                     onTap: onToggleMute,
                     child: Container(
-                      padding: EdgeInsets.all(12.0),
-                      margin: EdgeInsets.all(8.0),
+                      padding: const EdgeInsets.all(12.0),
+                      margin: const EdgeInsets.all(8.0),
                       decoration: BoxDecoration(
                         color: isMuted ? Colors.grey : Colors.red,
                         borderRadius: BorderRadius.circular(16.0),
                       ),
                       child: Text(
                         isMuted ? 'Unmute' : 'Mute',
+                        style: const TextStyle(
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                  InkWell(
+                    onTap: _leaveChannel,
+                    child: Container(
+                      padding: const EdgeInsets.all(12.0),
+                      margin: const EdgeInsets.all(8.0),
+                      decoration: BoxDecoration(
+                        color: Colors.red,
+                        borderRadius: BorderRadius.circular(16.0),
+                      ),
+                      child: const Text(
+                        'End Webinar',
                         style: TextStyle(
                           color: Colors.white,
                         ),
@@ -222,4 +234,5 @@ _leaveChannel() async {
       ),
     );
   }
+
 }

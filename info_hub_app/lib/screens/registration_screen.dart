@@ -1,14 +1,15 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:info_hub_app/screens/webinar-screens/feed.dart';
 import 'package:info_hub_app/services/auth.dart';
 import 'package:info_hub_app/models/user_model.dart';
-import 'package:info_hub_app/screens/webinar-screens/dashboard.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class RegistrationScreen extends StatefulWidget {
   final FirebaseFirestore firestore;
   final FirebaseAuth auth;
-  const RegistrationScreen({Key? key, required this.firestore,required this.auth}) : super(key: key);
+
+  const RegistrationScreen({Key? key, required this.firestore, required this.auth}) : super(key: key);
 
   @override
   State<RegistrationScreen> createState() => _RegistrationScreenState();
@@ -22,7 +23,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     super.initState();
     _auth = AuthService(
       firestore: widget.firestore,
-      auth: widget.auth);
+      auth: widget.auth,
+    );
   }
 
   final _formKey = GlobalKey<FormState>();
@@ -178,14 +180,19 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     final String role = _selectedRole ?? '';
 
                     // Register user and get the UserModel
-                    UserModel? userModel = await _auth.registerUser(firstName, lastName, email, password, role);
+                    UserModel? userModel =
+                        await _auth.registerUser(firstName, lastName, email, password, role);
 
                     if (userModel != null) {
                       // Registration was successful, navigate to the main application page
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => GoLiveScreen(user: userModel, firestore: widget.firestore,),
+                          builder: (context) => FeedScreen(
+                            firestore: widget.firestore,
+                            user: userModel,
+                          ),
+                          // builder: (context) => GoLiveScreen(user: userModel, firestore: widget.firestore,),
                         ),
                       );
                     } else {

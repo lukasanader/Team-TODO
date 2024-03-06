@@ -1,11 +1,9 @@
 import 'dart:io';
-import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:info_hub_app/models/livestream.dart';
 import 'package:uuid/uuid.dart';
 
 class DatabaseService {
@@ -26,7 +24,7 @@ class DatabaseService {
     });
   }
     
-  Future<String> startLiveStream(BuildContext context, String title, Uint8List? image) async {
+  Future<String> startLiveStream(BuildContext context, String title, Uint8List? image, String lastName) async {
     String channelId = '';
     try {
       if (title.isNotEmpty && image != null) {
@@ -41,6 +39,7 @@ class DatabaseService {
             'title': title,
             'thumbnail': thumbnailUrl,
             'uid': uid,
+            'webinarleadlname' : lastName,
             'views': 0,
           });
 

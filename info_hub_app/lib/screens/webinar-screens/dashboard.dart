@@ -5,6 +5,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:info_hub_app/models/user_model.dart';
+import 'package:info_hub_app/screens/webinar-screens/feed.dart';
 import 'webinar_details_screen.dart';
 import 'package:info_hub_app/services/database_service.dart';
 
@@ -30,7 +31,7 @@ class _GoLiveScreenState extends State<GoLiveScreen> {
 
   // Loads broadcasting page
   Future goLiveWebinar() async {
-    String channelId = await DatabaseService(uid: widget.user.uid, firestore: widget.firestore).startLiveStream(context, _titleController.text , image);
+    String channelId = await DatabaseService(uid: widget.user.uid, firestore: widget.firestore).startLiveStream(context, _titleController.text , image, widget.user.lastName);
     if (channelId.isNotEmpty) {
       Navigator.of(context).push(
         MaterialPageRoute(
