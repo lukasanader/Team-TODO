@@ -1,12 +1,24 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
+import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
+import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:info_hub_app/registration/start_page.dart';
 import 'package:info_hub_app/settings/settings_view.dart';
+import 'package:info_hub_app/registration/registration_screen.dart';
 
 void main() {
   late Widget settingsViewWidget;
+  late MockFirebaseAuth firebaseAuth;
+  late MockFirebaseStorage firebaseStorage;
+  late FakeFirebaseFirestore firestore;
 
-  setUp(() {
-    settingsViewWidget = const MaterialApp(home: SettingsView());
+  setUp(() { 
+    firebaseAuth = MockFirebaseAuth();
+    firebaseStorage = MockFirebaseStorage();
+    firestore = FakeFirebaseFirestore();
+    settingsViewWidget =  MaterialApp(home: SettingsView(auth: firebaseAuth, firestore: firestore, storage: firebaseStorage,));
   });
 
   testWidgets('SettingsView has appbar with back button and title "Settings"',
@@ -55,4 +67,13 @@ void main() {
     // Verify that TermsOfServicesPage renders the specified text.
     expect(find.text('TeamTODO Terms of Services'), findsOneWidget);
   });
+
+  testWidgets('test if logout works', (WidgetTester tester) async {
+    
+    await tester.pumpWidget(settingsViewWidget);
+
+    await tester.tap(find.byIcon(Icons.logout));
+    await tester.pumpAndSettle();
+    expect(firebaseAuth.currentUser,null);
+});
 }
