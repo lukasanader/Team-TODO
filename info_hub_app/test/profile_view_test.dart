@@ -81,55 +81,55 @@ void main() {
     expect(find.text('Patient'), findsOneWidget);
   });
 
-  testWidgets('Test if default profile photo is the placeholder', (WidgetTester tester) async {
-  final firestore = FakeFirebaseFirestore();
-  final auth = MockFirebaseAuth();
-  auth.createUserWithEmailAndPassword(email: 'profileview@example.org', password: 'Password123!');
-  final fakeUserId = auth.currentUser!.uid;
-  final fakeUser = {
-    'firstName': 'John',
-    'lastName': 'Doe',
-    'email': 'profileview@example.org',
-    'roleType' : 'Patient',
-  };
-  await firestore.collection('Users').doc(fakeUserId).set(fakeUser);
+    testWidgets('Test if default profile photo is the placeholder', (WidgetTester tester) async {
+    final firestore = FakeFirebaseFirestore();
+    final auth = MockFirebaseAuth();
+    auth.createUserWithEmailAndPassword(email: 'profileview@example.org', password: 'Password123!');
+    final fakeUserId = auth.currentUser!.uid;
+    final fakeUser = {
+      'firstName': 'John',
+      'lastName': 'Doe',
+      'email': 'profileview@example.org',
+      'roleType' : 'Patient',
+    };
+    await firestore.collection('Users').doc(fakeUserId).set(fakeUser);
 
-  await tester.pumpWidget(MaterialApp(home: ProfileView(firestore: firestore, auth: auth)));
-  await tester.pumpAndSettle(); 
+    await tester.pumpWidget(MaterialApp(home: ProfileView(firestore: firestore, auth: auth)));
+    await tester.pumpAndSettle(); 
 
-  expect(find.byWidgetPredicate((widget) => widget is CircleAvatar && widget.backgroundImage is AssetImage), findsOneWidget);
-  // Verify that the AssetImage matches the default profile photo
-  final CircleAvatar circleAvatar = tester.widget(find.byType(CircleAvatar));
-  final AssetImage assetImage = circleAvatar.backgroundImage as AssetImage;
-  expect(assetImage.assetName, 'assets/default_profile_photo.png');
-});
+    expect(find.byWidgetPredicate((widget) => widget is CircleAvatar && widget.backgroundImage is AssetImage), findsOneWidget);
+    // Verify that the AssetImage matches the default profile photo
+    final CircleAvatar circleAvatar = tester.widget(find.byType(CircleAvatar));
+    final AssetImage assetImage = circleAvatar.backgroundImage as AssetImage;
+    expect(assetImage.assetName, 'assets/default_profile_photo.png');
+  });
 
-  testWidgets('Test if default profile photo is the placeholder', (WidgetTester tester) async {
-  final firestore = FakeFirebaseFirestore();
-  final auth = MockFirebaseAuth();
-  auth.createUserWithEmailAndPassword(email: 'profileview@example.org', password: 'Password123!');
-  final fakeUserId = auth.currentUser!.uid;
-  final fakeUser = {
-    'firstName': 'John',
-    'lastName': 'Doe',
-    'email': 'profileview@example.org',
-    'roleType' : 'Patient',
-  };
-  await firestore.collection('Users').doc(fakeUserId).set(fakeUser);
+    testWidgets('Test if default profile photo is the placeholder', (WidgetTester tester) async {
+    final firestore = FakeFirebaseFirestore();
+    final auth = MockFirebaseAuth();
+    auth.createUserWithEmailAndPassword(email: 'profileview@example.org', password: 'Password123!');
+    final fakeUserId = auth.currentUser!.uid;
+    final fakeUser = {
+      'firstName': 'John',
+      'lastName': 'Doe',
+      'email': 'profileview@example.org',
+      'roleType' : 'Patient',
+    };
+    await firestore.collection('Users').doc(fakeUserId).set(fakeUser);
 
-  await tester.pumpWidget(MaterialApp(home: ProfileView(firestore: firestore, auth: auth)));
-  await tester.pumpAndSettle(); 
+    await tester.pumpWidget(MaterialApp(home: ProfileView(firestore: firestore, auth: auth)));
+    await tester.pumpAndSettle(); 
 
-  // Verify that the CircleAvatar widget with AssetImage is found
-  expect(find.byWidgetPredicate((widget) => widget is CircleAvatar && widget.backgroundImage is AssetImage), findsOneWidget);
+    // Verify that the CircleAvatar widget with AssetImage is found
+    expect(find.byWidgetPredicate((widget) => widget is CircleAvatar && widget.backgroundImage is AssetImage), findsOneWidget);
 
-  // Tap on the CircleAvatar to trigger the dialog
-  await tester.tap(find.byType(CircleAvatar));
-  await tester.pumpAndSettle();
+    // Tap on the CircleAvatar to trigger the dialog
+    await tester.tap(find.byType(CircleAvatar));
+    await tester.pumpAndSettle();
 
-  // Verify that the 'Dog' text appears in the dialog
-  expect(find.text('Dog'), findsOneWidget);
-});
+    // Verify that the 'Dog' text appears in the dialog
+    expect(find.text('Dog'), findsOneWidget);
+  });
 
   testWidgets('Test if default profile photo is the placeholder', (WidgetTester tester) async {
   final firestore = FakeFirebaseFirestore();
@@ -239,6 +239,134 @@ testWidgets('Test if tapping Change Profile button navigates to ChangeProfile pa
   // Verify that the navigation occurred
   expect(find.byType(ChangeProfile), findsOneWidget);
 });
+
+  testWidgets('Test if updating profile photo changes the displayed photo', (WidgetTester tester) async {
+    final firestore = FakeFirebaseFirestore();
+    final auth = MockFirebaseAuth();
+    auth.createUserWithEmailAndPassword(email: 'profileview@example.org', password: 'Password123!');
+    final fakeUserId = auth.currentUser!.uid;
+    final fakeUser = {
+      'firstName': 'John',
+      'lastName': 'Doe',
+      'email': 'profileview@example.org',
+      'roleType' : 'Patient',
+    };
+    await firestore.collection('Users').doc(fakeUserId).set(fakeUser);
+
+    await tester.pumpWidget(MaterialApp(home: ProfileView(firestore: firestore, auth: auth)));
+    await tester.pumpAndSettle(); 
+
+    // Verify the default profile photo is displayed
+    expect(find.byWidgetPredicate((widget) => widget is CircleAvatar && widget.backgroundImage is AssetImage), findsOneWidget);
+    
+    // Tap on the CircleAvatar to trigger the dialog
+    await tester.tap(find.byType(CircleAvatar));
+    await tester.pumpAndSettle();
+
+    // Tap on one of the options in the dialog to update the profile photo
+    await tester.tap(find.text('Dog'));
+    await tester.pumpAndSettle();
+
+    // Verify that the displayed photo has changed
+    expect(find.byWidgetPredicate((widget) => widget is CircleAvatar && widget.backgroundImage is AssetImage), findsOneWidget);
+    final CircleAvatar circleAvatarAfter = tester.widget(find.byType(CircleAvatar));
+    final AssetImage assetImageAfter = circleAvatarAfter.backgroundImage as AssetImage;
+    final String updatedProfilePhoto = assetImageAfter.assetName;
+    expect(updatedProfilePhoto, 'assets/profile_photo_1.png'); // Fix: include 'assets/' prefix
+
+    // Verify that Firestore has been updated with the new photo (code to verify Firestore update goes here)
+  });
+
+    testWidgets('Test if updating profile photo changes the displayed photo', (WidgetTester tester) async {
+    final firestore = FakeFirebaseFirestore();
+    final auth = MockFirebaseAuth();
+    auth.createUserWithEmailAndPassword(email: 'profileview@example.org', password: 'Password123!');
+    final fakeUserId = auth.currentUser!.uid;
+    final fakeUser = {
+      'firstName': 'John',
+      'lastName': 'Doe',
+      'email': 'profileview@example.org',
+      'roleType' : 'Patient',
+    };
+    await firestore.collection('Users').doc(fakeUserId).set(fakeUser);
+
+    await tester.pumpWidget(MaterialApp(home: ProfileView(firestore: firestore, auth: auth)));
+    await tester.pumpAndSettle(); 
+
+    // Verify the default profile photo is displayed
+    expect(find.byWidgetPredicate((widget) => widget is CircleAvatar && widget.backgroundImage is AssetImage), findsOneWidget);
+    
+    // Tap on the CircleAvatar to trigger the dialog
+    await tester.tap(find.byType(CircleAvatar));
+    await tester.pumpAndSettle();
+
+    // Tap on one of the options in the dialog to update the profile photo
+    await tester.tap(find.text('Walrus'));
+    await tester.pumpAndSettle();
+
+    // Verify that the displayed photo has changed
+    expect(find.byWidgetPredicate((widget) => widget is CircleAvatar && widget.backgroundImage is AssetImage), findsOneWidget);
+    final CircleAvatar circleAvatarAfter = tester.widget(find.byType(CircleAvatar));
+    final AssetImage assetImageAfter = circleAvatarAfter.backgroundImage as AssetImage;
+    final String updatedProfilePhoto = assetImageAfter.assetName;
+    expect(updatedProfilePhoto, 'assets/profile_photo_2.png'); // Fix: include 'assets/' prefix
+
+    // Verify that Firestore has been updated with the new photo (code to verify Firestore update goes here)
+  });
+
+    testWidgets('Test if updating profile photo changes the displayed photo', (WidgetTester tester) async {
+    final firestore = FakeFirebaseFirestore();
+    final auth = MockFirebaseAuth();
+    auth.createUserWithEmailAndPassword(email: 'profileview@example.org', password: 'Password123!');
+    final fakeUserId = auth.currentUser!.uid;
+    final fakeUser = {
+      'firstName': 'John',
+      'lastName': 'Doe',
+      'email': 'profileview@example.org',
+      'roleType' : 'Patient',
+    };
+    await firestore.collection('Users').doc(fakeUserId).set(fakeUser);
+
+    await tester.pumpWidget(MaterialApp(home: ProfileView(firestore: firestore, auth: auth)));
+    await tester.pumpAndSettle(); 
+
+    // Verify the default profile photo is displayed
+    expect(find.byWidgetPredicate((widget) => widget is CircleAvatar && widget.backgroundImage is AssetImage), findsOneWidget);
+    
+    // Tap on the CircleAvatar to trigger the dialog
+    await tester.tap(find.byType(CircleAvatar));
+    await tester.pumpAndSettle();
+
+    // Tap on one of the options in the dialog to update the profile photo
+    await tester.tap(find.text('Penguin'));
+    await tester.pumpAndSettle();
+
+    // Verify that the displayed photo has changed
+    expect(find.byWidgetPredicate((widget) => widget is CircleAvatar && widget.backgroundImage is AssetImage), findsOneWidget);
+    final CircleAvatar circleAvatarAfter = tester.widget(find.byType(CircleAvatar));
+    final AssetImage assetImageAfter = circleAvatarAfter.backgroundImage as AssetImage;
+    final String updatedProfilePhoto = assetImageAfter.assetName;
+    expect(updatedProfilePhoto, 'assets/profile_photo_3.png'); // Fix: include 'assets/' prefix
+
+    // Verify that Firestore has been updated with the new photo (code to verify Firestore update goes here)
+  });
+
+  testWidgets('Test if default profile photo is displayed when loading', (WidgetTester tester) async {
+    // Create a fake instance of Firestore and FirebaseAuth
+    final firestore = FakeFirebaseFirestore();
+    final auth = MockFirebaseAuth();
+
+    // Build the ProfileView widget with isLoading set to true
+    await tester.pumpWidget(MaterialApp(home: ProfileView(firestore: firestore, auth: auth)));
+
+    // Verify that the default profile photo is displayed
+    expect(find.byWidgetPredicate((widget) => widget is CircleAvatar && widget.backgroundImage is AssetImage), findsOneWidget);
+
+    // Verify that the AssetImage matches the default profile photo
+    final CircleAvatar circleAvatar = tester.widget(find.byType(CircleAvatar));
+    final AssetImage assetImage = circleAvatar.backgroundImage as AssetImage;
+    expect(assetImage.assetName, 'assets/default_profile_photo.png');
+  });
 
 }
 
