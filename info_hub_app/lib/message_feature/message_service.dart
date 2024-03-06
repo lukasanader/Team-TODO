@@ -18,7 +18,6 @@ class MessageService extends ChangeNotifier {
     final String currentUserId = _firebaseAuth.currentUser!.uid;
     final Timestamp timestamp = Timestamp.now();
 
-
     Message newMessage = Message(
       senderId: currentUserId,
       receiverId: receiverId,
