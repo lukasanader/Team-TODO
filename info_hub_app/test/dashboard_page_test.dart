@@ -25,27 +25,23 @@ void main() {
   });
 
   testWidgets('Test Image Picker is present', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
     await tester.pumpWidget(GoLive);
     expect(find.text('Select a thumbnail'), findsOneWidget);
   });
 
   testWidgets('Test Title Text is present', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
     await tester.pumpWidget(GoLive);
     expect(find.text('Title'), findsOneWidget);
   });
 
   testWidgets('Test Title Text Entry is present', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
     await tester.pumpWidget(GoLive);
     expect(find.text('Enter your title'), findsOneWidget);
   });
 
   testWidgets('Test Start Webinar button is present', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
     await tester.pumpWidget(GoLive);
     expect(find.text('Start Webinar'), findsOneWidget);
   });
-  
+
 }

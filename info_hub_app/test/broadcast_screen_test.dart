@@ -6,7 +6,6 @@ import 'package:info_hub_app/models/user_model.dart';
 import 'package:info_hub_app/screens/webinar-screens/webinar_details_screen.dart';
 import 'package:mockito/mockito.dart';
 
-
 void main() {
     late FakeFirebaseFirestore mockFirestore;
     late UserModel testUser;
@@ -59,9 +58,9 @@ void main() {
       // Test UI elements for audience
       expect(find.text('Webinar Title'), findsOneWidget);
       expect(find.byIcon(Icons.help_outline), findsOneWidget);
-      expect(find.byKey(ValueKey('switch_camera_button')), findsNothing);
-      expect(find.byKey(ValueKey('toggle_mute_button')), findsNothing);
-      expect(find.byKey(ValueKey('end_webinar_button')), findsNothing);
+      expect(find.text('Switch Camera'), findsNothing);
+      expect(find.text('Mute'), findsNothing);
+      expect(find.text('End Webinar'), findsNothing);
     });
 
     testWidgets('Test Guide Button is pressable', (WidgetTester tester) async {
@@ -73,6 +72,5 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Webinar Guide and Expectations'),findsNothing);      
     });
-
 
 }
