@@ -159,7 +159,7 @@ class _AnalyticsTopicView extends State<AnalyticsTopicView> {
             _getTopicViews(a as QueryDocumentSnapshot<Object?>).compareTo(
                 _getTopicViews(b as QueryDocumentSnapshot<Object?>)));
       } else if (dropdownvalue == "Trending") {
-        _topicsList.sort((a, b) =>
+        _topicsList.sort((b, a) =>
             _getTrending(a as QueryDocumentSnapshot<Object?>)
                 .compareTo(_getTrending(b as QueryDocumentSnapshot<Object?>)));
       } else if (dropdownvalue == "Most Likes") {
