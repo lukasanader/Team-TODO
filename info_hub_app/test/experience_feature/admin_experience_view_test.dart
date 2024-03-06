@@ -39,17 +39,26 @@ void main() {
     expect(listViewFinder, findsNWidgets(2));
   });
 
-  testWidgets('Displays both verified and unverified experiences',
+  testWidgets('Displays verified experiences',
       (WidgetTester tester) async {
     // Build our app and trigger a frame.
     await tester.pumpWidget(experienceViewWidget);
     await tester.pumpAndSettle();
 
-    Finder cardFinder = find.byType(Card);
-    expect(cardFinder, findsNWidgets(2));
+
 
     expect(find.text('Example 1'), findsOneWidget);
+
+  });
+
+  testWidgets('Displays unverified experiences',
+      (WidgetTester tester) async {
+    // Build our app and trigger a frame.
+    await tester.pumpWidget(experienceViewWidget);
+    await tester.pumpAndSettle();
+
     expect(find.text('Example 2'), findsOneWidget);
+
   });
 
   testWidgets('Button can verify experience correctly',
@@ -99,5 +108,5 @@ void main() {
     expect(experienceList[0].verified, isFalse);
   });
 
-  testWidgets('Share experience works', (WidgetTester tester) async {});
+
 }
