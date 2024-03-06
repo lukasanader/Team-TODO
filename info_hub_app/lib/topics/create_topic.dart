@@ -25,7 +25,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
   final articleLinkController = TextEditingController();
   final _topicFormKey = GlobalKey<FormState>();
   String quizID = '';
-  bool quizAdded=false;
+  bool quizAdded = false;
 
   String? validateTitle(String? value) {
     if (value == null || value.isEmpty) {
@@ -51,7 +51,25 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
     return null;
   }
 
+  Future<List<String>> pickImagesFromDevice() async {
+    List<String> imagePaths = [];
+    try {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.image,
+        allowMultiple: true,
+      );
+
+      if (result != null) {
+        imagePaths = result.paths.map((path) => path!).toList();
+      }
+    } catch (e) {
+      print("Error picking images: $e");
+    }
+    return imagePaths;
+  }
+
   String? _videoURL;
+  String? _imageURL;
   String? _downloadURL;
   VideoPlayerController? _videoController;
   ChewieController? _chewieController;
@@ -62,6 +80,26 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
     _videoController?.dispose();
     _chewieController?.dispose();
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+  }
+
+  Widget _displayImages(List<String> imagePaths) {
+    return SizedBox(
+      height: 200,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: imagePaths.length,
+        itemBuilder: (context, index) {
+          return Padding(
+            padding: EdgeInsets.all(8.0),
+            child: Image.file(
+              File(imagePaths[index]),
+              width: 150,
+              fit: BoxFit.cover,
+            ),
+          );
+        },
+      ),
+    );
   }
 
   @override
@@ -166,33 +204,35 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 10.0),
               child: OutlinedButton(
-                style: OutlinedButton.styleFrom(
-                  minimumSize: const Size(double.infinity, 50),
-                ),
-                onPressed: () {
-                  Navigator.push(context,
-                          MaterialPageRoute(
-                            builder :(context) => CreateQuiz(firestore: widget.firestore,addQuiz: addQuiz),
-                          ),
-                          );
-                },
-                child: 
-                Row(
-                  children: [
-                    const SizedBox(width: 150,),
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size(double.infinity, 50),
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => CreateQuiz(
+                            firestore: widget.firestore, addQuiz: addQuiz),
+                      ),
+                    );
+                  },
+                  child: Row(children: [
+                    const SizedBox(
+                      width: 150,
+                    ),
                     const Text(
                       "ADD QUIZ",
                       style: TextStyle(
                         color: Colors.red,
                         fontWeight: FontWeight.bold,
-                      
                       ),
                     ),
-                    if(quizAdded)
-                      const Icon(Icons.check, color: Colors.green,)
-                    ]
-                )
-              ),
+                    if (quizAdded)
+                      const Icon(
+                        Icons.check,
+                        color: Colors.green,
+                      )
+                  ])),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 10.0),
@@ -336,12 +376,11 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
     // SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   }
 
-  void addQuiz(String qid){
+  void addQuiz(String qid) {
     setState(() {
-      quizID=qid;
-      quizAdded=true;
+      quizID = qid;
+      quizAdded = true;
     });
-    
   }
 }
 

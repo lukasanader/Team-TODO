@@ -53,6 +53,14 @@ class MyApp extends StatelessWidget {
           auth: auth,
         ),
 
+        routes: {
+          '/disc': (context) => StartPage(
+              auth: auth,
+              storage: storage,
+              firestore: firestore), // Screen A route
+          // Screen C route
+        },
+
         // home: HomePage(auth: auth, firestore: firestore, storage: storage)
         // home: AdminHomepage(firestore: firestore, storage: storage),
       ),

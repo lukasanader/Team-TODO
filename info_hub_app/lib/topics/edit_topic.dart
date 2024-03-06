@@ -31,6 +31,7 @@ class EditTopicScreen extends StatefulWidget {
 }
 
 class _EditTopicScreenState extends State<EditTopicScreen> {
+  late QueryDocumentSnapshot<Object?> updatedTopicDoc;
   late String prevTitle;
   late String prevDescription;
   late String prevArticleLink;
@@ -55,6 +56,8 @@ class _EditTopicScreenState extends State<EditTopicScreen> {
 
     // Initialize the video player if there's a video URL available
     _videoURL = widget.topic['videoUrl'];
+    updatedTopicDoc = widget.topic;
+
     _initializeVideoPlayer();
   }
 
@@ -83,6 +86,7 @@ class _EditTopicScreenState extends State<EditTopicScreen> {
   }
 
   String? _videoURL;
+  String? _imageURL;
   VideoPlayerController? _videoPlayerController;
   ChewieController? _chewieController;
 
@@ -244,22 +248,21 @@ class _EditTopicScreenState extends State<EditTopicScreen> {
                 ),
                 onPressed: () async {
                   if (_topicFormKey.currentState!.validate()) {
-                    _uploadTopic();
-
+                    await _uploadTopic();
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => DiscoveryView(
-                          firestore: widget.firestore,
-                          storage: widget.storage,
-                          auth: widget.auth,
-                        ),
+                        builder: (context) => ViewTopicScreen(
+                            firestore: widget.firestore,
+                            topic: updatedTopicDoc,
+                            storage: widget.storage,
+                            auth: widget.auth),
                       ),
                     );
                   }
                 },
                 child: const Text(
-                  "PUBLISH TOPIC",
+                  "UPDATE TOPIC",
                   style: TextStyle(
                     color: Colors.red,
                     fontWeight: FontWeight.bold,
@@ -331,35 +334,88 @@ class _EditTopicScreenState extends State<EditTopicScreen> {
     await videoRef.delete();
   }
 
-  void _uploadTopic() async {
+  Future<void> _uploadTopic() async {
+    QuerySnapshot? data;
     String? newVideoURL;
+
+    String oldVideoUrl = widget.topic['videoUrl'];
 
     // Check if a new video was selected
     if (_videoPlayerController != null &&
         _videoURL != widget.topic['videoUrl']) {
       // Upload the new video and get its download URL
       newVideoURL = await StoreData(widget.storage).uploadVideo(_videoURL!);
+
+      final topicDetails = {
+        'title': titleController.text,
+        'description': descriptionController.text,
+        'articleLink': articleLinkController.text,
+        'videoUrl': newVideoURL,
+        'views': widget.topic['views'],
+        'likes': widget.topic['likes'],
+        'dislikes': widget.topic['dislikes'],
+        'date': widget.topic['date'],
+      };
+
+      CollectionReference topicCollectionRef =
+          widget.firestore.collection('topics');
+
+      await topicCollectionRef.doc(widget.topic.id).update(topicDetails);
+
+      while (true) {
+        print('fetching');
+
+        CollectionReference topicCollRef =
+            widget.firestore.collection('topics');
+        // Retrieve the latest data from the Firestore topics collection
+        data = await topicCollRef.orderBy('title').get();
+
+        // Iterate through the documents to find the updated topic document
+        for (QueryDocumentSnapshot doc in data.docs) {
+          // Check if the document ID matches the ID of the topic
+          if (doc.id == widget.topic.id) {
+            // Found the updated topic document
+
+            updatedTopicDoc = doc as QueryDocumentSnapshot<Object>;
+            print('found doc');
+            break; // Exit the loop since we found the document
+          }
+        }
+
+        if (updatedTopicDoc['videoUrl'] != oldVideoUrl) {
+          // If the updated topic document's video URL is different from the old URL,
+          // break the loop since the video URL has been updated
+          print('it changed');
+          print(updatedTopicDoc['videoUrl']);
+
+          final topicDeets = {
+            'title': titleController.text,
+            'description': descriptionController.text,
+            'articleLink': articleLinkController.text,
+            'videoUrl': newVideoURL,
+            'views': widget.topic['views'],
+            'likes': widget.topic['likes'],
+            'dislikes': widget.topic['dislikes'],
+            'date': widget.topic['date'],
+          };
+
+          await topicCollectionRef.doc(widget.topic.id).update(topicDeets);
+
+          break;
+        } else {
+          print('same');
+        }
+
+        // Wait for a short duration before checking again (e.g., 1 second)
+        await Future.delayed(Duration(seconds: 1));
+      }
+
       await deleteVideoFromStorage(widget.topic['videoUrl']);
     } else {
+      print('vid didnt change');
       // Keep the existing video URL if no new video was selected
       newVideoURL = widget.topic['videoUrl'];
     }
-
-    final topicDetails = {
-      'title': titleController.text,
-      'description': descriptionController.text,
-      'articleLink': articleLinkController.text,
-      'videoUrl': newVideoURL,
-      'views': widget.topic['views'],
-      'likes': widget.topic['likes'],
-      'dislikes': widget.topic['dislikes'],
-      'date': widget.topic['date'],
-    };
-
-    CollectionReference topicCollectionRef =
-        widget.firestore.collection('topics');
-
-    await topicCollectionRef.doc(widget.topic.id).update(topicDetails);
   }
 
   void _clearVideoSelection() {
