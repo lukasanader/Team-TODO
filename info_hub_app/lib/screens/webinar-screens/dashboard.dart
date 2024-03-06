@@ -1,11 +1,10 @@
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:info_hub_app/models/user_model.dart';
-import 'package:info_hub_app/screens/webinar-screens/feed.dart';
 import 'webinar_details_screen.dart';
 import 'package:info_hub_app/services/database_service.dart';
 
@@ -13,7 +12,7 @@ import 'package:info_hub_app/services/database_service.dart';
 class GoLiveScreen extends StatefulWidget {
   final UserModel user;
   final FirebaseFirestore firestore;
-  const GoLiveScreen({Key? key, required this.user, required this.firestore}) : super(key: key);
+  const GoLiveScreen({super.key, required this.user, required this.firestore});
 
   @override
   State<GoLiveScreen> createState() => _GoLiveScreenState();
@@ -33,6 +32,7 @@ class _GoLiveScreenState extends State<GoLiveScreen> {
   Future goLiveWebinar() async {
     String channelId = await DatabaseService(uid: widget.user.uid, firestore: widget.firestore).startLiveStream(context, _titleController.text , image, widget.user.lastName);
     if (channelId.isNotEmpty) {
+      // ignore: use_build_context_synchronously
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) => BroadcastScreen(
@@ -40,11 +40,14 @@ class _GoLiveScreenState extends State<GoLiveScreen> {
             channelId: channelId,
             currentUser: widget.user,
             firestore: widget.firestore,
+            title: _titleController.text,
           ),
           ),
       );
     } else {
-      print('Error');
+      if (kDebugMode) {
+        print('Error');
+      }
     }
   }
 
@@ -68,7 +71,7 @@ class _GoLiveScreenState extends State<GoLiveScreen> {
                     }
                   },
                   // Handles displaying and selection of thumbnail for webinar
-                  child: Container(
+                  child: SizedBox(
                     height: 200,
                     width: double.infinity,
                     child: image != null
@@ -76,7 +79,7 @@ class _GoLiveScreenState extends State<GoLiveScreen> {
                         : DottedBorder(
                             borderType: BorderType.RRect,
                             radius: const Radius.circular(10),
-                            dashPattern: [10, 4],
+                            dashPattern: const [10, 4],
                             strokeCap: StrokeCap.round,
                             color: Colors.red,
                             child: Container(
@@ -124,25 +127,25 @@ class _GoLiveScreenState extends State<GoLiveScreen> {
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     child: TextField(
                       controller: _titleController,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 16,
                         color: Colors.black,
                       ),
                       decoration: InputDecoration(
                         hintText: 'Enter your title',
-                        hintStyle: TextStyle(
+                        hintStyle: const TextStyle(
                           color: Colors.grey,
                         ),
                         filled: true,
                         fillColor: Colors.white,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10.0),
-                          borderSide: BorderSide(
+                          borderSide: const BorderSide(
                             color: Colors.red,
                           ),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
+                          borderSide: const BorderSide(
                             color: Colors.red,
                           ),
                           borderRadius: BorderRadius.circular(10.0),

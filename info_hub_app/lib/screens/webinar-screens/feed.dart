@@ -1,12 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/models/livestream.dart';
 import 'package:info_hub_app/models/user_model.dart';
 import 'package:info_hub_app/screens/webinar-screens/dashboard.dart';
 import 'package:info_hub_app/screens/webinar-screens/webinar_details_screen.dart';
 import 'package:info_hub_app/services/database_service.dart';
-import 'package:timeago/timeago.dart' as timeago;
 
 class FeedScreen extends StatefulWidget {
   final FirebaseFirestore firestore;
@@ -100,6 +98,7 @@ class _FeedScreenState extends State<FeedScreen> {
                                   onPressed: () async {
                                     await DatabaseService(uid: widget.user.uid, firestore: widget.firestore)
                                         .updateViewCount(post.channelId, true);
+                                    // ignore: use_build_context_synchronously
                                     Navigator.of(context).push(
                                       MaterialPageRoute(
                                         builder: (context) => BroadcastScreen(
@@ -107,6 +106,7 @@ class _FeedScreenState extends State<FeedScreen> {
                                           channelId: post.uid,
                                           currentUser: widget.user,
                                           firestore: widget.firestore,
+                                          title: post.title,
                                         ),
                                       ),
                                     );
@@ -123,7 +123,7 @@ class _FeedScreenState extends State<FeedScreen> {
                   },
                 ),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               FloatingActionButton(
                 onPressed: () {
                   // Navigate to the GoLiveScreen when the button is pressed

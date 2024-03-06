@@ -1,5 +1,3 @@
-import "dart:ffi";
-
 import "package:flutter/material.dart";
 import "package:info_hub_app/models/user_model.dart";
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -67,7 +65,7 @@ class _ChatState extends State<Chat> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Warning'),
-          content: Text(
+          content: const Text(
             'Please refrain from using language that may be rude to others or writing your name in your messages.',
           ),
           actions: <Widget>[

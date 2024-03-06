@@ -12,6 +12,7 @@ class BroadcastScreen extends StatefulWidget {
   final String channelId;
   final UserModel currentUser;
   final FirebaseFirestore firestore;
+  final String title;
 
   const BroadcastScreen({
     super.key,
@@ -19,6 +20,7 @@ class BroadcastScreen extends StatefulWidget {
     required this.channelId,
     required this.currentUser,
     required this.firestore,
+    required this.title,
   });
 
   @override
@@ -31,7 +33,6 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
 
   bool switchCamera = true;
   bool isMuted = false;
-  int? _remoteUid;
   List<int> userUIDs = [];
 
   @override
@@ -141,7 +142,7 @@ _leaveChannel() async {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: Text('${widget.channelId}\'s Webinar'),
+          title: Text(widget.title),
         ),
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
