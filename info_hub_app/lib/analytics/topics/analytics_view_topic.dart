@@ -32,13 +32,14 @@ class AdminAnalyticsTopicState extends State<AdminTopicAnalytics> {
           _buildInfoRow("Likes", "${widget.topic['likes']}"),
           _buildInfoRow("Dislikes", "${widget.topic['dislikes']}"),
           _buildInfoRow("Views", "${widget.topic['views']}"),
-          _buildInfoRow("Uploaded Date", formatDate(widget.topic['date'])),
-          _buildInfoRow("Uploaded Time", formatTime(widget.topic['date'])),
+          _buildInfoRow("Uploaded Date", _formatDate(widget.topic['date'])),
+          _buildInfoRow("Uploaded Time", _formatTime(widget.topic['date'])),
         ],
       ),
     );
   }
 
+  // Builds a row with key/title and value
   Widget _buildInfoRow(String title, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
@@ -63,13 +64,13 @@ class AdminAnalyticsTopicState extends State<AdminTopicAnalytics> {
     );
   }
 
-  String formatDate(Timestamp timestamp) {
+  String _formatDate(Timestamp timestamp) {
     var dateTime =
         DateTime.fromMillisecondsSinceEpoch(timestamp.seconds * 1000);
     return DateFormat('dd-MM-yyyy').format(dateTime);
   }
 
-  String formatTime(Timestamp timestamp) {
+  String _formatTime(Timestamp timestamp) {
     var dateTime =
         DateTime.fromMillisecondsSinceEpoch(timestamp.seconds * 1000);
     return DateFormat('HH:mm').format(dateTime);

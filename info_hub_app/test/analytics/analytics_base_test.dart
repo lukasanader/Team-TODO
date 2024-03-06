@@ -18,7 +18,8 @@ void main() {
     );
   });
 
-  testWidgets('Test Topics button', (WidgetTester tester) async {
+  testWidgets('Test navigation from All Analytics to Topic Analytics',
+      (WidgetTester tester) async {
     await tester.pumpWidget(allAnalyticsWidget);
     await tester.tap(find.text('Topics'));
     await tester.pumpAndSettle();

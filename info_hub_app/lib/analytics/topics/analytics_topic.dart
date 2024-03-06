@@ -71,6 +71,7 @@ class _AnalyticsTopicView extends State<AnalyticsTopicView> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Center(
+            // Dropdown for ordering topics
             child: DropdownButton<String>(
               value: dropdownvalue,
               onChanged: (String? newValue) {
