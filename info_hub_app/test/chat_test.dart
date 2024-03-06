@@ -25,8 +25,6 @@ void main() {
 
   testWidgets('Chat Widget Test - Loading State', (WidgetTester tester) async {
     await tester.pumpWidget(ChatScreenWidget);
-
-    // Verify that the loading state is displayed
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
   });
 
@@ -41,7 +39,6 @@ void main() {
     await tester.pumpWidget(ChatScreenWidget);
     await tester.pumpAndSettle();
 
-    // Verify that there is no error message displayed
     expect(find.text('Error loading chat'), findsNothing);
   });
 
@@ -56,7 +53,6 @@ void main() {
     await tester.pumpWidget(ChatScreenWidget);
     await tester.pumpAndSettle();
 
-    // Verify that the chat message is displayed
     expect(find.text('Test message'), findsOneWidget);
   });
 
@@ -71,7 +67,6 @@ void main() {
     await tester.pumpWidget(ChatScreenWidget);
     await tester.pumpAndSettle();
 
-    // Verify that the chat message is displayed
     expect(find.text('Anonymous Beaver'), findsOneWidget);
   });
 
@@ -86,13 +81,13 @@ void main() {
     await tester.pumpWidget(ChatScreenWidget);
     await tester.pumpAndSettle();
 
-    // Verify that the chat message is displayed
     expect(find.text(user.firstName), findsOneWidget);
   });
 
   testWidgets('Test User can not write profanities in their messages', (WidgetTester tester) async {
     await tester.pumpWidget(ChatScreenWidget);
     await tester.pumpAndSettle();
+
     final enterMessageField = find.ancestor(
       of: find.text('Type your message...'),
       matching: find.byType(TextField),
@@ -100,25 +95,33 @@ void main() {
     await tester.enterText(enterMessageField, 'You are an ass');
     await tester.tap(find.byIcon(Icons.send));
     await tester.pumpAndSettle();
+
     expect(find.text('Please refrain from using language that may be rude to others or writing your name in your messages.'), findsOneWidget);
+    
     await tester.tap(find.text('OK'));
     await tester.pumpAndSettle();
+    
     expect(find.text('Please refrain from using language that may be rude to others or writing your name in your messages.'), findsNothing);
   });
 
   testWidgets('Test User can not write their name in their messages', (WidgetTester tester) async {
     await tester.pumpWidget(ChatScreenWidget);
     await tester.pumpAndSettle();
+    
     final enterMessageField = find.ancestor(
       of: find.text('Type your message...'),
       matching: find.byType(TextField),
     );
+    
     await tester.enterText(enterMessageField, 'I am ${user.firstName}');
     await tester.tap(find.byIcon(Icons.send));
     await tester.pumpAndSettle();
+    
     expect(find.text('Please refrain from using language that may be rude to others or writing your name in your messages.'), findsOneWidget);
+    
     await tester.tap(find.text('OK'));
     await tester.pumpAndSettle();
+    
     expect(find.text('Please refrain from using language that may be rude to others or writing your name in your messages.'), findsNothing);
   });
 }

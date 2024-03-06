@@ -81,6 +81,7 @@ class _ChatState extends State<Chat> {
     );
   }
 
+  // Tests if user has entered their name in the message
   bool _namePresent(String messageText) {
     String messageToLowercase = messageText.toLowerCase();
     String name = widget.user.firstName;
@@ -131,6 +132,7 @@ class _ChatState extends State<Chat> {
                   IconButton(
                     icon: const Icon(Icons.send),
                     onPressed: () async {
+                      // checks for profanities or name before adding comment to database
                       bool hasProfanities = filter.hasProfanity(_chatController.text);
                       bool hasName = _namePresent(_chatController.text); 
                       if (!hasProfanities && !hasName) {
