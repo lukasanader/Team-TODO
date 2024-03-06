@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:info_hub_app/change_profile/change_profile.dart';
-import 'package:info_hub_app/registration/user_model.dart';
 
 class ProfileView extends StatefulWidget {
   final FirebaseFirestore firestore;
@@ -13,6 +12,7 @@ class ProfileView extends StatefulWidget {
 
   @override
   State<ProfileView> createState() => _ProfileViewState();
+  // Getter for selectedProfilePhoto
 }
 
 class _ProfileViewState extends State<ProfileView> {
@@ -46,29 +46,32 @@ class _ProfileViewState extends State<ProfileView> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Profile'),
-        backgroundColor: Colors.blue,
-      ),
-      body: _isLoading
-          ? Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              padding: EdgeInsets.all(16),
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(
+      title: const Text('Profile'),
+      backgroundColor: Colors.purple,
+    ),
+    body: _isLoading
+        ? Center(child: CircularProgressIndicator())
+        : Center(
+            child: SingleChildScrollView(
+              padding: EdgeInsets.fromLTRB(16, 8, 16, 16), // Adjust top padding here
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   _buildProfileHeader(),
                   SizedBox(height: 20),
                   _buildUserInfoSection(),
-                  SizedBox(height: 20),
+                  SizedBox(height: 100),
                   _buildChangeProfileButton(),
                 ],
               ),
             ),
-    );
-  }
+          ),
+  );
+}
+
 
   Widget _buildProfileHeader() {
     return Column(
@@ -113,7 +116,7 @@ class _ProfileViewState extends State<ProfileView> {
 
   Widget _buildUserInfoSection() {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Text(
           'Your Profile',
@@ -129,7 +132,7 @@ class _ProfileViewState extends State<ProfileView> {
 
   Widget _buildInfoTile(String title, String? value) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Text(
           title,
@@ -173,21 +176,21 @@ class _ProfileViewState extends State<ProfileView> {
               children: <Widget>[
                 ListTile(
                   leading: Icon(Icons.account_circle),
-                  title: Text('Profile Photo 1'),
+                  title: Text('Dog'),
                   onTap: () {
                     Navigator.of(context).pop('profile_photo_1.png');
                   },
                 ),
                 ListTile(
                   leading: Icon(Icons.account_circle),
-                  title: Text('Profile Photo 2'),
+                  title: Text('Walrus'),
                   onTap: () {
                     Navigator.of(context).pop('profile_photo_2.png');
                   },
                 ),
                 ListTile(
                   leading: Icon(Icons.account_circle),
-                  title: Text('Profile Photo 3'),
+                  title: Text('Penguin'),
                   onTap: () {
                     Navigator.of(context).pop('profile_photo_3.png');
                   },
@@ -213,6 +216,7 @@ class _ProfileViewState extends State<ProfileView> {
     }
   }
 }
+
 
 
 
