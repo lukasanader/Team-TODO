@@ -119,7 +119,11 @@ flutter:
   assets:
     - assets/blank_pfp.png
     - assets/base_image.png
-
+    - assets/default_profile_photo.png
+    - assets/profile_photo_1.png
+    - assets/profile_photo_2.png
+    - assets/profile_photo_3.png
+    
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
 

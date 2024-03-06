@@ -7,6 +7,7 @@ class UserModel {
   final String roleType;
   final List<String> likedTopics;
   final List<String> dislikedTopics;
+  String? selectedProfilePhoto; // This is a nullable variable, as the user may not have a profile photo
 
   UserModel({
     required this.uid,
@@ -16,5 +17,6 @@ class UserModel {
     required this.roleType,
     required this.likedTopics,
     required this.dislikedTopics,
+    this.selectedProfilePhoto
   });
 }
