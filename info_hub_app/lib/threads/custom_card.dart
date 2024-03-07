@@ -86,10 +86,13 @@ class _CustomCardState extends State<CustomCard> {
                     child: Material(
                       color: Colors.transparent,
                       child: InkWell(
+                        key: Key('navigateToThreadReplies_${widget.index}'),
                         onTap: () {
                           Navigator.of(context).push(CupertinoPageRoute(
                               builder: (BuildContext context) => ThreadReplies(
                                     threadId: docId,
+                                    firestore: widget.firestore,
+                                    auth: widget.auth,
                                   )));
                         },
                         child: Text(
@@ -107,6 +110,7 @@ class _CustomCardState extends State<CustomCard> {
                   const SizedBox(width: 8),
                   if (currentUserId == creator)
                     IconButton(
+                      key: Key('editButton_$docId'),
                       icon: const Icon(FontAwesomeIcons.edit, size: 15),
                       onPressed: () {
                         _showDialog(context, docId);

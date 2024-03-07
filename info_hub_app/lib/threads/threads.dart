@@ -94,15 +94,16 @@ class _ThreadAppState extends State<ThreadApp> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           // Check if user is logged in before showing the dialog
-          if (widget.auth.currentUser != null) {
-            _showDialog(context);
-          } else {
+          // if (widget.auth.currentUser != null) {
+          _showDialog(context);
+        },
+        /* else {
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                     content: Text(
                         "Please log in to post a thread.")) // login error message
                 );
-          }
-        },
+          } */
+
         child: const Icon(FontAwesomeIcons.solidQuestionCircle),
       ),
       body: StreamBuilder(

@@ -105,6 +105,7 @@ class _ReplyCardState extends State<ReplyCard> {
                 children: [
                   if (currentUserId == creator)
                     IconButton(
+                      key: Key('editButton_$docId'),
                       icon: Icon(FontAwesomeIcons.edit, size: 15),
                       onPressed: () {
                         _showDialog(context, docId);
@@ -164,6 +165,7 @@ class _ReplyCardState extends State<ReplyCard> {
                   controller: authorController,
                 ),*/
                 TextField(
+                  key: const Key('Content'),
                   autofocus: true,
                   autocorrect: true,
                   decoration: InputDecoration(
