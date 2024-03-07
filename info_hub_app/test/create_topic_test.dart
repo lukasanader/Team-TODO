@@ -400,6 +400,10 @@ void main() async {
 
     expect(find.byKey(const Key('deleteButton')), findsOneWidget);
 
+    await tester.ensureVisible(find.text('Patient'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Patient'));
+
     await tester.enterText(find.byKey(const Key('titleField')), 'Test title');
     await tester.enterText(
         find.byKey(const Key('descField')), 'Test description');
