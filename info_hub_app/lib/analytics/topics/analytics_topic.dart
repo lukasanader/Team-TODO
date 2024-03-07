@@ -1,7 +1,14 @@
+/*
+ * This file contains the code for the AnalyticsTopicView class. 
+ * This shows the Topic Analytics page, which displays the topics in the database in a list format. 
+ * The topics can be ordered by name, popularity, trending, likes, and dislikes.
+ */
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:info_hub_app/topics/topics_card.dart';
+import 'package:info_hub_app/helpers/helper.dart' show getTrending;
 
 class AnalyticsTopicView extends StatefulWidget {
   final FirebaseFirestore firestore;
@@ -35,16 +42,6 @@ class _AnalyticsTopicView extends State<AnalyticsTopicView> {
 
   int _getTopicDislikes(QueryDocumentSnapshot topic) {
     return topic['dislikes'];
-  }
-
-  double _getTrending(QueryDocumentSnapshot topic) {
-    Timestamp timestamp = topic['date'];
-    DateTime date = timestamp.toDate();
-    int difference = DateTime.now().difference(date).inDays;
-    if (difference == 0) {
-      difference = 1;
-    }
-    return topic['views'] / difference;
   }
 
   @override
@@ -161,8 +158,8 @@ class _AnalyticsTopicView extends State<AnalyticsTopicView> {
                 _getTopicViews(b as QueryDocumentSnapshot<Object?>)));
       } else if (dropdownvalue == "Trending") {
         _topicsList.sort((b, a) =>
-            _getTrending(a as QueryDocumentSnapshot<Object?>)
-                .compareTo(_getTrending(b as QueryDocumentSnapshot<Object?>)));
+            getTrending(a as QueryDocumentSnapshot<Object?>)
+                .compareTo(getTrending(b as QueryDocumentSnapshot<Object?>)));
       } else if (dropdownvalue == "Most Likes") {
         _topicsList.sort((b, a) =>
             _getTopicLikes(a as QueryDocumentSnapshot<Object?>).compareTo(

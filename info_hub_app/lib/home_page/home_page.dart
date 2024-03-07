@@ -21,6 +21,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:info_hub_app/webinar/webinar_view.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
+import 'package:info_hub_app/helpers/helper.dart' show getTrending;
 
 class HomePage extends StatefulWidget {
   FirebaseFirestore firestore;
@@ -185,16 +186,6 @@ class _HomePageState extends State<HomePage> {
 
   Future getTopicsList() async {
     QuerySnapshot data = await widget.firestore.collection('topics').get();
-
-    double getTrending(QueryDocumentSnapshot topic) {
-      Timestamp timestamp = topic['date'];
-      DateTime date = timestamp.toDate();
-      int difference = DateTime.now().difference(date).inDays;
-      if (difference == 0) {
-        difference = 1;
-      }
-      return topic['views'] / difference;
-    }
 
     setState(() {
       _topicsList = List.from(data.docs);

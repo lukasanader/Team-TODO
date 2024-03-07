@@ -1,3 +1,8 @@
+/*
+ * This file is responsible for displaying the analytics base page. 
+ * This page contains a grid view of all the analytics pages.
+ */
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/analytics/topics/analytics_topic.dart';

@@ -1,3 +1,8 @@
+/*
+ * This file contains the code for the admin analytics view topic page.
+ * This page displays the analytics of a topic, such as likes, dislikes, views, and upload date.
+ */
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
