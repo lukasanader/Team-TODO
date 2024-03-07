@@ -97,18 +97,17 @@ class _HomePageState extends State<HomePage> {
           IconButton(
             icon: const Icon(Icons.email),
             onPressed: () {
-              // Placeholder method for profile picture icon
-              // Navigate to profile page
-              Navigator.of(context).push(
-                CupertinoPageRoute(
-                  builder: (BuildContext context) {
-                    return PatientMessageView(
-                      firestore: widget.firestore,
-                      auth: widget.auth,
-                    );
-                  },
+
+
+              PersistentNavBarNavigator.pushNewScreen(
+                context,
+                screen: PatientMessageView(
+                  firestore: widget.firestore,
+                  auth: widget.auth,
                 ),
+                withNavBar: false,
               );
+
             },
           ),
         ],

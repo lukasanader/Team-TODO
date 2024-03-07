@@ -70,9 +70,6 @@ class _MessageRoomViewState extends State<MessageRoomView> {
         widget.receiverId, 
         widget.auth.currentUser!.uid),
       builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          return Text('Error${snapshot.error}');
-        }
 
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Text('Loading...');

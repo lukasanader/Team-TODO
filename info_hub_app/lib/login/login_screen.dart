@@ -108,9 +108,10 @@ class _LoginScreenState extends State<LoginScreen> {
                           storage: widget.storage,
                         );
                       }
-                      Navigator.pushReplacement(
+                      Navigator.pushAndRemoveUntil(
                         context,
                         MaterialPageRoute(builder: (context) => nextPage),
+                        (Route<dynamic> route) => false,
                       );
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
