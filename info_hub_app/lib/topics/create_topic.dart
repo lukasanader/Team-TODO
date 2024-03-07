@@ -335,6 +335,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
       'dislikes': 0,
       'date': DateTime.now(),
       'tags': _tags,
+      'quizID': quizID
     };
 
     CollectionReference topicCollectionRef =

@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/topics/edit_topic.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:info_hub_app/topics/quiz/complete_quiz.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:chewie/chewie.dart';
 import 'package:video_player/video_player.dart';
@@ -353,6 +354,16 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
                               ),
 
                               // Display likes
+                              TextButton(
+                              onPressed: () {
+                                Navigator.push(context,
+                                MaterialPageRoute(
+                                builder :(context) =>CompleteQuiz(firestore: widget.firestore, topic: widget.topic, auth: widget.auth)
+                                ),
+                                );
+                              },
+                              child: const Text('QUIZ!!'),
+                            ),
                             ],
                           ),
                         ],
