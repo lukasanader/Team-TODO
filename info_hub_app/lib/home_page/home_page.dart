@@ -22,7 +22,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:info_hub_app/webinar/webinar_view.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
+
+import 'package:info_hub_app/profile_view/profile_view.dart';
+
 import 'package:info_hub_app/helpers/helper.dart' show getTrending;
+
 
 class HomePage extends StatefulWidget {
   FirebaseFirestore firestore;
@@ -86,7 +90,7 @@ class _HomePageState extends State<HomePage> {
                 Navigator.of(context).push(
                   CupertinoPageRoute(
                     builder: (BuildContext context) {
-                      return ChangeProfile(
+                      return ProfileView(
                         firestore: widget.firestore,
                         auth: widget.auth,
                       );
@@ -114,6 +118,7 @@ class _HomePageState extends State<HomePage> {
           ],
 
         ),
+
 
 
       floatingActionButton: FloatingActionButton(
