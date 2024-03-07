@@ -8,24 +8,57 @@ import 'package:chewie/chewie.dart';
 import 'package:flutter/services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:info_hub_app/topics/view_topic.dart';
 
-class CreateTopicScreen extends StatefulWidget {
+class EditTopicScreen extends StatefulWidget {
   final FirebaseFirestore firestore;
   final FirebaseStorage storage;
-  const CreateTopicScreen(
-      {super.key, required this.firestore, required this.storage});
+  final QueryDocumentSnapshot topic;
+  final FirebaseAuth auth;
+
+  const EditTopicScreen(
+      {Key? key,
+      required this.topic,
+      required this.firestore,
+      required this.auth,
+      required this.storage})
+      : super(key: key);
 
   @override
-  State<CreateTopicScreen> createState() => _CreateTopicScreenState();
+  State<EditTopicScreen> createState() => _EditTopicScreenState();
 }
 
-class _CreateTopicScreenState extends State<CreateTopicScreen> {
-  final titleController = TextEditingController();
-  final descriptionController = TextEditingController();
-  final articleLinkController = TextEditingController();
+class _EditTopicScreenState extends State<EditTopicScreen> {
+  late QueryDocumentSnapshot<Object?> updatedTopicDoc;
+  late String prevTitle;
+  late String prevDescription;
+  late String prevArticleLink;
+
+  late TextEditingController titleController;
+  late TextEditingController descriptionController;
+  late TextEditingController articleLinkController;
   final _topicFormKey = GlobalKey<FormState>();
   String quizID = '';
   bool quizAdded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    prevTitle = widget.topic['title'];
+    prevDescription = widget.topic['description'];
+    prevArticleLink = widget.topic['articleLink'];
+
+    titleController = TextEditingController(text: prevTitle);
+    descriptionController = TextEditingController(text: prevDescription);
+    articleLinkController = TextEditingController(text: prevArticleLink);
+
+    // Initialize the video player if there's a video URL available
+    _videoURL = widget.topic['videoUrl'];
+    updatedTopicDoc = widget.topic;
+
+    _initializeVideoPlayer();
+  }
 
   String? validateTitle(String? value) {
     if (value == null || value.isEmpty) {
@@ -52,15 +85,15 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
   }
 
   String? _videoURL;
-  String? _downloadURL;
-  VideoPlayerController? _videoController;
+  VideoPlayerController? _videoPlayerController;
   ChewieController? _chewieController;
 
   @override
   void dispose() {
     super.dispose();
-    _videoController?.dispose();
     _chewieController?.dispose();
+    _videoPlayerController?.dispose();
+
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   }
 
@@ -70,7 +103,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
       appBar: AppBar(
         backgroundColor: Colors.red,
         title: const Text(
-          'Create a Topic',
+          'Edit Topic',
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
       ),
@@ -125,20 +158,28 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                     ElevatedButton.icon(
                       key: const Key('uploadVideoButton'),
                       onPressed: () async {
-                        _videoController?.pause();
-                        String? videoURL = await pickVideoFromDevice();
+                        _videoPlayerController?.pause();
+                        String? videoURL;
+                        videoURL = await pickVideoFromDevice();
 
                         if (videoURL != null) {
+                          if (_videoURL != null) {
+                            // Dispose the old video player if exists
+                            _videoPlayerController?.dispose();
+                            _chewieController?.dispose();
+                          }
                           setState(() {
                             _videoURL = videoURL;
                           });
-                          await _initializeVideoPlayer();
+                          _initializeVideoPlayer();
                         }
                       },
                       icon: const Icon(
                         Icons.cloud_upload_outlined,
                       ),
-                      label: _videoURL == null
+                      label: _videoURL == null ||
+                              _videoURL!
+                                  .isEmpty // Check if video URL is null or empty
                           ? const Text(
                               'Upload a video',
                               style: TextStyle(
@@ -158,7 +199,46 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                       ),
                     ),
                     if (_videoURL != null && _chewieController != null)
-                      _videoPreviewWidget(),
+                      SizedBox(
+                        height: 250,
+                        child: Chewie(controller: _chewieController!),
+                      ),
+                    if (_videoURL != null && _chewieController != null)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8.0, vertical: 8.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            IconButton(
+                              key: const Key('deleteButton'),
+                              icon: const Icon(Icons.delete, color: Colors.red),
+                              onPressed: _clearVideoSelection,
+                              tooltip: 'Remove Video',
+                            ),
+                          ],
+                        ),
+                      ),
+                    if (_videoURL != null &&
+                        _chewieController != null &&
+                        _videoURL == widget.topic['videoUrl'])
+                      const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 8.0),
+                        child: Text(
+                          'the above is a preview of your video.',
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                      ),
+                    if (_videoURL != null &&
+                        _chewieController != null &&
+                        _videoURL != widget.topic['videoUrl'])
+                      const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 8.0),
+                        child: Text(
+                          'the above is a preview of your edited video.',
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                      ),
                   ],
                 ),
               ),
@@ -202,15 +282,23 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                 style: OutlinedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 50),
                 ),
-                onPressed: () {
+                onPressed: () async {
                   if (_topicFormKey.currentState!.validate()) {
-                    _uploadTopic();
-
-                    Navigator.pop(context);
+                    await _uploadTopic();
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ViewTopicScreen(
+                            firestore: widget.firestore,
+                            topic: updatedTopicDoc,
+                            storage: widget.storage,
+                            auth: widget.auth),
+                      ),
+                    );
                   }
                 },
                 child: const Text(
-                  "PUBLISH TOPIC",
+                  "UPDATE TOPIC",
                   style: TextStyle(
                     color: Colors.red,
                     fontWeight: FontWeight.bold,
@@ -224,6 +312,8 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
     );
   }
 
+  Map<String, dynamic> updatedData = {};
+
   Future<String?> pickVideoFromDevice() async {
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -236,97 +326,141 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
     }
   }
 
-  Future<void> _initializeVideoPlayer() async {
+  void _initializeVideoPlayer() async {
     if (_videoURL != null && _videoURL!.isNotEmpty) {
-      _videoController = VideoPlayerController.file(File(_videoURL!));
+      if (_videoURL!.startsWith('http') || _videoURL!.startsWith('https')) {
+        // Network URL
+        _videoPlayerController =
+            VideoPlayerController.networkUrl(Uri.parse(_videoURL!));
+      } else {
+        // File URL
+        _videoPlayerController = VideoPlayerController.file(File(_videoURL!));
+      }
 
-      await _videoController!.initialize();
-
+      await _videoPlayerController!.initialize();
       _chewieController = ChewieController(
-        videoPlayerController: _videoController!,
+        videoPlayerController: _videoPlayerController!,
         autoInitialize: true,
         looping: false,
         aspectRatio: 16 / 9,
         deviceOrientationsAfterFullScreen: [
           DeviceOrientation.portraitUp,
-          DeviceOrientation.portraitDown
+          DeviceOrientation.portraitDown,
         ],
         allowedScreenSleep: false,
       );
       _chewieController!.addListener(() {
         if (!_chewieController!.isFullScreen) {
-          SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+          SystemChrome.setPreferredOrientations([
+            DeviceOrientation.portraitUp,
+          ]);
         }
       });
       setState(() {});
     }
   }
 
-  Widget _videoPreviewWidget() {
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          AspectRatio(
-            aspectRatio: _videoController!.value.aspectRatio,
-            child: Chewie(controller: _chewieController!),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                IconButton(
-                  key: const Key('deleteButton'),
-                  icon: const Icon(Icons.delete, color: Colors.red),
-                  onPressed: _clearVideoSelection,
-                  tooltip: 'Remove Video',
-                ),
-              ],
-            ),
-          ),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 8.0),
-            child: Text(
-              'the above is a preview of your video.',
-              style: TextStyle(color: Colors.grey),
-            ),
-          ),
-        ],
-      ),
-    );
+  Future<void> deleteVideoFromStorage(String videoUrl) async {
+    String fileUrl = widget.topic['videoUrl'];
+
+    // get reference to the video file
+    Reference videoRef = widget.storage.refFromURL(fileUrl);
+
+    // Delete the file
+    await videoRef.delete();
   }
 
-  void _uploadTopic() async {
-    if (_videoController != null) {
-      _downloadURL = await StoreData(widget.storage).uploadVideo(_videoURL!);
+  Future<void> _uploadTopic() async {
+    QuerySnapshot? data;
+    String? newVideoURL;
+
+    String oldVideoUrl = widget.topic['videoUrl'];
+
+    // Check if a new video was selected
+    if (_videoPlayerController != null &&
+        _videoURL != widget.topic['videoUrl']) {
+      // Upload the new video and get its download URL
+      newVideoURL = await StoreData(widget.storage).uploadVideo(_videoURL!);
+      print('STORE VIDEOOOOO');
+
+      final topicDetails = {
+        'title': titleController.text,
+        'description': descriptionController.text,
+        'articleLink': articleLinkController.text,
+        'videoUrl': newVideoURL,
+        'views': widget.topic['views'],
+        'likes': widget.topic['likes'],
+        'dislikes': widget.topic['dislikes'],
+        'date': widget.topic['date'],
+      };
+
+      CollectionReference topicCollectionRef =
+          widget.firestore.collection('topics');
+
+      await topicCollectionRef.doc(widget.topic.id).update(topicDetails);
+
+      while (true) {
+        CollectionReference topicCollRef =
+            widget.firestore.collection('topics');
+        data = await topicCollRef.orderBy('title').get();
+
+        for (QueryDocumentSnapshot doc in data.docs) {
+          // Check if the document ID matches the ID of the topic
+          if (doc.id == widget.topic.id) {
+            updatedTopicDoc = doc as QueryDocumentSnapshot<Object>;
+            break; // Exit the loop since we found the document
+          }
+        }
+
+        if (updatedTopicDoc['videoUrl'] != oldVideoUrl) {
+          // If the updated topic document's video URL is different from the old URL,
+
+          final topicDetails = {
+            'title': titleController.text,
+            'description': descriptionController.text,
+            'articleLink': articleLinkController.text,
+            'videoUrl': newVideoURL,
+            'views': widget.topic['views'],
+            'likes': widget.topic['likes'],
+            'dislikes': widget.topic['dislikes'],
+            'date': widget.topic['date'],
+          };
+
+          await topicCollectionRef.doc(widget.topic.id).update(topicDetails);
+
+          break;
+        }
+      }
+      if (oldVideoUrl.isNotEmpty) {
+        print('STORE MEEEEEE');
+        await deleteVideoFromStorage(widget.topic['videoUrl']);
+      }
+    } else {
+      final topicDetails = {
+        'title': titleController.text,
+        'description': descriptionController.text,
+        'articleLink': articleLinkController.text,
+        'videoUrl': oldVideoUrl,
+        'views': widget.topic['views'],
+        'likes': widget.topic['likes'],
+        'dislikes': widget.topic['dislikes'],
+        'date': widget.topic['date'],
+      };
+
+      CollectionReference topicCollectionRef =
+          widget.firestore.collection('topics');
+
+      await topicCollectionRef.doc(widget.topic.id).update(topicDetails);
     }
-
-    final topicDetails = {
-      'title': titleController.text,
-      'description': descriptionController.text,
-      'articleLink': articleLinkController.text,
-      'videoUrl': _downloadURL,
-      'views': 0,
-      'likes': 0,
-      'dislikes': 0,
-      'date': DateTime.now(),
-    };
-
-    CollectionReference topicCollectionRef =
-        widget.firestore.collection('topics');
-
-    await topicCollectionRef.add(topicDetails);
   }
 
   void _clearVideoSelection() {
     setState(() {
       _videoURL = null;
-      _downloadURL = null;
-      if (_videoController != null) {
-        _videoController!.pause();
-        _videoController!.dispose();
-        _videoController = null;
+      if (_videoPlayerController != null) {
+        _videoPlayerController!.pause();
+        _videoPlayerController!.dispose();
+        _videoPlayerController = null;
       }
       if (_chewieController != null) {
         _chewieController!.pause();
