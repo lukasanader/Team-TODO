@@ -98,6 +98,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       if (snapshot['roleType'] == 'admin') {
                         nextPage = AdminHomepage(
                           firestore: widget.firestore,
+                          auth: widget.auth,
                           storage: widget.storage,
                         );
                       } else {
@@ -107,9 +108,10 @@ class _LoginScreenState extends State<LoginScreen> {
                           storage: widget.storage,
                         );
                       }
-                      Navigator.pushReplacement(
+                      Navigator.pushAndRemoveUntil(
                         context,
                         MaterialPageRoute(builder: (context) => nextPage),
+                        (Route<dynamic> route) => false,
                       );
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(

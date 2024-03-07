@@ -6,7 +6,6 @@ import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:info_hub_app/change_profile/change_profile.dart';
 import 'package:info_hub_app/notifications/notification.dart' as custom;
 import 'package:info_hub_app/helpers/base.dart';
 import 'package:info_hub_app/discovery_view/discovery_view.dart';
@@ -18,6 +17,7 @@ import 'package:info_hub_app/services/database.dart';
 import 'package:provider/provider.dart';
 import 'mock.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
+import 'package:info_hub_app/profile_view/profile_view.dart';
 
 void main() {
   late FirebaseFirestore firestore = FakeFirebaseFirestore();
@@ -113,6 +113,17 @@ void main() {
   });
 
   testWidgets('HomePage to Profile Page', (WidgetTester tester) async {
+    final firestore = FakeFirebaseFirestore();
+    final auth = MockFirebaseAuth();
+    auth.createUserWithEmailAndPassword(email: 'profileview@example.org', password: 'Password123!');
+    final fakeUserId = auth.currentUser!.uid;
+    final fakeUser = {
+      'firstName': 'John',
+      'lastName': 'Doe',
+      'email': 'profileview@example.org',
+      'roleType' : 'Patient',
+    };
+    await firestore.collection('Users').doc(fakeUserId).set(fakeUser);
     await tester.pumpWidget(MaterialApp(
       home: HomePage(
         storage: storage,
@@ -122,9 +133,9 @@ void main() {
     ));
 
     await tester.tap(find.byIcon(Icons.account_circle));
-    await tester.pumpAndSettle();
+    await tester.pumpAndSettle(); 
 
-    expect(find.byType(ChangeProfile), findsOneWidget);
+    expect(find.byType(ProfileView), findsOneWidget);
   });
 
   testWidgets('NotificationPage UI Test', (WidgetTester tester) async {

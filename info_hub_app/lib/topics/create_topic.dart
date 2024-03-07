@@ -27,7 +27,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
   List<String> _tags = [];
   List<String> options = ['Patient', 'Parent', 'Healthcare Professional'];
   String quizID = '';
-  bool quizAdded=false;
+  bool quizAdded = false;
 
   String? validateTitle(String? value) {
     if (value == null || value.isEmpty) {
@@ -190,33 +190,35 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 10.0),
               child: OutlinedButton(
-                style: OutlinedButton.styleFrom(
-                  minimumSize: const Size(double.infinity, 50),
-                ),
-                onPressed: () {
-                  Navigator.push(context,
-                          MaterialPageRoute(
-                            builder :(context) => CreateQuiz(firestore: widget.firestore,addQuiz: addQuiz),
-                          ),
-                          );
-                },
-                child: 
-                Row(
-                  children: [
-                    const SizedBox(width: 150,),
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size(double.infinity, 50),
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => CreateQuiz(
+                            firestore: widget.firestore, addQuiz: addQuiz),
+                      ),
+                    );
+                  },
+                  child: Row(children: [
+                    const SizedBox(
+                      width: 150,
+                    ),
                     const Text(
                       "ADD QUIZ",
                       style: TextStyle(
                         color: Colors.red,
                         fontWeight: FontWeight.bold,
-                      
                       ),
                     ),
-                    if(quizAdded)
-                      const Icon(Icons.check, color: Colors.green,)
-                    ]
-                )
-              ),
+                    if (quizAdded)
+                      const Icon(
+                        Icons.check,
+                        color: Colors.green,
+                      )
+                  ])),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 10.0),
@@ -360,12 +362,11 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
     // SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   }
 
-  void addQuiz(String qid){
+  void addQuiz(String qid) {
     setState(() {
-      quizID=qid;
-      quizAdded=true;
+      quizID = qid;
+      quizAdded = true;
     });
-    
   }
 }
 

@@ -13,142 +13,7 @@ import 'dart:async';
 import 'package:video_player_platform_interface/video_player_platform_interface.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
-
-class StoreData {
-  final StorageService storageService;
-
-  StoreData(this.storageService);
-
-  Future<String> uploadVideo(String videoUrl) async {
-    return storageService.uploadVideo(videoUrl);
-  }
-}
-
-abstract class StorageService {
-  Future<String> uploadVideo(String videoUrl);
-}
-
-class FirebaseStorageService implements StorageService {
-  final FirebaseStorage _storage = FirebaseStorage.instance;
-
-  @override
-  Future<String> uploadVideo(String videoUrl) async {
-    Reference ref = _storage.ref().child('videos/${DateTime.now()}.mp4');
-    await ref.putFile(File(videoUrl));
-    String downloadURL = await ref.getDownloadURL();
-    return downloadURL;
-  }
-}
-
-class FakeStorageService implements StorageService {
-  @override
-  Future<String> uploadVideo(String videoUrl) async {
-    return 'fake_download_url';
-  }
-}
-
-class FakeVideoPlayerPlatform extends VideoPlayerPlatform {
-  final Completer<bool> initialized = Completer<bool>();
-  final List<String> calls = <String>[];
-  final List<DataSource> dataSources = <DataSource>[];
-  final Map<int, StreamController<VideoEvent>> streams =
-      <int, StreamController<VideoEvent>>{};
-  final bool forceInitError;
-  int nextTextureId = 0;
-  final Map<int, Duration> _positions = <int, Duration>{};
-
-  FakeVideoPlayerPlatform({
-    this.forceInitError = false,
-  });
-
-  @override
-  Future<int?> create(DataSource dataSource) async {
-    calls.add('create');
-    final StreamController<VideoEvent> stream = StreamController<VideoEvent>();
-    streams[nextTextureId] = stream;
-    if (forceInitError) {
-      stream.addError(
-        PlatformException(
-          code: 'VideoError',
-          message: 'Video player had error XYZ',
-        ),
-      );
-    } else {
-      stream.add(
-        VideoEvent(
-          eventType: VideoEventType.initialized,
-          size: const Size(100, 100),
-          duration: const Duration(seconds: 1),
-        ),
-      );
-    }
-    dataSources.add(dataSource);
-    return nextTextureId++;
-  }
-
-  @override
-  Future<void> dispose(int textureId) async {
-    calls.add('dispose');
-  }
-
-  @override
-  Future<void> init() async {
-    calls.add('init');
-    initialized.complete(true);
-  }
-
-  @override
-  Stream<VideoEvent> videoEventsFor(int textureId) {
-    return streams[textureId]!.stream;
-  }
-
-  @override
-  Future<void> pause(int textureId) async {
-    calls.add('pause');
-  }
-
-  @override
-  Future<void> play(int textureId) async {
-    calls.add('play');
-  }
-
-  @override
-  Future<Duration> getPosition(int textureId) async {
-    calls.add('position');
-    return _positions[textureId] ?? Duration.zero;
-  }
-
-  @override
-  Future<void> seekTo(int textureId, Duration position) async {
-    calls.add('seekTo');
-    _positions[textureId] = position;
-  }
-
-  @override
-  Future<void> setLooping(int textureId, bool looping) async {
-    calls.add('setLooping');
-  }
-
-  @override
-  Future<void> setVolume(int textureId, double volume) async {
-    calls.add('setVolume');
-  }
-
-  @override
-  Future<void> setPlaybackSpeed(int textureId, double speed) async {
-    calls.add('setPlaybackSpeed');
-  }
-
-  @override
-  Future<void> setMixWithOthers(bool mixWithOthers) async {
-    calls.add('setMixWithOthers');
-  }
-
-  @override
-  Widget buildView(int textureId) {
-    return Texture(textureId: textureId);
-  }
-}
+import 'package:info_hub_app/helpers/mock_classes.dart';
 
 void main() async {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -270,7 +135,7 @@ void main() async {
     expect(documents.isEmpty, isTrue);
   });
 
-  testWidgets('Topic no description does not save',
+  testWidgets('Topic with no description does not save',
       (WidgetTester tester) async {
     final firestore = FakeFirebaseFirestore();
     final mockStorage = MockFirebaseStorage();
@@ -495,7 +360,7 @@ void main() async {
     expect(find.byType(CreateTopicScreen), findsNothing);
   });
 
-  testWidgets('Uploaded video is successful and displays',
+  testWidgets('Uploaded video is successfully stored and displays',
       (WidgetTester tester) async {
     final firestore = FakeFirebaseFirestore();
 
@@ -534,6 +399,18 @@ void main() async {
     expect(find.byType(Chewie), findsOneWidget);
 
     expect(find.byKey(const Key('deleteButton')), findsOneWidget);
+
+    await tester.enterText(find.byKey(const Key('titleField')), 'Test title');
+    await tester.enterText(
+        find.byKey(const Key('descField')), 'Test description');
+
+    // submit form
+
+    await tester.tap(find.text('PUBLISH TOPIC'));
+
+    final ListResult result = await mockStorage.ref().child('videos').listAll();
+
+    expect(result.items.length, greaterThan(0));
   });
 
   testWidgets('Uploaded video can be cleared', (WidgetTester tester) async {

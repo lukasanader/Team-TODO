@@ -38,7 +38,11 @@ class Base extends StatelessWidget {
           storage: storage,
           firestore: firestore,
         ), // Should be replaced with the genuine page
-         SettingsView(auth: auth,firestore: firestore,storage: storage,), // Should be replaced with the genuine page
+        SettingsView(
+          auth: auth,
+          firestore: firestore,
+          storage: storage,
+        ), // Should be replaced with the genuine page
       ];
     }
 
