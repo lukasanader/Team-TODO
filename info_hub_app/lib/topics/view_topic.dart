@@ -272,13 +272,6 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
     hasDisliked = await hasDislikedTopic();
   }
 
-  void _pauseVideo() {
-    if (_videoPlayerController != null &&
-        _videoPlayerController!.value.isPlaying) {
-      _videoPlayerController!.pause();
-    }
-  }
-
   bool userIsAdmin = false;
 
   @override
@@ -414,7 +407,6 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
                 key: Key('edit_btn'),
                 icon: const Icon(Icons.edit),
                 onPressed: () {
-                  _pauseVideo();
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(

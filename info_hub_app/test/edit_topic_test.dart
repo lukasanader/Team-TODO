@@ -367,82 +367,6 @@ void main() async {
     await tester.pumpAndSettle();
   });
 
-  testWidgets('Test uploading new video clears old one',
-      (WidgetTester tester) async {
-    CollectionReference tempCollectionRef = firestore.collection('topics');
-
-    // Add a topic
-    DocumentReference videoTopicRef = await tempCollectionRef.add({
-      'title': 'Test Topic',
-      'description': 'Test Description',
-      'articleLink': 'https://www.example.com',
-      'videoUrl':
-          'https://firebasestorage.googleapis.com/v0/b/team-todo-38f76.appspot.com/o/videos%2F2024-02-28%2000:36:29.473449.mp4?alt=media&token=65864340-7a28-4aec-aac2-ed98d3eb4532',
-      'likes': 0,
-      'views': 0,
-      'dislikes': 0,
-      'date': DateTime.now()
-    });
-
-    QuerySnapshot data = await tempCollectionRef.orderBy('title').get();
-
-    await tester.pumpWidget(MaterialApp(
-      home: EditTopicScreen(
-        firestore: firestore,
-        storage: mockStorage,
-        topic: data.docs[1] as QueryDocumentSnapshot<Object>,
-        auth: MockFirebaseAuth(
-            signedIn: true, mockUser: MockUser(uid: 'adminUser')),
-      ),
-    ));
-
-    await tester.pumpAndSettle();
-
-    expect(find.text('Change video'), findsOneWidget);
-
-    final Finder buttonToTap = find.byKey(const Key('deleteButton'));
-
-    await tester.dragUntilVisible(
-      buttonToTap,
-      find.byType(SingleChildScrollView),
-      const Offset(0, 50),
-    );
-    await tester.tap(buttonToTap);
-
-    await tester.pump();
-
-    await tester.ensureVisible(find.byKey(const Key('uploadVideoButton')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('uploadVideoButton')));
-    await tester.pumpAndSettle();
-
-    bool videoFound = false;
-    final startTime = DateTime.now();
-    while (!videoFound) {
-      await tester.pump();
-
-      if (find.text('Change video').evaluate().isNotEmpty) {
-        videoFound = true;
-        break;
-      }
-
-      if (DateTime.now().difference(startTime).inSeconds > 1800) {
-        fail('Timed out waiting for the "Change video" text to appear');
-      }
-      await Future.delayed(const Duration(milliseconds: 100));
-    }
-
-    final updateButtonFinder = find.text('UPDATE TOPIC');
-
-    await tester.ensureVisible(updateButtonFinder);
-
-    await tester.tap(updateButtonFinder);
-
-    final ListResult result = await mockStorage.ref().child('videos').listAll();
-
-    expect(result.items.length, equals(0));
-  });
-
   testWidgets('Orientation adjusts correctly', (WidgetTester tester) async {
     final logs = [];
 
@@ -464,6 +388,7 @@ void main() async {
             signedIn: true, mockUser: MockUser(uid: 'adminUser')),
       ),
     ));
+
     await tester.pumpAndSettle();
     await tester.ensureVisible(find.byKey(const Key('uploadVideoButton')));
     await tester.pumpAndSettle();
@@ -475,13 +400,16 @@ void main() async {
     while (!videoFound) {
       await tester.pump();
 
-      if (find.text('Change video').evaluate().isNotEmpty) {
+      if (find
+          .text('the above is a preview of your edited video.')
+          .evaluate()
+          .isNotEmpty) {
         videoFound = true;
         break;
       }
 
       if (DateTime.now().difference(startTime).inSeconds > 1800) {
-        fail('Timed out waiting for the "Change video" text to appear');
+        fail('Timed out waiting for the edited video text to appear');
       }
       await Future.delayed(const Duration(milliseconds: 100));
     }

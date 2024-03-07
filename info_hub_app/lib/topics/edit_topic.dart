@@ -218,7 +218,27 @@ class _EditTopicScreenState extends State<EditTopicScreen> {
                             ),
                           ],
                         ),
-                      )
+                      ),
+                    if (_videoURL != null &&
+                        _chewieController != null &&
+                        _videoURL == widget.topic['videoUrl'])
+                      const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 8.0),
+                        child: Text(
+                          'the above is a preview of your video.',
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                      ),
+                    if (_videoURL != null &&
+                        _chewieController != null &&
+                        _videoURL != widget.topic['videoUrl'])
+                      const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 8.0),
+                        child: Text(
+                          'the above is a preview of your edited video.',
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                      ),
                   ],
                 ),
               ),
@@ -361,6 +381,7 @@ class _EditTopicScreenState extends State<EditTopicScreen> {
         _videoURL != widget.topic['videoUrl']) {
       // Upload the new video and get its download URL
       newVideoURL = await StoreData(widget.storage).uploadVideo(_videoURL!);
+      print('STORE VIDEOOOOO');
 
       final topicDetails = {
         'title': titleController.text,
@@ -411,6 +432,7 @@ class _EditTopicScreenState extends State<EditTopicScreen> {
         }
       }
       if (oldVideoUrl.isNotEmpty) {
+        print('STORE MEEEEEE');
         await deleteVideoFromStorage(widget.topic['videoUrl']);
       }
     } else {
