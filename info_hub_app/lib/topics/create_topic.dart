@@ -51,25 +51,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
     return null;
   }
 
-  Future<List<String>> pickImagesFromDevice() async {
-    List<String> imagePaths = [];
-    try {
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
-        type: FileType.image,
-        allowMultiple: true,
-      );
-
-      if (result != null) {
-        imagePaths = result.paths.map((path) => path!).toList();
-      }
-    } catch (e) {
-      print("Error picking images: $e");
-    }
-    return imagePaths;
-  }
-
   String? _videoURL;
-  String? _imageURL;
   String? _downloadURL;
   VideoPlayerController? _videoController;
   ChewieController? _chewieController;
@@ -80,26 +62,6 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
     _videoController?.dispose();
     _chewieController?.dispose();
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-  }
-
-  Widget _displayImages(List<String> imagePaths) {
-    return SizedBox(
-      height: 200,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: imagePaths.length,
-        itemBuilder: (context, index) {
-          return Padding(
-            padding: EdgeInsets.all(8.0),
-            child: Image.file(
-              File(imagePaths[index]),
-              width: 150,
-              fit: BoxFit.cover,
-            ),
-          );
-        },
-      ),
-    );
   }
 
   @override

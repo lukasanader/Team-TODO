@@ -58,8 +58,6 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
       _initializeVideoPlayer();
       vidAvailable = true;
     }
-
-    print('WE INITTTT');
   }
 
   Future<bool> hasLikedTopic() async {
@@ -413,6 +411,7 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
             ),
           if (userIsAdmin)
             IconButton(
+                key: Key('edit_btn'),
                 icon: const Icon(Icons.edit),
                 onPressed: () {
                   _pauseVideo();
@@ -446,7 +445,7 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
             userSnapshot.data() as Map<String, dynamic>?;
 
         if (userData != null) {
-          userIsAdmin = userData['roleType'] == 'Patient';
+          userIsAdmin = userData['roleType'] == 'admin';
         }
       }
     }
