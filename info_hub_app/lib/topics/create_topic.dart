@@ -1,7 +1,7 @@
 import 'dart:io';
+import 'package:chips_choice/chips_choice.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/topics/quiz/create_quiz.dart';
-
 import 'package:video_player/video_player.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:chewie/chewie.dart';
@@ -24,6 +24,8 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
   final descriptionController = TextEditingController();
   final articleLinkController = TextEditingController();
   final _topicFormKey = GlobalKey<FormState>();
+  List<String> _tags = [];
+  List<String> options = ['Patient', 'Parent', 'Healthcare Professional'];
   String quizID = '';
   bool quizAdded = false;
 
@@ -85,6 +87,28 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                     Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: ChipsChoice<String>.multiple(
+                value: _tags,
+                onChanged: (val) => setState(() => _tags = val),
+                choiceItems: C2Choice.listFrom<String, String>(
+                  source: options,
+                  value: (i, v) => v,
+                  label: (i, v) => v,
+                ),
+                choiceCheckmark: true,
+                choiceStyle: C2ChipStyle.outlined(),
+                    ),
+                  ),
+                   if (_tags.isEmpty)
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 8.0),
+                        child: Text(
+                          'Please select at least one tag.',
+                          style: TextStyle(color: Colors.red),
+                        ),
+                      ),
                     TextFormField(
                       key: const Key('titleField'),
                       controller: titleController,
@@ -203,9 +227,8 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                   minimumSize: const Size(double.infinity, 50),
                 ),
                 onPressed: () {
-                  if (_topicFormKey.currentState!.validate()) {
+                  if (_topicFormKey.currentState!.validate() && _tags.isNotEmpty) {
                     _uploadTopic();
-
                     Navigator.pop(context);
                   }
                 },
@@ -311,6 +334,8 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
       'likes': 0,
       'dislikes': 0,
       'date': DateTime.now(),
+      'tags': _tags,
+      'quizID': quizID
     };
 
     CollectionReference topicCollectionRef =

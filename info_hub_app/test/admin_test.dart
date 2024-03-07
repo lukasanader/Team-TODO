@@ -170,4 +170,7 @@ void main() {
     expect(tester.widget<Text>(textFinder).data,
         'Sorry there are no healthcare professionals matching this email.');
   });
+
+  
 }
+

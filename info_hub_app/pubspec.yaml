@@ -57,7 +57,7 @@ dependencies:
 
   timeago: ^3.0.2
 
-  file: 6.1.4
+  file:
   
   url_launcher: ^6.2.4
 
@@ -77,6 +77,8 @@ dependencies:
 
   uuid: ^4.3.3
 
+  chips_choice: ^3.0.1
+  
   get: ^4.6.6
 
 
