@@ -98,7 +98,6 @@ void main() {
     await tester.pumpAndSettle(); 
 
     expect(find.byWidgetPredicate((widget) => widget is CircleAvatar && widget.backgroundImage is AssetImage), findsOneWidget);
-    // Verify that the AssetImage matches the default profile photo
     final CircleAvatar circleAvatar = tester.widget(find.byType(CircleAvatar));
     final AssetImage assetImage = circleAvatar.backgroundImage as AssetImage;
     expect(assetImage.assetName, 'assets/default_profile_photo.png');
@@ -120,14 +119,11 @@ void main() {
     await tester.pumpWidget(MaterialApp(home: ProfileView(firestore: firestore, auth: auth)));
     await tester.pumpAndSettle(); 
 
-    // Verify that the CircleAvatar widget with AssetImage is found
     expect(find.byWidgetPredicate((widget) => widget is CircleAvatar && widget.backgroundImage is AssetImage), findsOneWidget);
 
-    // Tap on the CircleAvatar to trigger the dialog
     await tester.tap(find.byType(CircleAvatar));
     await tester.pumpAndSettle();
 
-    // Verify that the 'Dog' text appears in the dialog
     expect(find.text('Dog'), findsOneWidget);
   });
 
@@ -147,14 +143,11 @@ void main() {
   await tester.pumpWidget(MaterialApp(home: ProfileView(firestore: firestore, auth: auth)));
   await tester.pumpAndSettle(); 
 
-  // Verify that the CircleAvatar widget with AssetImage is found
   expect(find.byWidgetPredicate((widget) => widget is CircleAvatar && widget.backgroundImage is AssetImage), findsOneWidget);
 
-  // Tap on the CircleAvatar to trigger the dialog
   await tester.tap(find.byType(CircleAvatar));
   await tester.pumpAndSettle();
 
-  // Verify that the 'Dog' text appears in the dialog
   expect(find.text('Penguin'), findsOneWidget);
 });
 
@@ -175,14 +168,14 @@ void main() {
   await tester.pumpWidget(MaterialApp(home: ProfileView(firestore: firestore, auth: auth)));
   await tester.pumpAndSettle(); 
 
-  // Verify that the CircleAvatar widget with AssetImage is found
+
   expect(find.byWidgetPredicate((widget) => widget is CircleAvatar && widget.backgroundImage is AssetImage), findsOneWidget);
 
-  // Tap on the CircleAvatar to trigger the dialog
+  
   await tester.tap(find.byType(CircleAvatar));
   await tester.pumpAndSettle();
 
-  // Verify that the 'Dog' text appears in the dialog
+ 
   expect(find.text('Walrus'), findsOneWidget);
 });
 
@@ -202,15 +195,15 @@ testWidgets('Test if tapping Change Profile button navigates to ChangeProfile pa
   await tester.pumpWidget(MaterialApp(home: ProfileView(firestore: firestore, auth: auth)));
   await tester.pumpAndSettle(); 
 
-  // Verify that the "Change Profile" button is present and ensure it's visible
+
   expect(find.text('Change Profile'), findsOneWidget);
   await tester.ensureVisible(find.text('Change Profile'));
 
-  // Tap the "Change Profile" button
+ 
   await tester.tap(find.text('Change Profile'));
   await tester.pumpAndSettle();
 
-  // Verify that the navigation occurred
+ 
   expect(find.byType(ChangeProfile), findsOneWidget);
 });
 
@@ -230,25 +223,25 @@ testWidgets('Test if tapping Change Profile button navigates to ChangeProfile pa
     await tester.pumpWidget(MaterialApp(home: ProfileView(firestore: firestore, auth: auth)));
     await tester.pumpAndSettle(); 
 
-    // Verify the default profile photo is displayed
+    
     expect(find.byWidgetPredicate((widget) => widget is CircleAvatar && widget.backgroundImage is AssetImage), findsOneWidget);
     
-    // Tap on the CircleAvatar to trigger the dialog
+   
     await tester.tap(find.byType(CircleAvatar));
     await tester.pumpAndSettle();
 
-    // Tap on one of the options in the dialog to update the profile photo
+   
     await tester.tap(find.text('Dog'));
     await tester.pumpAndSettle();
 
-    // Verify that the displayed photo has changed
+    
     expect(find.byWidgetPredicate((widget) => widget is CircleAvatar && widget.backgroundImage is AssetImage), findsOneWidget);
     final CircleAvatar circleAvatarAfter = tester.widget(find.byType(CircleAvatar));
     final AssetImage assetImageAfter = circleAvatarAfter.backgroundImage as AssetImage;
     final String updatedProfilePhoto = assetImageAfter.assetName;
-    expect(updatedProfilePhoto, 'assets/profile_photo_1.png'); // Fix: include 'assets/' prefix
+    expect(updatedProfilePhoto, 'assets/profile_photo_1.png'); 
 
-    // Verify that Firestore has been updated with the new photo (code to verify Firestore update goes here)
+    
   });
 
     testWidgets('Test if updating profile photo changes the displayed photo to a Walrus', (WidgetTester tester) async {
@@ -267,25 +260,25 @@ testWidgets('Test if tapping Change Profile button navigates to ChangeProfile pa
     await tester.pumpWidget(MaterialApp(home: ProfileView(firestore: firestore, auth: auth)));
     await tester.pumpAndSettle(); 
 
-    // Verify the default profile photo is displayed
+   
     expect(find.byWidgetPredicate((widget) => widget is CircleAvatar && widget.backgroundImage is AssetImage), findsOneWidget);
     
     // Tap on the CircleAvatar to trigger the dialog
     await tester.tap(find.byType(CircleAvatar));
     await tester.pumpAndSettle();
 
-    // Tap on one of the options in the dialog to update the profile photo
+    
     await tester.tap(find.text('Walrus'));
     await tester.pumpAndSettle();
 
-    // Verify that the displayed photo has changed
+    
     expect(find.byWidgetPredicate((widget) => widget is CircleAvatar && widget.backgroundImage is AssetImage), findsOneWidget);
     final CircleAvatar circleAvatarAfter = tester.widget(find.byType(CircleAvatar));
     final AssetImage assetImageAfter = circleAvatarAfter.backgroundImage as AssetImage;
     final String updatedProfilePhoto = assetImageAfter.assetName;
-    expect(updatedProfilePhoto, 'assets/profile_photo_2.png'); // Fix: include 'assets/' prefix
+    expect(updatedProfilePhoto, 'assets/profile_photo_2.png'); 
 
-    // Verify that Firestore has been updated with the new photo (code to verify Firestore update goes here)
+    
   });
 
     testWidgets('Test if updating profile photo changes the displayed photo to a Penguin', (WidgetTester tester) async {
@@ -304,25 +297,20 @@ testWidgets('Test if tapping Change Profile button navigates to ChangeProfile pa
     await tester.pumpWidget(MaterialApp(home: ProfileView(firestore: firestore, auth: auth)));
     await tester.pumpAndSettle(); 
 
-    // Verify the default profile photo is displayed
     expect(find.byWidgetPredicate((widget) => widget is CircleAvatar && widget.backgroundImage is AssetImage), findsOneWidget);
     
-    // Tap on the CircleAvatar to trigger the dialog
     await tester.tap(find.byType(CircleAvatar));
     await tester.pumpAndSettle();
 
-    // Tap on one of the options in the dialog to update the profile photo
     await tester.tap(find.text('Penguin'));
     await tester.pumpAndSettle();
 
-    // Verify that the displayed photo has changed
     expect(find.byWidgetPredicate((widget) => widget is CircleAvatar && widget.backgroundImage is AssetImage), findsOneWidget);
     final CircleAvatar circleAvatarAfter = tester.widget(find.byType(CircleAvatar));
     final AssetImage assetImageAfter = circleAvatarAfter.backgroundImage as AssetImage;
     final String updatedProfilePhoto = assetImageAfter.assetName;
     expect(updatedProfilePhoto, 'assets/profile_photo_3.png'); // Fix: include 'assets/' prefix
 
-    // Verify that Firestore has been updated with the new photo (code to verify Firestore update goes here)
   });
 }
 
