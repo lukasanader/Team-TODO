@@ -95,44 +95,26 @@ class _HomePageState extends State<HomePage> {
                 );
               },
             ),
+            IconButton(
+              icon: const Icon(Icons.email),
+              onPressed: () {
+
+
+                PersistentNavBarNavigator.pushNewScreen(
+                  context,
+                  screen: PatientMessageView(
+                    firestore: widget.firestore,
+                    auth: widget.auth,
+                  ),
+                  withNavBar: false,
+                );
+
+              },
+            ),
           ],
+
         ),
 
-          IconButton(
-            icon: const Icon(Icons.account_circle),
-            onPressed: () {
-              // Placeholder method for profile picture icon
-              // Navigate to profile page
-              Navigator.of(context).push(
-                CupertinoPageRoute(
-                  builder: (BuildContext context) {
-                    return ChangeProfile(
-                      firestore: widget.firestore,
-                      auth: widget.auth,
-                    );
-                  },
-                ),
-              );
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.email),
-            onPressed: () {
-
-
-              PersistentNavBarNavigator.pushNewScreen(
-                context,
-                screen: PatientMessageView(
-                  firestore: widget.firestore,
-                  auth: widget.auth,
-                ),
-                withNavBar: false,
-              );
-
-            },
-          ),
-        ],
-      ),
 
       floatingActionButton: FloatingActionButton(
         onPressed: ()  {
