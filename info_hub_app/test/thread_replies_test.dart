@@ -1,3 +1,5 @@
+//incomplete tests
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -302,7 +304,60 @@ void main() {
         await tester.pumpAndSettle();
         // Add additional verification as needed, e.g., checking navigation occurred
       });
+
       group('ReplyCard Tests', () {
+        /*testWidgets('Error message shown when trying to submit empty content',
+            (WidgetTester tester) async {
+          // Setup test data and environment
+          final threadId = await firestore.collection('thread').add({
+            'title': 'Test Thread',
+            'description': 'Test Description',
+            'creator': mockAuth.currentUser!.uid,
+            'timestamp': Timestamp.now(),
+          }).then((doc) => doc.id);
+
+          final docId = await firestore.collection('replies').add({
+            'content': 'Reply 1',
+            'threadId': threadId,
+            'creator': mockAuth.currentUser!.uid,
+            'timestamp': Timestamp.now(),
+          }).then((doc) => doc.id);
+
+          // Render ThreadReplies
+          await tester.pumpWidget(createTestWidget(ThreadReplies(
+            threadId: threadId,
+            firestore: firestore,
+            auth: mockAuth,
+          )));
+
+          await tester.pumpAndSettle();
+
+          // Open the reply edit dialog
+          await tester.tap(find.byKey(Key('editButton_$docId')));
+          await tester.pumpAndSettle();
+
+          // Try to submit without entering content
+          await tester.tap(find.text('Save'));
+          await tester.pumpAndSettle();
+
+          // Verify that error message is shown
+          expect(find.text("Please enter content"), findsOneWidget);
+        });
+
+        testWidgets('Cancel button clears input and closes the dialog',
+            (WidgetTester tester) async {
+          // Setup test data and environment as in the previous test
+
+          // Open the reply edit dialog as in the previous test
+
+          // Tap on the cancel button
+          await tester.tap(find.byKey(Key('cancelButton')));
+          await tester.pumpAndSettle();
+
+          // Verify that the dialog is closed
+          expect(find.byType(AlertDialog), findsNothing);
+        }); */
+
         testWidgets('Edit button opens the dialog and allows reply editing',
             (WidgetTester tester) async {
           final threadId = await firestore.collection('thread').add({

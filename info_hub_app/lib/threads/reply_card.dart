@@ -113,6 +113,7 @@ class _ReplyCardState extends State<ReplyCard> {
                     ),
                   if (currentUserId == creator)
                     IconButton(
+                      key: Key('deleteButton_$docId'),
                       icon: Icon(FontAwesomeIcons.trash, size: 15),
                       onPressed: () async {
                         if (!mounted) return;
@@ -179,6 +180,7 @@ class _ReplyCardState extends State<ReplyCard> {
           ),
           actions: <Widget>[
             TextButton(
+              key: Key('cancelButton'),
               onPressed: () {
                 Navigator.pop(context);
               },
