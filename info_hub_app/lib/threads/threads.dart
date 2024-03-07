@@ -2,11 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:info_hub_app/threads/custom_card.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:info_hub_app/threads/name_generator.dart';
 
 class ThreadApp extends StatefulWidget {
   final FirebaseFirestore firestore;
+  final FirebaseAuth auth;
+  final String topicId;
+  final String topicTitle;
 
-  const ThreadApp({super.key, required this.firestore});
+  const ThreadApp(
+      {Key? key,
+      required this.firestore,
+      required this.auth,
+      required this.topicId,
+      required this.topicTitle})
+      : super(key: key);
 
   @override
   _ThreadAppState createState() => _ThreadAppState();
@@ -14,15 +25,18 @@ class ThreadApp extends StatefulWidget {
 
 class _ThreadAppState extends State<ThreadApp> {
   late Stream<QuerySnapshot> firestoreDb;
-  late TextEditingController nameInputController;
+  //late TextEditingController nameInputController;
   late TextEditingController titleInputController;
   late TextEditingController descriptionInputController;
 
   @override
   void initState() {
     super.initState();
-    firestoreDb = widget.firestore.collection("thread").snapshots();
-    nameInputController = TextEditingController();
+    firestoreDb = widget.firestore
+        .collection("thread")
+        .where('topicId', isEqualTo: widget.topicId)
+        .snapshots();
+    //nameInputController = TextEditingController();
     titleInputController = TextEditingController();
     descriptionInputController = TextEditingController();
   }
@@ -32,9 +46,9 @@ class _ThreadAppState extends State<ThreadApp> {
     return Scaffold(
 //current appbar is placeholder, replace with actual appbar or equivalent
       appBar: AppBar(
-        title: const Text(
-          "Topic Threads",
-          style: TextStyle(
+        title: Text(
+          widget.topicTitle,
+          style: const TextStyle(
             color: Colors.white,
             fontSize: 20.0,
             fontFamily: 'Roboto',
@@ -79,8 +93,17 @@ class _ThreadAppState extends State<ThreadApp> {
 
       floatingActionButton: FloatingActionButton(
         onPressed: () {
+          // Check if user is logged in before showing the dialog
+          // if (widget.auth.currentUser != null) {
           _showDialog(context);
         },
+        /* else {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text(
+                        "Please log in to post a thread.")) // login error message
+                );
+          } */
+
         child: const Icon(FontAwesomeIcons.solidQuestionCircle),
       ),
       body: StreamBuilder(
@@ -95,6 +118,7 @@ class _ThreadAppState extends State<ThreadApp> {
                 snapshot: snapshot.data,
                 index: index,
                 firestore: widget.firestore,
+                auth: widget.auth,
               );
             },
           );
@@ -104,7 +128,7 @@ class _ThreadAppState extends State<ThreadApp> {
   }
 
   _showDialog(BuildContext context) async {
-    bool showErrorName = false;
+    //bool showErrorName = false;
     bool showErrorTitle = false;
     bool showErrorDescription = false;
 
@@ -120,6 +144,7 @@ class _ThreadAppState extends State<ThreadApp> {
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
                     const Text("Please fill out the form"),
+                    /*
                     TextField(
                       key: const Key('Author'),
                       autofocus: true,
@@ -130,7 +155,7 @@ class _ThreadAppState extends State<ThreadApp> {
                             showErrorName ? "Please enter your name" : null,
                       ),
                       controller: nameInputController,
-                    ),
+                    ), */
                     TextField(
                       key: const Key('Title'),
                       autofocus: true,
@@ -138,7 +163,9 @@ class _ThreadAppState extends State<ThreadApp> {
                       decoration: InputDecoration(
                         labelText: "Title",
                         errorText:
-                            showErrorTitle ? "Please enter a title" : null,
+                            showErrorTitle && titleInputController.text.isEmpty
+                                ? "Please enter a title"
+                                : null,
                       ),
                       controller: titleInputController,
                     ),
@@ -148,7 +175,8 @@ class _ThreadAppState extends State<ThreadApp> {
                       autocorrect: true,
                       decoration: InputDecoration(
                         labelText: "Description",
-                        errorText: showErrorDescription
+                        errorText: showErrorDescription &&
+                                descriptionInputController.text.isEmpty
                             ? "Please enter a description"
                             : null,
                       ),
@@ -160,33 +188,65 @@ class _ThreadAppState extends State<ThreadApp> {
               actions: <Widget>[
                 TextButton(
                   onPressed: () {
-                    nameInputController.clear();
+                    //nameInputController.clear();
                     titleInputController.clear();
                     descriptionInputController.clear();
                     Navigator.pop(context);
                   },
                   child: const Text("Cancel"),
                 ),
+
+                /*
                 TextButton(
                   onPressed: () {
                     setState(() {
-                      showErrorName = nameInputController.text.isEmpty;
+                      //showErrorName = nameInputController.text.isEmpty;
                       showErrorTitle = titleInputController.text.isEmpty;
                       showErrorDescription =
                           descriptionInputController.text.isEmpty;
                     });
 
-                    if (!showErrorName &&
+                    if (//!showErrorName &&
                         !showErrorTitle &&
                         !showErrorDescription) {
                       widget.firestore.collection("thread").add({
-                        "name": nameInputController.text,
+                       
+                       // "name": nameInputController.text,
                         "title": titleInputController.text,
                         "description": descriptionInputController.text,
                         "timestamp": FieldValue.serverTimestamp(),
                       }).then((response) {
                         //print(response.id);
-                        nameInputController.clear();
+                        //nameInputController.clear();
+                        titleInputController.clear();
+                        descriptionInputController.clear();
+                        Navigator.pop(context);
+                      });
+                    }
+                  },
+                  child: const Text("Submit"),
+
+                  */
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      showErrorTitle = titleInputController.text.isEmpty;
+                      showErrorDescription =
+                          descriptionInputController.text.isEmpty;
+                    });
+
+                    if (!showErrorTitle && !showErrorDescription) {
+                      String docId = widget.auth.currentUser!.uid;
+                      String authorName = generateUniqueName(docId);
+
+                      widget.firestore.collection("thread").add({
+                        "author": authorName, // Using logged in user details
+                        "title": titleInputController.text,
+                        "description": descriptionInputController.text,
+                        "timestamp": FieldValue.serverTimestamp(),
+                        "creator": docId,
+                        "topicId": widget.topicId,
+                      }).then((response) {
                         titleInputController.clear();
                         descriptionInputController.clear();
                         Navigator.pop(context);
