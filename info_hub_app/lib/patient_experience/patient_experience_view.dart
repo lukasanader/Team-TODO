@@ -73,6 +73,7 @@ class _ExperienceViewState extends State<ExperienceView> {
               ),
               TextField(
                 maxLines: 5,
+                maxLength: 1000,
                 keyboardType: TextInputType.multiline,
                 controller: _descriptionController,
                 decoration: const InputDecoration(
@@ -85,6 +86,10 @@ class _ExperienceViewState extends State<ExperienceView> {
               ),
               ElevatedButton(
                 onPressed: () async {
+                  if (_titleController.text.isEmpty || _descriptionController.text.isEmpty) {
+                    return _blankTitleOrExperienceAlert(context);
+                  }
+
                   _saveExperience();
                   Navigator.of(context).pop(); // Close the dialog
                 },
@@ -123,4 +128,17 @@ class _ExperienceViewState extends State<ExperienceView> {
     CollectionReference db = widget.firestore.collection('experiences');
     await db.add(_experience.toJson());
   }
+
+  Future<void> _blankTitleOrExperienceAlert(BuildContext context) async {
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return const AlertDialog(
+          title: Text('Warning!'),
+          content: Text("Please fill out the title and experience!"),
+        );
+      },
+    );
+  }
+
 }

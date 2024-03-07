@@ -8,6 +8,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/helpers/test_page.dart';
+import 'package:info_hub_app/message_feature/patient_message_view.dart';
 import 'package:info_hub_app/patient_experience/admin_experience_view.dart';
 import 'package:info_hub_app/patient_experience/patient_experience_view.dart';
 import 'package:info_hub_app/topics/topics_card.dart';
@@ -96,19 +97,53 @@ class _HomePageState extends State<HomePage> {
             ),
           ],
         ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            Navigator.push(
+
+          IconButton(
+            icon: const Icon(Icons.account_circle),
+            onPressed: () {
+              // Placeholder method for profile picture icon
+              // Navigate to profile page
+              Navigator.of(context).push(
+                CupertinoPageRoute(
+                  builder: (BuildContext context) {
+                    return ChangeProfile(
+                      firestore: widget.firestore,
+                      auth: widget.auth,
+                    );
+                  },
+                ),
+              );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.email),
+            onPressed: () {
+
+
+              PersistentNavBarNavigator.pushNewScreen(
                 context,
-                MaterialPageRoute(
-                    builder: (context) => TestView(
-                          firestore: widget.firestore,
-                          auth: widget.auth,
-                          storage: widget.storage,
-                        )));
-          },
-          child: const Text('tests'),
-        ),
+                screen: PatientMessageView(
+                  firestore: widget.firestore,
+                  auth: widget.auth,
+                ),
+                withNavBar: false,
+              );
+
+            },
+          ),
+        ],
+      ),
+
+      floatingActionButton: FloatingActionButton(
+        onPressed: ()  {
+          Navigator.push(
+            context, 
+            MaterialPageRoute(builder: (context) => TestView(firestore: widget.firestore, auth: widget.auth, storage: widget.storage,)));
+        },
+      child: const Text('tests'),
+      ),
+
+
 
         //above is the floating action button
         body: SingleChildScrollView(
