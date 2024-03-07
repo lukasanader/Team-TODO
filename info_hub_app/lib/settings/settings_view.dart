@@ -58,8 +58,8 @@ class _SettingsViewState extends State<SettingsView> {
                   PersistentNavBarNavigator.pushNewScreen(
                     context,
                     screen: ManageNotifications(
-                      firestore: FirebaseFirestore.instance,
-                      auth: FirebaseAuth.instance,
+                      firestore: widget.firestore,
+                      auth: widget.auth,
                     ),
                     withNavBar: false,
                   );
