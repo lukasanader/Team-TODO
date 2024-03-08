@@ -27,8 +27,8 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
   List<String> _tags = [];
   List<String> options = ['Patient', 'Parent', 'Healthcare Professional'];
   List<String> _categories = [];
-  List<String> _categoriesOptions = ['Gym', 'Teen', 'Diet', "hhhhhhhhhh"];
-  TextEditingController _newCategoryNameController = TextEditingController();
+  List<String> _categoriesOptions = [];
+  final TextEditingController _newCategoryNameController = TextEditingController();
   String quizID = '';
   bool quizAdded = false;
 
@@ -68,6 +68,13 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
     _chewieController?.dispose();
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    getCategoryList();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -401,6 +408,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
   }
 
   void createNewCategoryDialog() {
+    _newCategoryNameController.clear();
     showDialog(
       context: context, 
       builder: (BuildContext context) {
@@ -411,9 +419,24 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
           ),
           actions: [
             ElevatedButton(
-              onPressed: () {
-                addCategory(_newCategoryNameController.text);
-                Navigator.of(context).pop();
+              onPressed: () async {
+                if (!_categoriesOptions.contains(_newCategoryNameController.text)
+                    && _newCategoryNameController.text.isNotEmpty) {
+                      addCategory(_newCategoryNameController.text);
+                      getCategoryList();
+                      Navigator.of(context).pop();
+                    }
+                else {
+                  return showDialog<void>(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return const AlertDialog(
+                        title: Text('Warning!'),
+                        content: Text("Make sure category names are different/not b!"),
+                      );
+                    },
+                  );
+                }
               },
               child: const Text("OK"),
             ),
@@ -421,6 +444,26 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
         );
       });
   }
+
+  Future getCategoryList() async {
+    QuerySnapshot data = await widget.firestore
+        .collection('categories')
+        .orderBy('name')
+        .get();
+
+    List<Object> dataList = List.from(data.docs);
+    List<String> tempList = [];
+
+    for (dynamic category in dataList) {
+      tempList.add(category['name']); 
+    }
+
+
+    setState(() {
+      _categoriesOptions = tempList;
+    });
+  }
+
 
   Future<void> addCategory(String categoryName) async {
     await widget.firestore
