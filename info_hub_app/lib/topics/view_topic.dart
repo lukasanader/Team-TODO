@@ -156,8 +156,6 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
         break; // Exit the loop since we found the document
       }
     }
-
-    print(videoUrl);
     if (videoUrl != null && videoUrl.isNotEmpty) {
       _videoPlayerController =
           VideoPlayerController.networkUrl(Uri.parse(videoUrl));
@@ -309,7 +307,7 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
           actions: <Widget>[
             if (userIsAdmin)
               IconButton(
-                key: Key('edit_btn'),
+                key: const Key('edit_btn'),
                 icon: const Icon(Icons.edit, color: Colors.white),
                 onPressed: () {
                   Navigator.pushReplacement(
@@ -373,7 +371,8 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
                               ),
                               Text("$dislikes"),
                               IconButton(
-                                icon: Icon(FontAwesomeIcons.comments, size: 20),
+                                icon: const Icon(FontAwesomeIcons.comments,
+                                    size: 20),
                                 onPressed: () {
                                   // Navigate to the Threads screen
                                   Navigator.push(
@@ -430,7 +429,7 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
               padding: const EdgeInsets.all(16.0),
               child: Center(
                 child: ElevatedButton(
-                  key: Key('delete_topic_button'),
+                  key: const Key('delete_topic_button'),
                   onPressed: () {
                     // Show confirmation dialog
                     showDialog(

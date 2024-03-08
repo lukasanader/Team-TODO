@@ -7,7 +7,6 @@ import 'package:info_hub_app/topics/view_topic.dart';
 import 'package:flutter/services.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:chewie/chewie.dart';
-import 'dart:async';
 import 'package:video_player_platform_interface/video_player_platform_interface.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
@@ -18,11 +17,9 @@ import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 void main() async {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  late MockFirebaseAuth auth;
   late MockFirebaseStorage mockStorage;
   late FakeFirebaseFirestore firestore;
-  late CollectionReference topicCollectionRef;
-  late QuerySnapshot data;
+  late MockFirebaseAuth auth;
 
   setUp(() async {
     mockFilePicker();
@@ -33,17 +30,28 @@ void main() async {
 
     mockStorage = MockFirebaseStorage();
 
-    final MockUser mockUser = MockUser(
-      isAnonymous: false,
-      uid: 'user123',
-      email: 'test@example.com',
-    );
+    auth =
+        MockFirebaseAuth(signedIn: true, mockUser: MockUser(uid: 'adminUser'));
 
-    auth = MockFirebaseAuth(mockUser: mockUser, signedIn: true);
+    firestore.collection('Users').doc('adminUser').set({
+      'name': 'John Doe',
+      'email': 'john@example.com',
+      'roleType': 'admin',
+      'likedTopics': [],
+      'dislikedTopics': [],
+    });
+
+    VideoPlayerPlatform.instance = fakeVideoPlayerPlatform;
+  });
+
+  testWidgets('Test back button navigates to View Topic screen',
+      (WidgetTester tester) async {
+    CollectionReference topicCollectionRef;
+    QuerySnapshot data;
 
     topicCollectionRef = firestore.collection('topics');
 
-    DocumentReference topicDocRef = await topicCollectionRef.add({
+    await topicCollectionRef.add({
       'title': 'Test Topic',
       'description': 'Test Description',
       'articleLink': '',
@@ -56,22 +64,48 @@ void main() async {
 
     data = await topicCollectionRef.orderBy('title').get();
 
-    firestore.collection('Users').doc('adminUser').set({
-      'name': 'John Doe',
-      'email': 'john@example.com',
-      'roleType': 'admin',
-      'likedTopics': [],
-      'dislikedTopics': [],
-    });
-
-    VideoPlayerPlatform.instance = fakeVideoPlayerPlatform;
-  });
-  testWidgets('Topic with valid fields updates', (WidgetTester tester) async {
     await tester.pumpWidget(MaterialApp(
       home: EditTopicScreen(
         topic: data.docs[0] as QueryDocumentSnapshot<Object>,
-        auth: MockFirebaseAuth(
-            signedIn: true, mockUser: MockUser(uid: 'adminUser')),
+        auth: auth,
+        firestore: firestore,
+        storage: mockStorage,
+      ),
+    ));
+
+    await tester.pumpAndSettle();
+
+    // tap back button
+    await tester.tap(find.byIcon(Icons.arrow_back));
+
+    await tester.pumpAndSettle();
+
+    // check if the Base screen is navigated to
+    expect(find.byType(ViewTopicScreen), findsOneWidget);
+  });
+  testWidgets('Topic with valid fields updates', (WidgetTester tester) async {
+    CollectionReference topicCollectionRef;
+    QuerySnapshot data;
+
+    topicCollectionRef = firestore.collection('topics');
+
+    await topicCollectionRef.add({
+      'title': 'Test Topic',
+      'description': 'Test Description',
+      'articleLink': '',
+      'videoUrl': '',
+      'likes': 0,
+      'views': 0,
+      'dislikes': 0,
+      'date': DateTime.now()
+    });
+
+    data = await topicCollectionRef.orderBy('title').get();
+
+    await tester.pumpWidget(MaterialApp(
+      home: EditTopicScreen(
+        topic: data.docs[0] as QueryDocumentSnapshot<Object>,
+        auth: auth,
         firestore: firestore,
         storage: mockStorage,
       ),
@@ -95,6 +129,7 @@ void main() async {
     await tester.tap(updateButtonFinder);
 
     await tester.pump();
+    await tester.pumpAndSettle(const Duration(seconds: 2));
 
     final QuerySnapshot<Map<String, dynamic>> querySnapshot =
         await firestore.collection("topics").get();
@@ -126,13 +161,73 @@ void main() async {
     );
   });
 
-  testWidgets('Topic with invalid fields does not update',
+  testWidgets(
+      'Topic with no changes navigates straight back to view topic screen',
       (WidgetTester tester) async {
+    CollectionReference topicCollectionRef;
+    QuerySnapshot data;
+
+    topicCollectionRef = firestore.collection('topics');
+
+    await topicCollectionRef.add({
+      'title': 'Test Topic',
+      'description': 'Test Description',
+      'articleLink': '',
+      'videoUrl': '',
+      'likes': 0,
+      'views': 0,
+      'dislikes': 0,
+      'date': DateTime.now()
+    });
+
+    data = await topicCollectionRef.orderBy('title').get();
+
     await tester.pumpWidget(MaterialApp(
       home: EditTopicScreen(
         topic: data.docs[0] as QueryDocumentSnapshot<Object>,
-        auth: MockFirebaseAuth(
-            signedIn: true, mockUser: MockUser(uid: 'adminUser')),
+        auth: auth,
+        firestore: firestore,
+        storage: mockStorage,
+      ),
+    ));
+
+    await tester.pumpAndSettle();
+
+    final updateButtonFinder = find.text('UPDATE TOPIC');
+
+    await tester.ensureVisible(updateButtonFinder);
+
+    await tester.tap(updateButtonFinder);
+
+    await tester.pumpAndSettle();
+
+    expect(find.byType(ViewTopicScreen), findsOneWidget);
+  });
+
+  testWidgets('Topic with invalid fields does not update',
+      (WidgetTester tester) async {
+    CollectionReference topicCollectionRef;
+    QuerySnapshot data;
+
+    topicCollectionRef = firestore.collection('topics');
+
+    await topicCollectionRef.add({
+      'title': 'Test Topic',
+      'description': 'Test Description',
+      'articleLink': '',
+      'videoUrl': '',
+      'likes': 0,
+      'views': 0,
+      'dislikes': 0,
+      'date': DateTime.now()
+    });
+
+    data = await topicCollectionRef.orderBy('title').get();
+
+    await tester.pumpWidget(MaterialApp(
+      home: EditTopicScreen(
+        topic: data.docs[0] as QueryDocumentSnapshot<Object>,
+        auth: auth,
         firestore: firestore,
         storage: mockStorage,
       ),
@@ -188,11 +283,28 @@ void main() async {
 
   testWidgets('Uploaded video is successfuly stored and displays',
       (WidgetTester tester) async {
+    CollectionReference topicCollectionRef;
+    QuerySnapshot data;
+
+    topicCollectionRef = firestore.collection('topics');
+
+    await topicCollectionRef.add({
+      'title': 'Test Topic',
+      'description': 'Test Description',
+      'articleLink': '',
+      'videoUrl': '',
+      'likes': 0,
+      'views': 0,
+      'dislikes': 0,
+      'date': DateTime.now()
+    });
+
+    data = await topicCollectionRef.orderBy('title').get();
+
     await tester.pumpWidget(MaterialApp(
       home: EditTopicScreen(
         topic: data.docs[0] as QueryDocumentSnapshot<Object>,
-        auth: MockFirebaseAuth(
-            signedIn: true, mockUser: MockUser(uid: 'adminUser')),
+        auth: auth,
         firestore: firestore,
         storage: mockStorage,
       ),
@@ -233,17 +345,110 @@ void main() async {
 
     await tester.tap(updateButtonFinder);
 
+    await tester.pump();
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+
     final ListResult result = await mockStorage.ref().child('videos').listAll();
 
     expect(result.items.length, greaterThan(0));
   });
 
-  testWidgets('Uploaded video can be cleared', (WidgetTester tester) async {
+  testWidgets(
+      'when video is changed or deselected, old video gets deleted from storage',
+      (WidgetTester tester) async {
+    CollectionReference topicCollectionRef;
+    QuerySnapshot data;
+
+    topicCollectionRef = firestore.collection('topics');
+
+    await topicCollectionRef.add({
+      'title': 'Test Topic',
+      'description': 'Test Description',
+      'articleLink': '',
+      'videoUrl':
+          'https://firebasestorage.googleapis.com/v0/b/team-todo-38f76.appspot.com/o/videos%2F2024-02-27%2022%3A09%3A02.035911.mp4?alt=media&token=ea6b51e9-9e9f-4d2e-a014-64fc3631e321',
+      'likes': 0,
+      'views': 0,
+      'dislikes': 0,
+      'date': DateTime.now()
+    });
+
+    await mockStorage.ref().child('videos').putString(
+        'https://firebasestorage.googleapis.com/v0/b/team-todo-38f76.appspot.com/o/videos%2F2024-02-27%2022%3A09%3A02.035911.mp4?alt=media&token=ea6b51e9-9e9f-4d2e-a014-64fc3631e321');
+
+    data = await topicCollectionRef.orderBy('title').get();
+
     await tester.pumpWidget(MaterialApp(
       home: EditTopicScreen(
         topic: data.docs[0] as QueryDocumentSnapshot<Object>,
-        auth: MockFirebaseAuth(
-            signedIn: true, mockUser: MockUser(uid: 'adminUser')),
+        auth: auth,
+        firestore: firestore,
+        storage: mockStorage,
+      ),
+    ));
+
+    await tester.pumpAndSettle();
+
+    await tester.ensureVisible(find.byKey(const Key('uploadVideoButton')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('uploadVideoButton')));
+    await tester.pumpAndSettle();
+
+    bool videoFound = false;
+    final startTime = DateTime.now();
+    while (!videoFound) {
+      await tester.pump();
+
+      if (find
+          .text('the above is a preview of your edited video.')
+          .evaluate()
+          .isNotEmpty) {
+        videoFound = true;
+        break;
+      }
+
+      if (DateTime.now().difference(startTime).inSeconds > 1800) {
+        fail('Timed out waiting for the edited video preview text to appear');
+      }
+      await Future.delayed(const Duration(milliseconds: 100));
+    }
+
+    final updateButtonFinder = find.text('UPDATE TOPIC');
+
+    await tester.ensureVisible(updateButtonFinder);
+
+    await tester.tap(updateButtonFinder);
+
+    await tester.pump();
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+
+    final ListResult result = await mockStorage.ref().child('videos').listAll();
+    expect(result.items.length, 1);
+  });
+
+  testWidgets('Uploaded video can be cleared', (WidgetTester tester) async {
+    CollectionReference topicCollectionRef;
+    QuerySnapshot data;
+
+    topicCollectionRef = firestore.collection('topics');
+
+    await topicCollectionRef.add({
+      'title': 'Test Topic',
+      'description': 'Test Description',
+      'articleLink': '',
+      'videoUrl': '',
+      'likes': 0,
+      'views': 0,
+      'dislikes': 0,
+      'date': DateTime.now()
+    });
+
+    data = await topicCollectionRef.orderBy('title').get();
+
+    await tester.pumpWidget(MaterialApp(
+      home: EditTopicScreen(
+        topic: data.docs[0] as QueryDocumentSnapshot<Object>,
+        auth: auth,
         firestore: firestore,
         storage: mockStorage,
       ),
@@ -291,11 +496,28 @@ void main() async {
 
   testWidgets('Test Create Quiz Screen From Create Topic Screen',
       (WidgetTester tester) async {
+    CollectionReference topicCollectionRef;
+    QuerySnapshot data;
+
+    topicCollectionRef = firestore.collection('topics');
+
+    await topicCollectionRef.add({
+      'title': 'Test Topic',
+      'description': 'Test Description',
+      'articleLink': '',
+      'videoUrl': '',
+      'likes': 0,
+      'views': 0,
+      'dislikes': 0,
+      'date': DateTime.now()
+    });
+
+    data = await topicCollectionRef.orderBy('title').get();
+
     Widget quizWidget = MaterialApp(
       home: EditTopicScreen(
         topic: data.docs[0] as QueryDocumentSnapshot<Object>,
-        auth: MockFirebaseAuth(
-            signedIn: true, mockUser: MockUser(uid: 'adminUser')),
+        auth: auth,
         firestore: firestore,
         storage: mockStorage,
       ),
@@ -368,6 +590,24 @@ void main() async {
   });
 
   testWidgets('Orientation adjusts correctly', (WidgetTester tester) async {
+    CollectionReference topicCollectionRef;
+    QuerySnapshot data;
+
+    topicCollectionRef = firestore.collection('topics');
+
+    await topicCollectionRef.add({
+      'title': 'Test Topic',
+      'description': 'Test Description',
+      'articleLink': '',
+      'videoUrl': '',
+      'likes': 0,
+      'views': 0,
+      'dislikes': 0,
+      'date': DateTime.now()
+    });
+
+    data = await topicCollectionRef.orderBy('title').get();
+
     final logs = [];
 
     tester.binding.defaultBinaryMessenger
@@ -384,8 +624,7 @@ void main() async {
         firestore: firestore,
         storage: mockStorage,
         topic: data.docs[0] as QueryDocumentSnapshot<Object>,
-        auth: MockFirebaseAuth(
-            signedIn: true, mockUser: MockUser(uid: 'adminUser')),
+        auth: auth,
       ),
     ));
 

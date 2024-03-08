@@ -107,6 +107,24 @@ class _EditTopicScreenState extends State<EditTopicScreen> {
           'Edit Topic',
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back,
+            color: Colors.white,
+          ),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ViewTopicScreen(
+                    firestore: widget.firestore,
+                    topic: updatedTopicDoc,
+                    storage: widget.storage,
+                    auth: widget.auth),
+              ),
+            );
+          },
+        ),
       ),
       body: Form(
         key: _topicFormKey,
@@ -286,17 +304,6 @@ class _EditTopicScreenState extends State<EditTopicScreen> {
                 onPressed: () async {
                   if (_topicFormKey.currentState!.validate()) {
                     await _uploadTopic();
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => CheckmarkAnimationScreen(
-                          firestore: widget.firestore,
-                          topic: updatedTopicDoc,
-                          storage: widget.storage,
-                          auth: widget.auth,
-                        ),
-                      ),
-                    );
                   }
                 },
                 child: const Text(
@@ -373,90 +380,134 @@ class _EditTopicScreenState extends State<EditTopicScreen> {
   }
 
   Future<void> _uploadTopic() async {
-    QuerySnapshot? data;
-    String? newVideoURL;
-
     String oldVideoUrl = widget.topic['videoUrl'];
+    if (_videoURL == widget.topic['videoUrl'] &&
+        titleController.text == widget.topic['title'] &&
+        descriptionController.text == widget.topic['description'] &&
+        articleLinkController.text == widget.topic['articleLink']) {
+      // If no changes have been made, directly navigate to the view topic screen
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ViewTopicScreen(
+            firestore: widget.firestore,
+            topic: widget.topic,
+            storage: widget.storage,
+            auth: widget.auth,
+          ),
+        ),
+      );
+      return;
+    } else {
+      // Navigate to the animation screen
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => CheckmarkAnimationScreen(
+            firestore: widget.firestore,
+            topic: widget.topic,
+            storage: widget.storage,
+            auth: widget.auth,
+          ),
+        ),
+      );
 
-    // Check if a new video was selected
-    if (_videoURL != widget.topic['videoUrl']) {
-      // Upload the new video and get its download URL
-      if (_videoURL != '') {
-        newVideoURL = await StoreData(widget.storage).uploadVideo(_videoURL!);
-      } else {
-        newVideoURL = '';
-      }
+      QuerySnapshot? data;
+      String? newVideoURL;
 
-      print('STORE VIDEOOOOO');
+      await Future.delayed(const Duration(seconds: 2));
 
-      final topicDetails = {
-        'title': titleController.text,
-        'description': descriptionController.text,
-        'articleLink': articleLinkController.text,
-        'videoUrl': newVideoURL,
-        'views': widget.topic['views'],
-        'likes': widget.topic['likes'],
-        'dislikes': widget.topic['dislikes'],
-        'date': widget.topic['date'],
-      };
+      // Check if a new video was selected
+      if (_videoURL != widget.topic['videoUrl']) {
+        // store new video
+        if (_videoURL != '') {
+          newVideoURL = await StoreData(widget.storage).uploadVideo(_videoURL!);
+        } else {
+          newVideoURL = '';
+        }
 
-      CollectionReference topicCollectionRef =
-          widget.firestore.collection('topics');
+        final topicDetails = {
+          'title': titleController.text,
+          'description': descriptionController.text,
+          'articleLink': articleLinkController.text,
+          'videoUrl': newVideoURL,
+          'views': widget.topic['views'],
+          'likes': widget.topic['likes'],
+          'dislikes': widget.topic['dislikes'],
+          'date': widget.topic['date'],
+        };
 
-      await topicCollectionRef.doc(widget.topic.id).update(topicDetails);
-
-      while (true) {
-        CollectionReference topicCollRef =
+        CollectionReference topicCollectionRef =
             widget.firestore.collection('topics');
-        data = await topicCollRef.orderBy('title').get();
 
-        for (QueryDocumentSnapshot doc in data.docs) {
-          // Check if the document ID matches the ID of the topic
-          if (doc.id == widget.topic.id) {
-            updatedTopicDoc = doc as QueryDocumentSnapshot<Object>;
-            break; // Exit the loop since we found the document
+        await topicCollectionRef.doc(widget.topic.id).update(topicDetails);
+
+        while (true) {
+          CollectionReference topicCollRef =
+              widget.firestore.collection('topics');
+          data = await topicCollRef.orderBy('title').get();
+
+          for (QueryDocumentSnapshot doc in data.docs) {
+            // Check if the document ID matches the ID of the topic
+            if (doc.id == widget.topic.id) {
+              updatedTopicDoc = doc as QueryDocumentSnapshot<Object>;
+              break; // Exit the loop since we found the most recent version of the topic
+            }
+          }
+
+          if (updatedTopicDoc['videoUrl'] != widget.topic['videoUrl']) {
+            // If the updated topic document's video URL is different from the old URL,
+
+            final topicDetails = {
+              'title': titleController.text,
+              'description': descriptionController.text,
+              'articleLink': articleLinkController.text,
+              'videoUrl': newVideoURL,
+              'views': widget.topic['views'],
+              'likes': widget.topic['likes'],
+              'dislikes': widget.topic['dislikes'],
+              'date': widget.topic['date'],
+            };
+
+            await topicCollectionRef.doc(widget.topic.id).update(topicDetails);
+
+            break;
           }
         }
 
-        if (updatedTopicDoc['videoUrl'] != oldVideoUrl) {
-          // If the updated topic document's video URL is different from the old URL,
+        if (oldVideoUrl != '') {
+          await deleteVideoFromStorage(widget.topic['videoUrl']);
+        } else {}
+      } else {
+        final topicDetails = {
+          'title': titleController.text,
+          'description': descriptionController.text,
+          'articleLink': articleLinkController.text,
+          'videoUrl': widget.topic['videoUrl'],
+          'views': widget.topic['views'],
+          'likes': widget.topic['likes'],
+          'dislikes': widget.topic['dislikes'],
+          'date': widget.topic['date'],
+        };
 
-          final topicDetails = {
-            'title': titleController.text,
-            'description': descriptionController.text,
-            'articleLink': articleLinkController.text,
-            'videoUrl': newVideoURL,
-            'views': widget.topic['views'],
-            'likes': widget.topic['likes'],
-            'dislikes': widget.topic['dislikes'],
-            'date': widget.topic['date'],
-          };
+        CollectionReference topicCollectionRef =
+            widget.firestore.collection('topics');
 
-          await topicCollectionRef.doc(widget.topic.id).update(topicDetails);
-
-          break;
-        }
+        await topicCollectionRef.doc(widget.topic.id).update(topicDetails);
       }
-      if (oldVideoUrl.isNotEmpty) {
-        print('STORE MEEEEEE');
-        await deleteVideoFromStorage(widget.topic['videoUrl']);
-      }
-    } else {
-      final topicDetails = {
-        'title': titleController.text,
-        'description': descriptionController.text,
-        'articleLink': articleLinkController.text,
-        'videoUrl': oldVideoUrl,
-        'views': widget.topic['views'],
-        'likes': widget.topic['likes'],
-        'dislikes': widget.topic['dislikes'],
-        'date': widget.topic['date'],
-      };
 
-      CollectionReference topicCollectionRef =
-          widget.firestore.collection('topics');
-
-      await topicCollectionRef.doc(widget.topic.id).update(topicDetails);
+      // Navigate to the view topic screen after upload is complete
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ViewTopicScreen(
+            firestore: widget.firestore,
+            topic: updatedTopicDoc,
+            storage: widget.storage,
+            auth: widget.auth,
+          ),
+        ),
+      );
     }
   }
 
@@ -521,19 +572,6 @@ class _CheckmarkAnimationScreenState extends State<CheckmarkAnimationScreen> {
   @override
   void initState() {
     super.initState();
-    // Delay navigation to the view topic screen
-    Future.delayed(Duration(seconds: 2), () {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => ViewTopicScreen(
-              firestore: widget.firestore,
-              topic: widget.topic,
-              storage: widget.storage,
-              auth: widget.auth),
-        ),
-      );
-    });
   }
 
   @override
