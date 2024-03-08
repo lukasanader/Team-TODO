@@ -106,6 +106,24 @@ class _EditTopicScreenState extends State<EditTopicScreen> {
           'Edit Topic',
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back,
+            color: Colors.white,
+          ),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ViewTopicScreen(
+                    firestore: widget.firestore,
+                    topic: updatedTopicDoc,
+                    storage: widget.storage,
+                    auth: widget.auth),
+              ),
+            );
+          },
+        ),
       ),
       body: Form(
         key: _topicFormKey,

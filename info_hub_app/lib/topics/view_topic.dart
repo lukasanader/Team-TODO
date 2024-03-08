@@ -1,16 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/topics/edit_topic.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:info_hub_app/topics/quiz/complete_quiz.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:chewie/chewie.dart';
 import 'package:video_player/video_player.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:info_hub_app/helpers/base.dart';
 import 'dart:async';
-import 'package:info_hub_app/threads/threads.dart';
 
 class ViewTopicScreen extends StatefulWidget {
   final QueryDocumentSnapshot topic;
@@ -281,15 +279,50 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color.fromRGBO(200, 0, 0, 1.0),
-        title: Text(
-          updatedTopic['title'],
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
+          backgroundColor: const Color.fromRGBO(200, 0, 0, 1.0),
+          title: Text(
+            updatedTopic['title'],
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-        ),
-      ),
+          leading: IconButton(
+            icon: Icon(
+              Icons.arrow_back,
+              color: Colors.white,
+            ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => Base(
+                        auth: widget.auth,
+                        storage: widget.storage,
+                        firestore: widget.firestore)),
+              );
+            },
+          ),
+          actions: <Widget>[
+            if (userIsAdmin)
+              IconButton(
+                key: Key('edit_btn'),
+                icon: const Icon(Icons.edit, color: Colors.white),
+                onPressed: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => EditTopicScreen(
+                        topic: updatedTopic, // Pass your original topic data
+                        firestore: widget.firestore,
+                        auth: widget.auth,
+                        storage: widget.storage,
+                      ),
+                    ),
+                  );
+                },
+              )
+          ]),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -336,34 +369,7 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
                                         hasDisliked ? Colors.red : Colors.grey),
                               ),
                               Text("$dislikes"),
-                              IconButton(
-                                icon: Icon(FontAwesomeIcons.comments, size: 20),
-                                onPressed: () {
-                                  // Navigate to the Threads screen
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => ThreadApp(
-                                          firestore: widget.firestore,
-                                          auth: widget.auth,
-                                          topicId: widget.topic.id,
-                                          topicTitle: widget.topic['title']),
-                                    ),
-                                  );
-                                },
-                              ),
-
                               // Display likes
-                              TextButton(
-                              onPressed: () {
-                                Navigator.push(context,
-                                MaterialPageRoute(
-                                builder :(context) =>CompleteQuiz(firestore: widget.firestore, topic: widget.topic, auth: widget.auth)
-                                ),
-                                );
-                              },
-                              child: const Text('QUIZ!!'),
-                            ),
                             ],
                           ),
                         ],
@@ -432,23 +438,6 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
                 ),
               ),
             ),
-          if (userIsAdmin)
-            IconButton(
-                key: Key('edit_btn'),
-                icon: const Icon(Icons.edit),
-                onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => EditTopicScreen(
-                        topic: updatedTopic, // Pass your original topic data
-                        firestore: widget.firestore,
-                        auth: widget.auth,
-                        storage: widget.storage,
-                      ),
-                    ),
-                  );
-                })
         ],
       ),
     );
@@ -467,7 +456,7 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
             userSnapshot.data() as Map<String, dynamic>?;
 
         if (userData != null) {
-          userIsAdmin = userData['roleType'] == 'admin';
+          userIsAdmin = userData['roleType'] == 'Patient';
         }
       }
     }
