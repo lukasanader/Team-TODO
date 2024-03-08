@@ -23,11 +23,13 @@ class _DiscoveryViewState extends State<DiscoveryView> {
   final TextEditingController _searchController = TextEditingController();
   List<Object> _topicsList = [];
   List<Object> _searchedTopicsList = [];
+  List<Object> _categoryTopicsList = [];
   int topicLength = 0;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    getCategoryList();
     getTopicsList();
   }
 
@@ -48,10 +50,11 @@ class _DiscoveryViewState extends State<DiscoveryView> {
           )
         ],
       ),
-      body: SafeArea(
-          child: Column(
+      body: SingleChildScrollView(
+        child: Column(
         children: [
           ListView.builder(
+            physics: const NeverScrollableScrollPhysics(),
             shrinkWrap: true,
             itemCount: topicLength == 0 ? 1 : topicLength,
             itemBuilder: (context, index) {
@@ -81,6 +84,14 @@ class _DiscoveryViewState extends State<DiscoveryView> {
               }
             },
           ),
+          ElevatedButton(
+              onPressed: () {
+                print(_categoryTopicsList.length);
+                // dynamic topic1 = _categoryTopicsList[0];
+                // print(topic1['title']);
+              },
+              child: const Text("List test button")
+          ),
           const SizedBox(
             height: 20,
           ),
@@ -88,7 +99,8 @@ class _DiscoveryViewState extends State<DiscoveryView> {
               onPressed: () {
                 _showPostDialog();
               },
-              child: const Text("Ask a question!"))
+              child: const Text("Ask a question!")
+          )
         ],
       )),
     );
@@ -124,6 +136,39 @@ class _DiscoveryViewState extends State<DiscoveryView> {
       topicLength = _topicsList.length;
     });
   }
+
+  Future getCategoryList() async {
+    
+    // QuerySnapshot data =
+    //     await widget.firestore.collection('topics')
+    //     // .orderBy('title')
+    //     .where('tags', arrayContainsAny: ['Parent'])
+    //     .get()
+    //     .then((querySnapshot) {
+    //       querySnapshot.docs.forEach((doc) { 
+    //         print(doc.data());
+    //       });
+    //     })
+    //     .catchError((error) {
+    //       print("erorr");
+    //     })
+
+    QuerySnapshot data = await widget.firestore
+        .collection('topics')
+        .where('tags', arrayContainsAny: ['Parent'])
+        .orderBy('title')
+        .get();
+         
+        
+
+    setState(() {
+      _categoryTopicsList = List.from(data.docs);
+      // topicLength = _topicsList.length;
+    });
+
+  }
+
+
 
   void _showPostDialog() {
     showDialog(

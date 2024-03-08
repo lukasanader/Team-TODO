@@ -87,21 +87,21 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                     Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: ChipsChoice<String>.multiple(
-                value: _tags,
-                onChanged: (val) => setState(() => _tags = val),
-                choiceItems: C2Choice.listFrom<String, String>(
-                  source: options,
-                  value: (i, v) => v,
-                  label: (i, v) => v,
-                ),
-                choiceCheckmark: true,
-                choiceStyle: C2ChipStyle.outlined(),
+                    Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: ChipsChoice<String>.multiple(
+                        value: _tags,
+                        onChanged: (val) => setState(() => _tags = val),
+                        choiceItems: C2Choice.listFrom<String, String>(
+                          source: options,
+                          value: (i, v) => v,
+                          label: (i, v) => v,
+                        ),
+                        choiceCheckmark: true,
+                        choiceStyle: C2ChipStyle.outlined(),
+                            ),
                     ),
-                  ),
-                   if (_tags.isEmpty)
+                    if (_tags.isEmpty)
                       const Padding(
                         padding: EdgeInsets.symmetric(vertical: 8.0),
                         child: Text(
