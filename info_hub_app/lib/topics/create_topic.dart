@@ -26,6 +26,9 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
   final _topicFormKey = GlobalKey<FormState>();
   List<String> _tags = [];
   List<String> options = ['Patient', 'Parent', 'Healthcare Professional'];
+  List<String> _categories = [];
+  List<String> _categoriesOptions = ['Gym', 'Teen', 'Diet', "hhhhhhhhhh"];
+  TextEditingController _newCategoryNameController = TextEditingController();
   String quizID = '';
   bool quizAdded = false;
 
@@ -120,6 +123,32 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                         border: OutlineInputBorder(),
                       ),
                       validator: validateTitle,
+                    ),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row (
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(20.0),
+                            child: ChipsChoice<String>.multiple(
+                              value: _categories,
+                              onChanged: (val) => setState(() => _categories = val),
+                              choiceItems: C2Choice.listFrom<String, String>(
+                                source: _categoriesOptions,
+                                value: (i, v) => v,
+                                label: (i, v) => v,
+                              ),
+                              choiceCheckmark: true,
+                              choiceStyle: C2ChipStyle.outlined(),
+                                  ),
+                          ),
+                          ElevatedButton(
+                            onPressed: () {
+                              createNewCategoryDialog();
+                            }, 
+                            child: Text("helloo"))
+                        ],
+                      ),
                     ),
                     const SizedBox(height: 10.0),
                     TextFormField(
@@ -335,6 +364,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
       'dislikes': 0,
       'date': DateTime.now(),
       'tags': _tags,
+      'categories': _categories,
       'quizID': quizID
     };
 
@@ -369,7 +399,39 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
       quizAdded = true;
     });
   }
+
+  void createNewCategoryDialog() {
+    showDialog(
+      context: context, 
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Create a new category"),
+          content: TextField(
+            controller: _newCategoryNameController,
+          ),
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                addCategory(_newCategoryNameController.text);
+                Navigator.of(context).pop();
+              },
+              child: const Text("OK"),
+            ),
+          ],
+        );
+      });
+  }
+
+  Future<void> addCategory(String categoryName) async {
+    await widget.firestore
+      .collection('categories')
+      .add({'name' : categoryName});
+  }
+
 }
+
+
+
 
 class StoreData {
   final FirebaseStorage _storage;
