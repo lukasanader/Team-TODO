@@ -10,6 +10,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:info_hub_app/topics/view_topic.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class EditTopicScreen extends StatefulWidget {
   final FirebaseFirestore firestore;
@@ -105,24 +106,6 @@ class _EditTopicScreenState extends State<EditTopicScreen> {
         title: const Text(
           'Edit Topic',
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back,
-            color: Colors.white,
-          ),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => ViewTopicScreen(
-                    firestore: widget.firestore,
-                    topic: updatedTopicDoc,
-                    storage: widget.storage,
-                    auth: widget.auth),
-              ),
-            );
-          },
         ),
       ),
       body: Form(
@@ -306,11 +289,12 @@ class _EditTopicScreenState extends State<EditTopicScreen> {
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => ViewTopicScreen(
-                            firestore: widget.firestore,
-                            topic: updatedTopicDoc,
-                            storage: widget.storage,
-                            auth: widget.auth),
+                        builder: (context) => CheckmarkAnimationScreen(
+                          firestore: widget.firestore,
+                          topic: updatedTopicDoc,
+                          storage: widget.storage,
+                          auth: widget.auth,
+                        ),
                       ),
                     );
                   }
@@ -395,10 +379,14 @@ class _EditTopicScreenState extends State<EditTopicScreen> {
     String oldVideoUrl = widget.topic['videoUrl'];
 
     // Check if a new video was selected
-    if (_videoPlayerController != null &&
-        _videoURL != widget.topic['videoUrl']) {
+    if (_videoURL != widget.topic['videoUrl']) {
       // Upload the new video and get its download URL
-      newVideoURL = await StoreData(widget.storage).uploadVideo(_videoURL!);
+      if (_videoURL != '') {
+        newVideoURL = await StoreData(widget.storage).uploadVideo(_videoURL!);
+      } else {
+        newVideoURL = '';
+      }
+
       print('STORE VIDEOOOOO');
 
       final topicDetails = {
@@ -474,7 +462,7 @@ class _EditTopicScreenState extends State<EditTopicScreen> {
 
   void _clearVideoSelection() {
     setState(() {
-      _videoURL = null;
+      _videoURL = '';
       if (_videoPlayerController != null) {
         _videoPlayerController!.pause();
         _videoPlayerController!.dispose();
@@ -508,5 +496,67 @@ class StoreData {
     await ref.putFile(File(videoUrl));
     String downloadURL = await ref.getDownloadURL();
     return downloadURL;
+  }
+}
+
+class CheckmarkAnimationScreen extends StatefulWidget {
+  final FirebaseFirestore firestore;
+  final FirebaseStorage storage;
+  final QueryDocumentSnapshot topic;
+  final FirebaseAuth auth;
+  const CheckmarkAnimationScreen(
+      {Key? key,
+      required this.topic,
+      required this.firestore,
+      required this.auth,
+      required this.storage})
+      : super(key: key);
+
+  @override
+  _CheckmarkAnimationScreenState createState() =>
+      _CheckmarkAnimationScreenState();
+}
+
+class _CheckmarkAnimationScreenState extends State<CheckmarkAnimationScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Delay navigation to the view topic screen
+    Future.delayed(Duration(seconds: 2), () {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ViewTopicScreen(
+              firestore: widget.firestore,
+              topic: widget.topic,
+              storage: widget.storage,
+              auth: widget.auth),
+        ),
+      );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SpinKitDoubleBounce(
+              color: Colors.green,
+              size: 70.0,
+            ),
+            SizedBox(height: 20),
+            Text(
+              'Your changes are on the way..',
+              style: TextStyle(
+                fontSize: 20,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
