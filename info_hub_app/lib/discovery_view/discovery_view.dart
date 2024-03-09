@@ -120,6 +120,7 @@ class _DiscoveryViewState extends State<DiscoveryView> {
 
     setState(() {
       _topicsList = List.from(data.docs);
+     
       topicLength = _topicsList.length;
     });
   }

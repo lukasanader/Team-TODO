@@ -1,7 +1,7 @@
 import 'dart:io';
+import 'package:chips_choice/chips_choice.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/topics/quiz/create_quiz.dart';
-
 import 'package:video_player/video_player.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:chewie/chewie.dart';
@@ -24,8 +24,10 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
   final descriptionController = TextEditingController();
   final articleLinkController = TextEditingController();
   final _topicFormKey = GlobalKey<FormState>();
+  List<String> _tags = [];
+  List<String> options = ['Patient', 'Parent', 'Healthcare Professional'];
   String quizID = '';
-  bool quizAdded=false;
+  bool quizAdded = false;
 
   String? validateTitle(String? value) {
     if (value == null || value.isEmpty) {
@@ -85,6 +87,28 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: ChipsChoice<String>.multiple(
+                        value: _tags,
+                        onChanged: (val) => setState(() => _tags = val),
+                        choiceItems: C2Choice.listFrom<String, String>(
+                          source: options,
+                          value: (i, v) => v,
+                          label: (i, v) => v,
+                        ),
+                        choiceCheckmark: true,
+                        choiceStyle: C2ChipStyle.outlined(),
+                      ),
+                    ),
+                    if (_tags.isEmpty)
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 8.0),
+                        child: Text(
+                          'Please select at least one tag.',
+                          style: TextStyle(color: Colors.red),
+                        ),
+                      ),
                     TextFormField(
                       key: const Key('titleField'),
                       controller: titleController,
@@ -166,33 +190,35 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 10.0),
               child: OutlinedButton(
-                style: OutlinedButton.styleFrom(
-                  minimumSize: const Size(double.infinity, 50),
-                ),
-                onPressed: () {
-                  Navigator.push(context,
-                          MaterialPageRoute(
-                            builder :(context) => CreateQuiz(firestore: widget.firestore,addQuiz: addQuiz),
-                          ),
-                          );
-                },
-                child: 
-                Row(
-                  children: [
-                    const SizedBox(width: 150,),
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size(double.infinity, 50),
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => CreateQuiz(
+                            firestore: widget.firestore, addQuiz: addQuiz),
+                      ),
+                    );
+                  },
+                  child: Row(children: [
+                    const SizedBox(
+                      width: 150,
+                    ),
                     const Text(
                       "ADD QUIZ",
                       style: TextStyle(
                         color: Colors.red,
                         fontWeight: FontWeight.bold,
-                      
                       ),
                     ),
-                    if(quizAdded)
-                      const Icon(Icons.check, color: Colors.green,)
-                    ]
-                )
-              ),
+                    if (quizAdded)
+                      const Icon(
+                        Icons.check,
+                        color: Colors.green,
+                      )
+                  ])),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 10.0),
@@ -201,9 +227,9 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                   minimumSize: const Size(double.infinity, 50),
                 ),
                 onPressed: () {
-                  if (_topicFormKey.currentState!.validate()) {
+                  if (_topicFormKey.currentState!.validate() &&
+                      _tags.isNotEmpty) {
                     _uploadTopic();
-
                     Navigator.pop(context);
                   }
                 },
@@ -309,6 +335,8 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
       'likes': 0,
       'dislikes': 0,
       'date': DateTime.now(),
+      'tags': _tags,
+      'quizID': quizID
     };
 
     CollectionReference topicCollectionRef =
@@ -336,12 +364,11 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
     // SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   }
 
-  void addQuiz(String qid){
+  void addQuiz(String qid) {
     setState(() {
-      quizID=qid;
-      quizAdded=true;
+      quizID = qid;
+      quizAdded = true;
     });
-    
   }
 }
 

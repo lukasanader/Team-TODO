@@ -15,6 +15,8 @@ import 'package:info_hub_app/topics/topics_card.dart';
 import 'package:info_hub_app/notifications/notifications.dart';
 import 'package:info_hub_app/threads/threads.dart';
 import 'package:info_hub_app/services/database.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:info_hub_app/main.dart';
 import 'package:info_hub_app/change_profile/change_profile.dart';
 
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -26,7 +28,6 @@ import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:info_hub_app/profile_view/profile_view.dart';
 
 import 'package:info_hub_app/helpers/helper.dart' show getTrending;
-
 
 class HomePage extends StatefulWidget {
   FirebaseFirestore firestore;
@@ -102,8 +103,6 @@ class _HomePageState extends State<HomePage> {
             IconButton(
               icon: const Icon(Icons.email),
               onPressed: () {
-
-
                 PersistentNavBarNavigator.pushNewScreen(
                   context,
                   screen: PatientMessageView(
@@ -112,25 +111,23 @@ class _HomePageState extends State<HomePage> {
                   ),
                   withNavBar: false,
                 );
-
               },
             ),
           ],
-
         ),
-
-
-
-      floatingActionButton: FloatingActionButton(
-        onPressed: ()  {
-          Navigator.push(
-            context, 
-            MaterialPageRoute(builder: (context) => TestView(firestore: widget.firestore, auth: widget.auth, storage: widget.storage,)));
-        },
-      child: const Text('tests'),
-      ),
-
-
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => TestView(
+                          firestore: widget.firestore,
+                          auth: widget.auth,
+                          storage: widget.storage,
+                        )));
+          },
+          child: const Text('tests'),
+        ),
 
         //above is the floating action button
         body: SingleChildScrollView(
