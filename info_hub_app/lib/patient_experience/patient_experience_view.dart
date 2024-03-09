@@ -27,7 +27,7 @@ class _ExperienceViewState extends State<ExperienceView> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text("Paitent's Experiences"),
+          title: const Text("Patient's Experiences"),
         ),
         body: SafeArea(
             child: Column(
@@ -50,57 +50,75 @@ class _ExperienceViewState extends State<ExperienceView> {
   }
 
   void _showPostDialog() {
-    _descriptionController.clear();
-    _titleController.clear();
+  _descriptionController.clear();
+  _titleController.clear();
 
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text(''),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                maxLines: 1,
-                maxLength: 70,
-                controller: _titleController,
-                decoration: const InputDecoration(
-                    labelText: 'Title', border: OutlineInputBorder()),
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text(''),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              maxLines: 1,
+              maxLength: 70,
+              controller: _titleController,
+              decoration: const InputDecoration(
+                labelText: 'Title',
+                border: OutlineInputBorder(),
               ),
-              const SizedBox(
-                height: 20,
+            ),
+            const SizedBox(height: 20),
+            TextField(
+              maxLines: 5,
+              maxLength: 1000,
+              keyboardType: TextInputType.multiline,
+              controller: _descriptionController,
+              decoration: const InputDecoration(
+                labelText: 'Share your experience!',
+                border: OutlineInputBorder(),
               ),
-              TextField(
-                maxLines: 5,
-                maxLength: 1000,
-                keyboardType: TextInputType.multiline,
-                controller: _descriptionController,
-                decoration: const InputDecoration(
-                    labelText: 'Share your experience!',
-                    border: OutlineInputBorder()),
-              ),
-              const SizedBox(
-                height: 20,
-                width: 100000,
-              ),
-              ElevatedButton(
-                onPressed: () async {
-                  if (_titleController.text.isEmpty || _descriptionController.text.isEmpty) {
-                    return _blankTitleOrExperienceAlert(context);
-                  }
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () async {
+                if (_titleController.text.isEmpty || _descriptionController.text.isEmpty) {
+                  return _blankTitleOrExperienceAlert(context);
+                }
 
-                  _saveExperience();
-                  Navigator.of(context).pop(); // Close the dialog
-                },
-                child: const Text('Submit'),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
+                _saveExperience();
+                Navigator.of(context).pop(); // Close the dialog
+
+                // Show the thank you message dialog
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: const Text('Thank You!'),
+                      content: const Text('Thank you for sharing your experience.'),
+                      actions: <Widget>[
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          child: const Text('OK'),
+                        ),
+                      ],
+                    );
+                  },
+                );
+              },
+              child: const Text('Submit'),
+            ),
+          ],
+        ),
+      );
+    },
+  );
+}
+
 
   Future getExperienceList() async {
     QuerySnapshot data = await widget.firestore
