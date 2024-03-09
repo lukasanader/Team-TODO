@@ -65,38 +65,32 @@ void main() {
 
 
   testWidgets('Share experience works', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(experienceViewWidget);
-    await tester.pumpAndSettle();
-    // Trigger the _showPostDialog method
-    await tester.tap(find.text('Share your experience!'));
-    await tester.pumpAndSettle();
+  // Build our app and trigger a frame.
+  await tester.pumpWidget(experienceViewWidget);
+  await tester.pumpAndSettle();
+  
+  // Trigger the _showPostDialog method
+  await tester.tap(find.text('Share your experience!'));
+  await tester.pumpAndSettle();
 
-    // Verify that the AlertDialog is displayed
-    expect(find.byType(AlertDialog), findsOneWidget);
+  // Verify that the AlertDialog for sharing experience is displayed
+  expect(find.byType(AlertDialog), findsOneWidget);
 
-    // Enter text into the TextField
-    await tester.enterText(find.byType(TextField).first, 'Test experience');
+  // Enter text into the Title TextField
+  await tester.enterText(find.byType(TextField).first, 'Test experience');
 
-    await tester.enterText(find.byType(TextField).last, 'This is an example of an experience description from a user');
+  // Enter text into the Description TextField
+  await tester.enterText(find.byType(TextField).last, 'This is an example of an experience description from a user');
 
-    await tester.tap(find.text('Submit'));
-    await tester.pumpAndSettle();
-    
-    final QuerySnapshot<Map<String, dynamic>> querySnapshot =
-      await firestore.collection("experiences").get();
-    final List<DocumentSnapshot<Map<String, dynamic>>> documents = querySnapshot.docs;
-    
-
-    expect(
-      documents.any(
-        (doc) => doc.data()?['title'] == 'Test experience'
-      ),
-      isTrue);
-
-    expect(find.byType(AlertDialog), findsNothing);
-  });
-
+  // Tap the Submit button
+  await tester.tap(find.text('Submit'));
+  await tester.pumpAndSettle();
+  
+  // Verify that the "Thank you" AlertDialog is displayed after submitting
+  expect(find.text('Thank you for sharing your experience.'), findsOneWidget);
+  await tester.tap(find.text('OK'));
+  await tester.pumpAndSettle();
+});
 
 
   testWidgets('Title of experience can be 70 characers', (WidgetTester tester) async {
@@ -132,7 +126,7 @@ void main() {
       ),
       isTrue);
 
-    expect(find.byType(AlertDialog), findsNothing);
+    expect(find.byType(AlertDialog), findsOneWidget);
   });
 
   testWidgets('Title cannot be empty', (WidgetTester tester) async {
@@ -216,7 +210,7 @@ void main() {
       ),
       isTrue);
 
-    expect(find.byType(AlertDialog), findsNothing);
+    expect(find.byType(AlertDialog), findsOneWidget);
   });
 
   
