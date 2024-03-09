@@ -1,60 +1,43 @@
 import 'dart:io';
 import 'package:chips_choice/chips_choice.dart';
 import 'package:flutter/material.dart';
-import 'package:info_hub_app/topics/quiz/create_quiz.dart';
 import 'package:video_player/video_player.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:chewie/chewie.dart';
 import 'package:flutter/services.dart';
+import 'package:info_hub_app/topics/quiz/create_quiz.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:path/path.dart';
 
 class CreateTopicScreen extends StatefulWidget {
   final FirebaseFirestore firestore;
   final FirebaseStorage storage;
-  const CreateTopicScreen(
-      {super.key, required this.firestore, required this.storage});
+
+  const CreateTopicScreen({
+    Key? key,
+    required this.firestore,
+    required this.storage,
+  }) : super(key: key);
 
   @override
   State<CreateTopicScreen> createState() => _CreateTopicScreenState();
 }
 
 class _CreateTopicScreenState extends State<CreateTopicScreen> {
-  final titleController = TextEditingController();
-  final descriptionController = TextEditingController();
-  final articleLinkController = TextEditingController();
-  final _topicFormKey = GlobalKey<FormState>();
+  final TextEditingController titleController = TextEditingController();
+  final TextEditingController descriptionController = TextEditingController();
+  final TextEditingController articleLinkController = TextEditingController();
+  final GlobalKey<FormState> _topicFormKey = GlobalKey<FormState>();
   List<String> _tags = [];
   List<String> options = ['Patient', 'Parent', 'Healthcare Professional'];
   String quizID = '';
   bool quizAdded = false;
 
-  String? validateTitle(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Please enter a Title.';
-    }
-    return null;
-  }
-
-  String? validateArticleLink(String? value) {
-    if (value != null && value.isNotEmpty) {
-      final url = Uri.tryParse(value);
-      if (url == null || !url.hasAbsolutePath || !url.isAbsolute) {
-        return 'Link is not valid, please enter a valid link';
-      }
-    }
-    return null;
-  }
-
-  String? validateDescription(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Please enter a Description';
-    }
-    return null;
-  }
-
   String? _videoURL;
+  String? _imageUrl;
   String? _downloadURL;
+  String? _mediaType;
   VideoPlayerController? _videoController;
   ChewieController? _chewieController;
 
@@ -146,34 +129,29 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                       validator: validateArticleLink,
                     ),
                     const SizedBox(height: 10.0),
+                    const SizedBox(height: 10.0),
                     ElevatedButton.icon(
-                      key: const Key('uploadVideoButton'),
-                      onPressed: () async {
-                        _videoController?.pause();
-                        String? videoURL = await pickVideoFromDevice();
-
-                        if (videoURL != null) {
-                          setState(() {
-                            _videoURL = videoURL;
-                          });
-                          await _initializeVideoPlayer();
-                        }
+                      key: const Key('uploadMediaButton'),
+                      onPressed: () {
+                        _showMediaUploadOptions(context);
                       },
                       icon: const Icon(
                         Icons.cloud_upload_outlined,
                       ),
-                      label: _videoURL == null
+                      label: _videoURL != null || _imageUrl != null
                           ? const Text(
-                              'Upload a video',
+                              'Change Media',
                               style: TextStyle(
-                                  color: Colors.red,
-                                  fontWeight: FontWeight.bold),
+                                color: Colors.red,
+                                fontWeight: FontWeight.bold,
+                              ),
                             )
                           : const Text(
-                              'Change video',
+                              'Upload Media',
                               style: TextStyle(
-                                  color: Colors.red,
-                                  fontWeight: FontWeight.bold),
+                                color: Colors.red,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                       style: ElevatedButton.styleFrom(
                         shape: RoundedRectangleBorder(
@@ -181,8 +159,10 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                         ),
                       ),
                     ),
+                    const SizedBox(height: 10.0),
                     if (_videoURL != null && _chewieController != null)
                       _videoPreviewWidget(),
+                    if (_imageUrl != null) _imagePreviewWidget(),
                   ],
                 ),
               ),
@@ -252,7 +232,96 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
+        allowedExtensions: [
+          'mp4',
+          'mov',
+          'avi',
+          'mkv',
+          'wmv',
+          'jpg',
+          'jpeg',
+          'png'
+        ],
+      );
+      return result!.files.first.path;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  Future<void> _showMediaUploadOptions(BuildContext context) async {
+    await showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            ListTile(
+              leading: const Icon(Icons.image_outlined),
+              title: const Text('Upload Image'),
+              onTap: () {
+                Navigator.pop(context);
+                _pickImageFromDevice();
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.videocam_outlined),
+              title: const Text('Upload Video'),
+              onTap: () {
+                Navigator.pop(context);
+                _pickVideoFromDevice();
+              },
+            ),
+          ],
+        );
+      },
+    );
+    return; // Add this return statement
+  }
+
+  Future<void> _pickImageFromDevice() async {
+    try {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['jpg', 'jpeg', 'png'],
+      );
+      if (result != null) {
+        String imagePath = result.files.first.path!;
+        setState(() {
+          _imageUrl = imagePath;
+          _videoURL = null; // Reset video if any
+        });
+        await _initializeImage();
+      }
+    } catch (e) {
+      print("Error picking image: $e");
+    }
+  }
+
+  Future<void> _pickVideoFromDevice() async {
+    try {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
         allowedExtensions: ['mp4', 'mov', 'avi', 'mkv', 'wmv'],
+      );
+      if (result != null) {
+        String videoPath = result.files.first.path!;
+        setState(() {
+          _videoURL = videoPath;
+          _imageUrl = null; // Reset image if any
+        });
+        await _initializeVideoPlayer();
+      }
+    } catch (e) {
+      print("Error picking video: $e");
+    }
+  }
+
+  Future<String?> pickImageFromDevice() async {
+    try {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['jpg', 'jpeg', 'png'],
       );
       return result!.files.first.path;
     } catch (e) {
@@ -282,6 +351,12 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
           SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
         }
       });
+      setState(() {});
+    }
+  }
+
+  Future<void> _initializeImage() async {
+    if (_imageUrl != null && _imageUrl!.isNotEmpty) {
       setState(() {});
     }
   }
@@ -321,16 +396,57 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
     );
   }
 
+  Widget _imagePreviewWidget() {
+    if (_imageUrl != null) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Image.file(File(_imageUrl!)),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                IconButton(
+                  key: const Key('deleteImageButton'),
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                  onPressed: _clearImageSelection,
+                  tooltip: 'Remove Image',
+                ),
+              ],
+            ),
+          ),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 8.0),
+            child: Text(
+              'the above is a preview of your image.',
+              style: TextStyle(color: Colors.grey),
+            ),
+          ),
+        ],
+      );
+    } else {
+      return Container();
+    }
+  }
+
   void _uploadTopic() async {
     if (_videoController != null) {
-      _downloadURL = await StoreData(widget.storage).uploadVideo(_videoURL!);
+      _downloadURL = await _storeData().uploadFile(_videoURL!);
+      _mediaType = "video";
+    } else if (_imageUrl != null) {
+      _downloadURL = await _storeData().uploadFile(_imageUrl!);
+      _mediaType = "image";
     }
 
     final topicDetails = {
       'title': titleController.text,
       'description': descriptionController.text,
       'articleLink': articleLinkController.text,
-      'videoUrl': _downloadURL,
+      'media': {
+        'url': _downloadURL,
+        'type': _mediaType,
+      },
       'views': 0,
       'likes': 0,
       'dislikes': 0,
@@ -343,6 +459,13 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
         widget.firestore.collection('topics');
 
     await topicCollectionRef.add(topicDetails);
+  }
+
+  void _clearImageSelection() {
+    setState(() {
+      _imageUrl = null;
+      _downloadURL = null;
+    });
   }
 
   void _clearVideoSelection() {
@@ -360,8 +483,6 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
         _chewieController = null;
       }
     });
-
-    // SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   }
 
   void addQuiz(String qid) {
@@ -370,6 +491,35 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
       quizAdded = true;
     });
   }
+
+  StoreData _storeData() {
+    return StoreData(widget.storage);
+  }
+
+  // Validation functions
+  String? validateTitle(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter a Title.';
+    }
+    return null;
+  }
+
+  String? validateArticleLink(String? value) {
+    if (value != null && value.isNotEmpty) {
+      final url = Uri.tryParse(value);
+      if (url == null || !url.hasAbsolutePath || !url.isAbsolute) {
+        return 'Link is not valid, please enter a valid link';
+      }
+    }
+    return null;
+  }
+
+  String? validateDescription(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter a Description';
+    }
+    return null;
+  }
 }
 
 class StoreData {
@@ -377,10 +527,9 @@ class StoreData {
 
   StoreData(this._storage);
 
-  Future<String> uploadVideo(String videoUrl) async {
-    Reference ref = _storage.ref().child('videos/${DateTime.now()}.mp4');
-    await ref.putFile(File(videoUrl));
-    String downloadURL = await ref.getDownloadURL();
-    return downloadURL;
+  Future<String> uploadFile(String url) async {
+    Reference ref = _storage.ref().child('media/${basename(url)}');
+    await ref.putFile(File(url));
+    return await ref.getDownloadURL();
   }
 }

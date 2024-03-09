@@ -1,33 +1,31 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:info_hub_app/topics/edit_topic.dart';
-import 'package:info_hub_app/helpers/base.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:info_hub_app/topics/quiz/complete_quiz.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:chewie/chewie.dart';
 import 'package:video_player/video_player.dart';
+import 'package:info_hub_app/topics/quiz/complete_quiz.dart';
 import 'package:flutter/services.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
+import 'package:info_hub_app/topics/edit_topic.dart';
+import 'package:info_hub_app/helpers/base.dart';
 import 'dart:async';
 import 'package:info_hub_app/threads/threads.dart';
 
 class ViewTopicScreen extends StatefulWidget {
   final QueryDocumentSnapshot topic;
-
   final FirebaseFirestore firestore;
   final FirebaseStorage storage;
-
   final FirebaseAuth auth;
 
-  const ViewTopicScreen(
-      {required this.firestore,
-      required this.topic,
-      required this.storage,
-      required this.auth,
-      Key? key})
-      : super(key: key);
+  const ViewTopicScreen({
+    required this.firestore,
+    required this.topic,
+    required this.storage,
+    required this.auth,
+    Key? key,
+  }) : super(key: key);
 
   @override
   State<ViewTopicScreen> createState() => _ViewTopicScreenState();
@@ -37,9 +35,8 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
   VideoPlayerController? _videoPlayerController;
   ChewieController? _chewieController;
   late QueryDocumentSnapshot updatedTopic;
-  late QueryDocumentSnapshot upTopic;
-
   bool vidAvailable = false;
+  bool imgAvailable = false;
 
   int likes = 0;
   int dislikes = 0;
@@ -48,19 +45,20 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
   void initState() {
     super.initState();
     updatedTopic = widget.topic;
-
-    // Fetch topic details after 2 seconds
-    updateTopic();
-
-    upTopic = updatedTopic;
-
     _isAdmin();
     checkUserLikedAndDislikedTopics();
     updateLikesAndDislikesCount();
 
-    if (updatedTopic['videoUrl'] != null && updatedTopic['videoUrl'] != "") {
-      _initializeVideoPlayer();
-      vidAvailable = true;
+    if (updatedTopic['media'] != null) {
+      final media = updatedTopic['media'] as Map<String, dynamic>;
+      final mediaType = media['type'] as String?;
+
+      if (mediaType == 'video') {
+        vidAvailable = true;
+        _initializeVideoPlayer(media['url'] as String);
+      } else if (mediaType == 'image') {
+        imgAvailable = true;
+      }
     }
   }
 
@@ -111,22 +109,6 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
     return false;
   }
 
-  void updateTopic() async {
-    CollectionReference topicCollectionRef =
-        widget.firestore.collection('topics');
-
-    QuerySnapshot data = await topicCollectionRef.orderBy('title').get();
-
-    for (QueryDocumentSnapshot doc in data.docs) {
-      // Check if the document ID matches the ID of the topic
-      if (doc.id == widget.topic.id) {
-        // Found the updated topic document
-        updatedTopic = doc as QueryDocumentSnapshot<Object>;
-        break; // Exit the loop since we found the document
-      }
-    }
-  }
-
   void updateLikesAndDislikesCount() {
     widget.firestore
         .collection('topics')
@@ -140,48 +122,30 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
     });
   }
 
-  void _initializeVideoPlayer() async {
-    final videoUrl = updatedTopic['videoUrl'] as String?;
+  void _initializeVideoPlayer(String videoUrl) async {
+    _videoPlayerController = VideoPlayerController.network(videoUrl);
 
-    CollectionReference topicCollectionRef =
-        widget.firestore.collection('topics');
-
-    QuerySnapshot data = await topicCollectionRef.orderBy('title').get();
-
-    for (QueryDocumentSnapshot doc in data.docs) {
-      // Check if the document ID matches the ID of the topic
-      if (doc.id == widget.topic.id) {
-        // Found the updated topic document
-        updatedTopic = doc as QueryDocumentSnapshot<Object>;
-        break; // Exit the loop since we found the document
-      }
-    }
-    if (videoUrl != null && videoUrl.isNotEmpty) {
-      _videoPlayerController =
-          VideoPlayerController.networkUrl(Uri.parse(videoUrl));
-
-      await _videoPlayerController!.initialize();
-      _chewieController = ChewieController(
-        videoPlayerController: _videoPlayerController!,
-        autoInitialize: true,
-        looping: false,
-        aspectRatio: 16 / 9,
-        deviceOrientationsAfterFullScreen: [
+    await _videoPlayerController!.initialize();
+    _chewieController = ChewieController(
+      videoPlayerController: _videoPlayerController!,
+      autoInitialize: true,
+      looping: false,
+      aspectRatio: 16 / 9,
+      deviceOrientationsAfterFullScreen: [
+        DeviceOrientation.portraitUp,
+        DeviceOrientation.portraitDown,
+      ],
+      allowedScreenSleep: false,
+    );
+    _chewieController!.addListener(() {
+      if (!_chewieController!.isFullScreen) {
+        SystemChrome.setPreferredOrientations([
           DeviceOrientation.portraitUp,
-          DeviceOrientation.portraitDown,
-        ],
-        allowedScreenSleep: false,
-      );
-      _chewieController!.addListener(() {
-        if (!_chewieController!.isFullScreen) {
-          SystemChrome.setPreferredOrientations([
-            DeviceOrientation.portraitUp,
-          ]);
-        }
-      });
+        ]);
+      }
+    });
 
-      setState(() {});
-    }
+    setState(() {});
   }
 
   @override
@@ -310,6 +274,8 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
                 key: const Key('edit_btn'),
                 icon: const Icon(Icons.edit, color: Colors.white),
                 onPressed: () {
+                  // Navigate to edit screen
+
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
@@ -337,6 +303,12 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
                     SizedBox(
                       height: 250,
                       child: Chewie(controller: _chewieController!),
+                    ),
+                  if (imgAvailable)
+                    Image.network(
+                      updatedTopic['media']['url'],
+                      fit: BoxFit.cover,
+                      height: 250,
                     ),
                   const SizedBox(height: 30),
                   Flexible(
@@ -375,6 +347,7 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
                                     size: 20),
                                 onPressed: () {
                                   // Navigate to the Threads screen
+
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
@@ -387,8 +360,7 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
                                   );
                                 },
                               ),
-
-                              // Display likes
+                              // complete quiz
                               TextButton(
                                 onPressed: () {
                                   Navigator.push(
@@ -475,25 +447,6 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
     );
   }
 
-  Future<void> _isAdmin() async {
-    User? user = widget.auth.currentUser;
-
-    // Check if the user exists and if the user's roleType is 'admin'
-    if (user != null) {
-      DocumentSnapshot userSnapshot =
-          await widget.firestore.collection('Users').doc(user.uid).get();
-
-      if (userSnapshot.exists) {
-        Map<String, dynamic>? userData =
-            userSnapshot.data() as Map<String, dynamic>?;
-
-        if (userData != null) {
-          userIsAdmin = userData['roleType'] == 'admin';
-        }
-      }
-    }
-  }
-
   deleteTopic() async {
     removeTopicFromUsers();
     // If the topic has a video URL, delete the corresponding video from storage
@@ -544,6 +497,25 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
       }
 
       await userSnapshot.reference.update(userData);
+    }
+  }
+
+  Future<void> _isAdmin() async {
+    User? user = widget.auth.currentUser;
+
+    // Check if the user exists and if the user's roleType is 'admin'
+    if (user != null) {
+      DocumentSnapshot userSnapshot =
+          await widget.firestore.collection('Users').doc(user.uid).get();
+
+      if (userSnapshot.exists) {
+        Map<String, dynamic>? userData =
+            userSnapshot.data() as Map<String, dynamic>?;
+
+        if (userData != null) {
+          userIsAdmin = userData['roleType'] == 'Patient';
+        }
+      }
     }
   }
 }
