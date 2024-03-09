@@ -107,12 +107,7 @@ class _DiscoveryViewState extends State<DiscoveryView> {
               }
             },
           ),
-          ElevatedButton(
-              onPressed: () {
-                print(categoriesSelected);
-              },
-              child: const Text("List test button")
-          ),
+
           const SizedBox(
             height: 20,
           ),
@@ -157,25 +152,7 @@ class _DiscoveryViewState extends State<DiscoveryView> {
     });
   }
 
-  // Future updateTopicListBasedOnCategory(List<String> categories) async {
 
-  //   if (categories.isEmpty) {
-  //     getTopicsList();
-  //   }
-  //   else {
-  //     QuerySnapshot data = await widget.firestore
-  //       .collection('topics')
-  //       .where('categories', arrayContainsAny: categories)
-  //       .orderBy('title')
-  //       .get();
-
-  //     setState(() {
-  //       _topicsList = List.from(data.docs);
-  //       topicLength = _topicsList.length;
-  //     });
-  //   }
-
-  // }
 
   Future updateTopicListBasedOnCategory(List<String> categories) async {
     if (categories.isEmpty) {
