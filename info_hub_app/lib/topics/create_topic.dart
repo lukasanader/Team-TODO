@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:chips_choice/chips_choice.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:info_hub_app/topics/quiz/create_quiz.dart';
 import 'package:video_player/video_player.dart';
 import 'package:file_picker/file_picker.dart';
@@ -135,25 +136,36 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                       scrollDirection: Axis.horizontal,
                       child: Row (
                         children: [
-                          Padding(
-                            padding: const EdgeInsets.all(20.0),
-                            child: ChipsChoice<String>.multiple(
-                              value: _categories,
-                              onChanged: (val) => setState(() => _categories = val),
-                              choiceItems: C2Choice.listFrom<String, String>(
-                                source: _categoriesOptions,
-                                value: (i, v) => v,
-                                label: (i, v) => v,
-                              ),
-                              choiceCheckmark: true,
-                              choiceStyle: C2ChipStyle.outlined(),
-                                  ),
-                          ),
-                          ElevatedButton(
+                          IconButton(
                             onPressed: () {
                               createNewCategoryDialog();
                             }, 
-                            child: Text("helloo"))
+                            icon: const Icon(Icons.add)
+                          ),
+                          IconButton(
+                            onPressed: () {
+                              deleteCategoryDialog();
+                            }, 
+                            icon: const Icon(Icons.close)
+                          ),
+                          if (_categoriesOptions.isEmpty) 
+                            const Text('Add a category'),
+                          
+                          if (_categoriesOptions.isNotEmpty)
+                            Padding(
+                              padding: const EdgeInsets.all(20.0),
+                              child: ChipsChoice<String>.multiple(
+                                value: _categories,
+                                onChanged: (val) => setState(() => _categories = val),
+                                choiceItems: C2Choice.listFrom<String, String>(
+                                  source: _categoriesOptions,
+                                  value: (i, v) => v,
+                                  label: (i, v) => v,
+                                ),
+                                choiceCheckmark: true,
+                                choiceStyle: C2ChipStyle.outlined(),
+                                    ),
+                            ),
                         ],
                       ),
                     ),
@@ -413,7 +425,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
       context: context, 
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Create a new category"),
+          title: const Text("Create a new category"),
           content: TextField(
             controller: _newCategoryNameController,
           ),
@@ -432,7 +444,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                     builder: (BuildContext context) {
                       return const AlertDialog(
                         title: Text('Warning!'),
-                        content: Text("Make sure category names are different/not b!"),
+                        content: Text("Make sure category names are different/not blank!"),
                       );
                     },
                   );
@@ -458,12 +470,81 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
       tempList.add(category['name']); 
     }
 
-
     setState(() {
       _categoriesOptions = tempList;
     });
   }
 
+  void deleteCategoryDialog() {
+    showDialog(
+      context: context, 
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context,
+          StateSetter setState) {
+            return AlertDialog(
+              title: const Text("Delete a category"),
+              content: SizedBox(
+                height: 300,
+                width: 200,
+                child: ListView.builder(
+                  itemCount: _categoriesOptions.length,
+                  itemBuilder: (context, index) {
+                    return ListTile(
+                      title: Text(_categoriesOptions[index]),
+                      onTap: () {
+                        deleteCategoryConfirmation(_categoriesOptions[index]);
+                      },
+                    );
+                  },
+                ),
+              ),
+            );
+          }
+        
+        );
+      });
+  }
+
+  Future<void> deleteCategoryConfirmation(String categoryName) async {
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Warning!'),
+          content: const Text("Are you sure you want to delete?"),
+          actions: [
+            ElevatedButton(
+              onPressed: () async {
+                deleteCategory(categoryName);
+                _categoriesOptions.remove(categoryName);
+                getCategoryList();
+                Navigator.of(context).pop();
+                Navigator.of(context).pop();
+              },
+              child: const Text("OK"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+
+  Future<void> deleteCategory(String categoryName) async {
+    QuerySnapshot categoryToDelete = await widget.firestore
+      .collection('categories')
+      .where('name', isEqualTo: categoryName)
+      .get();
+
+    QueryDocumentSnapshot category = categoryToDelete.docs[0];
+    await widget.firestore.collection('categories').doc(category.id).delete();
+
+    setState(() {
+      _categoriesOptions.remove(categoryName);
+    });
+
+  }
 
   Future<void> addCategory(String categoryName) async {
     await widget.firestore
