@@ -57,13 +57,17 @@ dependencies:
 
   timeago: ^3.0.2
 
-  file: 6.1.4
+  file:
   
   url_launcher: ^6.2.4
+
+  flutter_spinkit: ^5.2.0
 
   video_player_platform_interface: ^6.2.2
 
   plugin_platform_interface: ^2.1.8
+
+
 
   persistent_bottom_nav_bar: ^5.0.2
 
@@ -77,6 +81,8 @@ dependencies:
 
   uuid: ^4.3.3
 
+  chips_choice: ^3.0.1
+  
   get: ^4.6.6
 
 
@@ -94,6 +100,7 @@ dev_dependencies:
   fake_cloud_firestore: ^2.4.8
   firebase_auth_mocks: ^0.13.0
   firebase_database_mocks: ^0.6.1
+
 
 
 

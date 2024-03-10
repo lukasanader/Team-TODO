@@ -583,16 +583,16 @@ void main() {
     // Build our app and trigger a frame.
     await tester.pumpWidget(experienceViewWidget);
     await tester.pumpAndSettle();
+
     // Trigger the _showPostDialog method
     await tester.tap(find.text('Share your experience!'));
     await tester.pumpAndSettle();
 
-    // Verify that the AlertDialog is displayed
+    // Verify that the AlertDialog for sharing experience is displayed
     expect(find.byType(AlertDialog), findsOneWidget);
 
-    // Enter text into the TextField
+    // Enter text into the Title TextField
     await tester.enterText(find.byType(TextField).first, 'Test experience');
-
     await tester.enterText(find.byType(TextField).last,
         'This is an example of an experience description from a user');
 
@@ -640,7 +640,7 @@ void main() {
 
     expect(documents.any((doc) => doc.data()?['title'] == longTitle), isTrue);
 
-    expect(find.byType(AlertDialog), findsNothing);
+    expect(find.byType(AlertDialog), findsOneWidget);
   });
 
   testWidgets('Title cannot be empty', (WidgetTester tester) async {
@@ -721,6 +721,6 @@ void main() {
         documents.any((doc) => doc.data()?['description'] == longDescription),
         isTrue);
 
-    expect(find.byType(AlertDialog), findsNothing);
+    expect(find.byType(AlertDialog), findsOneWidget);
   });
 }

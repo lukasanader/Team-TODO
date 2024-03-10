@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/topics/edit_topic.dart';
+import 'package:info_hub_app/helpers/base.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:info_hub_app/topics/quiz/complete_quiz.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:chewie/chewie.dart';
 import 'package:video_player/video_player.dart';
@@ -154,8 +156,6 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
         break; // Exit the loop since we found the document
       }
     }
-
-    print(videoUrl);
     if (videoUrl != null && videoUrl.isNotEmpty) {
       _videoPlayerController =
           VideoPlayerController.networkUrl(Uri.parse(videoUrl));
@@ -280,15 +280,50 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color.fromRGBO(200, 0, 0, 1.0),
-        title: Text(
-          updatedTopic['title'],
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
+          backgroundColor: const Color.fromRGBO(200, 0, 0, 1.0),
+          title: Text(
+            updatedTopic['title'],
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-        ),
-      ),
+          leading: IconButton(
+            icon: const Icon(
+              Icons.arrow_back,
+              color: Colors.white,
+            ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => Base(
+                        auth: widget.auth,
+                        storage: widget.storage,
+                        firestore: widget.firestore)),
+              );
+            },
+          ),
+          actions: <Widget>[
+            if (userIsAdmin)
+              IconButton(
+                key: const Key('edit_btn'),
+                icon: const Icon(Icons.edit, color: Colors.white),
+                onPressed: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => EditTopicScreen(
+                        topic: updatedTopic, // Pass your original topic data
+                        firestore: widget.firestore,
+                        auth: widget.auth,
+                        storage: widget.storage,
+                      ),
+                    ),
+                  );
+                },
+              )
+          ]),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -336,7 +371,8 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
                               ),
                               Text("$dislikes"),
                               IconButton(
-                                icon: Icon(FontAwesomeIcons.comments, size: 20),
+                                icon: const Icon(FontAwesomeIcons.comments,
+                                    size: 20),
                                 onPressed: () {
                                   // Navigate to the Threads screen
                                   Navigator.push(
@@ -353,6 +389,19 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
                               ),
 
                               // Display likes
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => CompleteQuiz(
+                                            firestore: widget.firestore,
+                                            topic: widget.topic,
+                                            auth: widget.auth)),
+                                  );
+                                },
+                                child: const Text('QUIZ!!'),
+                              ),
                             ],
                           ),
                         ],
@@ -380,7 +429,7 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
               padding: const EdgeInsets.all(16.0),
               child: Center(
                 child: ElevatedButton(
-                  key: Key('delete_topic_button'),
+                  key: const Key('delete_topic_button'),
                   onPressed: () {
                     // Show confirmation dialog
                     showDialog(
@@ -421,23 +470,6 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
                 ),
               ),
             ),
-          if (userIsAdmin)
-            IconButton(
-                key: Key('edit_btn'),
-                icon: const Icon(Icons.edit),
-                onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => EditTopicScreen(
-                        topic: updatedTopic, // Pass your original topic data
-                        firestore: widget.firestore,
-                        auth: widget.auth,
-                        storage: widget.storage,
-                      ),
-                    ),
-                  );
-                })
         ],
       ),
     );
