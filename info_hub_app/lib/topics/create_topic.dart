@@ -36,6 +36,11 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
 
   String? _videoURL;
   String? _imageUrl;
+
+  List<Map<String, String>> mediaUrls = [];
+
+  int currentIndex = 0;
+
   String? _downloadURL;
   String? _mediaType;
   VideoPlayerController? _videoController;
@@ -130,39 +135,134 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                     ),
                     const SizedBox(height: 10.0),
                     const SizedBox(height: 10.0),
-                    ElevatedButton.icon(
-                      key: const Key('uploadMediaButton'),
-                      onPressed: () {
-                        _showMediaUploadOptions(context);
-                      },
-                      icon: const Icon(
-                        Icons.cloud_upload_outlined,
-                      ),
-                      label: _videoURL != null || _imageUrl != null
-                          ? const Text(
-                              'Change Media',
-                              style: TextStyle(
-                                color: Colors.red,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            )
-                          : const Text(
-                              'Upload Media',
+                    Row(
+                      children: [
+                        ElevatedButton.icon(
+                          key: const Key('uploadMediaButton'),
+                          onPressed: () {
+                            _showMediaUploadOptions(context);
+                          },
+                          icon: const Icon(
+                            Icons.cloud_upload_outlined,
+                          ),
+                          label: _videoURL != null || _imageUrl != null
+                              ? const Text(
+                                  'Change Media',
+                                  style: TextStyle(
+                                    color: Colors.red,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                )
+                              : const Text(
+                                  'Upload Media',
+                                  style: TextStyle(
+                                    color: Colors.red,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                          style: ElevatedButton.styleFrom(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        if (_videoURL != null || _imageUrl != null)
+                          ElevatedButton.icon(
+                            onPressed: () {
+                              _showMediaUploadOptions(context);
+                            },
+                            icon: const Icon(
+                              Icons.add,
+                            ),
+                            label: const Text(
+                              'Add More Media',
                               style: TextStyle(
                                 color: Colors.red,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                      style: ElevatedButton.styleFrom(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                        ),
-                      ),
+                            style: ElevatedButton.styleFrom(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10.0),
+                              ),
+                            ),
+                          ),
+                      ],
                     ),
                     const SizedBox(height: 10.0),
                     if (_videoURL != null && _chewieController != null)
                       _videoPreviewWidget(),
                     if (_imageUrl != null) _imagePreviewWidget(),
+                    if (_videoURL != null || _imageUrl != null)
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          IconButton(
+                            key: const Key('previousVideoButton'),
+                            icon: const Icon(Icons.arrow_back_ios_rounded,
+                                color: Colors.grey),
+                            onPressed: () async {
+                              if (currentIndex - 1 >= 0) {
+                                currentIndex -= 1;
+                                if (mediaUrls[currentIndex]['mediaType'] ==
+                                    'video') {
+                                  _videoURL = mediaUrls[currentIndex]['url'];
+                                  _imageUrl = null;
+                                  setState(() {});
+                                  await _initializeVideoPlayer();
+                                  setState(() {});
+                                } else if (mediaUrls[currentIndex]
+                                        ['mediaType'] ==
+                                    'image') {
+                                  _imageUrl = mediaUrls[currentIndex]['url'];
+                                  _videoURL = null;
+                                  setState(() {});
+                                  await _initializeImage();
+                                  setState(() {});
+                                }
+                              }
+                            },
+                            tooltip: 'Previous Video',
+                          ),
+                          IconButton(
+                            key: const Key('deleteVideoButton'),
+                            icon: const Icon(Icons.delete, color: Colors.red),
+                            onPressed: _clearVideoSelection,
+                            tooltip: 'Remove Video',
+                          ),
+                          IconButton(
+                            key: const Key('nextVideoButton'),
+                            icon: const Icon(Icons.arrow_forward_ios_rounded,
+                                color: Colors.grey),
+                            onPressed: () async {
+                              if (currentIndex + 1 < mediaUrls.length) {
+                                currentIndex += 1;
+                                if (mediaUrls[currentIndex]['mediaType'] ==
+                                    'video') {
+                                  _videoURL = mediaUrls[currentIndex]['url'];
+                                  _imageUrl = null;
+                                  setState(() {});
+                                  await _initializeVideoPlayer();
+                                  setState(() {});
+                                } else if (mediaUrls[currentIndex]
+                                        ['mediaType'] ==
+                                    'image') {
+                                  _imageUrl = mediaUrls[currentIndex]['url'];
+                                  _videoURL = null;
+                                  setState(() {});
+                                  await _initializeImage();
+                                  setState(() {});
+                                }
+                              }
+                            },
+                            tooltip: 'Next Video',
+                          ),
+                        ],
+                      ),
+                    const SizedBox(
+                      height: 10.0,
+                    ),
                   ],
                 ),
               ),
@@ -228,27 +328,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
     );
   }
 
-  Future<String?> pickVideoFromDevice() async {
-    try {
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: [
-          'mp4',
-          'mov',
-          'avi',
-          'mkv',
-          'wmv',
-          'jpg',
-          'jpeg',
-          'png'
-        ],
-      );
-      return result!.files.first.path;
-    } catch (e) {
-      return null;
-    }
-  }
-
+  //complete
   Future<void> _showMediaUploadOptions(BuildContext context) async {
     await showModalBottomSheet(
       context: context,
@@ -276,60 +356,78 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
         );
       },
     );
-    return; // Add this return statement
+    return;
   }
 
+  //complete
   Future<void> _pickImageFromDevice() async {
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['jpg', 'jpeg', 'png'],
+        allowMultiple: true,
       );
       if (result != null) {
-        String imagePath = result.files.first.path!;
-        setState(() {
-          _imageUrl = imagePath;
-          _videoURL = null; // Reset video if any
-        });
-        await _initializeImage();
+        for (PlatformFile file in result.files) {
+          String imagePath = file.path!;
+          setState(() {
+            _imageUrl = imagePath;
+
+            Map<String, String> imageInfo = {
+              'url': imagePath,
+              'mediaType': 'image',
+            };
+            mediaUrls.add(imageInfo);
+            currentIndex = mediaUrls.length - 1;
+            _videoURL = null; // Reset video if any
+          });
+          if (file == result.files.last) {
+            await _initializeImage();
+          }
+        }
       }
     } catch (e) {
       print("Error picking image: $e");
     }
   }
 
+  //complete
   Future<void> _pickVideoFromDevice() async {
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['mp4', 'mov', 'avi', 'mkv', 'wmv'],
+        allowMultiple: true,
       );
+
       if (result != null) {
-        String videoPath = result.files.first.path!;
-        setState(() {
-          _videoURL = videoPath;
-          _imageUrl = null; // Reset image if any
-        });
-        await _initializeVideoPlayer();
+        for (PlatformFile file in result.files) {
+          String videoPath = file.path!;
+          setState(() {
+            _videoURL = videoPath;
+
+            Map<String, String> videoInfo = {
+              'url': videoPath,
+              'mediaType': 'video',
+            };
+            mediaUrls.add(videoInfo);
+            currentIndex = mediaUrls.length - 1;
+            _imageUrl = null; // Reset image if any
+          });
+          if (file == result.files.last) {
+            await _initializeVideoPlayer();
+          }
+        }
       }
     } catch (e) {
       print("Error picking video: $e");
     }
   }
 
-  Future<String?> pickImageFromDevice() async {
-    try {
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['jpg', 'jpeg', 'png'],
-      );
-      return result!.files.first.path;
-    } catch (e) {
-      return null;
-    }
-  }
-
+  // complete
+  // complete
   Future<void> _initializeVideoPlayer() async {
+    _disposeVideoPlayer();
     if (_videoURL != null && _videoURL!.isNotEmpty) {
       _videoController = VideoPlayerController.file(File(_videoURL!));
 
@@ -355,6 +453,18 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
     }
   }
 
+// Dispose existing video player and chewie controllers
+  void _disposeVideoPlayer() {
+    _videoController?.pause();
+    _videoController?.dispose();
+    _videoController = null;
+
+    _chewieController?.pause();
+    _chewieController?.dispose();
+    _chewieController = null;
+  }
+
+  // complete
   Future<void> _initializeImage() async {
     if (_imageUrl != null && _imageUrl!.isNotEmpty) {
       setState(() {});
@@ -369,20 +479,6 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
           AspectRatio(
             aspectRatio: _videoController!.value.aspectRatio,
             child: Chewie(controller: _chewieController!),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                IconButton(
-                  key: const Key('deleteButton'),
-                  icon: const Icon(Icons.delete, color: Colors.red),
-                  onPressed: _clearVideoSelection,
-                  tooltip: 'Remove Video',
-                ),
-              ],
-            ),
           ),
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 8.0),
@@ -402,20 +498,6 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Image.file(File(_imageUrl!)),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                IconButton(
-                  key: const Key('deleteImageButton'),
-                  icon: const Icon(Icons.delete, color: Colors.red),
-                  onPressed: _clearImageSelection,
-                  tooltip: 'Remove Image',
-                ),
-              ],
-            ),
-          ),
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 8.0),
             child: Text(
