@@ -59,8 +59,8 @@ class _SettingsViewState extends State<SettingsView> {
                     context,
                     MaterialPageRoute(
                         builder: (context) => ManageNotifications(
-                            firestore: FirebaseFirestore.instance,
-                            auth: FirebaseAuth.instance)),
+                            firestore: widget.firestore,
+                            auth: widget.auth)),
                   );
                 },
                 child: Container(

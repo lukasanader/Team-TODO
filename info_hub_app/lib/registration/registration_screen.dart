@@ -195,19 +195,20 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         password,
                         role,
                         likedTopics,
-                        dislikedTopics);
+                        dislikedTopics,
+                        false);
 
                     if (userModel != null) {
                       // Registration was successful, navigate to the main application page
-                      Navigator.pushReplacement(
+                      Widget nextPage = Base(
+                        auth: widget.auth,
+                        storage: widget.storage,
+                        firestore: widget.firestore,
+                      );
+                      Navigator.pushAndRemoveUntil(
                         context,
-                        MaterialPageRoute(
-                          builder: (context) => Base(
-                            auth: widget.auth,
-                            storage: widget.storage,
-                            firestore: widget.firestore,
-                          ),
-                        ),
+                        MaterialPageRoute(builder: (context) => nextPage),
+                        (Route<dynamic> route) => false,
                       );
                     } else {
                       // Show error message if anything goes wrong in the auth process

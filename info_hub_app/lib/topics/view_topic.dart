@@ -1,14 +1,21 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:info_hub_app/topics/edit_topic.dart';
+import 'package:info_hub_app/helpers/base.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:info_hub_app/topics/quiz/complete_quiz.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:chewie/chewie.dart';
 import 'package:video_player/video_player.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'dart:async';
+import 'package:info_hub_app/threads/threads.dart';
 
 class ViewTopicScreen extends StatefulWidget {
   final QueryDocumentSnapshot topic;
+
   final FirebaseFirestore firestore;
   final FirebaseStorage storage;
 
@@ -29,11 +36,33 @@ class ViewTopicScreen extends StatefulWidget {
 class _ViewTopicScreenState extends State<ViewTopicScreen> {
   VideoPlayerController? _videoPlayerController;
   ChewieController? _chewieController;
+  late QueryDocumentSnapshot updatedTopic;
+  late QueryDocumentSnapshot upTopic;
 
   bool vidAvailable = false;
 
   int likes = 0;
   int dislikes = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    updatedTopic = widget.topic;
+
+    // Fetch topic details after 2 seconds
+    updateTopic();
+
+    upTopic = updatedTopic;
+
+    _isAdmin();
+    checkUserLikedAndDislikedTopics();
+    updateLikesAndDislikesCount();
+
+    if (updatedTopic['videoUrl'] != null && updatedTopic['videoUrl'] != "") {
+      _initializeVideoPlayer();
+      vidAvailable = true;
+    }
+  }
 
   Future<bool> hasLikedTopic() async {
     User? user = widget.auth.currentUser;
@@ -82,16 +111,20 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
     return false;
   }
 
-  @override
-  void initState() {
-    super.initState();
-    if (widget.topic['videoUrl'] != null && widget.topic['videoUrl'] != "") {
-      _initializeVideoPlayer();
-      vidAvailable = true;
+  void updateTopic() async {
+    CollectionReference topicCollectionRef =
+        widget.firestore.collection('topics');
+
+    QuerySnapshot data = await topicCollectionRef.orderBy('title').get();
+
+    for (QueryDocumentSnapshot doc in data.docs) {
+      // Check if the document ID matches the ID of the topic
+      if (doc.id == widget.topic.id) {
+        // Found the updated topic document
+        updatedTopic = doc as QueryDocumentSnapshot<Object>;
+        break; // Exit the loop since we found the document
+      }
     }
-    _isAdmin();
-    checkUserLikedAndDislikedTopics();
-    updateLikesAndDislikesCount();
   }
 
   void updateLikesAndDislikesCount() {
@@ -108,10 +141,25 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
   }
 
   void _initializeVideoPlayer() async {
-    final videoUrl = widget.topic['videoUrl'] as String?;
+    final videoUrl = updatedTopic['videoUrl'] as String?;
+
+    CollectionReference topicCollectionRef =
+        widget.firestore.collection('topics');
+
+    QuerySnapshot data = await topicCollectionRef.orderBy('title').get();
+
+    for (QueryDocumentSnapshot doc in data.docs) {
+      // Check if the document ID matches the ID of the topic
+      if (doc.id == widget.topic.id) {
+        // Found the updated topic document
+        updatedTopic = doc as QueryDocumentSnapshot<Object>;
+        break; // Exit the loop since we found the document
+      }
+    }
     if (videoUrl != null && videoUrl.isNotEmpty) {
       _videoPlayerController =
           VideoPlayerController.networkUrl(Uri.parse(videoUrl));
+
       await _videoPlayerController!.initialize();
       _chewieController = ChewieController(
         videoPlayerController: _videoPlayerController!,
@@ -232,15 +280,50 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color.fromRGBO(200, 0, 0, 1.0),
-        title: Text(
-          widget.topic['title'],
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
+          backgroundColor: const Color.fromRGBO(200, 0, 0, 1.0),
+          title: Text(
+            updatedTopic['title'],
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-        ),
-      ),
+          leading: IconButton(
+            icon: const Icon(
+              Icons.arrow_back,
+              color: Colors.white,
+            ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => Base(
+                        auth: widget.auth,
+                        storage: widget.storage,
+                        firestore: widget.firestore)),
+              );
+            },
+          ),
+          actions: <Widget>[
+            if (userIsAdmin)
+              IconButton(
+                key: const Key('edit_btn'),
+                icon: const Icon(Icons.edit, color: Colors.white),
+                onPressed: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => EditTopicScreen(
+                        topic: updatedTopic, // Pass your original topic data
+                        firestore: widget.firestore,
+                        auth: widget.auth,
+                        storage: widget.storage,
+                      ),
+                    ),
+                  );
+                },
+              )
+          ]),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -263,7 +346,7 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            '${widget.topic['description']}',
+                            '${updatedTopic['description']}',
                             style: const TextStyle(fontSize: 18.0),
                           ),
                           const SizedBox(height: 16),
@@ -287,7 +370,38 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
                                         hasDisliked ? Colors.red : Colors.grey),
                               ),
                               Text("$dislikes"),
+                              IconButton(
+                                icon: const Icon(FontAwesomeIcons.comments,
+                                    size: 20),
+                                onPressed: () {
+                                  // Navigate to the Threads screen
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => ThreadApp(
+                                          firestore: widget.firestore,
+                                          auth: widget.auth,
+                                          topicId: widget.topic.id,
+                                          topicTitle: widget.topic['title']),
+                                    ),
+                                  );
+                                },
+                              ),
+
                               // Display likes
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => CompleteQuiz(
+                                            firestore: widget.firestore,
+                                            topic: widget.topic,
+                                            auth: widget.auth)),
+                                  );
+                                },
+                                child: const Text('QUIZ!!'),
+                              ),
                             ],
                           ),
                         ],
@@ -298,13 +412,13 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
               ),
             ),
           ),
-          if (widget.topic['articleLink'] != '')
+          if (updatedTopic['articleLink'] != '')
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Center(
                 child: ElevatedButton(
                   onPressed: () {
-                    launchUrl(Uri.parse(widget.topic['articleLink']));
+                    launchUrl(Uri.parse(updatedTopic['articleLink']));
                   },
                   child: const Text('Read Article'),
                 ),
@@ -315,7 +429,7 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
               padding: const EdgeInsets.all(16.0),
               child: Center(
                 child: ElevatedButton(
-                  key: Key('delete_topic_button'),
+                  key: const Key('delete_topic_button'),
                   onPressed: () {
                     // Show confirmation dialog
                     showDialog(
@@ -383,8 +497,8 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
   deleteTopic() async {
     removeTopicFromUsers();
     // If the topic has a video URL, delete the corresponding video from storage
-    if (widget.topic['videoUrl'] != '' && widget.topic['videoUrl'] != null) {
-      await deleteVideoFromStorage(widget.topic['videoUrl']);
+    if (updatedTopic['videoUrl'] != '' && updatedTopic['videoUrl'] != null) {
+      await deleteVideoFromStorage(updatedTopic['videoUrl']);
     }
 
     // Delete the topic document from Firestore
@@ -396,7 +510,7 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
   }
 
   Future<void> deleteVideoFromStorage(String videoUrl) async {
-    String fileUrl = widget.topic['videoUrl'];
+    String fileUrl = updatedTopic['videoUrl'];
 
     // get reference to the video file
     Reference videoRef = widget.storage.refFromURL(fileUrl);
