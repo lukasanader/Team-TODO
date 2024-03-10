@@ -19,7 +19,7 @@ class AuthService {
       String roleType,
       List<String> likedTopics,
       List<String> dislikedTopics,
-      bool hasReadExperienceExpectations) {
+      bool hasOptedOutOfExperienceExpectations) {
     return UserModel(
         uid: user.uid,
         firstName: firstName,
@@ -28,7 +28,7 @@ class AuthService {
         roleType: roleType,
         likedTopics: likedTopics,
         dislikedTopics: dislikedTopics,
-        hasReadExperienceExpectations: false);
+        hasOptedOutOfExperienceExpectations: false);
   }
 
   Stream<User?> get user {
@@ -44,7 +44,7 @@ class AuthService {
     String roleType,
     List<String> likedTopics,
     List<String> dislikedTopics,
-    bool hasReadExperienceExpectations,
+    bool hasOptedOutOfExperienceExpectations,
   ) async {
     try {
       UserCredential result = await auth.createUserWithEmailAndPassword(
@@ -58,12 +58,12 @@ class AuthService {
             roleType,
             likedTopics,
             dislikedTopics,
-            hasReadExperienceExpectations);
+            hasOptedOutOfExperienceExpectations);
         await DatabaseService(firestore: firestore, uid: user.uid)
             .createPreferences();
         // create user model
         return _userFromFirebaseUser(user, firstName, lastName, email, roleType,
-            likedTopics, dislikedTopics, hasReadExperienceExpectations);
+            likedTopics, dislikedTopics, hasOptedOutOfExperienceExpectations);
       }
     } catch (e) {
       if (kDebugMode) {

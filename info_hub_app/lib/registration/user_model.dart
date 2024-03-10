@@ -7,7 +7,7 @@ class UserModel {
   final String roleType;
   final List<String> likedTopics;
   final List<String> dislikedTopics;
-  bool hasReadExperienceExpectations;
+  bool hasOptedOutOfExperienceExpectations;
   String?
       selectedProfilePhoto; // This is a nullable variable, as the user may not have a profile photo
 
@@ -19,6 +19,6 @@ class UserModel {
       required this.roleType,
       required this.likedTopics,
       required this.dislikedTopics,
-      this.hasReadExperienceExpectations = false,
+      this.hasOptedOutOfExperienceExpectations = false,
       this.selectedProfilePhoto});
 }

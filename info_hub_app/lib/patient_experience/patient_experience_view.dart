@@ -20,7 +20,6 @@ class _ExperienceViewState extends State<ExperienceView> {
   final Experience _experience = Experience();
   List<Experience> _experienceList = [];
   // ignore: prefer_final_fields
-  bool? _isChecked = false;
 
   @override
   void didChangeDependencies() {
@@ -32,7 +31,7 @@ class _ExperienceViewState extends State<ExperienceView> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text("Paitent's Experiences"),
+          title: const Text("Patient's Experiences"),
         ),
         body: SafeArea(
             child: Column(
@@ -46,11 +45,13 @@ class _ExperienceViewState extends State<ExperienceView> {
             ),
             ElevatedButton(
               onPressed: () {
-                _hasReadExperienceExpectations().then((value) {
+                // Checks whether the user has previously opted to not view
+                // story expectations
+                _hasOptedOutOfExperienceExpectations().then((value) {
                   if (value) {
                     _showPostDialog();
                   } else {
-                    _showStoryToSS();
+                    _showExperienceExpectations();
                   }
                 });
               },
@@ -60,68 +61,85 @@ class _ExperienceViewState extends State<ExperienceView> {
         )));
   }
 
-  void _showStoryToSS() {
+  // Patient must read and accept experience expectations dialog
+  void _showExperienceExpectations() {
     bool checkboxValue = false;
 
     showDialog(
-        barrierDismissible: false,
-        context: context,
-        builder: (BuildContext context) => AlertDialog(
-              title: Text('Patient Experience Expectations'),
-              content: StatefulBuilder(builder: (BuildContext context,
-                  void Function(void Function()) setState) {
-                return SingleChildScrollView(
-                    child: ListBody(
-                  children: [
-                    Text(
-                        'By sharing your experience, you agree to the following terms:'),
-                    Text(
-                        '1. You agree to share your experience with the understanding that it will be shared with other patients.'),
-                    Text(
-                        '2. You agree to share your experience with the understanding that it will be shared with other patients.'),
-                    Text(
-                        '3. You agree to share your experience with the understanding that it will be shared with other patients.'),
-                    CheckboxListTile(
-                        title: const Text(
-                            "Tick if you don't want to show this message again."),
-                        value: checkboxValue,
-                        onChanged: (bool? value) {
-                          setState(() {
-                            checkboxValue = value!;
-
-                            var isChecked = "";
-                            if (checkboxValue) {
-                              isChecked = "checked";
-                            } else {
-                              isChecked = "un-checked";
-                            }
-                          });
-                        }),
-                  ],
-                ));
-              }),
-              actions: [
-                TextButton(
-                  child: const Text('I agree'),
-                  onPressed: () {
-                    if (checkboxValue) {
-                      _enableHasReadExperienceExpectations();
-                    }
-                    Navigator.of(context).pop();
-                    _showPostDialog();
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: const Text('Patient Experience Expectations'),
+        content: StatefulBuilder(builder:
+            (BuildContext context, void Function(void Function()) setState) {
+          return SingleChildScrollView(
+            child: ListBody(
+              children: [
+                const Text(
+                  'By sharing your experience, you agree to the following terms:',
+                  style: TextStyle(fontSize: 16.0),
+                ),
+                const SizedBox(height: 8.0),
+                const Text(
+                  '1. You agree to share your experience with the understanding that it will be shared with other patients.',
+                  style: TextStyle(fontSize: 14.0),
+                ),
+                const SizedBox(height: 8.0),
+                const Text(
+                  '2. You affirm that the experience you share is truthful and accurately represents your own perspective.',
+                  style: TextStyle(fontSize: 14.0),
+                ),
+                const SizedBox(height: 8.0),
+                const Text(
+                  '3. You agree not to include any content that is offensive, harmful, or discriminatory, including but not limited to slurs, hate speech, or derogatory language.',
+                  style: TextStyle(fontSize: 14.0),
+                ),
+                const SizedBox(height: 8.0),
+                const Text(
+                  'By proceeding to share your experience, you acknowledge that you have read, understood, and agree to abide by these terms.',
+                  style: TextStyle(fontSize: 15.0),
+                ),
+                const SizedBox(height: 8.0),
+                CheckboxListTile(
+                  title: const Text(
+                    "Don't show this again",
+                    style: TextStyle(fontSize: 14.0),
+                  ),
+                  value: checkboxValue,
+                  onChanged: (bool? value) {
+                    setState(() {
+                      checkboxValue = value!;
+                    });
                   },
                 ),
-                TextButton(
-                  child: const Text('I disagree'),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                )
               ],
-            ));
+            ),
+          );
+        }),
+        actions: [
+          TextButton(
+            child: const Text('I agree'),
+            onPressed: () {
+              if (checkboxValue) {
+                _optOutOfStoryExpectations();
+              }
+              Navigator.of(context).pop();
+              _showPostDialog();
+            },
+          ),
+          TextButton(
+            child: const Text('I disagree'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          )
+        ],
+      ),
+    );
   }
 
-  Future<bool> _hasReadExperienceExpectations() async {
+  // Checks whether the user has previously opted to not view story expectations
+  Future<bool> _hasOptedOutOfExperienceExpectations() async {
     User? user = widget.auth.currentUser;
 
     if (user != null) {
@@ -133,10 +151,12 @@ class _ExperienceViewState extends State<ExperienceView> {
             userSnapshot.data() as Map<String, dynamic>?;
 
         if (userData != null) {
-          bool hasReadPatientExperience =
-              userData['hasReadExperienceExpectations'];
-          if (hasReadPatientExperience) {
-            return true;
+          if (userData['hasOptedOutOfExperienceExpectations'] != null) {
+            bool hasOptedOutOfExperienceExpectations =
+                userData['hasOptedOutOfExperienceExpectations'];
+            if (hasOptedOutOfExperienceExpectations) {
+              return true;
+            }
           }
         }
       }
@@ -144,12 +164,14 @@ class _ExperienceViewState extends State<ExperienceView> {
     return false;
   }
 
-  void _enableHasReadExperienceExpectations() async {
+  // Adds a field to the user's document in the database to indicate that they
+  // have opted out of story expectations
+  void _optOutOfStoryExpectations() async {
     User? user = widget.auth.currentUser;
 
     if (user != null) {
       final userDocRef = widget.firestore.collection('Users').doc(user.uid);
-      await userDocRef.update({'hasReadExperienceExpectations': true});
+      await userDocRef.update({'hasOptedOutOfExperienceExpectations': true});
     }
   }
 
