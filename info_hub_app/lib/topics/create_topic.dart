@@ -206,33 +206,34 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
-                          IconButton(
-                            key: const Key('previousVideoButton'),
-                            icon: const Icon(Icons.arrow_back_ios_rounded,
-                                color: Colors.grey),
-                            onPressed: () async {
-                              if (currentIndex - 1 >= 0) {
-                                currentIndex -= 1;
-                                if (mediaUrls[currentIndex]['mediaType'] ==
-                                    'video') {
-                                  _videoURL = mediaUrls[currentIndex]['url'];
-                                  _imageUrl = null;
-                                  setState(() {});
-                                  await _initializeVideoPlayer();
-                                  setState(() {});
-                                } else if (mediaUrls[currentIndex]
-                                        ['mediaType'] ==
-                                    'image') {
-                                  _imageUrl = mediaUrls[currentIndex]['url'];
-                                  _videoURL = null;
-                                  setState(() {});
-                                  await _initializeImage();
-                                  setState(() {});
+                          if (mediaUrls.length > 1)
+                            IconButton(
+                              key: const Key('previousVideoButton'),
+                              icon: const Icon(Icons.arrow_back_ios_rounded,
+                                  color: Colors.grey),
+                              onPressed: () async {
+                                if (currentIndex - 1 >= 0) {
+                                  currentIndex -= 1;
+                                  if (mediaUrls[currentIndex]['mediaType'] ==
+                                      'video') {
+                                    _videoURL = mediaUrls[currentIndex]['url'];
+                                    _imageUrl = null;
+                                    setState(() {});
+                                    await _initializeVideoPlayer();
+                                    setState(() {});
+                                  } else if (mediaUrls[currentIndex]
+                                          ['mediaType'] ==
+                                      'image') {
+                                    _imageUrl = mediaUrls[currentIndex]['url'];
+                                    _videoURL = null;
+                                    setState(() {});
+                                    await _initializeImage();
+                                    setState(() {});
+                                  }
                                 }
-                              }
-                            },
-                            tooltip: 'Previous Video',
-                          ),
+                              },
+                              tooltip: 'Previous Video',
+                            ),
                           if (mediaUrls[currentIndex]['mediaType'] == 'video')
                             IconButton(
                               key: const Key('deleteVideoButton'),
@@ -247,33 +248,34 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                               onPressed: _clearImageSelection,
                               tooltip: 'Remove Video',
                             ),
-                          IconButton(
-                            key: const Key('nextVideoButton'),
-                            icon: const Icon(Icons.arrow_forward_ios_rounded,
-                                color: Colors.grey),
-                            onPressed: () async {
-                              if (currentIndex + 1 < mediaUrls.length) {
-                                currentIndex += 1;
-                                if (mediaUrls[currentIndex]['mediaType'] ==
-                                    'video') {
-                                  _videoURL = mediaUrls[currentIndex]['url'];
-                                  _imageUrl = null;
-                                  setState(() {});
-                                  await _initializeVideoPlayer();
-                                  setState(() {});
-                                } else if (mediaUrls[currentIndex]
-                                        ['mediaType'] ==
-                                    'image') {
-                                  _imageUrl = mediaUrls[currentIndex]['url'];
-                                  _videoURL = null;
-                                  setState(() {});
-                                  await _initializeImage();
-                                  setState(() {});
+                          if (mediaUrls.length > 1)
+                            IconButton(
+                              key: const Key('nextVideoButton'),
+                              icon: const Icon(Icons.arrow_forward_ios_rounded,
+                                  color: Colors.grey),
+                              onPressed: () async {
+                                if (currentIndex + 1 < mediaUrls.length) {
+                                  currentIndex += 1;
+                                  if (mediaUrls[currentIndex]['mediaType'] ==
+                                      'video') {
+                                    _videoURL = mediaUrls[currentIndex]['url'];
+                                    _imageUrl = null;
+                                    setState(() {});
+                                    await _initializeVideoPlayer();
+                                    setState(() {});
+                                  } else if (mediaUrls[currentIndex]
+                                          ['mediaType'] ==
+                                      'image') {
+                                    _imageUrl = mediaUrls[currentIndex]['url'];
+                                    _videoURL = null;
+                                    setState(() {});
+                                    await _initializeImage();
+                                    setState(() {});
+                                  }
                                 }
-                              }
-                            },
-                            tooltip: 'Next Video',
-                          ),
+                              },
+                              tooltip: 'Next Video',
+                            ),
                         ],
                       ),
                     const SizedBox(
