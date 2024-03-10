@@ -22,8 +22,8 @@ void main() {
   setUp(() {
     final MockUser mockUser = MockUser(
       isAnonymous: false,
-      uid: 'user123',
-      email: 'test@example.com',
+      uid: 'patientWithOptedOutExperienceFieldAsTrue',
+      email: 'john@example.com',
     );
 
     auth = MockFirebaseAuth(mockUser: mockUser, signedIn: true);
