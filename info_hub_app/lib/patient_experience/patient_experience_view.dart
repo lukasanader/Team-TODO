@@ -192,24 +192,22 @@ class _ExperienceViewState extends State<ExperienceView> {
                 maxLength: 70,
                 controller: _titleController,
                 decoration: const InputDecoration(
-                    labelText: 'Title', border: OutlineInputBorder()),
+                  labelText: 'Title',
+                  border: OutlineInputBorder(),
+                ),
               ),
-              const SizedBox(
-                height: 20,
-              ),
+              const SizedBox(height: 20),
               TextField(
                 maxLines: 5,
                 maxLength: 1000,
                 keyboardType: TextInputType.multiline,
                 controller: _descriptionController,
                 decoration: const InputDecoration(
-                    labelText: 'Share your experience!',
-                    border: OutlineInputBorder()),
+                  labelText: 'Share your experience!',
+                  border: OutlineInputBorder(),
+                ),
               ),
-              const SizedBox(
-                height: 20,
-                width: 100000,
-              ),
+              const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () async {
                   if (_titleController.text.isEmpty ||
@@ -219,6 +217,26 @@ class _ExperienceViewState extends State<ExperienceView> {
 
                   _saveExperience();
                   Navigator.of(context).pop(); // Close the dialog
+
+                  // Show the thank you message dialog
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: const Text('Thank You!'),
+                        content: const Text(
+                            'Thank you for sharing your experience.'),
+                        actions: <Widget>[
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: const Text('OK'),
+                          ),
+                        ],
+                      );
+                    },
+                  );
                 },
                 child: const Text('Submit'),
               ),

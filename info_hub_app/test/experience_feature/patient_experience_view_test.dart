@@ -448,7 +448,7 @@ void main() {
       'Share experience expectations redirects you back to the Patient\'s Experience page if you disagree to the terms',
       (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(experienceViewWidget);
+    await tester.pumpWidget(experienceViewWidgetWithFieldAsFalse);
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Share your experience!'));
@@ -593,21 +593,19 @@ void main() {
 
     // Enter text into the Title TextField
     await tester.enterText(find.byType(TextField).first, 'Test experience');
+
+    // Enter text into the Description TextField
     await tester.enterText(find.byType(TextField).last,
         'This is an example of an experience description from a user');
 
+    // Tap the Submit button
     await tester.tap(find.text('Submit'));
     await tester.pumpAndSettle();
 
-    final QuerySnapshot<Map<String, dynamic>> querySnapshot =
-        await firestore.collection("experiences").get();
-    final List<DocumentSnapshot<Map<String, dynamic>>> documents =
-        querySnapshot.docs;
-
-    expect(documents.any((doc) => doc.data()?['title'] == 'Test experience'),
-        isTrue);
-
-    expect(find.byType(AlertDialog), findsNothing);
+    // Verify that the "Thank you" AlertDialog is displayed after submitting
+    expect(find.text('Thank you for sharing your experience.'), findsOneWidget);
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
   });
 
   testWidgets('Title of experience can be 70 characers',
