@@ -1,3 +1,9 @@
+/*
+ * This file is responsible for displaying the different legal agreements.
+ * Currently, it only displays the Terms of Service and Privacy Policy pages 
+ * in a list view.
+ */
+
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:info_hub_app/legal_agreements/privacy_policy.dart';
@@ -10,28 +16,28 @@ class PrivacyPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Privacy"),
+        title: const Text("Privacy"),
       ),
       body: ListView(
         children: [
           ListTile(
-            title: Text("Terms of Services"),
+            title: const Text("Terms of Services"),
             onTap: () {
               Navigator.push(
                 context,
                 CupertinoPageRoute(builder: (BuildContext context) {
-                  return TermsOfServicesPage();
+                  return const TermsOfServicesPage();
                 }),
               );
             },
           ),
           ListTile(
-            title: Text("Privacy Policy"),
+            title: const Text("Privacy Policy"),
             onTap: () {
               Navigator.push(
                 context,
                 CupertinoPageRoute(builder: (BuildContext context) {
-                  return PrivacyPolicyPage();
+                  return const PrivacyPolicyPage();
                 }),
               );
             },

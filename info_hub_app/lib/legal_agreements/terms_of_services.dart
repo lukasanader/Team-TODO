@@ -1,13 +1,19 @@
+/*
+ * This file is responsible for displaying the Terms of Service page.
+ */
+
 import 'package:flutter/material.dart';
 
 class TermsOfServicesPage extends StatelessWidget {
+  const TermsOfServicesPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Terms of Service'),
+        title: const Text('Terms of Services'),
       ),
-      body: SingleChildScrollView(
+      body: const SingleChildScrollView(
         padding: EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

@@ -83,12 +83,12 @@ class _SettingsViewState extends State<SettingsView> {
                   //   border: Border.all(color: Colors.black)
                   // ),
                   child: ListTile(
-                leading: Icon(Icons.privacy_tip),
-                title: Text('Manage Privacy Settings'),
+                leading: const Icon(Icons.privacy_tip),
+                title: const Text('Manage Privacy Settings'),
                 onTap: () {
                   PersistentNavBarNavigator.pushNewScreen(
                     context,
-                    screen: PrivacyPage(),
+                    screen: const PrivacyPage(),
                     withNavBar: false,
                   );
                 },

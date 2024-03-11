@@ -1,13 +1,19 @@
+/*
+ * This file is responsible for displaying the Privacy Policy page.
+ */
+
 import 'package:flutter/material.dart';
 
 class PrivacyPolicyPage extends StatelessWidget {
+  const PrivacyPolicyPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Privacy Policy'),
       ),
-      body: SingleChildScrollView(
+      body: const SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -59,7 +65,7 @@ class PrivacyPolicyPage extends StatelessWidget {
             ),
             SizedBox(height: 5.0),
             Padding(
-              padding: const EdgeInsets.only(left: 20.0),
+              padding: EdgeInsets.only(left: 20.0),
               child: Text(
                 '- First and last name',
                 style: TextStyle(
@@ -68,7 +74,7 @@ class PrivacyPolicyPage extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(left: 20.0),
+              padding: EdgeInsets.only(left: 20.0),
               child: Text(
                 '- Email address',
                 style: TextStyle(
@@ -93,7 +99,7 @@ class PrivacyPolicyPage extends StatelessWidget {
             ),
             SizedBox(height: 5.0),
             Padding(
-              padding: const EdgeInsets.only(left: 20.0),
+              padding: EdgeInsets.only(left: 20.0),
               child: Text(
                 '- To provide and maintain our Service',
                 style: TextStyle(
@@ -102,7 +108,7 @@ class PrivacyPolicyPage extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(left: 20.0),
+              padding: EdgeInsets.only(left: 20.0),
               child: Text(
                 '- To notify you about changes to our Service',
                 style: TextStyle(
