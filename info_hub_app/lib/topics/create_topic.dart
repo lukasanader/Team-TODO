@@ -79,9 +79,11 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
     if (editing) {
       mediaUrls = [...widget.topic!['media']];
       originalUrls = [...mediaUrls];
+      List<dynamic> tempUrls = [];
       for (var item in mediaUrls) {
-        networkUrls.add(item['url']);
+        tempUrls.add(item['url']);
       }
+      networkUrls = [...tempUrls];
       appBarTitle = "Edit Topic";
       prevTitle = widget.topic!['title'];
       prevDescription = widget.topic!['description'];
@@ -642,46 +644,36 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
     List<Map<String, String>> mediaList = [];
 
     for (var item in mediaUrls) {
-      if (item['mediaType'] == 'video') {
-        if (networkUrls.contains(item['url'])) {
-          _downloadURL = item['url']!;
-        } else {
-          _downloadURL = await _storeData().uploadFile(item['url']!);
-        }
+      String url = item['url']!;
+      String mediaType = item['mediaType']!;
 
-        Map<String, String> uploadData = {
-          'url': _downloadURL!,
-          'mediaType': 'video',
-        };
-        mediaList.add(uploadData);
-      } else if (item['mediaType'] == 'image') {
-        if (networkUrls.contains(item['url'])) {
-          _downloadURL = item['url']!;
-        } else {
-          _downloadURL = await _storeData().uploadFile(item['url']!);
-        }
-
-        Map<String, String> uploadData = {
-          'url': _downloadURL!,
-          'mediaType': 'image',
-        };
-        mediaList.add(uploadData);
+      if (networkUrls.contains(url)) {
+        _downloadURL = url;
+      } else {
+        _downloadURL = await _storeData().uploadFile(url);
       }
+
+      Map<String, String> uploadData = {
+        'url': _downloadURL!,
+        'mediaType': mediaType,
+      };
+
+      mediaList.add(uploadData);
     }
-    final topicDetails = {
-      'title': titleController.text,
-      'description': descriptionController.text,
-      'articleLink': articleLinkController.text,
-      'media': mediaList,
-      'views': widget.topic!['views'],
-      'likes': widget.topic!['likes'],
-      'dislikes': widget.topic!['dislikes'],
-      'date': widget.topic!['date'],
-    };
     CollectionReference topicCollectionRef =
         widget.firestore.collection('topics');
 
     if (!editing) {
+      final topicDetails = {
+        'title': titleController.text,
+        'description': descriptionController.text,
+        'articleLink': articleLinkController.text,
+        'media': mediaList,
+        'views': 0,
+        'likes': 0,
+        'dislikes': 0,
+        'date': DateTime.now(),
+      };
       await topicCollectionRef.add(topicDetails);
       Navigator.pop(context);
     } else {
@@ -696,7 +688,19 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
           ),
         ),
       );
+
       await Future.delayed(const Duration(seconds: 2));
+
+      final topicDetails = {
+        'title': titleController.text,
+        'description': descriptionController.text,
+        'articleLink': articleLinkController.text,
+        'media': mediaList,
+        'views': widget.topic!['views'],
+        'likes': widget.topic!['likes'],
+        'dislikes': widget.topic!['dislikes'],
+        'date': widget.topic!['date'],
+      };
 
       await topicCollectionRef.doc(widget.topic!.id).update(topicDetails);
       QuerySnapshot? data = await topicCollectionRef.orderBy('title').get();

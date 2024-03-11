@@ -8,7 +8,6 @@ import 'package:chewie/chewie.dart';
 import 'package:video_player/video_player.dart';
 import 'package:info_hub_app/topics/quiz/complete_quiz.dart';
 import 'package:flutter/services.dart';
-import 'package:info_hub_app/topics/edit_topic.dart';
 import 'package:info_hub_app/topics/create_topic.dart';
 import 'package:info_hub_app/helpers/base.dart';
 import 'dart:async';
