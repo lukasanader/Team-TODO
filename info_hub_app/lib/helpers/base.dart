@@ -31,6 +31,12 @@ class Base extends StatefulWidget {
 class _BaseState extends State<Base> {
   String currentUserRoleType = '';
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    getCurrentUserRoleType();
+  }
+
   Future<void> getCurrentUserRoleType() async{
     User? user = widget.auth.currentUser;
     if (user != null) {
@@ -90,8 +96,6 @@ class _BaseState extends State<Base> {
 
   @override
   Widget build(BuildContext context) {
-    getCurrentUserRoleType();
-
     // Bottom Navigation Bar
     List<Widget> buildScreens() {
       List<Widget> screens = getScreenBasedOnUser();
