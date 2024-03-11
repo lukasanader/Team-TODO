@@ -9,6 +9,7 @@ import 'package:video_player/video_player.dart';
 import 'package:info_hub_app/topics/quiz/complete_quiz.dart';
 import 'package:flutter/services.dart';
 import 'package:info_hub_app/topics/edit_topic.dart';
+import 'package:info_hub_app/topics/create_topic.dart';
 import 'package:info_hub_app/helpers/base.dart';
 import 'dart:async';
 import 'package:info_hub_app/threads/threads.dart';
@@ -32,11 +33,16 @@ class ViewTopicScreen extends StatefulWidget {
 }
 
 class _ViewTopicScreenState extends State<ViewTopicScreen> {
-  VideoPlayerController? _videoPlayerController;
+  VideoPlayerController? _videoController;
   ChewieController? _chewieController;
   late QueryDocumentSnapshot updatedTopic;
   bool vidAvailable = false;
   bool imgAvailable = false;
+
+  int currentIndex = 0;
+
+  String? _videoURL;
+  String? _imageUrl;
 
   int likes = 0;
   int dislikes = 0;
@@ -48,16 +54,20 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
     _isAdmin();
     checkUserLikedAndDislikedTopics();
     updateLikesAndDislikesCount();
+    initData();
+  }
 
-    if (updatedTopic['media'] != null) {
-      final media = updatedTopic['media'] as Map<String, dynamic>;
-      final mediaType = media['type'] as String?;
+  Future<void> initData() async {
+    if (updatedTopic['media'].length > 0) {
+      if (updatedTopic['media'][currentIndex]['mediaType'] == 'video') {
+        _videoURL = updatedTopic['media'][currentIndex]['url'];
+        _imageUrl = null;
 
-      if (mediaType == 'video') {
-        vidAvailable = true;
-        _initializeVideoPlayer(media['url'] as String);
-      } else if (mediaType == 'image') {
-        imgAvailable = true;
+        await _initializeVideoPlayer();
+      } else {
+        _imageUrl = updatedTopic['media'][currentIndex]['url'];
+        _videoURL = null;
+        await _initializeImage();
       }
     }
   }
@@ -83,6 +93,41 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
       }
     }
     return false;
+  }
+
+  Widget _videoPreviewWidget() {
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          AspectRatio(
+            aspectRatio: _videoController!.value.aspectRatio,
+            child: Chewie(controller: _chewieController!),
+          ),
+          Text(
+            '                                                                                  ${currentIndex + 1} / ${updatedTopic['media'].length}',
+            style: const TextStyle(color: Colors.grey),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _imagePreviewWidget() {
+    if (_imageUrl != null) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Image.network(_imageUrl!),
+          Text(
+            '                                                                                  ${currentIndex + 1} / ${updatedTopic['media'].length}',
+            style: const TextStyle(color: Colors.grey),
+          ),
+        ],
+      );
+    } else {
+      return Container();
+    }
   }
 
   Future<bool> hasDislikedTopic() async {
@@ -122,36 +167,48 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
     });
   }
 
-  void _initializeVideoPlayer(String videoUrl) async {
-    _videoPlayerController = VideoPlayerController.network(videoUrl);
+  Future<void> _initializeVideoPlayer() async {
+    _disposeVideoPlayer();
+    if (_videoURL != null && _videoURL!.isNotEmpty) {
+      _videoController =
+          VideoPlayerController.networkUrl(Uri.parse(_videoURL!));
 
-    await _videoPlayerController!.initialize();
-    _chewieController = ChewieController(
-      videoPlayerController: _videoPlayerController!,
-      autoInitialize: true,
-      looping: false,
-      aspectRatio: 16 / 9,
-      deviceOrientationsAfterFullScreen: [
-        DeviceOrientation.portraitUp,
-        DeviceOrientation.portraitDown,
-      ],
-      allowedScreenSleep: false,
-    );
-    _chewieController!.addListener(() {
-      if (!_chewieController!.isFullScreen) {
-        SystemChrome.setPreferredOrientations([
+      await _videoController!.initialize();
+
+      _chewieController = ChewieController(
+        videoPlayerController: _videoController!,
+        autoInitialize: true,
+        looping: false,
+        aspectRatio: 16 / 9,
+        deviceOrientationsAfterFullScreen: [
           DeviceOrientation.portraitUp,
-        ]);
-      }
-    });
+          DeviceOrientation.portraitDown
+        ],
+        allowedScreenSleep: false,
+      );
+      _chewieController!.addListener(() {
+        if (!_chewieController!.isFullScreen) {
+          SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+        }
+      });
+      setState(() {});
+    }
+  }
 
-    setState(() {});
+  void _disposeVideoPlayer() {
+    _videoController?.pause();
+    _videoController?.dispose();
+    _videoController = null;
+
+    _chewieController?.pause();
+    _chewieController?.dispose();
+    _chewieController = null;
   }
 
   @override
   void dispose() {
     super.dispose();
-    _videoPlayerController?.dispose();
+    _videoController?.dispose();
     _chewieController?.dispose();
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   }
@@ -279,11 +336,11 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => EditTopicScreen(
+                      builder: (context) => CreateTopicScreen(
                         topic: updatedTopic, // Pass your original topic data
                         firestore: widget.firestore,
-                        auth: widget.auth,
                         storage: widget.storage,
+                        auth: widget.auth,
                       ),
                     ),
                   );
@@ -299,16 +356,77 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (vidAvailable && _chewieController != null)
-                    SizedBox(
-                      height: 250,
-                      child: Chewie(controller: _chewieController!),
-                    ),
-                  if (imgAvailable)
-                    Image.network(
-                      updatedTopic['media']['url'],
-                      fit: BoxFit.cover,
-                      height: 250,
+                  if (_videoURL != null && _chewieController != null)
+                    _videoPreviewWidget(),
+                  if (_imageUrl != null) _imagePreviewWidget(),
+                  if (_videoURL != null || _imageUrl != null)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        if (updatedTopic['media'].length > 1)
+                          IconButton(
+                            key: const Key('previousVideoButton'),
+                            icon: const Icon(Icons.arrow_circle_left_rounded,
+                                color: Color.fromRGBO(150, 100, 200, 1.0)),
+                            onPressed: () async {
+                              if (currentIndex - 1 >= 0) {
+                                currentIndex -= 1;
+                                if (updatedTopic['media'][currentIndex]
+                                        ['mediaType'] ==
+                                    'video') {
+                                  _videoURL = updatedTopic['media']
+                                      [currentIndex]['url'];
+                                  _imageUrl = null;
+                                  setState(() {});
+                                  await _initializeVideoPlayer();
+                                  setState(() {});
+                                } else if (updatedTopic['media'][currentIndex]
+                                        ['mediaType'] ==
+                                    'image') {
+                                  _imageUrl = updatedTopic['media']
+                                      [currentIndex]['url'];
+                                  _videoURL = null;
+                                  setState(() {});
+                                  await _initializeImage();
+                                  setState(() {});
+                                }
+                              }
+                            },
+                            tooltip: 'Previous Video',
+                          ),
+                        if (updatedTopic['media'].length > 1)
+                          IconButton(
+                            key: const Key('nextVideoButton'),
+                            icon: const Icon(Icons.arrow_circle_right_rounded,
+                                color: Color.fromRGBO(150, 100, 200, 1.0)),
+                            onPressed: () async {
+                              if (currentIndex + 1 <
+                                  updatedTopic['media'].length) {
+                                currentIndex += 1;
+                                if (updatedTopic['media'][currentIndex]
+                                        ['mediaType'] ==
+                                    'video') {
+                                  _videoURL = updatedTopic['media']
+                                      [currentIndex]['url'];
+                                  _imageUrl = null;
+                                  setState(() {});
+                                  await _initializeVideoPlayer();
+                                  setState(() {});
+                                } else if (updatedTopic['media'][currentIndex]
+                                        ['mediaType'] ==
+                                    'image') {
+                                  _imageUrl = updatedTopic['media']
+                                      [currentIndex]['url'];
+                                  _videoURL = null;
+                                  setState(() {});
+                                  await _initializeImage();
+                                  setState(() {});
+                                }
+                              }
+                            },
+                            tooltip: 'Next Video',
+                          ),
+                      ],
                     ),
                   const SizedBox(height: 30),
                   Flexible(
@@ -347,7 +465,6 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
                                     size: 20),
                                 onPressed: () {
                                   // Navigate to the Threads screen
-
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
@@ -422,7 +539,6 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
                               onPressed: () {
                                 // Delete the topic
                                 deleteTopic();
-
                                 Navigator.of(context).pop(); // Close the dialog
                               },
                               child: const Text('Delete'),
@@ -447,11 +563,19 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
     );
   }
 
+  Future<void> _initializeImage() async {
+    if (_imageUrl != null && _imageUrl!.isNotEmpty) {
+      setState(() {});
+    }
+  }
+
   deleteTopic() async {
     removeTopicFromUsers();
     // If the topic has a video URL, delete the corresponding video from storage
-    if (updatedTopic['videoUrl'] != '' && updatedTopic['videoUrl'] != null) {
-      await deleteVideoFromStorage(updatedTopic['videoUrl']);
+    if (updatedTopic['media'].length > 0) {
+      for (var item in updatedTopic['media']) {
+        await deleteMediaFromStorage(updatedTopic['media'].indexOf(item));
+      }
     }
 
     // Delete the topic document from Firestore
@@ -462,14 +586,14 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
     }
   }
 
-  Future<void> deleteVideoFromStorage(String videoUrl) async {
-    String fileUrl = updatedTopic['videoUrl'];
+  Future<void> deleteMediaFromStorage(int index) async {
+    String fileUrl = updatedTopic['media'][index]['url'];
 
     // get reference to the video file
-    Reference videoRef = widget.storage.refFromURL(fileUrl);
+    Reference ref = widget.storage.refFromURL(fileUrl);
 
     // Delete the file
-    await videoRef.delete();
+    await ref.delete();
   }
 
   Future<void> removeTopicFromUsers() async {

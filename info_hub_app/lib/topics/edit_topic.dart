@@ -477,7 +477,7 @@ class _EditTopicScreenState extends State<EditTopicScreen> {
 
         if (oldVideoUrl != '') {
           await deleteVideoFromStorage(widget.topic['videoUrl']);
-        } else {}
+        }
       } else {
         final topicDetails = {
           'title': titleController.text,

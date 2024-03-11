@@ -8,16 +8,23 @@ import 'package:flutter/services.dart';
 import 'package:info_hub_app/topics/quiz/create_quiz.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:path/path.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:info_hub_app/topics/view_topic.dart';
 
 class CreateTopicScreen extends StatefulWidget {
   final FirebaseFirestore firestore;
   final FirebaseStorage storage;
+  QueryDocumentSnapshot? topic;
+  FirebaseAuth? auth;
 
-  const CreateTopicScreen({
+  CreateTopicScreen({
     Key? key,
     required this.firestore,
     required this.storage,
+    this.topic,
+    this.auth,
   }) : super(key: key);
 
   @override
@@ -25,10 +32,19 @@ class CreateTopicScreen extends StatefulWidget {
 }
 
 class _CreateTopicScreenState extends State<CreateTopicScreen> {
-  final TextEditingController titleController = TextEditingController();
-  final TextEditingController descriptionController = TextEditingController();
-  final TextEditingController articleLinkController = TextEditingController();
-  final GlobalKey<FormState> _topicFormKey = GlobalKey<FormState>();
+  late TextEditingController titleController = TextEditingController();
+  late TextEditingController descriptionController = TextEditingController();
+  late TextEditingController articleLinkController = TextEditingController();
+  late GlobalKey<FormState> _topicFormKey = GlobalKey<FormState>();
+  late List<Map<String, dynamic>> mediaUrls;
+  late List<Map<String, dynamic>> originalUrls;
+  late List<dynamic> networkUrls;
+  late int currentIndex;
+  late String prevTitle;
+  late String prevDescription;
+  late String prevArticleLink;
+  late String appBarTitle;
+  late QueryDocumentSnapshot<Object?> updatedTopicDoc;
   List<String> _tags = [];
   List<String> options = ['Patient', 'Parent', 'Healthcare Professional'];
   String quizID = '';
@@ -37,13 +53,8 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
   String? _videoURL;
   String? _imageUrl;
   bool changingMedia = false;
-
-  List<Map<String, String>> mediaUrls = [];
-
-  int currentIndex = 0;
-
+  bool editing = false;
   String? _downloadURL;
-  String? _mediaType;
   VideoPlayerController? _videoController;
   ChewieController? _chewieController;
 
@@ -56,13 +67,58 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    currentIndex = 0;
+    editing = widget.topic != null;
+    mediaUrls = [];
+    originalUrls = [];
+    networkUrls = [];
+    appBarTitle = "Create a Topic";
+    if (editing) {
+      mediaUrls = [...widget.topic!['media']];
+      originalUrls = [...mediaUrls];
+      for (var item in mediaUrls) {
+        networkUrls.add(item['url']);
+      }
+      appBarTitle = "Edit Topic";
+      prevTitle = widget.topic!['title'];
+      prevDescription = widget.topic!['description'];
+      prevArticleLink = widget.topic!['articleLink'];
+
+      titleController = TextEditingController(text: prevTitle);
+      descriptionController = TextEditingController(text: prevDescription);
+      articleLinkController = TextEditingController(text: prevArticleLink);
+
+      initData();
+      updatedTopicDoc = widget.topic!;
+    }
+  }
+
+  Future<void> initData() async {
+    if (widget.topic!['media'].length > 0) {
+      if (widget.topic!['media'][currentIndex]['mediaType'] == 'video') {
+        _videoURL = widget.topic!['media'][currentIndex]['url'];
+        _imageUrl = null;
+
+        await _initializeVideoPlayer();
+      } else {
+        _imageUrl = widget.topic!['media'][currentIndex]['url'];
+        _videoURL = null;
+        await _initializeImage();
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.red,
-        title: const Text(
-          'Create a Topic',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        title: Text(
+          appBarTitle,
+          style:
+              const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
       ),
       body: Form(
@@ -135,7 +191,60 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                       validator: validateArticleLink,
                     ),
                     const SizedBox(height: 10.0),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 10.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Container(
+                            width: 150, // Adjust the width as needed
+                            child: OutlinedButton.icon(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => CreateQuiz(
+                                      firestore: widget.firestore,
+                                      addQuiz: addQuiz,
+                                    ),
+                                  ),
+                                );
+                              },
+                              icon: const Icon(
+                                Icons.assignment_add,
+                                color: Colors.purple,
+                              ),
+                              label: Row(
+                                children: [
+                                  const Text(
+                                    "ADD QUIZ",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  if (quizAdded)
+                                    const Icon(
+                                      Icons.check,
+                                      color: Colors.green,
+                                    )
+                                ],
+                              ),
+                              style: OutlinedButton.styleFrom(
+                                backgroundColor:
+                                    Color.fromRGBO(255, 100, 100, 1.0),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 10.0),
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         ElevatedButton.icon(
                           key: const Key('uploadMediaButton'),
@@ -268,58 +377,35 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10.0),
-              child: OutlinedButton(
-                  style: OutlinedButton.styleFrom(
-                    minimumSize: const Size(double.infinity, 50),
-                  ),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => CreateQuiz(
-                            firestore: widget.firestore, addQuiz: addQuiz),
+              padding: const EdgeInsets.symmetric(vertical: 15.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 200, // Adjust the width as needed
+                    child: OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        backgroundColor: Colors.red,
                       ),
-                    );
-                  },
-                  child: Row(children: [
-                    const SizedBox(
-                      width: 150,
-                    ),
-                    const Text(
-                      "ADD QUIZ",
-                      style: TextStyle(
-                        color: Colors.red,
-                        fontWeight: FontWeight.bold,
+                      onPressed: () async {
+                        if (_topicFormKey.currentState!.validate() &&
+                            _tags.isNotEmpty) {
+                          await _uploadTopic(context);
+                          if (!editing) {
+                            Navigator.pop(context);
+                          } else {}
+                        }
+                      },
+                      child: const Text(
+                        "PUBLISH TOPIC",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
-                    if (quizAdded)
-                      const Icon(
-                        Icons.check,
-                        color: Colors.green,
-                      )
-                  ])),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10.0),
-              child: OutlinedButton(
-                style: OutlinedButton.styleFrom(
-                  minimumSize: const Size(double.infinity, 50),
-                ),
-                onPressed: () {
-                  if (_topicFormKey.currentState!.validate() &&
-                      _tags.isNotEmpty) {
-                    _uploadTopic();
-                    Navigator.pop(context);
-                  }
-                },
-                child: const Text(
-                  "PUBLISH TOPIC",
-                  style: TextStyle(
-                    color: Colors.red,
-                    fontWeight: FontWeight.bold,
                   ),
-                ),
+                ],
               ),
             ),
           ],
@@ -432,7 +518,12 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
   Future<void> _initializeVideoPlayer() async {
     _disposeVideoPlayer();
     if (_videoURL != null && _videoURL!.isNotEmpty) {
-      _videoController = VideoPlayerController.file(File(_videoURL!));
+      if (!networkUrls.contains(_videoURL)) {
+        _videoController = VideoPlayerController.file(File(_videoURL!));
+      } else {
+        _videoController =
+            VideoPlayerController.networkUrl(Uri.parse(_videoURL!));
+      }
 
       await _videoController!.initialize();
 
@@ -508,7 +599,8 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Image.file(File(_imageUrl!)),
+          if (!networkUrls.contains(_imageUrl)) Image.file(File(_imageUrl!)),
+          if (networkUrls.contains(_imageUrl)) Image.network((_imageUrl!)),
           Text(
             'The above is a preview of your image.                    ${currentIndex + 1} / ${mediaUrls.length}',
             style: const TextStyle(color: Colors.grey),
@@ -533,49 +625,149 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
     }
   }
 
-  void _uploadTopic() async {
+  Future<void> _uploadTopic(context) async {
+    List<Map<String, dynamic>> oldMedia = mediaUrls;
     List<Map<String, String>> mediaList = [];
-    for (var item in mediaUrls) {
-      if (item['mediaType'] == 'video') {
-        _downloadURL = await _storeData().uploadFile(item['url']!);
 
-        Map<String, String> uploadData = {
-          'url': _downloadURL!,
-          'mediaType': 'video',
-        };
-        mediaList.add(uploadData);
-      } else if (item['mediaType'] == 'image') {
-        _downloadURL = await _storeData().uploadFile(item['url']!);
+    if (editing &&
+        mediaUrls == widget.topic!['media'] &&
+        titleController.text == widget.topic!['title'] &&
+        descriptionController.text == widget.topic!['description'] &&
+        articleLinkController.text == widget.topic!['articleLink']) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ViewTopicScreen(
+            firestore: widget.firestore,
+            topic: widget.topic!,
+            storage: widget.storage,
+            auth: widget.auth!,
+          ),
+        ),
+      );
+      return;
+    } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => CheckmarkAnimationScreen(
+            firestore: widget.firestore,
+            topic: widget.topic!,
+            storage: widget.storage,
+            auth: widget.auth!,
+          ),
+        ),
+      );
+      QuerySnapshot? data;
+      await Future.delayed(const Duration(seconds: 2));
 
-        Map<String, String> uploadData = {
-          'url': _downloadURL!,
-          'mediaType': 'image',
-        };
-        mediaList.add(uploadData);
+      for (var item in mediaUrls) {
+        if (item['mediaType'] == 'video') {
+          if (networkUrls.contains(item['url'])) {
+            _downloadURL = item['url']!;
+          } else {
+            _downloadURL = await _storeData().uploadFile(item['url']!);
+          }
+
+          Map<String, String> uploadData = {
+            'url': _downloadURL!,
+            'mediaType': 'video',
+          };
+          mediaList.add(uploadData);
+        } else if (item['mediaType'] == 'image') {
+          if (networkUrls.contains(item['url'])) {
+            _downloadURL = item['url']!;
+          } else {
+            _downloadURL = await _storeData().uploadFile(item['url']!);
+          }
+
+          Map<String, String> uploadData = {
+            'url': _downloadURL!,
+            'mediaType': 'image',
+          };
+          mediaList.add(uploadData);
+        }
+      }
+
+      final topicDetails = {
+        'title': titleController.text,
+        'description': descriptionController.text,
+        'articleLink': articleLinkController.text,
+        'media': mediaList,
+        'views': 0,
+        'likes': 0,
+        'dislikes': 0,
+        'date': DateTime.now(),
+        'tags': _tags,
+        'quizID': quizID
+      };
+
+      CollectionReference topicCollectionRef =
+          widget.firestore.collection('topics');
+
+      if (editing) {
+        await topicCollectionRef.doc(widget.topic!.id).update(topicDetails);
+        if (mediaUrls != originalUrls) {
+          print('not equal');
+          while (true) {
+            CollectionReference topicCollRef =
+                widget.firestore.collection('topics');
+            data = await topicCollRef.orderBy('title').get();
+
+            for (QueryDocumentSnapshot doc in data.docs) {
+              // Check if the document ID matches the ID of the topic
+              if (doc.id == widget.topic!.id) {
+                updatedTopicDoc = doc as QueryDocumentSnapshot<Object>;
+                break; // Exit the loop since we found the most recent version of the topic
+              }
+            }
+
+            if (updatedTopicDoc['media'] != widget.topic!['media']) {
+              // If the updated topic document's video URL is different from the old URL,
+
+              final topicDetails = {
+                'title': titleController.text,
+                'description': descriptionController.text,
+                'articleLink': articleLinkController.text,
+                'media': mediaList,
+                'views': widget.topic!['views'],
+                'likes': widget.topic!['likes'],
+                'dislikes': widget.topic!['dislikes'],
+                'date': widget.topic!['date'],
+              };
+
+              await topicCollectionRef
+                  .doc(widget.topic!.id)
+                  .update(topicDetails);
+
+              break;
+            }
+          }
+          if (oldMedia != []) {
+            for (var item in oldMedia) {
+              if (!mediaUrls.contains(item['url'])) {
+                await deleteMediaFromStorage(item['url']);
+              }
+            }
+          }
+        }
+      } else {
+        await topicCollectionRef.add(topicDetails);
+        Navigator.pop(context);
       }
     }
+  }
 
-    final topicDetails = {
-      'title': titleController.text,
-      'description': descriptionController.text,
-      'articleLink': articleLinkController.text,
-      'media': mediaList,
-      'views': 0,
-      'likes': 0,
-      'dislikes': 0,
-      'date': DateTime.now(),
-      'tags': _tags,
-      'quizID': quizID
-    };
+  Future<void> deleteMediaFromStorage(String url) async {
+    // get reference to the video file
+    Reference ref = widget.storage.refFromURL(url);
 
-    CollectionReference topicCollectionRef =
-        widget.firestore.collection('topics');
-
-    await topicCollectionRef.add(topicDetails);
+    // Delete the file
+    await ref.delete();
   }
 
   void _clearImageSelection() {
-    List<Map<String, String>> oldMediaUrls = [...mediaUrls];
+    List<Map<String, dynamic>> oldMediaUrls = [...mediaUrls];
     setState(() {
       mediaUrls.removeAt(currentIndex);
       if (mediaUrls.length + 1 > 1) {
@@ -605,7 +797,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
   }
 
   void _clearVideoSelection() {
-    List<Map<String, String>> oldMediaUrls = [...mediaUrls];
+    List<Map<String, dynamic>> oldMediaUrls = [...mediaUrls];
     setState(() {
       _disposeVideoPlayer();
       mediaUrls.removeAt(currentIndex);
@@ -681,5 +873,54 @@ class StoreData {
     Reference ref = _storage.ref().child('media/${basename(url)}');
     await ref.putFile(File(url));
     return await ref.getDownloadURL();
+  }
+}
+
+class CheckmarkAnimationScreen extends StatefulWidget {
+  final FirebaseFirestore firestore;
+  final FirebaseStorage storage;
+  final QueryDocumentSnapshot topic;
+  final FirebaseAuth auth;
+  const CheckmarkAnimationScreen(
+      {Key? key,
+      required this.topic,
+      required this.firestore,
+      required this.auth,
+      required this.storage})
+      : super(key: key);
+
+  @override
+  _CheckmarkAnimationScreenState createState() =>
+      _CheckmarkAnimationScreenState();
+}
+
+class _CheckmarkAnimationScreenState extends State<CheckmarkAnimationScreen> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SpinKitDoubleBounce(
+              color: Colors.green,
+              size: 70.0,
+            ),
+            SizedBox(height: 20),
+            Text(
+              'Your changes are on the way..',
+              style: TextStyle(
+                fontSize: 20,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
