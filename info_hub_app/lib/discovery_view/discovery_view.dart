@@ -48,10 +48,11 @@ class _DiscoveryViewState extends State<DiscoveryView> {
           )
         ],
       ),
-      body: SafeArea(
-          child: Column(
+      body: SingleChildScrollView(
+        child: Column(
         children: [
           ListView.builder(
+            physics: const NeverScrollableScrollPhysics(),
             shrinkWrap: true,
             itemCount: topicLength == 0 ? 1 : topicLength,
             itemBuilder: (context, index) {

@@ -53,7 +53,6 @@ Widget build(BuildContext context) {
 
     Future getQuestionList() async {
     QuerySnapshot data = await widget.firestore.collection('questions').orderBy('question').get();
-
     setState(() {
       _questionList = List.from(data.docs);
     });

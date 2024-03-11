@@ -8,7 +8,7 @@ class QuestionService {
 
   QuestionService({required this.firestore});
 
-  Future deleteRelevantQuestions(String title) async{
+  Future<List<dynamic>> getRelevantQuestions(String title) async{
     QuerySnapshot data = await firestore.collection('questions').get();
     List<dynamic> questionList=List.from(data.docs);
     List<String> keywords =[];
@@ -18,18 +18,23 @@ class QuestionService {
         keywords.add(titleWords[index]);
       }
     }
-    print(keywords);
-    List<String> questionIDs =[];
+    List<dynamic> questions =[];
     for(int i=0; i<questionList.length; i++){
       List<String> questionWords = questionList[i]['question'].split(' ');
       for(int j=0; j<questionWords.length; j++){
         if(keywords.contains(questionWords[j])){
-          questionIDs.add(questionList[i].id);
+          questions.add(questionList[i]);
         }
       }
     }
-    for(int i=0; i<questionIDs.length; i++){
-      await firestore.collection('questions').doc(questionIDs[i]).delete();
+
+    return questions;
+    
+  }
+
+  Future<void> deleteQuestions(List<dynamic> questions) async {
+    for(int i=0; i< questions.length; i++){
+      await firestore.collection('questions').doc(questions[i].id).delete();
     }
   }
 }
