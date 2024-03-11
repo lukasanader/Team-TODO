@@ -44,8 +44,8 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
   late String prevDescription;
   late String prevArticleLink;
   late String appBarTitle;
-  late QueryDocumentSnapshot<Object?> updatedTopicDoc;
-  List<String> _tags = [];
+  late QueryDocumentSnapshot<Object?>? updatedTopicDoc;
+  List<dynamic> _tags = [];
   List<String> options = ['Patient', 'Parent', 'Healthcare Professional'];
   String quizID = '';
   bool quizAdded = false;
@@ -75,6 +75,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
     originalUrls = [];
     networkUrls = [];
     appBarTitle = "Create a Topic";
+    updatedTopicDoc = null;
     if (editing) {
       mediaUrls = [...widget.topic!['media']];
       originalUrls = [...mediaUrls];
@@ -89,6 +90,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
       titleController = TextEditingController(text: prevTitle);
       descriptionController = TextEditingController(text: prevDescription);
       articleLinkController = TextEditingController(text: prevArticleLink);
+      _tags = widget.topic!['tags'];
 
       initData();
       updatedTopicDoc = widget.topic!;
@@ -120,6 +122,28 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
           style:
               const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back,
+            color: Colors.white,
+          ),
+          onPressed: () {
+            if (editing) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ViewTopicScreen(
+                      firestore: widget.firestore,
+                      topic: updatedTopicDoc!,
+                      storage: widget.storage,
+                      auth: widget.auth!),
+                ),
+              );
+            } else {
+              Navigator.pop(context);
+            }
+          },
+        ),
       ),
       body: Form(
         key: _topicFormKey,
@@ -134,7 +158,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                   children: [
                     Padding(
                       padding: const EdgeInsets.all(20.0),
-                      child: ChipsChoice<String>.multiple(
+                      child: ChipsChoice<dynamic>.multiple(
                         value: _tags,
                         onChanged: (val) => setState(() => _tags = val),
                         choiceItems: C2Choice.listFrom<String, String>(
@@ -391,9 +415,6 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                         if (_topicFormKey.currentState!.validate() &&
                             _tags.isNotEmpty) {
                           await _uploadTopic(context);
-                          if (!editing) {
-                            Navigator.pop(context);
-                          } else {}
                         }
                       },
                       child: const Text(
@@ -626,26 +647,51 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
   }
 
   Future<void> _uploadTopic(context) async {
-    List<Map<String, dynamic>> oldMedia = mediaUrls;
     List<Map<String, String>> mediaList = [];
 
-    if (editing &&
-        mediaUrls == widget.topic!['media'] &&
-        titleController.text == widget.topic!['title'] &&
-        descriptionController.text == widget.topic!['description'] &&
-        articleLinkController.text == widget.topic!['articleLink']) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => ViewTopicScreen(
-            firestore: widget.firestore,
-            topic: widget.topic!,
-            storage: widget.storage,
-            auth: widget.auth!,
-          ),
-        ),
-      );
-      return;
+    for (var item in mediaUrls) {
+      if (item['mediaType'] == 'video') {
+        if (networkUrls.contains(item['url'])) {
+          _downloadURL = item['url']!;
+        } else {
+          _downloadURL = await _storeData().uploadFile(item['url']!);
+        }
+
+        Map<String, String> uploadData = {
+          'url': _downloadURL!,
+          'mediaType': 'video',
+        };
+        mediaList.add(uploadData);
+      } else if (item['mediaType'] == 'image') {
+        if (networkUrls.contains(item['url'])) {
+          _downloadURL = item['url']!;
+        } else {
+          _downloadURL = await _storeData().uploadFile(item['url']!);
+        }
+
+        Map<String, String> uploadData = {
+          'url': _downloadURL!,
+          'mediaType': 'image',
+        };
+        mediaList.add(uploadData);
+      }
+    }
+    final topicDetails = {
+      'title': titleController.text,
+      'description': descriptionController.text,
+      'articleLink': articleLinkController.text,
+      'media': mediaList,
+      'views': widget.topic!['views'],
+      'likes': widget.topic!['likes'],
+      'dislikes': widget.topic!['dislikes'],
+      'date': widget.topic!['date'],
+    };
+    CollectionReference topicCollectionRef =
+        widget.firestore.collection('topics');
+
+    if (!editing) {
+      await topicCollectionRef.add(topicDetails);
+      Navigator.pop(context);
     } else {
       Navigator.push(
         context,
@@ -658,103 +704,29 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
           ),
         ),
       );
-      QuerySnapshot? data;
       await Future.delayed(const Duration(seconds: 2));
 
-      for (var item in mediaUrls) {
-        if (item['mediaType'] == 'video') {
-          if (networkUrls.contains(item['url'])) {
-            _downloadURL = item['url']!;
-          } else {
-            _downloadURL = await _storeData().uploadFile(item['url']!);
-          }
-
-          Map<String, String> uploadData = {
-            'url': _downloadURL!,
-            'mediaType': 'video',
-          };
-          mediaList.add(uploadData);
-        } else if (item['mediaType'] == 'image') {
-          if (networkUrls.contains(item['url'])) {
-            _downloadURL = item['url']!;
-          } else {
-            _downloadURL = await _storeData().uploadFile(item['url']!);
-          }
-
-          Map<String, String> uploadData = {
-            'url': _downloadURL!,
-            'mediaType': 'image',
-          };
-          mediaList.add(uploadData);
+      await topicCollectionRef.doc(widget.topic!.id).update(topicDetails);
+      QuerySnapshot? data = await topicCollectionRef.orderBy('title').get();
+      for (QueryDocumentSnapshot doc in data.docs) {
+        // Check if the document ID matches the ID of the topic
+        if (doc.id == widget.topic!.id) {
+          updatedTopicDoc = doc as QueryDocumentSnapshot<Object>;
+          break;
         }
       }
 
-      final topicDetails = {
-        'title': titleController.text,
-        'description': descriptionController.text,
-        'articleLink': articleLinkController.text,
-        'media': mediaList,
-        'views': 0,
-        'likes': 0,
-        'dislikes': 0,
-        'date': DateTime.now(),
-        'tags': _tags,
-        'quizID': quizID
-      };
-
-      CollectionReference topicCollectionRef =
-          widget.firestore.collection('topics');
-
-      if (editing) {
-        await topicCollectionRef.doc(widget.topic!.id).update(topicDetails);
-        if (mediaUrls != originalUrls) {
-          print('not equal');
-          while (true) {
-            CollectionReference topicCollRef =
-                widget.firestore.collection('topics');
-            data = await topicCollRef.orderBy('title').get();
-
-            for (QueryDocumentSnapshot doc in data.docs) {
-              // Check if the document ID matches the ID of the topic
-              if (doc.id == widget.topic!.id) {
-                updatedTopicDoc = doc as QueryDocumentSnapshot<Object>;
-                break; // Exit the loop since we found the most recent version of the topic
-              }
-            }
-
-            if (updatedTopicDoc['media'] != widget.topic!['media']) {
-              // If the updated topic document's video URL is different from the old URL,
-
-              final topicDetails = {
-                'title': titleController.text,
-                'description': descriptionController.text,
-                'articleLink': articleLinkController.text,
-                'media': mediaList,
-                'views': widget.topic!['views'],
-                'likes': widget.topic!['likes'],
-                'dislikes': widget.topic!['dislikes'],
-                'date': widget.topic!['date'],
-              };
-
-              await topicCollectionRef
-                  .doc(widget.topic!.id)
-                  .update(topicDetails);
-
-              break;
-            }
-          }
-          if (oldMedia != []) {
-            for (var item in oldMedia) {
-              if (!mediaUrls.contains(item['url'])) {
-                await deleteMediaFromStorage(item['url']);
-              }
-            }
-          }
-        }
-      } else {
-        await topicCollectionRef.add(topicDetails);
-        Navigator.pop(context);
-      }
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ViewTopicScreen(
+            firestore: widget.firestore,
+            topic: updatedTopicDoc!,
+            storage: widget.storage,
+            auth: widget.auth!,
+          ),
+        ),
+      );
     }
   }
 
