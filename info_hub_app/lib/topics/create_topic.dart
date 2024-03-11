@@ -487,7 +487,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
           ),
           Row(
             mainAxisAlignment:
-                MainAxisAlignment.end, // Aligns the button to the right
+                MainAxisAlignment.center, // Aligns the button to the right
             children: [
               IconButton(
                 key: const Key('deleteVideoButton'),
@@ -515,7 +515,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
           ),
           Row(
             mainAxisAlignment:
-                MainAxisAlignment.end, // Aligns the button to the right
+                MainAxisAlignment.center, // Aligns the button to the right
             children: [
               IconButton(
                 key: const Key('deleteImageButton'),
