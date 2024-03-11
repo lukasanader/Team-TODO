@@ -90,24 +90,11 @@ class _LoginScreenState extends State<LoginScreen> {
                     User? user = await _auth.signInUser(
                         emailController.text, passwordController.text);
                     if (user != null) {
-                      DocumentSnapshot snapshot = await widget.firestore
-                          .collection('Users')
-                          .doc(user.uid)
-                          .get();
-                      Widget nextPage;
-                      if (snapshot['roleType'] == 'admin') {
-                        nextPage = AdminHomepage(
-                          firestore: widget.firestore,
-                          auth: widget.auth,
-                          storage: widget.storage,
-                        );
-                      } else {
-                        nextPage = Base(
-                          firestore: widget.firestore,
-                          auth: widget.auth,
-                          storage: widget.storage,
-                        );
-                      }
+                      Widget nextPage = Base(
+                        firestore: widget.firestore,
+                        auth: widget.auth,
+                        storage: widget.storage,
+                      );
                       Navigator.pushAndRemoveUntil(
                         context,
                         MaterialPageRoute(builder: (context) => nextPage),
