@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class TermsOfService extends StatelessWidget {
+class TermsOfServicesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(

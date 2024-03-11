@@ -195,7 +195,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => TermsOfService(),
+                              builder: (context) => TermsOfServicesPage(),
                             ),
                           );
                         },
@@ -212,7 +212,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => PrivacyPolicy(),
+                              builder: (context) => PrivacyPolicyPage(),
                             ),
                           );
                         },
