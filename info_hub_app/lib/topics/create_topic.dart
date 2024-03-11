@@ -466,73 +466,65 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
   }
 
   Future<void> _pickImageFromDevice() async {
-    try {
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['jpg', 'jpeg', 'png'],
-        allowMultiple: !changingMedia,
-      );
-      if (result != null) {
-        for (PlatformFile file in result.files) {
-          String imagePath = file.path!;
-          setState(() {
-            _imageUrl = imagePath;
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['jpg', 'jpeg', 'png'],
+      allowMultiple: !changingMedia,
+    );
+    if (result != null) {
+      for (PlatformFile file in result.files) {
+        String imagePath = file.path!;
+        setState(() {
+          _imageUrl = imagePath;
 
-            Map<String, String> imageInfo = {
-              'url': imagePath,
-              'mediaType': 'image',
-            };
-            if (!changingMedia) {
-              mediaUrls.add(imageInfo);
-              currentIndex = mediaUrls.length - 1;
-            } else {
-              mediaUrls[currentIndex] = imageInfo;
-            }
-            _videoURL = null; // Reset video if any
-          });
-          if (file == result.files.last) {
-            await _initializeImage();
+          Map<String, String> imageInfo = {
+            'url': imagePath,
+            'mediaType': 'image',
+          };
+          if (!changingMedia) {
+            mediaUrls.add(imageInfo);
+            currentIndex = mediaUrls.length - 1;
+          } else {
+            mediaUrls[currentIndex] = imageInfo;
           }
+          _videoURL = null; // Reset video if any
+        });
+        if (file == result.files.last) {
+          await _initializeImage();
         }
       }
-    } catch (e) {
-      print("Error picking image: $e");
     }
   }
 
   Future<void> _pickVideoFromDevice() async {
-    try {
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['mp4', 'mov', 'avi', 'mkv', 'wmv'],
-        allowMultiple: !changingMedia,
-      );
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['mp4', 'mov', 'avi', 'mkv', 'wmv'],
+      allowMultiple: !changingMedia,
+    );
 
-      if (result != null) {
-        for (PlatformFile file in result.files) {
-          String videoPath = file.path!;
-          setState(() {
-            _videoURL = videoPath;
+    if (result != null) {
+      for (PlatformFile file in result.files) {
+        String videoPath = file.path!;
+        setState(() {
+          _videoURL = videoPath;
 
-            Map<String, String> videoInfo = {
-              'url': videoPath,
-              'mediaType': 'video',
-            };
-            if (!changingMedia) {
-              mediaUrls.add(videoInfo);
-              currentIndex = mediaUrls.length - 1;
-            } else {
-              mediaUrls[currentIndex] = videoInfo;
-            }
-            _imageUrl = null; // Reset image if any
-          });
-          if (file == result.files.last) {
-            await _initializeVideoPlayer();
+          Map<String, String> videoInfo = {
+            'url': videoPath,
+            'mediaType': 'video',
+          };
+          if (!changingMedia) {
+            mediaUrls.add(videoInfo);
+            currentIndex = mediaUrls.length - 1;
+          } else {
+            mediaUrls[currentIndex] = videoInfo;
           }
+          _imageUrl = null; // Reset image if any
+        });
+        if (file == result.files.last) {
+          await _initializeVideoPlayer();
         }
       }
-    } catch (e) {
-      print("Error picking video: $e");
     }
   }
 
@@ -713,6 +705,14 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
         if (doc.id == widget.topic!.id) {
           updatedTopicDoc = doc as QueryDocumentSnapshot<Object>;
           break;
+        }
+      }
+      for (var item in originalUrls) {
+        if (!mediaList
+            .map((map) => map['url'])
+            .toList()
+            .contains(item['url'])) {
+          deleteMediaFromStorage(item['url']);
         }
       }
 
