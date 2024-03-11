@@ -135,7 +135,6 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                       validator: validateArticleLink,
                     ),
                     const SizedBox(height: 10.0),
-                    const SizedBox(height: 10.0),
                     Row(
                       children: [
                         ElevatedButton.icon(
@@ -209,8 +208,8 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                           if (mediaUrls.length > 1)
                             IconButton(
                               key: const Key('previousVideoButton'),
-                              icon: const Icon(Icons.arrow_back_ios_rounded,
-                                  color: Colors.grey),
+                              icon: const Icon(Icons.arrow_circle_left_rounded,
+                                  color: Color.fromRGBO(150, 100, 200, 1.0)),
                               onPressed: () async {
                                 if (currentIndex - 1 >= 0) {
                                   currentIndex -= 1;
@@ -234,25 +233,11 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                               },
                               tooltip: 'Previous Video',
                             ),
-                          if (mediaUrls[currentIndex]['mediaType'] == 'video')
-                            IconButton(
-                              key: const Key('deleteVideoButton'),
-                              icon: const Icon(Icons.delete, color: Colors.red),
-                              onPressed: _clearVideoSelection,
-                              tooltip: 'Remove Video',
-                            ),
-                          if (mediaUrls[currentIndex]['mediaType'] == 'image')
-                            IconButton(
-                              key: const Key('deleteVideoButton'),
-                              icon: const Icon(Icons.delete, color: Colors.red),
-                              onPressed: _clearImageSelection,
-                              tooltip: 'Remove Video',
-                            ),
                           if (mediaUrls.length > 1)
                             IconButton(
                               key: const Key('nextVideoButton'),
-                              icon: const Icon(Icons.arrow_forward_ios_rounded,
-                                  color: Colors.grey),
+                              icon: const Icon(Icons.arrow_circle_right_rounded,
+                                  color: Color.fromRGBO(150, 100, 200, 1.0)),
                               onPressed: () async {
                                 if (currentIndex + 1 < mediaUrls.length) {
                                   currentIndex += 1;
@@ -278,9 +263,6 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                             ),
                         ],
                       ),
-                    const SizedBox(
-                      height: 10.0,
-                    ),
                   ],
                 ),
               ),
@@ -499,12 +481,22 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
             aspectRatio: _videoController!.value.aspectRatio,
             child: Chewie(controller: _chewieController!),
           ),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 8.0),
-            child: Text(
-              'the above is a preview of your video.',
-              style: TextStyle(color: Colors.grey),
-            ),
+          Text(
+            'The above is a preview of your video.                         ${currentIndex + 1} / ${mediaUrls.length}',
+            style: const TextStyle(color: Colors.grey),
+          ),
+          Row(
+            mainAxisAlignment:
+                MainAxisAlignment.end, // Aligns the button to the right
+            children: [
+              IconButton(
+                key: const Key('deleteVideoButton'),
+                icon: const Icon(Icons.delete_forever_outlined,
+                    color: Colors.red),
+                onPressed: _clearVideoSelection,
+                tooltip: 'Remove Video',
+              ),
+            ],
           ),
         ],
       ),
@@ -517,12 +509,22 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Image.file(File(_imageUrl!)),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 8.0),
-            child: Text(
-              'the above is a preview of your image.',
-              style: TextStyle(color: Colors.grey),
-            ),
+          Text(
+            'The above is a preview of your image.                    ${currentIndex + 1} / ${mediaUrls.length}',
+            style: const TextStyle(color: Colors.grey),
+          ),
+          Row(
+            mainAxisAlignment:
+                MainAxisAlignment.end, // Aligns the button to the right
+            children: [
+              IconButton(
+                key: const Key('deleteImageButton'),
+                icon: const Icon(Icons.delete_forever_outlined,
+                    color: Colors.red),
+                onPressed: _clearImageSelection,
+                tooltip: 'Remove Image',
+              ),
+            ],
           ),
         ],
       );
@@ -573,6 +575,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
   }
 
   void _clearImageSelection() {
+    List<Map<String, String>> oldMediaUrls = [...mediaUrls];
     setState(() {
       mediaUrls.removeAt(currentIndex);
       if (mediaUrls.length + 1 > 1) {
@@ -581,14 +584,14 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
         } else {
           currentIndex += 1;
         }
-        if (mediaUrls[currentIndex]['mediaType'] == 'video') {
-          _videoURL = mediaUrls[currentIndex]['url'];
+        if (oldMediaUrls[currentIndex]['mediaType'] == 'video') {
+          _videoURL = oldMediaUrls[currentIndex]['url'];
           _imageUrl = null;
           setState(() {});
           _initializeVideoPlayer();
           setState(() {});
-        } else if (mediaUrls[currentIndex]['mediaType'] == 'image') {
-          _imageUrl = mediaUrls[currentIndex]['url'];
+        } else if (oldMediaUrls[currentIndex]['mediaType'] == 'image') {
+          _imageUrl = oldMediaUrls[currentIndex]['url'];
           _videoURL = null;
           setState(() {});
           _initializeImage();
@@ -602,6 +605,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
   }
 
   void _clearVideoSelection() {
+    List<Map<String, String>> oldMediaUrls = [...mediaUrls];
     setState(() {
       _disposeVideoPlayer();
       mediaUrls.removeAt(currentIndex);
@@ -611,14 +615,14 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
         } else {
           currentIndex += 1;
         }
-        if (mediaUrls[currentIndex]['mediaType'] == 'video') {
-          _videoURL = mediaUrls[currentIndex]['url'];
+        if (oldMediaUrls[currentIndex]['mediaType'] == 'video') {
+          _videoURL = oldMediaUrls[currentIndex]['url'];
           _imageUrl = null;
           setState(() {});
           _initializeVideoPlayer();
           setState(() {});
-        } else if (mediaUrls[currentIndex]['mediaType'] == 'image') {
-          _imageUrl = mediaUrls[currentIndex]['url'];
+        } else if (oldMediaUrls[currentIndex]['mediaType'] == 'image') {
+          _imageUrl = oldMediaUrls[currentIndex]['url'];
           _videoURL = null;
           setState(() {});
           _initializeImage();
