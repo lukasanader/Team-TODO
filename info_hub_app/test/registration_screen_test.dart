@@ -128,6 +128,7 @@ void main() {
       matching: find.byType(TextFormField),
     );
     await tester.enterText(firstNameField, "!@#");
+    await tester.ensureVisible(find.text('Register'));
     await tester.tap(find.text('Register'));
     await tester.pumpAndSettle();
     expect(find.text('Please enter only letters'), findsOneWidget);
@@ -146,6 +147,7 @@ void main() {
       matching: find.byType(TextFormField),
     );
     await tester.enterText(lastNameField, "!@#");
+    await tester.ensureVisible(find.text('Register'));
     await tester.tap(find.text('Register'));
     await tester.pumpAndSettle();
     expect(find.text('Please enter only letters'), findsOneWidget);
@@ -164,6 +166,7 @@ void main() {
       matching: find.byType(TextFormField),
     );
     await tester.enterText(emailField, "!#");
+    await tester.ensureVisible(find.text('Register'));
     await tester.tap(find.text('Register'));
     await tester.pumpAndSettle();
     expect(find.text('Please enter a valid email address'), findsOneWidget);
@@ -182,6 +185,7 @@ void main() {
       matching: find.byType(TextFormField),
     );
     await tester.enterText(passwordField, "!#");
+    await tester.ensureVisible(find.text('Register'));
     await tester.tap(find.text('Register'));
     await tester.pumpAndSettle();
     expect(
@@ -206,6 +210,7 @@ void main() {
       matching: find.byType(TextFormField),
     );
     await tester.enterText(confirmPasswordField, "!#");
+    await tester.ensureVisible(find.text('Register'));
     await tester.tap(find.text('Register'));
     await tester.pumpAndSettle();
     expect(
@@ -236,6 +241,7 @@ void main() {
       matching: find.byType(TextFormField),
     );
     await tester.enterText(confirmPasswordField, "!#2");
+    await tester.ensureVisible(find.text('Register'));
     await tester.tap(find.text('Register'));
     await tester.pumpAndSettle();
     expect(find.text('Passwords do not match'), findsOneWidget);
@@ -257,6 +263,7 @@ void main() {
       matching: find.byType(TextFormField),
     );
     await tester.enterText(emailField, "abcd@123.com");
+    await tester.ensureVisible(find.text('Register'));
     await tester.tap(find.text('Register'));
     await tester.pumpAndSettle();
     expect(find.text('Please enter a valid healthcare professional email.'),
@@ -307,6 +314,7 @@ void main() {
     await tester.pumpAndSettle();
 
     // Trigger registration
+    await tester.ensureVisible(find.text('Register'));
     await tester.tap(find.text('Register'));
     await tester.pumpAndSettle();
 
