@@ -206,7 +206,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                 ),
                 onPressed: () async{
                   if (_topicFormKey.currentState!.validate()) {
-                    //_uploadTopic();
+                    _uploadTopic();
                     _showDeleteQuestionDialog();
                     Navigator.pop(context);
                   }
@@ -289,8 +289,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                             onPressed: () async{
                               // Delete the question from the database
                               QuestionService(firestore: widget.firestore).deleteQuestions(questions);
-                              List<dynamic> updatedQuestions = await QuestionService(firestore: widget.firestore).getRelevantQuestions(titleController.text);
-                              setState(() {questions =updatedQuestions;},);
+                              setState(() {questions =[];},);
                               Navigator.of(context).pop();
                             },
                             child: const Text("Confirm"),
