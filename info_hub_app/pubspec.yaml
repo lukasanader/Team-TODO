@@ -57,6 +57,8 @@ dependencies:
 
   timeago: ^3.0.2
 
+  http: ^1.2.1
+
   file:
   
   url_launcher: ^6.2.4
@@ -100,6 +102,7 @@ dev_dependencies:
   fake_cloud_firestore: ^2.4.8
   firebase_auth_mocks: ^0.13.0
   firebase_database_mocks: ^0.6.1
+  mocktail_image_network: ^1.1.0 
 
 
 

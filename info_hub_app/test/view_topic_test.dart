@@ -15,6 +15,7 @@ import 'package:info_hub_app/helpers/mock_classes.dart';
 import 'package:info_hub_app/helpers/base.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:info_hub_app/threads/threads.dart';
+import 'package:mocktail_image_network/mocktail_image_network.dart';
 
 void main() {
   late MockUrlLauncher mock;
@@ -106,6 +107,119 @@ void main() {
 
     expect(find.widgetWithText(ElevatedButton, 'Read Article'), findsOneWidget);
 
+    expect(find.byType(Chewie), findsOneWidget);
+  });
+
+  testWidgets('ViewTopicScreen shows image', (WidgetTester tester) async {
+    final MockUser mockUser = MockUser(
+      isAnonymous: false,
+      uid: 'user123',
+      email: 'test@example.com',
+    );
+
+    auth = MockFirebaseAuth(mockUser: mockUser, signedIn: true);
+    final firestore = FakeFirebaseFirestore();
+
+    CollectionReference topicCollectionRef = firestore.collection('topics');
+
+    await topicCollectionRef.add({
+      'title': 'video topic',
+      'description': 'Test Description',
+      'articleLink': 'https://www.javatpoint.com/heap-sort',
+      'media': [
+        {'url': 'http://via.placeholder.com/350x150', 'mediaType': 'image'}
+      ],
+      'likes': 0,
+      'tags': ['Patient'],
+      'views': 0,
+      'quizId': "",
+      'dislikes': 0,
+      'date': DateTime.now()
+    });
+
+    QuerySnapshot data = await topicCollectionRef.orderBy('title').get();
+
+    // Pass a valid URL when creating the VideoPlayerController instance
+    await mockNetworkImages(() async => await tester.pumpWidget(MaterialApp(
+          home: ViewTopicScreen(
+              firestore: firestore,
+              storage: storage,
+              topic: data.docs[0] as QueryDocumentSnapshot<Object>,
+              auth: auth),
+        )));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(Image), findsOneWidget);
+  });
+  testWidgets('next and previous buttons change current media',
+      (WidgetTester tester) async {
+    final MockUser mockUser = MockUser(
+      isAnonymous: false,
+      uid: 'user123',
+      email: 'test@example.com',
+    );
+
+    auth = MockFirebaseAuth(mockUser: mockUser, signedIn: true);
+    final firestore = FakeFirebaseFirestore();
+
+    CollectionReference topicCollectionRef = firestore.collection('topics');
+
+    await topicCollectionRef.add({
+      'title': 'video topic',
+      'description': 'Test Description',
+      'articleLink': 'https://www.javatpoint.com/heap-sort',
+      'media': [
+        {'url': 'http://via.placeholder.com/350x150', 'mediaType': 'image'},
+        {
+          'url':
+              'https://firebasestorage.googleapis.com/v0/b/team-todo-38f76.appspot.com/o/videos%2F2024-02-01%2018:28:20.745204.mp4?alt=media&token=6d6e3aee-240d-470f-ab22-58e274a04010',
+          'mediaType': 'video'
+        },
+        {
+          'url':
+              'https://images.unsplash.com/photo-1606921231106-f1083329a65c?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8ZXhhbXBsZXxlbnwwfHwwfHx8MA%3D%3D',
+          'mediaType': 'image'
+        }
+      ],
+      'likes': 0,
+      'tags': ['Patient'],
+      'views': 0,
+      'quizId': "",
+      'dislikes': 0,
+      'date': DateTime.now()
+    });
+
+    QuerySnapshot data = await topicCollectionRef.orderBy('title').get();
+
+    // Pass a valid URL when creating the VideoPlayerController instance
+    await mockNetworkImages(() async => await tester.pumpWidget(MaterialApp(
+          home: ViewTopicScreen(
+              firestore: firestore,
+              storage: storage,
+              topic: data.docs[0] as QueryDocumentSnapshot<Object>,
+              auth: auth),
+        )));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(Image), findsOneWidget);
+    await tester.ensureVisible(find.byKey(const Key('nextMediaButton')));
+    await tester.tap(find.byKey(const Key('nextMediaButton')));
+    await tester.pumpAndSettle();
+    expect(find.byType(Chewie), findsOneWidget);
+    await tester.ensureVisible(find.byKey(const Key('previousMediaButton')));
+    await tester.tap(find.byKey(const Key('previousMediaButton')));
+    await tester.pumpAndSettle();
+    expect(find.byType(Image), findsOneWidget);
+    await tester.ensureVisible(find.byKey(const Key('nextMediaButton')));
+    await tester.tap(find.byKey(const Key('nextMediaButton')));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.byKey(const Key('nextMediaButton')));
+    await tester.tap(find.byKey(const Key('nextMediaButton')));
+    await tester.pumpAndSettle();
+    expect(find.byType(Image), findsOneWidget);
+    await tester.ensureVisible(find.byKey(const Key('previousMediaButton')));
+    await tester.tap(find.byKey(const Key('previousMediaButton')));
+    await tester.pumpAndSettle();
     expect(find.byType(Chewie), findsOneWidget);
   });
 

@@ -113,20 +113,16 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
   }
 
   Widget _imagePreviewWidget() {
-    if (_imageUrl != null) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Image.network(_imageUrl!),
-          Text(
-            '                                                                                  ${currentIndex + 1} / ${updatedTopic['media'].length}',
-            style: const TextStyle(color: Colors.grey),
-          ),
-        ],
-      );
-    } else {
-      return Container();
-    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Image.network(_imageUrl!),
+        Text(
+          '                                                                                  ${currentIndex + 1} / ${updatedTopic['media'].length}',
+          style: const TextStyle(color: Colors.grey),
+        ),
+      ],
+    );
   }
 
   Future<bool> hasDislikedTopic() async {
@@ -364,7 +360,7 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
                       children: [
                         if (updatedTopic['media'].length > 1)
                           IconButton(
-                            key: const Key('previousVideoButton'),
+                            key: const Key('previousMediaButton'),
                             icon: const Icon(Icons.arrow_circle_left_rounded,
                                 color: Color.fromRGBO(150, 100, 200, 1.0)),
                             onPressed: () async {
@@ -395,7 +391,7 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
                           ),
                         if (updatedTopic['media'].length > 1)
                           IconButton(
-                            key: const Key('nextVideoButton'),
+                            key: const Key('nextMediaButton'),
                             icon: const Icon(Icons.arrow_circle_right_rounded,
                                 color: Color.fromRGBO(150, 100, 200, 1.0)),
                             onPressed: () async {

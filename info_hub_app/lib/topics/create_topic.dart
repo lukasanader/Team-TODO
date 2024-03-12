@@ -293,6 +293,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                         const SizedBox(width: 10),
                         if (_videoURL != null || _imageUrl != null)
                           ElevatedButton.icon(
+                            key: const Key('moreMediaButton'),
                             onPressed: () {
                               changingMedia = false;
                               _showMediaUploadOptions(context);
@@ -325,7 +326,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                         children: [
                           if (mediaUrls.length > 1)
                             IconButton(
-                              key: const Key('previousVideoButton'),
+                              key: const Key('previousMediaButton'),
                               icon: const Icon(Icons.arrow_circle_left_rounded,
                                   color: Color.fromRGBO(150, 100, 200, 1.0)),
                               onPressed: () async {
@@ -353,7 +354,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                             ),
                           if (mediaUrls.length > 1)
                             IconButton(
-                              key: const Key('nextVideoButton'),
+                              key: const Key('nextMediaButton'),
                               icon: const Icon(Icons.arrow_circle_right_rounded,
                                   color: Color.fromRGBO(150, 100, 200, 1.0)),
                               onPressed: () async {
@@ -570,10 +571,18 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
             aspectRatio: _videoController!.value.aspectRatio,
             child: Chewie(controller: _chewieController!),
           ),
-          Text(
-            'The above is a preview of your video.                         ${currentIndex + 1} / ${mediaUrls.length}',
-            style: const TextStyle(color: Colors.grey),
-          ),
+          if (!editing || networkUrls.contains(_videoURL))
+            Text(
+              'The above is a preview of your video.                         ${currentIndex + 1} / ${mediaUrls.length}',
+              key: const Key('upload_text_video'),
+              style: const TextStyle(color: Colors.grey),
+            ),
+          if (editing && !networkUrls.contains(_videoURL))
+            Text(
+              'The above is a preview of your new video.                    ${currentIndex + 1} / ${mediaUrls.length}',
+              key: const Key('edit_text_video'),
+              style: const TextStyle(color: Colors.grey),
+            ),
           Row(
             mainAxisAlignment:
                 MainAxisAlignment.center, // Aligns the button to the right
@@ -593,34 +602,38 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
   }
 
   Widget _imagePreviewWidget() {
-    if (_imageUrl != null) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (!networkUrls.contains(_imageUrl)) Image.file(File(_imageUrl!)),
-          if (networkUrls.contains(_imageUrl)) Image.network((_imageUrl!)),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (!networkUrls.contains(_imageUrl)) Image.file(File(_imageUrl!)),
+        if (networkUrls.contains(_imageUrl)) Image.network((_imageUrl!)),
+        if (!editing || networkUrls.contains(_imageUrl))
           Text(
             'The above is a preview of your image.                    ${currentIndex + 1} / ${mediaUrls.length}',
+            key: const Key('upload_text_image'),
             style: const TextStyle(color: Colors.grey),
           ),
-          Row(
-            mainAxisAlignment:
-                MainAxisAlignment.center, // Aligns the button to the right
-            children: [
-              IconButton(
-                key: const Key('deleteImageButton'),
-                icon: const Icon(Icons.delete_forever_outlined,
-                    color: Colors.red),
-                onPressed: _clearImageSelection,
-                tooltip: 'Remove Image',
-              ),
-            ],
+        if (editing && !networkUrls.contains(_imageUrl))
+          Text(
+            'The above is a preview of your new image.                    ${currentIndex + 1} / ${mediaUrls.length}',
+            key: const Key('edit_text_image'),
+            style: const TextStyle(color: Colors.grey),
           ),
-        ],
-      );
-    } else {
-      return Container();
-    }
+        Row(
+          mainAxisAlignment:
+              MainAxisAlignment.center, // Aligns the button to the right
+          children: [
+            IconButton(
+              key: const Key('deleteImageButton'),
+              icon:
+                  const Icon(Icons.delete_forever_outlined, color: Colors.red),
+              onPressed: _clearImageSelection,
+              tooltip: 'Remove Image',
+            ),
+          ],
+        ),
+      ],
+    );
   }
 
   Future<void> _uploadTopic(context) async {
@@ -720,7 +733,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
   }
 
   Future<void> deleteMediaFromStorage(String url) async {
-    // get reference to the video file
+    // get reference to the file
     Reference ref = widget.storage.refFromURL(url);
 
     // Delete the file
