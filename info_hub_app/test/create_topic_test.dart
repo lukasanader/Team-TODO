@@ -104,6 +104,288 @@ void main() async {
     expect(documents.length, 1);
   });
 
+  testWidgets('Topic with title,description and one category save',
+      (WidgetTester tester) async {
+    final firestore = FakeFirebaseFirestore();
+    final mockStorage = MockFirebaseStorage();
+
+    await firestore
+      .collection('categories')
+      .add({
+        'name' : 'Gym'});
+
+    await tester.pumpWidget(MaterialApp(
+      home: CreateTopicScreen(
+        firestore: firestore,
+        storage: mockStorage,
+      ),
+    ));
+
+    await tester.enterText(find.byKey(const Key('titleField')), 'Test title');
+
+    await tester.enterText(
+        find.byKey(const Key('descField')), 'Test description');
+
+    await tester.ensureVisible(find.text('Patient'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Patient'));
+
+    await tester.ensureVisible(find.text('Gym'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Gym'));    
+    
+    await tester.tap(find.text('PUBLISH TOPIC'));
+
+    await tester.pumpAndSettle();
+
+    final QuerySnapshot<Map<String, dynamic>> querySnapshot =
+        await firestore.collection("topics").get();
+
+    final List<DocumentSnapshot<Map<String, dynamic>>> documents =
+        querySnapshot.docs;
+    
+    expect(
+      documents.any(
+        (doc) => doc.data()?['title'] == 'Test title',
+      ),
+      isTrue,
+    );
+
+    expect(
+      documents.any(
+        (doc) => doc.data()?['description'] == 'Test description',
+      ),
+      isTrue,
+    );
+    
+    expect(
+      documents.any(
+        (doc) => (doc.data()?['tags'] as List).contains('Patient') && (doc.data()?['tags'] as List).length==1,
+      ),
+      isTrue,
+    );
+
+    expect(
+      documents.any(
+        (doc) => (doc.data()?['categories'] as List).contains('Gym') && (doc.data()?['categories'] as List).length==1,
+      ),
+      isTrue,
+    );
+
+
+    expect(documents.length, 1);
+  });
+
+  testWidgets('Topic with title,description and multiple category save',
+      (WidgetTester tester) async {
+    final firestore = FakeFirebaseFirestore();
+    final mockStorage = MockFirebaseStorage();
+
+    await firestore
+      .collection('categories')
+      .add({
+        'name' : 'Gym'});
+    await firestore
+      .collection('categories')
+      .add({
+        'name' : 'Smoking'});
+    await firestore
+      .collection('categories')
+      .add({
+        'name' : 'School'});
+
+    await tester.pumpWidget(MaterialApp(
+      home: CreateTopicScreen(
+        firestore: firestore,
+        storage: mockStorage,
+      ),
+    ));
+
+    await tester.enterText(find.byKey(const Key('titleField')), 'Test title');
+
+    await tester.enterText(
+        find.byKey(const Key('descField')), 'Test description');
+
+    await tester.ensureVisible(find.text('Patient'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Patient'));
+
+    await tester.ensureVisible(find.text('Gym'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Gym'));    
+
+    await tester.ensureVisible(find.text('School'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('School'));    
+
+    await tester.ensureVisible(find.text('Smoking'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Smoking'));    
+    
+    await tester.tap(find.text('PUBLISH TOPIC'));
+
+    await tester.pumpAndSettle();
+
+    final QuerySnapshot<Map<String, dynamic>> querySnapshot =
+        await firestore.collection("topics").get();
+
+    final List<DocumentSnapshot<Map<String, dynamic>>> documents =
+        querySnapshot.docs;
+    
+    expect(
+      documents.any(
+        (doc) => doc.data()?['title'] == 'Test title',
+      ),
+      isTrue,
+    );
+
+    expect(
+      documents.any(
+        (doc) => doc.data()?['description'] == 'Test description',
+      ),
+      isTrue,
+    );
+    
+    expect(
+      documents.any(
+        (doc) => (doc.data()?['tags'] as List).contains('Patient') && (doc.data()?['tags'] as List).length==1,
+      ),
+      isTrue,
+    );
+
+    expect(
+      documents.any(
+        (doc) => (doc.data()?['categories'] as List).contains('Gym') 
+        && (doc.data()?['categories'] as List).contains('School')
+        && (doc.data()?['categories'] as List).contains('Smoking')
+        && (doc.data()?['categories'] as List).length==3,
+      ),
+      isTrue,
+    );
+
+
+    expect(documents.length, 1);
+  });
+
+  testWidgets('Can create a new category',
+      (WidgetTester tester) async {
+    final firestore = FakeFirebaseFirestore();
+    final mockStorage = MockFirebaseStorage();
+
+
+    await tester.pumpWidget(MaterialApp(
+      home: CreateTopicScreen(
+        firestore: firestore,
+        storage: mockStorage,
+      ),
+    ));
+
+    await tester.tap(find.byIcon(Icons.add));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byType(TextField).last, 'Gym');
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Gym'), findsOne);
+  });
+
+  testWidgets('Cannot create a blank category',
+      (WidgetTester tester) async {
+    final firestore = FakeFirebaseFirestore();
+    final mockStorage = MockFirebaseStorage();
+
+
+    await tester.pumpWidget(MaterialApp(
+      home: CreateTopicScreen(
+        firestore: firestore,
+        storage: mockStorage,
+      ),
+    ));
+
+    await tester.tap(find.byIcon(Icons.add));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byType(TextField).last, '');
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Warning!'), findsOne);
+  });
+
+  testWidgets('Cannot create a category that already exists',
+      (WidgetTester tester) async {
+    final firestore = FakeFirebaseFirestore();
+    final mockStorage = MockFirebaseStorage();
+
+  await firestore
+    .collection('categories')
+    .add({
+      'name' : 'Gym'});
+
+    await tester.pumpWidget(MaterialApp(
+      home: CreateTopicScreen(
+        firestore: firestore,
+        storage: mockStorage,
+      ),
+    ));
+
+    await tester.tap(find.byIcon(Icons.add));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byType(TextField).last, 'Gym');
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Warning!'), findsOne);
+  });
+
+  testWidgets('Can delete a category',
+      (WidgetTester tester) async {
+    final firestore = FakeFirebaseFirestore();
+    final mockStorage = MockFirebaseStorage();
+
+    await firestore
+      .collection('categories')
+      .add({
+        'name' : 'Gym'});
+
+    await tester.pumpWidget(MaterialApp(
+      home: CreateTopicScreen(
+        firestore: firestore,
+        storage: mockStorage,
+      ),
+    ));
+
+    await tester.enterText(find.byKey(const Key('titleField')), 'Test title');
+
+    await tester.enterText(
+        find.byKey(const Key('descField')), 'Test description');
+
+    await tester.ensureVisible(find.text('Patient'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Patient'));
+
+    await tester.ensureVisible(find.text('Gym'));
+    expect(find.text('Gym'), findsOne);   
+
+    //steps to remove Gym
+    await tester.tap(find.byIcon(Icons.close));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Gym').last);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+
+
+    expect(find.text('Gym'), findsNothing);
+
+  });
+
+
+
   testWidgets('Topic with no title does not save', (WidgetTester tester) async {
     final firestore = FakeFirebaseFirestore();
     final mockStorage = MockFirebaseStorage();

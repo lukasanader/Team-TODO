@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/registration/user_model.dart';
 import 'package:info_hub_app/notifications/manage_notifications.dart';
@@ -133,12 +134,18 @@ class _SettingsViewState extends State<SettingsView> {
                   title: Text('Log Out'),
                   onTap: () {
                     widget.auth.signOut();
-                    PersistentNavBarNavigator.pushNewScreen(context,
-                        screen: StartPage(
-                            firestore: widget.firestore,
-                            auth: widget.auth,
-                            storage: widget.storage),
-                        withNavBar: false);
+                    Navigator.of(context, rootNavigator: true)
+                      .pushAndRemoveUntil(
+                        MaterialPageRoute(
+                          builder: (BuildContext context) {
+                            return StartPage(
+                              firestore: widget.firestore ,
+                              auth: widget.auth, 
+                              storage: widget.storage);
+                          },
+                        ),
+                        (_) => false,
+                    );
                   },
                 ),
               ),
