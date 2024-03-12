@@ -18,7 +18,8 @@ class AuthService {
       String email,
       String roleType,
       List<String> likedTopics,
-      List<String> dislikedTopics) {
+      List<String> dislikedTopics,
+      bool hasOptedOutOfExperienceExpectations) {
     return UserModel(
         uid: user.uid,
         firstName: firstName,
@@ -26,7 +27,8 @@ class AuthService {
         lastName: lastName,
         roleType: roleType,
         likedTopics: likedTopics,
-        dislikedTopics: dislikedTopics);
+        dislikedTopics: dislikedTopics,
+        hasOptedOutOfExperienceExpectations: false);
   }
 
   Stream<User?> get user {
@@ -35,25 +37,33 @@ class AuthService {
 
   // register user
   Future registerUser(
-      String firstName,
-      String lastName,
-      String email,
-      String password,
-      String roleType,
-      List<String> likedTopics,
-      List<String> dislikedTopics) async {
+    String firstName,
+    String lastName,
+    String email,
+    String password,
+    String roleType,
+    List<String> likedTopics,
+    List<String> dislikedTopics,
+    bool hasOptedOutOfExperienceExpectations,
+  ) async {
     try {
       UserCredential result = await auth.createUserWithEmailAndPassword(
           email: email, password: password);
       User? user = result.user;
       if (user != null) {
         await DatabaseService(firestore: firestore, uid: user.uid).addUserData(
-            firstName, lastName, email, roleType, likedTopics, dislikedTopics);
+            firstName,
+            lastName,
+            email,
+            roleType,
+            likedTopics,
+            dislikedTopics,
+            hasOptedOutOfExperienceExpectations);
         await DatabaseService(firestore: firestore, uid: user.uid)
             .createPreferences();
         // create user model
         return _userFromFirebaseUser(user, firstName, lastName, email, roleType,
-            likedTopics, dislikedTopics);
+            likedTopics, dislikedTopics, hasOptedOutOfExperienceExpectations);
       }
     } catch (e) {
       if (kDebugMode) {

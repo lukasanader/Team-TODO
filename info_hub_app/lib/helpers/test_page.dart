@@ -9,7 +9,7 @@ import 'package:info_hub_app/notifications/manage_notifications.dart';
 import 'package:info_hub_app/services/database.dart';
 import 'package:info_hub_app/threads/threads.dart';
 import 'package:provider/provider.dart';
-import 'package:info_hub_app/screens/privacy_base.dart';
+import 'package:info_hub_app/settings/privacy_base.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 
 class TestView extends StatefulWidget {
@@ -18,7 +18,7 @@ class TestView extends StatefulWidget {
       required this.auth,
       required this.firestore,
       required this.storage});
-  
+
   FirebaseFirestore firestore;
   FirebaseAuth auth;
   FirebaseStorage storage;
@@ -31,35 +31,28 @@ class _TestViewState extends State<TestView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
+      /*floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.of(context).push(CupertinoPageRoute(
               builder: (BuildContext context) =>
-                  ThreadApp(firestore: widget.firestore)));
+                  ThreadApp(firestore: widget.firestore, auth: widget.auth)));
         },
         child: const Icon(FontAwesomeIcons.comment),
-      ),
+      ), */ //commented out test code
       body: SafeArea(
-        child: Center(
-          child: Column(
-            children: [
-              ElevatedButton(
-                onPressed: () async {
-                  await DatabaseService(
-                          firestore: widget.firestore,
-                          uid: widget.auth.currentUser!.uid)
-                      .createNotification('Test Notification',
-                          'This is a test notification', DateTime.now());
-                },
-                child: const Text('Create Test Notification'),
-              ),
-            ]
-         ) 
-      
-        ) 
-
-      ),
+          child: Center(
+              child: Column(children: [
+        ElevatedButton(
+          onPressed: () async {
+            await DatabaseService(
+                    firestore: widget.firestore,
+                    uid: widget.auth.currentUser!.uid)
+                .createNotification('Test Notification',
+                    'This is a test notification', DateTime.now());
+          },
+          child: const Text('Create Test Notification'),
+        ),
+      ]))),
     );
-
   }
 }

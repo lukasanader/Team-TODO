@@ -25,9 +25,18 @@ class _DiscoveryViewState extends State<DiscoveryView> {
   List<Object> _searchedTopicsList = [];
   int topicLength = 0;
 
+  late List<bool> isSelected = [];
+  List<Widget> _categoriesWidget = [];
+  List<String> _categories = [];
+  List<String> categoriesSelected = [];
+
+
+
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    getCategoryList();
     getTopicsList();
   }
 
@@ -51,6 +60,22 @@ class _DiscoveryViewState extends State<DiscoveryView> {
       body: SingleChildScrollView(
         child: Column(
         children: [
+          ToggleButtons(
+            isSelected: isSelected,
+            onPressed: (int index) {
+              setState(() {
+                isSelected[index] = !isSelected[index];
+                if (!categoriesSelected.contains(_categories[index])) {
+                  categoriesSelected.add(_categories[index]);
+                }
+                else {
+                  categoriesSelected.remove(_categories[index]);
+                }
+                updateTopicListBasedOnCategory(categoriesSelected);
+              });
+            },
+            children: _categoriesWidget
+          ),
           ListView.builder(
             physics: const NeverScrollableScrollPhysics(),
             shrinkWrap: true,
@@ -82,6 +107,7 @@ class _DiscoveryViewState extends State<DiscoveryView> {
               }
             },
           ),
+
           const SizedBox(
             height: 20,
           ),
@@ -89,7 +115,8 @@ class _DiscoveryViewState extends State<DiscoveryView> {
               onPressed: () {
                 _showPostDialog();
               },
-              child: const Text("Ask a question!"))
+              child: const Text("Ask a question!")
+          )
         ],
       )),
     );
@@ -125,44 +152,150 @@ class _DiscoveryViewState extends State<DiscoveryView> {
     });
   }
 
-  void _showPostDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text(''),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: _questionController,
-                decoration:
-                    const InputDecoration(labelText: 'Ask a question...'),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () async {
-                  // Access the entered text using _textFieldController.text
-                  //call method to add question to database
-                  DateTime currentDate = DateTime.now();
-                  final postData = {
-                    'question': _questionController.text,
-                    'uid': 1,
-                    'date': currentDate.toString(),
-                  };
-                  CollectionReference db =
-                      widget.firestore.collection('questions');
-                  await db.add(postData);
-                  _questionController.clear();
-                  // ignore: use_build_context_synchronously
-                  Navigator.of(context).pop(); // Close the dialog
-                },
-                child: const Text('Submit'),
-              ),
-            ],
-          ),
-        );
-      },
-    );
+
+
+  Future updateTopicListBasedOnCategory(List<String> categories) async {
+    if (categories.isEmpty) {
+      getTopicsList();
+    } else {
+      List<QuerySnapshot> snapshots = [];
+      for (String category in categories) {
+        QuerySnapshot snapshot = await widget.firestore
+            .collection('topics')
+            .where('categories', arrayContains: category)
+            .orderBy('title')
+            .get();
+        snapshots.add(snapshot);
+      }
+
+      // Find the intersection of documents
+      List<QueryDocumentSnapshot> intersection = [];
+      if (snapshots.isNotEmpty) {
+        intersection = snapshots.first.docs;
+        for (int i = 1; i < snapshots.length; i++) {
+          intersection = intersection
+              .where((doc1) => snapshots[i].docs
+                  .any((doc2) => doc1.id == doc2.id))
+              .toList();
+        }
+      }
+
+      setState(() {
+        _topicsList = intersection;
+        topicLength = _topicsList.length;
+      });
+    }
   }
+
+
+  Future getCategoryList() async {
+    QuerySnapshot data = await widget.firestore
+        .collection('categories')
+        .orderBy('name')
+        .get();
+
+    List<Object> dataList = List.from(data.docs);
+    List<String> tempStringList = [];
+    List<Widget> tempWidgetList = [];
+
+    for (dynamic category in dataList) {
+      tempStringList.add(category['name']); 
+      tempWidgetList.add(Text(category['name'])); 
+    }
+
+    setState(() {
+      _categories = tempStringList;
+      _categoriesWidget = tempWidgetList;
+      isSelected = List<bool>.filled(_categoriesWidget.length, false);
+    });
+  }
+
+
+
+
+
+
+  void _showPostDialog() {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text(''),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: _questionController,
+              decoration:
+                  const InputDecoration(labelText: 'Ask a question...'),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () async {
+                // Access the entered text using _textFieldController.text
+                //call method to add question to database
+                DateTime currentDate = DateTime.now();
+                final postData = {
+                  'question': _questionController.text,
+                  'uid': 1,
+                  'date': currentDate.toString(),
+                };
+                CollectionReference db =
+                    widget.firestore.collection('questions');
+                await db.add(postData);
+                _questionController.clear();
+                // Close the dialog
+                Navigator.of(context).pop();
+
+                // Show the message dialog
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: const Text('Message'),
+                      content: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.check_circle,
+                            color: Colors.green,
+                            size: 50,
+                          ),
+                          const SizedBox(height: 10),
+                          const Text(
+                            'Thank you!',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          const Text(
+                            'Your question has been submitted.\n'
+                            'An admin will get back to you shortly.',
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                      actions: <Widget>[
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          child: const Text('OK'),
+                        ),
+                      ],
+                    );
+                  },
+                );
+              },
+              child: const Text('Submit'),
+            ),
+          ],
+        ),
+      );
+    },
+  );
+}
+
 }
