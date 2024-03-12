@@ -4,11 +4,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/admin/admin_dash.dart';
+import 'package:info_hub_app/discovery_view/discovery_view.dart';
 import 'package:info_hub_app/home_page/home_page.dart';
 import 'notifications/notification.dart' as custom;
 import 'registration/start_page.dart';
 import 'package:provider/provider.dart';
 import 'package:info_hub_app/services/database.dart';
+import 'package:info_hub_app/topics/view_topic.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,24 +37,17 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        StreamProvider<List<custom.Notification>>(
-          create: (_) =>
-              DatabaseService(uid: auth.currentUser!.uid, firestore: firestore)
-                  .notifications,
-          initialData: const [], // Initial data while waiting for Firebase data
-        ),
-      ],
-      child: MaterialApp(
+ 
+      return MaterialApp(
         home: StartPage(
           firestore: firestore,
           storage: storage,
           auth: auth,
         ),
+
         // home: HomePage(auth: auth, firestore: firestore, storage: storage)
         // home: AdminHomepage(firestore: firestore, storage: storage),
-      ),
-    );
+      );
+    
   }
 }

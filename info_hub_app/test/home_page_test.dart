@@ -12,11 +12,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:info_hub_app/helpers/base.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
+import 'package:info_hub_app/message_feature/patient_message_view.dart';
+import 'package:info_hub_app/patient_experience/patient_experience_view.dart';
 import 'package:info_hub_app/topics/topics_card.dart';
 import 'package:info_hub_app/topics/view_topic.dart';
+import 'package:info_hub_app/webinar/webinar_view.dart';
 
 void main() {
-  MockFirebaseAuth auth;
+  late MockFirebaseAuth auth;
   late FakeFirebaseFirestore firestore;
   late MockFirebaseStorage storage;
   late Widget trendingTopicWidget;
@@ -158,4 +161,70 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byType(ViewTopicScreen), findsOne);
       });
+
+ testWidgets('Click onto inbox leads to patient message view',
+      (WidgetTester tester) async {
+      
+      await auth.createUserWithEmailAndPassword(
+        email: 'patient@gmail.com',
+        password: 'Patient123!');
+      String uid = auth.currentUser!.uid;
+      await firestore.collection('Users').doc(uid).set({
+        'email': 'patient@gmail.com',
+        'firstName': 'John',
+        'lastName': 'Doe',
+        'roleType': 'Patient'
+      });
+
+      CollectionReference userCollectionRef = firestore.collection('Users');
+      userCollectionRef.doc('1').set({
+        'email': 'admin@gmail.com',
+        'firstName': 'John',
+        'lastName': 'Doe',
+        'roleType': 'admin'
+      });      
+
+      CollectionReference chatRoomMembersCollectionReference = firestore.collection('message_rooms_members');
+
+      chatRoomMembersCollectionReference.add({
+        'adminId' : '1',
+        'patientId' : uid
+      });
+
+      await tester.pumpWidget(trendingTopicWidget);
+      await tester.pumpAndSettle();
+
+      Finder inboxButton = find.byIcon(Icons.email);
+      await tester.tap(inboxButton);
+      await tester.pumpAndSettle();
+
+      expect(find.byType(PatientMessageView), findsOne);
+      });
+
+ testWidgets('Click onto patient experience leads to patient experience view',
+      (WidgetTester tester) async {
+      
+      await tester.pumpWidget(trendingTopicWidget);
+      await tester.pumpAndSettle();
+
+      Finder experienceViewButton = find.text('Patient Experience');
+      await tester.tap(experienceViewButton);
+      await tester.pumpAndSettle();
+
+      expect(find.byType(ExperienceView), findsOne);
+      });
+
+ testWidgets('Click onto webinar view leads to webinar view',
+      (WidgetTester tester) async {
+      
+      await tester.pumpWidget(trendingTopicWidget);
+      await tester.pumpAndSettle();
+
+      Finder webinarViewButton = find.text('Webinars');
+      await tester.tap(webinarViewButton);
+      await tester.pumpAndSettle();
+
+      expect(find.byType(WebinarView), findsOne);
+      });
+
 }

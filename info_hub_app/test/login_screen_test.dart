@@ -50,7 +50,9 @@ void main() {
     await test.enterText(passwordField, 'test');
     final loginButton = find.text('Login');
     await test.tap(loginButton);
-    await test.pumpAndSettle();
+    await test.pump(const Duration(seconds: 1));
+  
+    expect(find.byType(SnackBar), findsOne);
     expect(find.text('Email or password is incorrect. Please try again'),
         findsNothing);
   });

@@ -59,16 +59,22 @@ class DatabaseService {
       String email,
       String roleType,
       List<String> likedTopics,
-      List<String> dislikedTopics) async {
+      List<String> dislikedTopics,
+      bool hasOptedOutOfExperienceExpectations) async {
     CollectionReference usersCollectionRef = firestore.collection('Users');
-    return await usersCollectionRef.doc(uid).set({
-      'firstName': firstName,
-      'lastName': lastName,
-      'email': email,
-      'roleType': roleType,
-      'likedTopics': likedTopics,
-      'dislikedTopics': dislikedTopics
-    });
+    if (roleType == 'Patient') {
+      // If you are a patient, you have access to the story expectations
+      return await usersCollectionRef.doc(uid).set({
+        'firstName': firstName,
+        'lastName': lastName,
+        'email': email,
+        'roleType': roleType,
+        'likedTopics': likedTopics,
+        'dislikedTopics': dislikedTopics,
+        'hasOptedOutOfExperienceExpectations':
+            hasOptedOutOfExperienceExpectations,
+      });
+    }
   }
 
 
