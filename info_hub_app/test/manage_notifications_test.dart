@@ -40,16 +40,11 @@ Future<void> main() async {
       // Build the widget tree
       await tester.pumpWidget(
         MaterialApp(
-          home: StreamProvider<List<Preferences>>(
-            create: (_) => DatabaseService(
-                    firestore: firestore, uid: auth.currentUser!.uid)
-                .preferences,
-            initialData: [],
-            child: Scaffold(
+             home: Scaffold(
               body: ManageNotifications(firestore: firestore, auth: auth),
             ),
           ),
-        ),
+        
       );
 
       // Wait for the widget to render
@@ -71,17 +66,11 @@ Future<void> main() async {
 
       // Build the widget tree
       await tester.pumpWidget(
-        MaterialApp(
-          home: StreamProvider<List<Preferences>>(
-            create: (_) => DatabaseService(
-                    firestore: firestore, uid: auth.currentUser!.uid)
-                .preferences,
-            initialData: [],
-            child: Scaffold(
+         MaterialApp(
+             home: Scaffold(
               body: ManageNotifications(firestore: firestore, auth: auth),
             ),
           ),
-        ),
       );
 
       await tester.pumpAndSettle();

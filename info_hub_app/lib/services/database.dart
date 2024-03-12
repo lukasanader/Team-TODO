@@ -71,24 +71,6 @@ class DatabaseService {
     });
   }
 
-  List<UserModel> userListFromSnapshot(QuerySnapshot snapshot) {
-    return snapshot.docs.map((doc) {
-      return UserModel(
-        uid: doc.id,
-        firstName: doc.get('firstName') ?? '',
-        lastName: doc.get('lastName') ?? '',
-        email: doc.get('email') ?? '',
-        roleType: doc.get('roleType') ?? '',
-        likedTopics: doc.get('likedTopics') ?? [],
-        dislikedTopics: doc.get('dislikedTopics') ?? [],
-      );
-    }).toList();
-  }
-
-  Stream<List<UserModel>> get users {
-    CollectionReference usersCollectionRef = firestore.collection('Users');
-    return usersCollectionRef.snapshots().map(userListFromSnapshot);
-  }
 
   Future<void> createPreferences() async {
     CollectionReference prefCollection = firestore.collection('preferences');
@@ -98,17 +80,5 @@ class DatabaseService {
     });
   }
 
-  List<Preferences> prefListFromSnapshot(QuerySnapshot snapshot) {
-    return snapshot.docs.map((doc) {
-      return Preferences(
-        uid: uid,
-        push_notifications: doc.get('push_notifications') ?? true,
-      );
-    }).toList();
-  }
-
-  Stream<List<Preferences>> get preferences {
-    CollectionReference prefCollectionRef = firestore.collection('preferences');
-    return prefCollectionRef.snapshots().map(prefListFromSnapshot);
-  }
+  
 }

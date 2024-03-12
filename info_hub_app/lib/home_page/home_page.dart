@@ -7,7 +7,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:info_hub_app/helpers/test_page.dart';
 import 'package:info_hub_app/patient_experience/admin_experience_view.dart';
 import 'package:info_hub_app/patient_experience/patient_experience_view.dart';
 import 'package:info_hub_app/topics/topics_card.dart';
@@ -96,14 +95,7 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
 
-      floatingActionButton: FloatingActionButton(
-        onPressed: ()  {
-          Navigator.push(
-            context, 
-            MaterialPageRoute(builder: (context) => TestView(firestore: widget.firestore, auth: widget.auth, storage: widget.storage,)));
-        },
-      child: const Text('tests'),
-      ),
+      
 
 
       //above is the floating action button

@@ -23,17 +23,8 @@ class SettingsView extends StatefulWidget {
 class _SettingsViewState extends State<SettingsView> {
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        StreamProvider<List<UserModel>>(
-          create: (_) => DatabaseService(
-                  uid: FirebaseAuth.instance.currentUser!.uid,
-                  firestore: FirebaseFirestore.instance)
-              .users,
-          initialData: [], // Initial data while waiting for Firebase data
-        ),
-      ],
-      child: Scaffold(
+   
+      return Scaffold(
           appBar: AppBar(
             title: const Text("Settings"),
           ),
@@ -58,8 +49,8 @@ class _SettingsViewState extends State<SettingsView> {
                   PersistentNavBarNavigator.pushNewScreen(
                     context,
                     screen: ManageNotifications(
-                      firestore: FirebaseFirestore.instance,
-                      auth: FirebaseAuth.instance,
+                      firestore: widget.firestore,
+                      auth: widget.auth,
                     ),
                     withNavBar: false,
                   );
@@ -134,8 +125,8 @@ class _SettingsViewState extends State<SettingsView> {
                 ), 
               ),
             ],
-          )),
+          ));
 
-    );
+  
   }
 }

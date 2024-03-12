@@ -4,9 +4,12 @@ import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:info_hub_app/notifications/manage_notifications.dart';
 import 'package:info_hub_app/registration/start_page.dart';
 import 'package:info_hub_app/settings/settings_view.dart';
 import 'package:info_hub_app/registration/registration_screen.dart';
+
+import 'manage_notifications_test.dart';
 
 void main() {
   late Widget settingsViewWidget;
@@ -15,7 +18,7 @@ void main() {
   late FakeFirebaseFirestore firestore;
 
   setUp(() { 
-    firebaseAuth = MockFirebaseAuth();
+    firebaseAuth = MockFirebaseAuth(signedIn: true);
     firebaseStorage = MockFirebaseStorage();
     firestore = FakeFirebaseFirestore();
     settingsViewWidget =  MaterialApp(home: SettingsView(auth: firebaseAuth, firestore: firestore, storage: firebaseStorage,));
@@ -68,10 +71,27 @@ void main() {
     expect(find.text('TeamTODO Terms of Services'), findsOneWidget);
   });
 
-  testWidgets('test if logout works', (WidgetTester tester) async {
     
+    testWidgets('Test entering manage notification works', (WidgetTester tester) async {
+      await firestore.collection(PreferenceCollection).add({
+        'uid': firebaseAuth.currentUser!.uid,
+        'push_notifications': true,
+      });
+    // Build our PrivacyPage widget and trigger a frame.
     await tester.pumpWidget(settingsViewWidget);
 
+    // Tap on the ListTile to navigate to TermsOfServicesPage.
+    await tester.tap(find.text('Manage Notifications'));
+    await tester.pumpAndSettle();
+    
+    // Verify that TermsOfServicesPage renders the specified text.
+    expect(find.byType(ManageNotifications), findsOneWidget);
+  });
+  
+
+
+  testWidgets('test if logout works', (WidgetTester tester) async {
+    await tester.pumpWidget(settingsViewWidget);
     await tester.tap(find.byIcon(Icons.logout));
     await tester.pumpAndSettle();
     expect(firebaseAuth.currentUser,null);
