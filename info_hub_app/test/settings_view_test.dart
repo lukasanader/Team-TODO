@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:info_hub_app/notifications/manage_notifications.dart';
 import 'package:info_hub_app/registration/start_page.dart';
+import 'package:info_hub_app/settings/help_page/help_page.dart';
 import 'package:info_hub_app/settings/privacy_base.dart';
 import 'package:info_hub_app/settings/settings_view.dart';
 import 'package:info_hub_app/registration/registration_screen.dart';
@@ -99,6 +100,19 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(ManageNotifications), findsOneWidget);
+  });
+
+  testWidgets('SettingsView help option goes to help view', (WidgetTester tester) async {
+    await tester.pumpWidget(settingsViewWidget);
+
+    final helpOption = find.byKey(const Key('Help Option'));
+
+    expect(helpOption, findsOneWidget);
+
+    await tester.tap(helpOption);
+    await tester.pumpAndSettle();
+
+    expect(find.byType(HelpView), findsOneWidget);
   });
 
   testWidgets('test if logout works', (WidgetTester tester) async {
