@@ -113,8 +113,6 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
 
                             ),
 
-                      ),
-
                     ),
                     if (_tags.isEmpty)
                       const Padding(
