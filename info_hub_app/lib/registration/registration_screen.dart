@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/helpers/base.dart';
@@ -180,11 +181,12 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
               const SizedBox(height: 20),
               // RichText widget to display the legal agreements
               RichText(
+                key: const Key('legal_agreements'),
                 text: TextSpan(
                   style: TextStyle(color: Colors.grey[600]),
                   children: [
                     const TextSpan(
-                      text: 'By clicking "Regis", you agree to our ',
+                      text: 'By clicking "Register", you agree to our ',
                     ),
                     TextSpan(
                       text: 'Terms of Service',
@@ -194,7 +196,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                           // Navigate to Terms of Service page
                           Navigator.push(
                             context,
-                            MaterialPageRoute(
+                            CupertinoPageRoute(
                               builder: (context) => const TermsOfServicesPage(),
                             ),
                           );
@@ -211,7 +213,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                           // Navigate to Privacy Policy page
                           Navigator.push(
                             context,
-                            MaterialPageRoute(
+                            CupertinoPageRoute(
                               builder: (context) => const PrivacyPolicyPage(),
                             ),
                           );
