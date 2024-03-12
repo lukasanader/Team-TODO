@@ -25,9 +25,18 @@ class _DiscoveryViewState extends State<DiscoveryView> {
   List<Object> _searchedTopicsList = [];
   int topicLength = 0;
 
+  late List<bool> isSelected = [];
+  List<Widget> _categoriesWidget = [];
+  List<String> _categories = [];
+  List<String> categoriesSelected = [];
+
+
+
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    getCategoryList();
     getTopicsList();
   }
 
@@ -48,10 +57,27 @@ class _DiscoveryViewState extends State<DiscoveryView> {
           )
         ],
       ),
-      body: SafeArea(
-          child: Column(
+      body: SingleChildScrollView(
+        child: Column(
         children: [
+          ToggleButtons(
+            isSelected: isSelected,
+            onPressed: (int index) {
+              setState(() {
+                isSelected[index] = !isSelected[index];
+                if (!categoriesSelected.contains(_categories[index])) {
+                  categoriesSelected.add(_categories[index]);
+                }
+                else {
+                  categoriesSelected.remove(_categories[index]);
+                }
+                updateTopicListBasedOnCategory(categoriesSelected);
+              });
+            },
+            children: _categoriesWidget
+          ),
           ListView.builder(
+            physics: const NeverScrollableScrollPhysics(),
             shrinkWrap: true,
             itemCount: topicLength == 0 ? 1 : topicLength,
             itemBuilder: (context, index) {
@@ -81,6 +107,7 @@ class _DiscoveryViewState extends State<DiscoveryView> {
               }
             },
           ),
+
           const SizedBox(
             height: 20,
           ),
@@ -88,7 +115,8 @@ class _DiscoveryViewState extends State<DiscoveryView> {
               onPressed: () {
                 _showPostDialog();
               },
-              child: const Text("Ask a question!"))
+              child: const Text("Ask a question!")
+          )
         ],
       )),
     );
@@ -120,10 +148,72 @@ class _DiscoveryViewState extends State<DiscoveryView> {
 
     setState(() {
       _topicsList = List.from(data.docs);
-     
       topicLength = _topicsList.length;
     });
   }
+
+
+
+  Future updateTopicListBasedOnCategory(List<String> categories) async {
+    if (categories.isEmpty) {
+      getTopicsList();
+    } else {
+      List<QuerySnapshot> snapshots = [];
+      for (String category in categories) {
+        QuerySnapshot snapshot = await widget.firestore
+            .collection('topics')
+            .where('categories', arrayContains: category)
+            .orderBy('title')
+            .get();
+        snapshots.add(snapshot);
+      }
+
+      // Find the intersection of documents
+      List<QueryDocumentSnapshot> intersection = [];
+      if (snapshots.isNotEmpty) {
+        intersection = snapshots.first.docs;
+        for (int i = 1; i < snapshots.length; i++) {
+          intersection = intersection
+              .where((doc1) => snapshots[i].docs
+                  .any((doc2) => doc1.id == doc2.id))
+              .toList();
+        }
+      }
+
+      setState(() {
+        _topicsList = intersection;
+        topicLength = _topicsList.length;
+      });
+    }
+  }
+
+
+  Future getCategoryList() async {
+    QuerySnapshot data = await widget.firestore
+        .collection('categories')
+        .orderBy('name')
+        .get();
+
+    List<Object> dataList = List.from(data.docs);
+    List<String> tempStringList = [];
+    List<Widget> tempWidgetList = [];
+
+    for (dynamic category in dataList) {
+      tempStringList.add(category['name']); 
+      tempWidgetList.add(Text(category['name'])); 
+    }
+
+    setState(() {
+      _categories = tempStringList;
+      _categoriesWidget = tempWidgetList;
+      isSelected = List<bool>.filled(_categoriesWidget.length, false);
+    });
+  }
+
+
+
+
+
 
   void _showPostDialog() {
   showDialog(
