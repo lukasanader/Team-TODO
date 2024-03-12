@@ -171,6 +171,7 @@ class _HomePageState extends State<HomePage> {
                       context,
                       screen: ExperienceView(
                         firestore: widget.firestore,
+                        auth: widget.auth,
                       ),
                       withNavBar: false,
                     );

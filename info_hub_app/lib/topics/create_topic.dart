@@ -110,7 +110,11 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                         ),
                         choiceCheckmark: true,
                         choiceStyle: C2ChipStyle.outlined(),
+
                             ),
+
+                      ),
+
                     ),
                     if (_tags.isEmpty)
                       const Padding(
@@ -275,7 +279,8 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                   minimumSize: const Size(double.infinity, 50),
                 ),
                 onPressed: () {
-                  if (_topicFormKey.currentState!.validate() && _tags.isNotEmpty) {
+                  if (_topicFormKey.currentState!.validate() &&
+                      _tags.isNotEmpty) {
                     _uploadTopic();
                     Navigator.pop(context);
                   }

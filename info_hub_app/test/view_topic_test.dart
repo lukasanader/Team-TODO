@@ -12,6 +12,9 @@ import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:info_hub_app/helpers/mock_classes.dart';
+import 'package:info_hub_app/helpers/base.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:info_hub_app/threads/threads.dart';
 
 void main() {
   late MockUrlLauncher mock;
@@ -901,5 +904,84 @@ void main() {
         List<dynamic>.from(secondSnapshot['dislikedTopics']);
 
     expect(listAfterDelete.contains(topicDocRef.id), false);
+  });
+
+  testWidgets('Test back button navigates to Base screen',
+      (WidgetTester tester) async {
+    CollectionReference topicCollectionRef = firestore.collection('topics');
+    await auth.createUserWithEmailAndPassword(email: 'user@gmail.com', password: 'User123!');
+    String uid = auth.currentUser!.uid;
+    await firestore.collection('Users').doc(uid).set({
+      'email': 'admin@gmail.com',
+      'firstName': 'John',
+      'lastName': 'Doe',
+      'roleType': 'Patient'
+    });
+
+    await topicCollectionRef.add({
+      'title': 'no video topic',
+      'description': 'Test Description',
+      'articleLink': 'https://www.javatpoint.com/heap-sort',
+      'videoUrl': '',
+      'likes': 0,
+      'views': 0,
+      'dislikes': 0,
+      'date': DateTime.now()
+    });
+
+    QuerySnapshot data = await topicCollectionRef.orderBy('title').get();
+
+    await tester.pumpWidget(MaterialApp(
+      home: ViewTopicScreen(
+          firestore: firestore,
+          storage: storage,
+          topic: data.docs[0] as QueryDocumentSnapshot<Object>,
+          auth: auth),
+    ));
+    await tester.pumpAndSettle();
+
+    // tap back button
+    await tester.tap(find.byIcon(Icons.arrow_back));
+
+    await tester.pumpAndSettle();
+
+    // check if the Base screen is navigated to
+    expect(find.byType(Base), findsOneWidget);
+  });
+
+  testWidgets('Test navigation to ThreadApp screen',
+      (WidgetTester tester) async {
+    CollectionReference topicCollectionRef = firestore.collection('topics');
+
+    await topicCollectionRef.add({
+      'title': 'no video topic',
+      'description': 'Test Description',
+      'articleLink': 'https://www.javatpoint.com/heap-sort',
+      'videoUrl': '',
+      'likes': 0,
+      'views': 0,
+      'dislikes': 0,
+      'date': DateTime.now()
+    });
+
+    QuerySnapshot data = await topicCollectionRef.orderBy('title').get();
+
+    await tester.pumpWidget(MaterialApp(
+      home: ViewTopicScreen(
+          firestore: firestore,
+          storage: storage,
+          topic: data.docs[0] as QueryDocumentSnapshot<Object>,
+          auth: auth),
+    ));
+    await tester.pumpAndSettle();
+
+    // Find the comment icon button and tap it
+    await tester.tap(find.byIcon(FontAwesomeIcons.comments));
+
+    // Wait for the navigation to complete
+    await tester.pumpAndSettle();
+
+    // Check if the ThreadApp screen is pushed to the navigator stack
+    expect(find.byType(ThreadApp), findsOneWidget);
   });
 }

@@ -403,32 +403,47 @@ void main() {
   });
 
   testWidgets('Show Post Dialog Test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(discoveryViewWidget);
-    await tester.pumpAndSettle();
-    // Trigger the _showPostDialog method
-    await tester.tap(find.text('Ask a question!'));
-    await tester.pumpAndSettle();
-    // Verify that the AlertDialog is displayed
-    //expect(find.byType(AlertDialog), findsOneWidget);
-    // Enter text into the TextField
-    await tester.enterText(find.byType(TextField).last, 'Test question');
-    // Tap the Submit button
-    await tester.tap(find.text('Submit'));
-    await tester.pumpAndSettle();
+  // Build our app and trigger a frame.
+  await tester.pumpWidget(discoveryViewWidget);
+  await tester.pumpAndSettle();
 
-    final QuerySnapshot<Map<String, dynamic>> querySnapshot =
-        await firestore.collection("questions").get();
-    final List<DocumentSnapshot<Map<String, dynamic>>> documents =
-        querySnapshot.docs;
-    // Check if the collection contains a document with the expected question
-    expect(
-      documents.any(
-        (doc) => doc.data()?['question'] == 'Test question',
-      ),
-      isTrue,
-    );
-    // Verify that the dialog is closed
-    expect(find.byType(AlertDialog), findsNothing);
-  });
+  // Trigger the _showPostDialog method
+  await tester.tap(find.text('Ask a question!'));
+  await tester.pumpAndSettle();
+
+  // Verify that the first AlertDialog is displayed
+  expect(find.byType(AlertDialog), findsOneWidget);
+
+  // Enter text into the TextField
+  await tester.enterText(find.byType(TextField).last, 'Test question');
+
+  // Tap the Submit button
+  await tester.tap(find.text('Submit'));
+  await tester.pumpAndSettle();
+
+  // Verify that the second AlertDialog is displayed
+  expect(find.text('Message'), findsOneWidget);
+
+  // Tap the OK button to close the second AlertDialog
+  await tester.tap(find.text('OK'));
+  await tester.pumpAndSettle();
+
+  // Verify that both AlertDialogs are closed
+  expect(find.byType(AlertDialog), findsNothing);
+
+  // Verify that the question is added to the Firestore collection
+  final QuerySnapshot<Map<String, dynamic>> querySnapshot =
+      await firestore.collection("questions").get();
+  final List<DocumentSnapshot<Map<String, dynamic>>> documents =
+      querySnapshot.docs;
+
+  // Check if the collection contains a document with the expected question
+  expect(
+    documents.any(
+      (doc) => doc.data()?['question'] == 'Test question',
+    ),
+    isTrue,
+  );
+});
+
 }
