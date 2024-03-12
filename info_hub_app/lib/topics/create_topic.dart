@@ -1,8 +1,16 @@
 import 'dart:io';
 import 'package:chips_choice/chips_choice.dart';
 import 'package:flutter/material.dart';
+
+import 'package:info_hub_app/ask_question/question_card.dart';
+import 'package:info_hub_app/ask_question/question_service.dart';
+import 'package:info_hub_app/topics/quiz/create_quiz.dart';
+import 'package:info_hub_app/topics/quiz/quiz_service.dart';
+
+
 import 'package:get/get.dart';
 import 'package:info_hub_app/topics/quiz/create_quiz.dart';
+
 import 'package:video_player/video_player.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:chewie/chewie.dart';
@@ -25,11 +33,15 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
   final descriptionController = TextEditingController();
   final articleLinkController = TextEditingController();
   final _topicFormKey = GlobalKey<FormState>();
+
+  List<dynamic> questions=[];
+
   List<String> _tags = [];
   List<String> options = ['Patient', 'Parent', 'Healthcare Professional'];
   List<String> _categories = [];
   List<String> _categoriesOptions = [];
   final TextEditingController _newCategoryNameController = TextEditingController();
+
   String quizID = '';
   bool quizAdded = false;
 
@@ -276,10 +288,12 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                 style: OutlinedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 50),
                 ),
-                onPressed: () {
-                  if (_topicFormKey.currentState!.validate() &&
-                      _tags.isNotEmpty) {
+
+                onPressed: () async{
+                  if (_topicFormKey.currentState!.validate()) {
                     _uploadTopic();
+                    _showDeleteQuestionDialog();
+
                     Navigator.pop(context);
                   }
                 },
@@ -297,6 +311,104 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
       ),
     );
   }
+
+ Future<void> _showDeleteQuestionDialog() async {
+  
+  questions =await QuestionService(firestore: widget.firestore).getRelevantQuestions(titleController.text);
+  
+  // ignore: use_build_context_synchronously
+  await showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return StatefulBuilder(
+        builder: (context, setState) {
+        return Dialog(
+        child: Container(
+          height: MediaQuery.of(context).size.height * 0.8,
+          padding: const EdgeInsets.all(20),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: questions.isEmpty ? 1 : questions.length,
+                  itemBuilder: (context, index) {
+                    if (questions.isEmpty) {
+                      return const ListTile(
+                        title: Text('There are currently no more questions!'),
+                      );
+                    } else {
+                      return QuestionCard(
+                          questions[index] as QueryDocumentSnapshot,
+                          widget.firestore,
+                          () async {
+                              List<dynamic> updatedQuestions = await QuestionService(firestore: widget.firestore).getRelevantQuestions(titleController.text);
+                              setState(() {
+                                questions = updatedQuestions;
+                              });
+                            },);
+                    }
+                  },
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  children:[
+                ElevatedButton(
+                  onPressed: () async {
+                    showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: const Text("Confirmation"),
+                        content: const Text(
+                            "Are you sure you want to remove all these questions?"),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: const Text("Cancel"),
+                          ),
+                          TextButton(
+                            onPressed: () async{
+                              // Delete the question from the database
+                              QuestionService(firestore: widget.firestore).deleteQuestions(questions);
+                              setState(() {questions =[];},);
+                              Navigator.of(context).pop();
+                            },
+                            child: const Text("Confirm"),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                    
+                  },
+                  child: const Text('Delete all'),
+                ), 
+                ElevatedButton(
+                  onPressed: () async {Navigator.of(context).pop();},
+                  child: const Text('Done'),
+                ),
+                ]
+                )
+              ],
+            ),
+          ),
+        ),
+        );
+        }
+      );
+    },
+  );
+ 
+
+ }
+
+  
+
 
   Future<String?> pickVideoFromDevice() async {
     try {
@@ -413,6 +525,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
     });
 
     // SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+
   }
 
   void addQuiz(String qid) {
@@ -572,3 +685,5 @@ class StoreData {
     return downloadURL;
   }
 }
+
+

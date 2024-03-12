@@ -81,9 +81,15 @@ dependencies:
 
   uuid: ^4.3.3
 
+
+  english_words: ^4.0.0
+  
+  nlp: ^0.0.0
+
   chips_choice: ^3.0.1
   
   get: ^4.6.6
+
 
 
 

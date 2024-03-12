@@ -4,6 +4,7 @@ import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:info_hub_app/ask_question/question_card.dart';
 import 'package:info_hub_app/topics/create_topic.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/services.dart';
@@ -872,5 +873,77 @@ void main() async {
     expect(logs.last, 'DeviceOrientation.portraitUp',
         reason:
             'It should be in the portrait view after the fullscreen actions done');
+  });
+
+  testWidgets('Relevant topic questions are deleted upon creating a topic', (WidgetTester tester) async{
+    final firestore = FakeFirebaseFirestore();
+    final mockStorage = MockFirebaseStorage();
+
+    await tester.pumpWidget(MaterialApp(
+      home: CreateTopicScreen(
+        firestore: firestore,
+        storage: mockStorage,
+      ),
+    ));
+    await firestore.collection('questions').add({
+      'question': 'Can i go to the gym with liver failure?',
+      'date': DateTime.now().toString(),
+      'uid': 1,    
+    });
+    await firestore.collection('questions').add({
+      'question': 'Advice on going university',
+      'date': DateTime.now().toString(),
+      'uid': 1,    
+    });
+    await firestore.collection('questions').add({
+      'question': 'Advice on going gym',
+      'date': DateTime.now().toString(),
+      'uid': 1,    
+    });
+    await firestore.collection('questions').add({
+      'question': 'Tips on going gym',
+      'date': DateTime.now().toString(),
+      'uid': 1,    
+    });
+    await tester.enterText(find.byKey(const Key('titleField')), 'Tips on going to the gym');
+    await tester.enterText(
+        find.byKey(const Key('descField')), 'Test description');
+
+    await tester.tap(find.text('PUBLISH TOPIC'));
+    await tester.pumpAndSettle();
+    expect(find.text('Done'), findsOne);
+    expect(find.text('Delete all'), findsOne);
+    expect(find.byType(QuestionCard), findsExactly(3)); //finds all gym related questions
+    
+
+    await tester.tap(find.byIcon(Icons.check_circle).first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Confirm'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(QuestionCard), findsExactly(2)); //verify that card is deleted
+    final snapshot = await firestore.collection('questions').get();
+    expect(snapshot.docs.length, 3);
+
+    await tester.tap(find.text('Delete all'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+    expect(find.byType(Dialog), findsOne);
+
+    await tester.tap(find.text('Delete all'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Confirm'));
+    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pumpAndSettle();
+    expect(find.text('There are currently no more questions!'), findsOne);
+    await tester.tap(find.text('Done'));
+    final newSnapshot = await firestore.collection('questions').get();
+    expect(newSnapshot.docs.length, 1);
+    final questionDoc = newSnapshot.docs.first.data();
+    expect(questionDoc['question'], 'Advice on going university');
   });
 }
