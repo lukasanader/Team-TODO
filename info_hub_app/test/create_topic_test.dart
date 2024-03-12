@@ -68,8 +68,10 @@ void main() async {
 
     await tester.ensureVisible(find.text('Patient'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Patient'));    
-    
+    await tester.tap(find.text('Patient'));
+
+    await tester.ensureVisible(find.text('PUBLISH TOPIC'));
+
     await tester.tap(find.text('PUBLISH TOPIC'));
 
     await tester.pumpAndSettle();
@@ -79,7 +81,7 @@ void main() async {
 
     final List<DocumentSnapshot<Map<String, dynamic>>> documents =
         querySnapshot.docs;
-    
+
     expect(
       documents.any(
         (doc) => doc.data()?['title'] == 'Test title',
@@ -93,10 +95,12 @@ void main() async {
       ),
       isTrue,
     );
-    
+
     expect(
       documents.any(
-        (doc) => (doc.data()?['tags'] as List).contains('Patient') && (doc.data()?['tags'] as List).length==1,
+        (doc) =>
+            (doc.data()?['tags'] as List).contains('Patient') &&
+            (doc.data()?['tags'] as List).length == 1,
       ),
       isTrue,
     );
@@ -117,6 +121,8 @@ void main() async {
 
     await tester.enterText(
         find.byKey(const Key('descField')), 'Test description');
+
+    await tester.ensureVisible(find.text('PUBLISH TOPIC'));
 
     await tester.tap(find.text('PUBLISH TOPIC'));
 
@@ -161,8 +167,7 @@ void main() async {
 
     expect(documents.isEmpty, isTrue);
   });
-  testWidgets('Topic no tags does not save',
-      (WidgetTester tester) async {
+  testWidgets('Topic no tags does not save', (WidgetTester tester) async {
     final firestore = FakeFirebaseFirestore();
     final mockStorage = MockFirebaseStorage();
 
@@ -209,10 +214,9 @@ void main() async {
 
     await tester.ensureVisible(find.text('Patient'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Patient'));   
+    await tester.tap(find.text('Patient'));
 
     await tester.enterText(find.byKey(const Key('linkField')), 'invalidLink');
-
 
     await tester.tap(find.text('PUBLISH TOPIC'));
 
@@ -246,7 +250,7 @@ void main() async {
 
     await tester.ensureVisible(find.text('Patient'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Patient'));   
+    await tester.tap(find.text('Patient'));
 
     await tester.enterText(find.byKey(const Key('linkField')),
         'https://pub.dev/packages?q=cloud_firestore_mocks');
@@ -302,8 +306,8 @@ void main() async {
 
     expect(find.text('Link article'), findsOneWidget);
 
-    expect(find.text('Upload a video'), findsOneWidget);
-    
+    expect(find.text('Upload Media'), findsOneWidget);
+
     expect(find.text('Patient'), findsOneWidget);
 
     expect(find.text('Parent'), findsOneWidget);
@@ -372,33 +376,6 @@ void main() async {
         storage: mockStorage,
       ),
     ));
-    expect(find.text('Upload a video'), findsOneWidget);
-
-    await tester.ensureVisible(find.byKey(const Key('uploadVideoButton')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('uploadVideoButton')));
-    await tester.pumpAndSettle();
-
-    bool videoFound = false;
-    final startTime = DateTime.now();
-    while (!videoFound) {
-      await tester.pump();
-
-      if (find.text('Change video').evaluate().isNotEmpty) {
-        videoFound = true;
-        break;
-      }
-
-      if (DateTime.now().difference(startTime).inSeconds > 1800) {
-        fail('Timed out waiting for the "Change video" text to appear');
-      }
-      await Future.delayed(const Duration(milliseconds: 100));
-    }
-    expect(find.text('Change video'), findsOneWidget);
-
-    expect(find.byType(Chewie), findsOneWidget);
-
-    expect(find.byKey(const Key('deleteButton')), findsOneWidget);
 
     await tester.ensureVisible(find.text('Patient'));
     await tester.pumpAndSettle();
@@ -408,11 +385,34 @@ void main() async {
     await tester.enterText(
         find.byKey(const Key('descField')), 'Test description');
 
-    // submit form
+    await tester.ensureVisible(find.byKey(const Key('uploadMediaButton')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('uploadMediaButton')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Upload Video'));
+    await tester.pumpAndSettle();
+
+    bool videoFound = false;
+    final startTime = DateTime.now();
+    while (!videoFound) {
+      await tester.pump();
+
+      if (find.text('Change Media').evaluate().isNotEmpty) {
+        videoFound = true;
+        break;
+      }
+
+      if (DateTime.now().difference(startTime).inSeconds > 1800) {
+        fail('Timed out waiting for the "Change Media" text to appear');
+      }
+      await Future.delayed(const Duration(milliseconds: 100));
+    }
+
+    expect(find.byType(Chewie), findsOneWidget);
 
     await tester.tap(find.text('PUBLISH TOPIC'));
 
-    final ListResult result = await mockStorage.ref().child('videos').listAll();
+    final ListResult result = await mockStorage.ref().child('media').listAll();
 
     expect(result.items.length, greaterThan(0));
   });
@@ -428,11 +428,12 @@ void main() async {
         storage: mockStorage,
       ),
     ));
-    expect(find.text('Upload a video'), findsOneWidget);
 
-    await tester.ensureVisible(find.byKey(const Key('uploadVideoButton')));
+    await tester.ensureVisible(find.byKey(const Key('uploadMediaButton')));
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('uploadVideoButton')));
+    await tester.tap(find.byKey(const Key('uploadMediaButton')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Upload Video'));
     await tester.pumpAndSettle();
 
     bool videoFound = false;
@@ -440,23 +441,22 @@ void main() async {
     while (!videoFound) {
       await tester.pump();
 
-      if (find.text('Change video').evaluate().isNotEmpty) {
+      if (find.text('Change Media').evaluate().isNotEmpty) {
         videoFound = true;
         break;
       }
 
       if (DateTime.now().difference(startTime).inSeconds > 1800) {
-        fail('Timed out waiting for the "Change video" text to appear');
+        fail('Timed out waiting for the "Change Media" text to appear');
       }
       await Future.delayed(const Duration(milliseconds: 100));
     }
-    expect(find.text('Change video'), findsOneWidget);
 
     expect(find.byType(Chewie), findsOneWidget);
 
-    expect(find.byKey(const Key('deleteButton')), findsOneWidget);
+    expect(find.byKey(const Key('deleteVideoButton')), findsOneWidget);
 
-    final Finder buttonToTap = find.byKey(const Key('deleteButton'));
+    final Finder buttonToTap = find.byKey(const Key('deleteVideoButton'));
 
     await tester.dragUntilVisible(
       buttonToTap,
@@ -468,8 +468,7 @@ void main() async {
     await tester.pump();
 
     expect(find.byType(Chewie), findsNothing);
-    expect(find.text('Change video'), findsNothing);
-    expect(find.text('Upload a video'), findsOneWidget);
+    expect(find.text('Change Media'), findsNothing);
   });
 
   testWidgets('Uploaded video is stored in Firebase Storage',
@@ -484,9 +483,11 @@ void main() async {
       ),
     ));
 
-    await tester.ensureVisible(find.byKey(const Key('uploadVideoButton')));
+    await tester.ensureVisible(find.byKey(const Key('uploadMediaButton')));
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('uploadVideoButton')));
+    await tester.tap(find.byKey(const Key('uploadMediaButton')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Upload Video'));
     await tester.pumpAndSettle();
 
     bool videoFound = false;
@@ -494,18 +495,18 @@ void main() async {
     while (!videoFound) {
       await tester.pump();
 
-      if (find.text('Change video').evaluate().isNotEmpty) {
+      if (find.text('Change Media').evaluate().isNotEmpty) {
         videoFound = true;
         break;
       }
 
       if (DateTime.now().difference(startTime).inSeconds > 1800) {
-        fail('Timed out waiting for the "Change video" text to appear');
+        fail('Timed out waiting for the "Change Media" text to appear');
       }
       await Future.delayed(const Duration(milliseconds: 100));
     }
 
-    expect(find.text('Change video'), findsOneWidget);
+    expect(find.text('Change Media'), findsOneWidget);
 
     await tester.enterText(find.byKey(const Key('titleField')), 'Test title');
     await tester.enterText(
@@ -513,13 +514,13 @@ void main() async {
 
     await tester.ensureVisible(find.text('Patient'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Patient'));    
+    await tester.tap(find.text('Patient'));
 
     // submit form
 
     await tester.tap(find.text('PUBLISH TOPIC'));
 
-    final ListResult result = await mockStorage.ref().child('videos').listAll();
+    final ListResult result = await mockStorage.ref().child('media').listAll();
 
     expect(result.items.length, greaterThan(0));
   });
@@ -546,9 +547,11 @@ void main() async {
       ),
     ));
 
-    await tester.ensureVisible(find.byKey(const Key('uploadVideoButton')));
+    await tester.ensureVisible(find.byKey(const Key('uploadMediaButton')));
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('uploadVideoButton')));
+    await tester.tap(find.byKey(const Key('uploadMediaButton')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Upload Video'));
     await tester.pumpAndSettle();
 
     bool videoFound = false;
@@ -556,18 +559,16 @@ void main() async {
     while (!videoFound) {
       await tester.pump();
 
-      if (find.text('Change video').evaluate().isNotEmpty) {
+      if (find.text('Change Media').evaluate().isNotEmpty) {
         videoFound = true;
         break;
       }
 
       if (DateTime.now().difference(startTime).inSeconds > 1800) {
-        fail('Timed out waiting for the "Change video" text to appear');
+        fail('Timed out waiting for the "Change Media" text to appear');
       }
       await Future.delayed(const Duration(milliseconds: 100));
     }
-
-    expect(find.text('Change video'), findsOneWidget);
 
     expect(find.byType(Chewie), findsOneWidget);
 

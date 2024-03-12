@@ -346,11 +346,11 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
                 },
               )
           ]),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Expanded(
-            child: Padding(
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -428,136 +428,135 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
                       ],
                     ),
                   const SizedBox(height: 30),
-                  Flexible(
-                    child: SingleChildScrollView(
-                      physics: const ClampingScrollPhysics(),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '${updatedTopic['description']}',
-                            style: const TextStyle(fontSize: 18.0),
-                          ),
-                          const SizedBox(height: 16),
-                          Row(
-                            children: [
-                              IconButton(
-                                onPressed: () {
-                                  _likeTopic();
-                                },
-                                icon: Icon(Icons.thumb_up,
-                                    color:
-                                        hasLiked ? Colors.blue : Colors.grey),
-                              ),
-                              Text("$likes"),
-                              IconButton(
-                                onPressed: () {
-                                  _dislikeTopic();
-                                },
-                                icon: Icon(Icons.thumb_down,
-                                    color:
-                                        hasDisliked ? Colors.red : Colors.grey),
-                              ),
-                              Text("$dislikes"),
-                              IconButton(
-                                icon: const Icon(FontAwesomeIcons.comments,
-                                    size: 20),
-                                onPressed: () {
-                                  // Navigate to the Threads screen
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => ThreadApp(
+                  SingleChildScrollView(
+                    physics: const ClampingScrollPhysics(),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '${updatedTopic['description']}',
+                          style: const TextStyle(fontSize: 18.0),
+                        ),
+                        const SizedBox(height: 16),
+                        Row(
+                          children: [
+                            IconButton(
+                              onPressed: () {
+                                _likeTopic();
+                              },
+                              icon: Icon(Icons.thumb_up,
+                                  color: hasLiked ? Colors.blue : Colors.grey),
+                            ),
+                            Text("$likes"),
+                            IconButton(
+                              onPressed: () {
+                                _dislikeTopic();
+                              },
+                              icon: Icon(Icons.thumb_down,
+                                  color:
+                                      hasDisliked ? Colors.red : Colors.grey),
+                            ),
+                            Text("$dislikes"),
+                            IconButton(
+                              icon: const Icon(FontAwesomeIcons.comments,
+                                  size: 20),
+                              onPressed: () {
+                                // Navigate to the Threads screen
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ThreadApp(
+                                        firestore: widget.firestore,
+                                        auth: widget.auth,
+                                        topicId: widget.topic.id,
+                                        topicTitle: widget.topic['title']),
+                                  ),
+                                );
+                              },
+                            ),
+                            // complete quiz
+                            TextButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => CompleteQuiz(
                                           firestore: widget.firestore,
-                                          auth: widget.auth,
-                                          topicId: widget.topic.id,
-                                          topicTitle: widget.topic['title']),
-                                    ),
-                                  );
-                                },
-                              ),
-                              // complete quiz
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => CompleteQuiz(
-                                            firestore: widget.firestore,
-                                            topic: widget.topic,
-                                            auth: widget.auth)),
-                                  );
-                                },
-                                child: const Text('QUIZ!!'),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
+                                          topic: widget.topic,
+                                          auth: widget.auth)),
+                                );
+                              },
+                              child: const Text('QUIZ!!'),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
             ),
-          ),
-          if (updatedTopic['articleLink'] != '')
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Center(
-                child: ElevatedButton(
-                  onPressed: () {
-                    launchUrl(Uri.parse(updatedTopic['articleLink']));
-                  },
-                  child: const Text('Read Article'),
-                ),
-              ),
-            ),
-          if (userIsAdmin)
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Center(
-                child: ElevatedButton(
-                  key: const Key('delete_topic_button'),
-                  onPressed: () {
-                    // Show confirmation dialog
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: const Text('Confirm Deletion'),
-                          content: const Text(
-                              'Are you sure you want to delete this topic?'),
-                          actions: <Widget>[
-                            TextButton(
-                              onPressed: () {
-                                Navigator.of(context).pop(); // Close the dialog
-                              },
-                              child: const Text('Cancel'),
-                            ),
-                            TextButton(
-                              onPressed: () {
-                                // Delete the topic
-                                deleteTopic();
-                                Navigator.of(context).pop(); // Close the dialog
-                              },
-                              child: const Text('Delete'),
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  },
-                  style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all(Colors.red),
+            if (updatedTopic['articleLink'] != '')
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Center(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      launchUrl(Uri.parse(updatedTopic['articleLink']));
+                    },
+                    child: const Text('Read Article'),
                   ),
-                  child: const Text(
-                    'Delete Topic',
-                    style: TextStyle(color: Colors.white),
-                  ), // Te
                 ),
               ),
-            ),
-        ],
+            if (userIsAdmin)
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Center(
+                  child: ElevatedButton(
+                    key: const Key('delete_topic_button'),
+                    onPressed: () {
+                      // Show confirmation dialog
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: const Text('Confirm Deletion'),
+                            content: const Text(
+                                'Are you sure you want to delete this topic?'),
+                            actions: <Widget>[
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context)
+                                      .pop(); // Close the dialog
+                                },
+                                child: const Text('Cancel'),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  // Delete the topic
+                                  deleteTopic();
+                                  Navigator.of(context)
+                                      .pop(); // Close the dialog
+                                },
+                                child: const Text('Delete'),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all(Colors.red),
+                    ),
+                    child: const Text(
+                      'Delete Topic',
+                      style: TextStyle(color: Colors.white),
+                    ), // Te
+                  ),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -636,7 +635,7 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
             userSnapshot.data() as Map<String, dynamic>?;
 
         if (userData != null) {
-          userIsAdmin = userData['roleType'] == 'Patient';
+          userIsAdmin = userData['roleType'] == 'admin';
         }
       }
     }

@@ -22,6 +22,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('ADD QUIZ'), findsOneWidget);
+    await tester.ensureVisible(find.text('ADD QUIZ'));
     await tester.tap(find.text('ADD QUIZ'));
     await tester.pumpAndSettle();
     expect(find.byType(CreateQuiz), findsOne);
@@ -87,6 +88,7 @@ void main() {
       (WidgetTester tester) async {
     await tester.pumpWidget(quizWidget);
     await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('ADD QUIZ'));
 
     await tester.tap(find.text('ADD QUIZ'));
     await tester.pumpAndSettle();

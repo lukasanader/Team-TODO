@@ -219,54 +219,37 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                     const SizedBox(height: 10.0),
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 10.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Container(
-                            width: 150, // Adjust the width as needed
-                            child: OutlinedButton.icon(
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => CreateQuiz(
-                                      firestore: widget.firestore,
-                                      addQuiz: addQuiz,
-                                    ),
-                                  ),
-                                );
-                              },
-                              icon: const Icon(
-                                Icons.assignment_add,
-                                color: Colors.purple,
+                      child: OutlinedButton(
+                          style: OutlinedButton.styleFrom(
+                            minimumSize: const Size(double.infinity, 50),
+                          ),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => CreateQuiz(
+                                    firestore: widget.firestore,
+                                    addQuiz: addQuiz),
                               ),
-                              label: Row(
-                                children: [
-                                  const Text(
-                                    "ADD QUIZ",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  if (quizAdded)
-                                    const Icon(
-                                      Icons.check,
-                                      color: Colors.green,
-                                    )
-                                ],
-                              ),
-                              style: OutlinedButton.styleFrom(
-                                backgroundColor:
-                                    Color.fromRGBO(255, 100, 100, 1.0),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                ),
+                            );
+                          },
+                          child: Row(children: [
+                            const SizedBox(
+                              width: 150,
+                            ),
+                            const Text(
+                              "ADD QUIZ",
+                              style: TextStyle(
+                                color: Colors.red,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
-                          ),
-                        ],
-                      ),
+                            if (quizAdded)
+                              const Icon(
+                                Icons.check,
+                                color: Colors.green,
+                              )
+                          ])),
                     ),
                     const SizedBox(height: 10.0),
                     Row(
@@ -672,6 +655,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
         'views': 0,
         'likes': 0,
         'dislikes': 0,
+        'tags': _tags,
         'date': DateTime.now(),
       };
       await topicCollectionRef.add(topicDetails);
@@ -700,6 +684,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
         'likes': widget.topic!['likes'],
         'dislikes': widget.topic!['dislikes'],
         'date': widget.topic!['date'],
+        'tags': _tags,
       };
 
       await topicCollectionRef.doc(widget.topic!.id).update(topicDetails);

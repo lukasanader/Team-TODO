@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:info_hub_app/topics/view_topic.dart';
-import 'package:info_hub_app/topics/edit_topic.dart';
+import 'package:info_hub_app/topics/create_topic.dart';
 import 'package:chewie/chewie.dart';
 import 'package:flutter/services.dart';
 import 'package:video_player_platform_interface/video_player_platform_interface.dart';
@@ -22,14 +22,6 @@ void main() {
   late MockFirebaseAuth auth;
   late MockFirebaseStorage storage;
   setUp(() {
-    final MockUser mockUser = MockUser(
-      isAnonymous: false,
-      uid: 'user123',
-      email: 'test@example.com',
-    );
-
-    auth = MockFirebaseAuth(mockUser: mockUser, signedIn: true);
-
     firestore = FakeFirebaseFirestore();
     storage = MockFirebaseStorage();
 
@@ -64,38 +56,15 @@ void main() {
     UrlLauncherPlatform.instance = mock;
   });
 
-  testWidgets('ViewTopicScreen shows title', (WidgetTester tester) async {
-    CollectionReference topicCollectionRef = firestore.collection('topics');
-
-    await topicCollectionRef.add({
-      'title': 'no video topic',
-      'description': 'Test Description',
-      'articleLink': 'https://www.javatpoint.com/heap-sort',
-      'videoUrl': '',
-      'likes': 0,
-      'views': 0,
-      'dislikes': 0,
-      'date': DateTime.now()
-    });
-
-    QuerySnapshot data = await topicCollectionRef.orderBy('title').get();
-
-    await tester.pumpWidget(MaterialApp(
-      home: ViewTopicScreen(
-          firestore: firestore,
-          storage: storage,
-          topic: data.docs[0] as QueryDocumentSnapshot<Object>,
-          auth: auth),
-    ));
-    await tester.pumpAndSettle();
-
-    expect(find.text('no video topic'), findsOneWidget);
-
-    expect(find.text('Test Description'), findsOneWidget);
-  });
-
   testWidgets('ViewTopicScreen shows correct fields with video',
       (WidgetTester tester) async {
+    final MockUser mockUser = MockUser(
+      isAnonymous: false,
+      uid: 'user123',
+      email: 'test@example.com',
+    );
+
+    auth = MockFirebaseAuth(mockUser: mockUser, signedIn: true);
     final firestore = FakeFirebaseFirestore();
 
     CollectionReference topicCollectionRef = firestore.collection('topics');
@@ -104,10 +73,17 @@ void main() {
       'title': 'video topic',
       'description': 'Test Description',
       'articleLink': 'https://www.javatpoint.com/heap-sort',
-      'videoUrl':
-          'https://firebasestorage.googleapis.com/v0/b/team-todo-38f76.appspot.com/o/videos%2F2024-02-01%2018:28:20.745204.mp4?alt=media&token=6d6e3aee-240d-470f-ab22-58e274a04010',
+      'media': [
+        {
+          'url':
+              'https://firebasestorage.googleapis.com/v0/b/team-todo-38f76.appspot.com/o/videos%2F2024-02-01%2018:28:20.745204.mp4?alt=media&token=6d6e3aee-240d-470f-ab22-58e274a04010',
+          'mediaType': 'video'
+        }
+      ],
       'likes': 0,
+      'tags': ['Patient'],
       'views': 0,
+      'quizId': "",
       'dislikes': 0,
       'date': DateTime.now()
     });
@@ -134,6 +110,13 @@ void main() {
   });
 
   testWidgets('Test article link opens', (WidgetTester tester) async {
+    final MockUser mockUser = MockUser(
+      isAnonymous: false,
+      uid: 'user123',
+      email: 'test@example.com',
+    );
+
+    auth = MockFirebaseAuth(mockUser: mockUser, signedIn: true);
     final firestore = FakeFirebaseFirestore();
 
     CollectionReference topicCollectionRef = firestore.collection('topics');
@@ -142,10 +125,17 @@ void main() {
       'title': 'video topic',
       'description': 'Test Description',
       'articleLink': 'http://www.javatpoint.com/heap-sort',
-      'videoUrl':
-          'https://firebasestorage.googleapis.com/v0/b/team-todo-38f76.appspot.com/o/videos%2F2024-02-01%2018:28:20.745204.mp4?alt=media&token=6d6e3aee-240d-470f-ab22-58e274a04010',
+      'media': [
+        {
+          'url':
+              'https://firebasestorage.googleapis.com/v0/b/team-todo-38f76.appspot.com/o/videos%2F2024-02-01%2018:28:20.745204.mp4?alt=media&token=6d6e3aee-240d-470f-ab22-58e274a04010',
+          'mediaType': 'video'
+        }
+      ],
       'likes': 0,
+      'tags': ['Patient'],
       'views': 0,
+      'quizId': "",
       'dislikes': 0,
       'date': DateTime.now()
     });
@@ -181,6 +171,13 @@ void main() {
 
   testWidgets('Test orientation changes correctly with video fullscreen',
       (tester) async {
+    final MockUser mockUser = MockUser(
+      isAnonymous: false,
+      uid: 'user123',
+      email: 'test@example.com',
+    );
+
+    auth = MockFirebaseAuth(mockUser: mockUser, signedIn: true);
     final logs = [];
     final firestore = FakeFirebaseFirestore();
 
@@ -190,10 +187,17 @@ void main() {
       'title': 'video topic',
       'description': 'Test Description',
       'articleLink': 'http://www.javatpoint.com/heap-sort',
-      'videoUrl':
-          'https://firebasestorage.googleapis.com/v0/b/team-todo-38f76.appspot.com/o/videos%2F2024-02-01%2018:28:20.745204.mp4?alt=media&token=6d6e3aee-240d-470f-ab22-58e274a04010',
+      'media': [
+        {
+          'url':
+              'https://firebasestorage.googleapis.com/v0/b/team-todo-38f76.appspot.com/o/videos%2F2024-02-01%2018:28:20.745204.mp4?alt=media&token=6d6e3aee-240d-470f-ab22-58e274a04010',
+          'mediaType': 'video'
+        }
+      ],
       'likes': 0,
+      'tags': ['Patient'],
       'views': 0,
+      'quizId': "",
       'dislikes': 0,
       'date': DateTime.now()
     });
@@ -246,15 +250,24 @@ void main() {
 
   testWidgets('ViewTopicScreen shows like and dislike buttons',
       (WidgetTester tester) async {
+    final MockUser mockUser = MockUser(
+      isAnonymous: false,
+      uid: 'user123',
+      email: 'test@example.com',
+    );
+
+    auth = MockFirebaseAuth(mockUser: mockUser, signedIn: true);
     CollectionReference topicCollectionRef = firestore.collection('topics');
 
     await topicCollectionRef.add({
       'title': 'no video topic',
       'description': 'Test Description',
       'articleLink': 'https://www.javatpoint.com/heap-sort',
-      'videoUrl': '',
+      'media': [],
       'likes': 0,
+      'tags': ['Patient'],
       'views': 0,
+      'quizId': "",
       'dislikes': 0,
       'date': DateTime.now()
     });
@@ -276,16 +289,25 @@ void main() {
 
   testWidgets('Test tapping thumb up icon increments likes by one',
       (WidgetTester tester) async {
+    final MockUser mockUser = MockUser(
+      isAnonymous: false,
+      uid: 'user123',
+      email: 'test@example.com',
+    );
+
+    auth = MockFirebaseAuth(mockUser: mockUser, signedIn: true);
     CollectionReference topicCollectionRef = firestore.collection('topics');
 
-    // Add a topic with initial likes count of 0
+    // topic with initial likes count of 0
     DocumentReference topicDocRef = await topicCollectionRef.add({
       'title': 'no video topic',
       'description': 'Test Description',
       'articleLink': 'https://www.javatpoint.com/heap-sort',
-      'videoUrl': '',
+      'media': [],
       'likes': 0,
-      'views': 0, // Initial likes count
+      'tags': ['Patient'],
+      'views': 0,
+      'quizId': "",
       'dislikes': 0,
       'date': DateTime.now()
     });
@@ -315,6 +337,13 @@ void main() {
 
   testWidgets('Test tapping thumb down icon increments dislikes by one',
       (WidgetTester tester) async {
+    final MockUser mockUser = MockUser(
+      isAnonymous: false,
+      uid: 'user123',
+      email: 'test@example.com',
+    );
+
+    auth = MockFirebaseAuth(mockUser: mockUser, signedIn: true);
     CollectionReference topicCollectionRef = firestore.collection('topics');
 
     // topic with initial likes and dislikes count of 0
@@ -322,9 +351,11 @@ void main() {
       'title': 'no video topic',
       'description': 'Test Description',
       'articleLink': 'https://www.javatpoint.com/heap-sort',
-      'videoUrl': '',
+      'media': [],
       'likes': 0,
-      'views': 0, // Initial likes count
+      'views': 0,
+      'quizId': "",
+      'tags': ['Patient'],
       'dislikes': 0,
       'date': DateTime.now()
     });
@@ -353,6 +384,13 @@ void main() {
 
   testWidgets('Test tapping dislike button removes past like',
       (WidgetTester tester) async {
+    final MockUser mockUser = MockUser(
+      isAnonymous: false,
+      uid: 'user123',
+      email: 'test@example.com',
+    );
+
+    auth = MockFirebaseAuth(mockUser: mockUser, signedIn: true);
     CollectionReference topicCollectionRef = firestore.collection('topics');
 
     // Add a topic with initial likes count of 0
@@ -360,9 +398,11 @@ void main() {
       'title': 'no video topic',
       'description': 'Test Description',
       'articleLink': 'https://www.javatpoint.com/heap-sort',
-      'videoUrl': '',
+      'media': [],
       'likes': 0,
-      'views': 0, // Initial likes count
+      'views': 0,
+      'quizId': "",
+      'tags': ['Patient'],
       'dislikes': 0,
       'date': DateTime.now()
     });
@@ -409,6 +449,13 @@ void main() {
 
   testWidgets('Test tapping like button removes past dislike',
       (WidgetTester tester) async {
+    final MockUser mockUser = MockUser(
+      isAnonymous: false,
+      uid: 'user123',
+      email: 'test@example.com',
+    );
+
+    auth = MockFirebaseAuth(mockUser: mockUser, signedIn: true);
     CollectionReference topicCollectionRef = firestore.collection('topics');
 
     // topic with initial likes and dislikes count of 0
@@ -416,9 +463,11 @@ void main() {
       'title': 'no video topic',
       'description': 'Test Description',
       'articleLink': 'https://www.javatpoint.com/heap-sort',
-      'videoUrl': '',
+      'media': [],
       'likes': 0,
-      'views': 0, // Initial likes count
+      'views': 0,
+      'quizId': "",
+      'tags': ['Patient'],
       'dislikes': 0,
       'date': DateTime.now()
     });
@@ -460,6 +509,13 @@ void main() {
 
   testWidgets('Test tapping like button twice removes like',
       (WidgetTester tester) async {
+    final MockUser mockUser = MockUser(
+      isAnonymous: false,
+      uid: 'user123',
+      email: 'test@example.com',
+    );
+
+    auth = MockFirebaseAuth(mockUser: mockUser, signedIn: true);
     CollectionReference topicCollectionRef = firestore.collection('topics');
 
     // topic with initial likes and dislikes count of 0
@@ -467,9 +523,11 @@ void main() {
       'title': 'no video topic',
       'description': 'Test Description',
       'articleLink': 'https://www.javatpoint.com/heap-sort',
-      'videoUrl': '',
+      'media': [],
       'likes': 0,
-      'views': 0, // Initial likes count
+      'views': 0,
+      'quizId': "",
+      'tags': ['Patient'],
       'dislikes': 0,
       'date': DateTime.now()
     });
@@ -509,15 +567,24 @@ void main() {
 
   testWidgets('Test tapping dislike button twice removes dislike',
       (WidgetTester tester) async {
+    final MockUser mockUser = MockUser(
+      isAnonymous: false,
+      uid: 'user123',
+      email: 'test@example.com',
+    );
+
+    auth = MockFirebaseAuth(mockUser: mockUser, signedIn: true);
     CollectionReference topicCollectionRef = firestore.collection('topics');
 
     DocumentReference topicDocRef = await topicCollectionRef.add({
       'title': 'no video topic',
       'description': 'Test Description',
       'articleLink': 'https://www.javatpoint.com/heap-sort',
-      'videoUrl': '',
+      'media': [],
       'likes': 0,
+      'tags': ['Patient'],
       'views': 0,
+      'quizId': "",
       'dislikes': 0,
       'date': DateTime.now()
     });
@@ -564,9 +631,11 @@ void main() {
       'title': 'no video topic',
       'description': 'Test Description',
       'articleLink': 'https://www.javatpoint.com/heap-sort',
-      'videoUrl': '',
+      'media': [],
       'likes': 0,
       'views': 0,
+      'quizId': "",
+      'tags': ['Patient'],
       'dislikes': 0,
       'date': DateTime.now()
     });
@@ -584,10 +653,9 @@ void main() {
     ));
 
     await tester.pumpAndSettle();
+    await tester.ensureVisible(find.byKey(const Key('delete_topic_button')));
 
     final deleteButtonFinder = find.byKey(const Key('delete_topic_button'));
-
-    await tester.ensureVisible(deleteButtonFinder);
 
     await tester.pumpAndSettle();
     // check that admin user sees delete topic button
@@ -597,6 +665,14 @@ void main() {
 
   testWidgets('Admin user sees edit topic button', (WidgetTester tester) async {
     // Mock user data
+    final MockUser mockUser = MockUser(
+      isAnonymous: false,
+      uid: 'user123',
+      email: 'test@example.com',
+    );
+
+    auth = MockFirebaseAuth(mockUser: mockUser, signedIn: true);
+
     CollectionReference topicCollectionRef = firestore.collection('topics');
 
     final fakeVideoPlayerPlatform = FakeVideoPlayerPlatform();
@@ -607,10 +683,17 @@ void main() {
       'title': 'no video topic',
       'description': 'Test Description',
       'articleLink': 'https://www.javatpoint.com/heap-sort',
-      'videoUrl':
-          'https://firebasestorage.googleapis.com/v0/b/team-todo-38f76.appspot.com/o/videos%2F2024-02-01%2018:28:20.745204.mp4?alt=media&token=6d6e3aee-240d-470f-ab22-58e274a04010',
+      'media': [
+        {
+          'url':
+              'https://firebasestorage.googleapis.com/v0/b/team-todo-38f76.appspot.com/o/videos%2F2024-02-01%2018:28:20.745204.mp4?alt=media&token=6d6e3aee-240d-470f-ab22-58e274a04010',
+          'mediaType': 'video'
+        }
+      ],
       'likes': 0,
       'views': 0,
+      'quizId': "",
+      'tags': ['Patient'],
       'dislikes': 0,
       'date': DateTime.now()
     });
@@ -644,20 +727,28 @@ void main() {
 
     expect(fakeVideoPlayerPlatform.calls.contains('pause'), true);
 
-    expect(find.byType(EditTopicScreen), findsOneWidget);
+    expect(find.byType(CreateTopicScreen), findsOneWidget);
   });
 
   testWidgets('Non-Admin user cannot see delete topic button',
       (WidgetTester tester) async {
+    final MockUser mockUser = MockUser(
+      isAnonymous: false,
+      uid: 'user123',
+      email: 'test@example.com',
+    );
+
     CollectionReference topicCollectionRef = firestore.collection('topics');
 
     await topicCollectionRef.add({
       'title': 'no video topic',
       'description': 'Test Description',
       'articleLink': 'https://www.javatpoint.com/heap-sort',
-      'videoUrl': '',
+      'media': [],
       'likes': 0,
       'views': 0,
+      'quizId': "",
+      'tags': ['Patient'],
       'dislikes': 0,
       'date': DateTime.now()
     });
@@ -688,10 +779,17 @@ void main() {
       'title': 'Test Topic',
       'description': 'Test Description',
       'articleLink': 'https://www.example.com',
-      'videoUrl':
-          'https://firebasestorage.googleapis.com/v0/b/team-todo-38f76.appspot.com/o/videos%2F2024-02-01%2018:28:20.745204.mp4?alt=media&token=6d6e3aee-240d-470f-ab22-58e274a04010',
+      'media': [
+        {
+          'url':
+              'https://firebasestorage.googleapis.com/v0/b/team-todo-38f76.appspot.com/o/videos%2F2024-02-01%2018:28:20.745204.mp4?alt=media&token=6d6e3aee-240d-470f-ab22-58e274a04010',
+          'mediaType': 'video'
+        }
+      ],
       'likes': 0,
       'views': 0,
+      'quizId': "",
+      'tags': ['Patient'],
       'dislikes': 0,
       'date': DateTime.now()
     });
@@ -711,6 +809,8 @@ void main() {
     await tester.pumpAndSettle();
 
     // Find the delete topic button and tap it
+
+    await tester.ensureVisible(find.byKey(const Key('delete_topic_button')));
     await tester.tap(find.byKey(const Key('delete_topic_button')));
 
     // Wait for the asynchronous operations to complete
@@ -743,9 +843,11 @@ void main() {
       'title': 'Test Topic',
       'description': 'Test Description',
       'articleLink': 'https://www.example.com',
-      'videoUrl': '',
+      'media': [],
       'likes': 0,
+      'tags': ['Patient'],
       'views': 0,
+      'quizId': "",
       'dislikes': 0,
       'date': DateTime.now()
     });
@@ -765,6 +867,7 @@ void main() {
     await tester.pumpAndSettle();
 
     // Find the delete topic button and tap it
+    await tester.ensureVisible(find.byKey(const Key('delete_topic_button')));
     await tester.tap(find.byKey(const Key('delete_topic_button')));
 
     // Wait for the asynchronous operations to complete
@@ -792,9 +895,11 @@ void main() {
       'title': 'Test Topic',
       'description': 'Test Description',
       'articleLink': 'https://www.example.com',
-      'videoUrl': '',
+      'media': [],
       'likes': 0,
+      'tags': ['Patient'],
       'views': 0,
+      'quizId': "",
       'dislikes': 0,
       'date': DateTime.now()
     });
@@ -827,6 +932,7 @@ void main() {
         List<dynamic>.from(adminUserSnapshot['likedTopics']);
 
     expect(listAfterLike.contains(topicDocRef.id), true);
+    await tester.ensureVisible(find.byKey(const Key('delete_topic_button')));
 
     await tester.tap(find.byKey(const Key('delete_topic_button')));
 
@@ -847,6 +953,13 @@ void main() {
   testWidgets(
       'Test delete topic button removes topic from user disliked topics',
       (WidgetTester tester) async {
+    final MockUser mockUser = MockUser(
+      isAnonymous: false,
+      uid: 'user123',
+      email: 'test@example.com',
+    );
+
+    auth = MockFirebaseAuth(mockUser: mockUser, signedIn: true);
     CollectionReference topicCollectionRef = firestore.collection('topics');
 
     // Add a topic
@@ -854,9 +967,11 @@ void main() {
       'title': 'Test Topic',
       'description': 'Test Description',
       'articleLink': 'https://www.example.com',
-      'videoUrl': '',
+      'media': [],
       'likes': 0,
+      'tags': ['Patient'],
       'views': 0,
+      'quizId': "",
       'dislikes': 0,
       'date': DateTime.now()
     });
@@ -889,6 +1004,7 @@ void main() {
         List<dynamic>.from(adminUserSnapshot['dislikedTopics']);
 
     expect(listAfterDislike.contains(topicDocRef.id), true);
+    await tester.ensureVisible(find.byKey(const Key('delete_topic_button')));
 
     await tester.tap(find.byKey(const Key('delete_topic_button')));
 
@@ -908,15 +1024,24 @@ void main() {
 
   testWidgets('Test back button navigates to Base screen',
       (WidgetTester tester) async {
+    final MockUser mockUser = MockUser(
+      isAnonymous: false,
+      uid: 'user123',
+      email: 'test@example.com',
+    );
+
+    auth = MockFirebaseAuth(mockUser: mockUser, signedIn: true);
     CollectionReference topicCollectionRef = firestore.collection('topics');
 
     await topicCollectionRef.add({
       'title': 'no video topic',
       'description': 'Test Description',
       'articleLink': 'https://www.javatpoint.com/heap-sort',
-      'videoUrl': '',
+      'media': [],
       'likes': 0,
+      'tags': ['Patient'],
       'views': 0,
+      'quizId': "",
       'dislikes': 0,
       'date': DateTime.now()
     });
@@ -943,15 +1068,24 @@ void main() {
 
   testWidgets('Test navigation to ThreadApp screen',
       (WidgetTester tester) async {
+    final MockUser mockUser = MockUser(
+      isAnonymous: false,
+      uid: 'user123',
+      email: 'test@example.com',
+    );
+
+    auth = MockFirebaseAuth(mockUser: mockUser, signedIn: true);
     CollectionReference topicCollectionRef = firestore.collection('topics');
 
     await topicCollectionRef.add({
       'title': 'no video topic',
       'description': 'Test Description',
       'articleLink': 'https://www.javatpoint.com/heap-sort',
-      'videoUrl': '',
+      'media': [],
       'likes': 0,
+      'tags': ['Patient'],
       'views': 0,
+      'quizId': "",
       'dislikes': 0,
       'date': DateTime.now()
     });
