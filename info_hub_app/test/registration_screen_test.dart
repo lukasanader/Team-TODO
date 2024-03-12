@@ -14,7 +14,7 @@ void main() {
   late Widget registrationWidget;
 
   // Custom method to find onTap within RichText widget
-  void onTap(Finder finder, String text) {
+  void findOnTapInRichText(Finder finder, String text) {
     final Element element = finder.evaluate().single;
     final RenderParagraph paragraph = element.renderObject as RenderParagraph;
     // The children are the individual TextSpans which have GestureRecognizers
@@ -27,7 +27,7 @@ void main() {
   }
 
   setUp(() {
-    // Set up the mock methods
+    // Set up registration Widget for testing
     final firestore = FakeFirebaseFirestore();
     final auth = MockFirebaseAuth();
     final storage = MockFirebaseStorage();
@@ -39,6 +39,7 @@ void main() {
       ),
     );
   });
+
   testWidgets('Test if please register text is present',
       (WidgetTester tester) async {
     await tester.pumpWidget(registrationWidget);
@@ -297,7 +298,7 @@ void main() {
 
     // RichText widget variable that should contain the agreement text
     final finalRichTextWidget = find.byKey(const Key('legal_agreements')).first;
-    onTap(finalRichTextWidget, "Terms of Service");
+    findOnTapInRichText(finalRichTextWidget, "Terms of Service");
     await tester.pumpAndSettle();
 
     expect(find.byType(TermsOfServicesPage), findsOneWidget);
@@ -309,7 +310,7 @@ void main() {
 
     // RichText widget variable that should contain the agreement text
     final finalRichTextWidget = find.byKey(const Key('legal_agreements')).first;
-    onTap(finalRichTextWidget, "Privacy Policy");
+    findOnTapInRichText(finalRichTextWidget, "Privacy Policy");
     await tester.pumpAndSettle();
 
     expect(find.byType(PrivacyPolicyPage), findsOneWidget);
