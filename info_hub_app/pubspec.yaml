@@ -81,8 +81,6 @@ dependencies:
 
   uuid: ^4.3.3
 
-
-  english_words: ^4.0.0
   
   nlp: ^0.0.0
 
