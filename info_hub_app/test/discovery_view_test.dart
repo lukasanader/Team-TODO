@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -12,36 +14,54 @@ void main() {
   late MockFirebaseStorage storage;
   late CollectionReference topicsCollectionRef;
   late Widget discoveryViewWidget;
-
   setUp(() {
     firestore = FakeFirebaseFirestore();
     auth = MockFirebaseAuth();
     storage = MockFirebaseStorage();
     topicsCollectionRef = firestore.collection('topics');
-
     topicsCollectionRef.add({
       'title': 'B test',
       'description': 'this is a test',
       'articleLink': '',
       'videoUrl': '',
+      'views':1,
+      'date': DateTime.now(),
+      'likes': 0,
+      'dislikes': 0,
+      'tags': ['Patient']
     });
     topicsCollectionRef.add({
       'title': 'D test',
       'description': 'this is a test',
       'articleLink': '',
       'videoUrl': '',
+      'views':1,
+      'date': DateTime.now(),
+      'likes': 0,
+      'dislikes': 0,
+      'tags': ['Patient']
     });
     topicsCollectionRef.add({
       'title': 'A test',
       'description': 'this is a test',
       'articleLink': '',
       'videoUrl': '',
+      'views':1,
+      'date': DateTime.now(),
+      'likes': 0,
+      'dislikes': 0,
+      'tags': ['Patient']
     });
     topicsCollectionRef.add({
       'title': 'C test',
       'description': 'this is a test',
       'articleLink': '',
       'videoUrl': '',
+      'views':1,
+      'date': DateTime.now(),
+      'likes': 0,
+      'dislikes': 0,
+      'tags': ['Patient']
     });
 
     discoveryViewWidget = MaterialApp(
@@ -51,6 +71,15 @@ void main() {
 
   testWidgets('DiscoveryView has appbar, search bar and search icon',
       (WidgetTester tester) async {
+    await auth.createUserWithEmailAndPassword(email: 'test@tested.org', password: 'Password123!');
+    String uid = auth.currentUser!.uid;
+    await firestore.collection('Users').doc(uid).set({
+        'email': 'test@tested.org',
+        'firstName' : 'James',
+        'lastName' : 'Doe',
+        'roleType' : 'Patient'
+        });
+    
     await tester.pumpWidget(discoveryViewWidget);
 
     expect(find.byType(TextField), findsOneWidget);
@@ -60,6 +89,14 @@ void main() {
 
   testWidgets('DiscoveryView search button does nothing (is null)',
       (WidgetTester tester) async {
+    await auth.createUserWithEmailAndPassword(email: 'test@tested.org', password: 'Password123!');
+    String uid = auth.currentUser!.uid;
+    await firestore.collection('Users').doc(uid).set({
+        'email': 'test@tested.org',
+        'firstName' : 'James',
+        'lastName' : 'Doe',
+        'roleType' : 'Patient'
+        });
     await tester.pumpWidget(discoveryViewWidget);
 
     final searchButton = find.widgetWithIcon(IconButton, Icons.search);
@@ -72,23 +109,46 @@ void main() {
 
   testWidgets('DiscoveryView will display topics based on search accurately',
       (WidgetTester tester) async {
+    await auth.createUserWithEmailAndPassword(email: 'test@tested.org', password: 'Password123!');
+    String uid = auth.currentUser!.uid;
+    await firestore.collection('Users').doc(uid).set({
+        'email': 'test@tested.org',
+        'firstName' : 'James',
+        'lastName' : 'Doe',
+        'roleType' : 'Patient'
+        });
     topicsCollectionRef.add({
       'title': 'Multiple will show',
       'description': 'this is a test',
       'articleLink': '',
       'videoUrl': '',
+      'views':1,
+      'date': DateTime.now(),
+      'likes': 0,
+      'dislikes': 0,
+      'tags': ['Patient']
     });
     topicsCollectionRef.add({
       'title': 'Multiple will show 2',
       'description': 'this is a test',
       'articleLink': '',
       'videoUrl': '',
+      'views':1,
+      'date': DateTime.now(),
+      'likes': 0,
+      'dislikes': 0,
+      'tags': ['Patient']
     });
     topicsCollectionRef.add({
       'title': 'Multiple will show 3',
       'description': 'this is a test',
       'articleLink': '',
       'videoUrl': '',
+      'views':1,
+      'date': DateTime.now(),
+      'likes': 0,
+      'dislikes': 0,
+      'tags': ['Patient']
     });
 
     await tester.pumpWidget(discoveryViewWidget);
@@ -119,6 +179,14 @@ void main() {
   testWidgets(
       'DiscoveryView will display "Sorry there are no topics for this!" if no existing topic exists',
       (WidgetTester tester) async {
+    await auth.createUserWithEmailAndPassword(email: 'test@tested.org', password: 'Password123!');
+    String uid = auth.currentUser!.uid;
+    await firestore.collection('Users').doc(uid).set({
+        'email': 'test@tested.org',
+        'firstName' : 'James',
+        'lastName' : 'Doe',
+        'roleType' : 'Patient'
+        });
     await tester.pumpWidget(discoveryViewWidget);
 
     final searchTextField = find.byType(TextField);
@@ -131,6 +199,15 @@ void main() {
 
   testWidgets('DiscoveryView topics are in alphabetical order',
       (WidgetTester tester) async {
+
+    await auth.createUserWithEmailAndPassword(email: 'test@tested.org', password: 'Password123!');
+    String uid = auth.currentUser!.uid;
+    await firestore.collection('Users').doc(uid).set({
+        'email': 'test@tested.org',
+        'firstName' : 'James',
+        'lastName' : 'Doe',
+        'roleType' : 'Patient'
+        });
     await tester.pumpWidget(discoveryViewWidget);
     await tester.pumpAndSettle();
 
@@ -404,6 +481,14 @@ void main() {
 
   testWidgets('Show Post Dialog Test', (WidgetTester tester) async {
   // Build our app and trigger a frame.
+  await auth.createUserWithEmailAndPassword(email: 'test@tested.org', password: 'Password123!');
+  String uid = auth.currentUser!.uid;
+  await firestore.collection('Users').doc(uid).set({
+        'email': 'test@tested.org',
+        'firstName' : 'James',
+        'lastName' : 'Doe',
+        'roleType' : 'Patient'
+        });
   await tester.pumpWidget(discoveryViewWidget);
   await tester.pumpAndSettle();
 
@@ -445,5 +530,45 @@ void main() {
     isTrue,
   );
 });
+  
+    testWidgets('test that shown topics are only of the same role as user', (WidgetTester tester) async {
+    // Build our app and trigger a frame.
+    await auth.createUserWithEmailAndPassword(email: 'test@tested.org', password: 'Password123!');
+    String uid = auth.currentUser!.uid;
+    await firestore.collection('Users').doc(uid).set({
+        'email': 'test@tested.org',
+        'firstName' : 'James',
+        'lastName' : 'Doe',
+        'roleType' : 'Patient'
+        });
 
+    CollectionReference topicCollectionRef = firestore.collection('topics');
+    topicCollectionRef.add({
+      'title': 'test 1',
+      'description': 'this is a test',
+      'articleLink': '',
+      'videoUrl': '',
+      'views':1,
+      'date': DateTime.now(),
+      'likes': 0,
+      'dislikes': 0,
+      'tags': ['Patient']
+    });
+        topicCollectionRef.add({
+      'title': 'test 2',
+      'description': 'this is a test again',
+      'articleLink': '',
+      'videoUrl': '',
+      'views':1,
+      'date': DateTime.now(),
+      'likes': 0,
+      'dislikes': 0,
+      'tags': ['Parent']
+    });
+    await tester.pumpWidget(discoveryViewWidget);
+    await tester.pumpAndSettle();
+
+    expect(find.text('test 1'), findsOneWidget);
+    expect(find.text('test 2'), findsNothing);
+});
 }

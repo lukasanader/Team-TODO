@@ -30,12 +30,21 @@ void main() {
   });
 
   testWidgets('Bottom Nav Bar to Home Page', (WidgetTester tester) async {
+    await auth.createUserWithEmailAndPassword(email: 'test@tested.org', password: 'Password123!');
+  String uid = auth.currentUser!.uid;
+  await firestore.collection('Users').doc(uid).set({
+        'email': 'test@tested.org',
+        'firstName' : 'James',
+        'lastName' : 'Doe',
+        'roleType' : 'Patient'
+        });
     await tester.pumpWidget(MaterialApp(
         home: Base(
       storage: storage,
       auth: auth,
       firestore: firestore,
     )));
+
     await tester.pumpAndSettle();
     await tester.tap(find.byIcon(Icons.home));
     await tester.pump();
@@ -47,6 +56,14 @@ void main() {
     expect(find.byType(HomePage), findsOneWidget);
   });
   testWidgets('Bottom Nav Bar to Search Page', (WidgetTester tester) async {
+    await auth.createUserWithEmailAndPassword(email: 'test@tested.org', password: 'Password123!');
+  String uid = auth.currentUser!.uid;
+  await firestore.collection('Users').doc(uid).set({
+        'email': 'test@tested.org',
+        'firstName' : 'James',
+        'lastName' : 'Doe',
+        'roleType' : 'Patient'
+        });
     await tester.pumpWidget(MaterialApp(
         home: Base(
       storage: storage,
@@ -61,6 +78,14 @@ void main() {
   });
 
   testWidgets('Bottom Nav Bar to Setting Page', (WidgetTester tester) async {
+    await auth.createUserWithEmailAndPassword(email: 'test@tested.org', password: 'Password123!');
+  String uid = auth.currentUser!.uid;
+  await firestore.collection('Users').doc(uid).set({
+        'email': 'test@tested.org',
+        'firstName' : 'James',
+        'lastName' : 'Doe',
+        'roleType' : 'Patient'
+        });
     await tester.pumpWidget(MaterialApp(
         home: Base(
       storage: storage,
@@ -75,6 +100,14 @@ void main() {
   });
 
   testWidgets('HomePage UI Test', (WidgetTester tester) async {
+      await auth.createUserWithEmailAndPassword(email: 'test@tested.org', password: 'Password123!');
+  String uid = auth.currentUser!.uid;
+  await firestore.collection('Users').doc(uid).set({
+        'email': 'test@tested.org',
+        'firstName' : 'James',
+        'lastName' : 'Doe',
+        'roleType' : 'Patient'
+        });
     await tester.pumpWidget(MaterialApp(
       home: HomePage(
         storage: storage,
@@ -90,6 +123,14 @@ void main() {
   });
 
   testWidgets('HomePage to Notification Page', (WidgetTester tester) async {
+      await auth.createUserWithEmailAndPassword(email: 'test@tested.org', password: 'Password123!');
+  String uid = auth.currentUser!.uid;
+  await firestore.collection('Users').doc(uid).set({
+        'email': 'test@tested.org',
+        'firstName' : 'James',
+        'lastName' : 'Doe',
+        'roleType' : 'Patient'
+        });
     await tester.pumpWidget(MultiProvider(
       providers: [
         StreamProvider<List<custom.Notification>>(

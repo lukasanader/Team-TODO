@@ -143,8 +143,11 @@ class _DiscoveryViewState extends State<DiscoveryView> {
   }
 
   Future getTopicsList() async {
+    String uid = widget.auth.currentUser!.uid;
+    DocumentSnapshot user = await widget.firestore.collection('Users').doc(uid).get();
+    String role = user['roleType'];
     QuerySnapshot data =
-        await widget.firestore.collection('topics').orderBy('title').get();
+        await widget.firestore.collection('topics').where('tags', arrayContains: role).orderBy('title').get();
 
     setState(() {
       _topicsList = List.from(data.docs);
