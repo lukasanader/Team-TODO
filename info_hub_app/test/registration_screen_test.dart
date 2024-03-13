@@ -5,6 +5,8 @@ import 'package:info_hub_app/registration/registration_screen.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
+import 'package:info_hub_app/welcome_message/welcome_message.dart';
+
 
 void main() {
   testWidgets('Test if please register text is present',
@@ -263,7 +265,7 @@ void main() {
         findsOneWidget);
   });
 
-  testWidgets('Test successful registration redirects to HomeScreen',
+  testWidgets('Test successful registration redirects to Welcome Page',
       (WidgetTester tester) async {
     final firestore = FakeFirebaseFirestore();
     final auth = MockFirebaseAuth();
@@ -311,6 +313,6 @@ void main() {
     await tester.pumpAndSettle();
 
     // Expect to find HomeScreen
-    expect(find.byType(Base), findsOneWidget);
+    expect(find.byType(WelcomePage), findsOneWidget);
   });
 }

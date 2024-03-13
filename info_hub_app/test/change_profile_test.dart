@@ -154,8 +154,6 @@ testWidgets('Test if first name and last name are updated in Firestore', (Widget
   expect(updatedUserDoc['firstName'], 'NewFirstName');
   expect(updatedUserDoc['lastName'], 'NewLastName');
   
-  print(updatedUserDoc);
-  
 });
 
 

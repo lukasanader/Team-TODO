@@ -8,6 +8,7 @@ import 'package:info_hub_app/reset_password/reset_password.dart';
 import 'package:info_hub_app/services/auth.dart';
 import 'package:info_hub_app/helpers/base.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:info_hub_app/welcome_message/welcome_message.dart';
 
 class LoginScreen extends StatefulWidget {
   final FirebaseFirestore firestore;
@@ -102,7 +103,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           storage: widget.storage,
                         );
                       } else {
-                        nextPage = Base(
+                        nextPage = Base( //change back to Base
                           firestore: widget.firestore,
                           auth: widget.auth,
                           storage: widget.storage,

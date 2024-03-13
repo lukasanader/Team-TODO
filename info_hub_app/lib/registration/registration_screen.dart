@@ -5,6 +5,7 @@ import 'package:info_hub_app/services/auth.dart';
 import 'package:info_hub_app/registration/user_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:info_hub_app/welcome_message/welcome_message.dart';
 
 class RegistrationScreen extends StatefulWidget {
   final FirebaseFirestore firestore;
@@ -200,7 +201,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
                     if (userModel != null) {
                       // Registration was successful, navigate to the main application page
-                      Widget nextPage = Base(
+                      Widget nextPage = WelcomePage(
                         auth: widget.auth,
                         storage: widget.storage,
                         firestore: widget.firestore,
@@ -254,3 +255,4 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     );
   }
 }
+ 
