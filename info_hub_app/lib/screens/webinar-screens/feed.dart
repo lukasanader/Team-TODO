@@ -85,7 +85,7 @@ class _FeedScreenState extends State<FeedScreen> {
                                         ),
                                       ),
                                       Text(
-                                        'Dr. ${post.lastName}',
+                                        'Dr. ${post.startedBy}',
                                         style: const TextStyle(
                                           fontWeight: FontWeight.bold,
                                         ),
@@ -96,14 +96,14 @@ class _FeedScreenState extends State<FeedScreen> {
                                 ),
                                 IconButton(
                                   onPressed: () async {
-                                    await DatabaseService(uid: widget.user.uid, firestore: widget.firestore)
-                                        .updateViewCount(post.channelId, true);
+                                    await DatabaseService(firestore: widget.firestore)
+                                        .updateViewCount(post.webinarID, true);
                                     // ignore: use_build_context_synchronously
                                     Navigator.of(context).push(
                                       MaterialPageRoute(
                                         builder: (context) => BroadcastScreen(
-                                          isBroadcaster: false,
-                                          channelId: post.uid,
+                                          webinarID: post.webinarID,
+                                          youtubeURL: post.youtubeURL,
                                           currentUser: widget.user,
                                           firestore: widget.firestore,
                                           title: post.title,

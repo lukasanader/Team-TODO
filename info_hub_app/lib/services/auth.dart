@@ -24,7 +24,7 @@ class AuthService {
       UserCredential result = await auth.createUserWithEmailAndPassword(email: email, password: password);
       User? user = result.user;
       if (user != null) {
-        await DatabaseService(firestore: firestore, uid: user.uid).addUserData(firstName, lastName, email, roleType);
+        await DatabaseService(firestore: firestore).addUserData(firstName, lastName, email, roleType);
         // create user model
         return _userFromFirebaseUser(user,firstName, lastName, email, roleType);
       }

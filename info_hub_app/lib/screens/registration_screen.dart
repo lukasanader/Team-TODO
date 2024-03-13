@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:info_hub_app/screens/webinar-screens/dashboard.dart';
 import 'package:info_hub_app/screens/webinar-screens/feed.dart';
+import 'package:info_hub_app/screens/webinar-screens/webinar_details_screen.dart';
 import 'package:info_hub_app/services/auth.dart';
 import 'package:info_hub_app/models/user_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -188,10 +190,19 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => FeedScreen(
+                          builder: (context) =>     
+                          FeedScreen(
                             firestore: widget.firestore,
                             user: userModel,
                           ),
+                          // BroadcastScreen(
+                          //   isBroadcaster: true,
+                          //   channelId: userModel.uid,
+                          //   currentUser: userModel,
+                          //   firestore: widget.firestore,
+                          //   title: 'testing',
+                          // )
+
                           // builder: (context) => GoLiveScreen(user: userModel, firestore: widget.firestore,),
                         ),
                       );

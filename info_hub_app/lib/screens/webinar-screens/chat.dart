@@ -7,10 +7,10 @@ import 'package:profanity_filter/profanity_filter.dart';
 
 // Implements chat functionality
 class Chat extends StatefulWidget {
-  final String channelId;
+  final String webinarID;
   final UserModel user;
   final FirebaseFirestore firestore;
-  const Chat({super.key, required this.channelId, required this.user, required this.firestore});
+  const Chat({super.key, required this.webinarID, required this.user, required this.firestore});
 
   @override
   State<Chat> createState() => _ChatState();
@@ -35,7 +35,7 @@ class _ChatState extends State<Chat> {
     // Initialize the Firestore stream
     _chatStream = widget.firestore
         .collection('Webinar')
-        .doc(widget.channelId)
+        .doc(widget.webinarID)
         .collection('comments')
         .orderBy('createdAt', descending: true)
         .snapshots();
@@ -84,8 +84,9 @@ class _ChatState extends State<Chat> {
   // Tests if user has entered their name in the message
   bool _namePresent(String messageText) {
     String messageToLowercase = messageText.toLowerCase();
-    String name = widget.user.firstName;
+    String name = widget.user.firstName.toLowerCase();
     return messageToLowercase.contains(name);
+
   }
 
   @override
@@ -136,8 +137,8 @@ class _ChatState extends State<Chat> {
                       bool hasProfanities = filter.hasProfanity(_chatController.text);
                       bool hasName = _namePresent(_chatController.text); 
                       if (!hasProfanities && !hasName) {
-                        await DatabaseService(firestore: widget.firestore, uid: widget.user.uid,)
-                          .chat(_chatController.text, widget.channelId, widget.user.roleType);
+                        await DatabaseService(firestore: widget.firestore,)
+                          .chat(_chatController.text, widget.webinarID, widget.user.roleType,widget.user.uid);
                       } else {
                         _showWarningDialog();
                       }

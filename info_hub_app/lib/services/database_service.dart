@@ -1,17 +1,16 @@
 import 'dart:io';
+import 'dart:math';
 import 'package:path_provider/path_provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
 class DatabaseService {
-  final String uid;
   final FirebaseFirestore firestore;
   final FirebaseStorage _storage = FirebaseStorage.instance;
 
-  DatabaseService({required this.uid, required this.firestore});
+  DatabaseService({required this.firestore});
 
   // adds user data to database
   Future addUserData(String firstName, String lastName,String email,String roleType) async {
@@ -24,53 +23,67 @@ class DatabaseService {
     });
   }
     
-  Future<String> startLiveStream(BuildContext context, String title, Uint8List? image, String lastName) async {
-    String channelId = '';
+  Future<String> startLiveStream(String title,String url, Uint8List? image,String name, String startTime) async {
+    // assign random integer as document name
+    String collectionId = (Random().nextInt(4294967296) + 100000).toString();
     try {
       if (title.isNotEmpty && image != null) {
+        // check if any document already exists with the set url or with the random id
         CollectionReference webinarRef = firestore.collection('Webinar');
-        bool uidExists = await checkUidExists(uid);
-        if (!uidExists) {
-          String thumbnailUrl = await uploadImageToStorage('webinar-thumbnails', image, uid);
+        bool idExists = await checkURLExists(webinarRef, collectionId);
+        bool webinarExists = await checkURLExists(webinarRef, url);
+        if (!webinarExists && !idExists) {
 
-          DocumentReference docRef = webinarRef.doc(uid);
+          String thumbnailUrl = await uploadImageToStorage('webinar-thumbnails', image, collectionId);
+
+          DocumentReference docRef = webinarRef.doc(collectionId);
 
           await docRef.set({
+            'id': collectionId,
             'title': title,
+            'url': url,
             'thumbnail': thumbnailUrl,
-            'uid': uid,
-            'webinarleadlname' : lastName,
+            'webinarleadname' : name,
+            'startTime' : startTime,
             'views': 0,
           });
 
-          channelId = uid;
         } else {
-          print('You cannot start a stream if you already have one');
+          return "";
         }
       } else {
-        print('Error');
+        return "";
       }
     } catch (e) {
-      print(e);
+      return "";
     }
-    return channelId;
+    return collectionId;
   }
 
-
-  Future<bool> checkUidExists(String uid) async {
+  Future<bool> checkURLExists(CollectionReference ref, String url) async {
     try {
-      CollectionReference webinarRef = firestore.collection('Webinar');
-      QuerySnapshot querySnapshot = await webinarRef.where('uid', isEqualTo: uid).get();
-
+      QuerySnapshot querySnapshot = await ref.where('url', isEqualTo: url).get();
       // If there are documents in the query result, it means the uid already exists
-      if (querySnapshot.docs.isNotEmpty) {
-        return true;
-      } else {
-        return false;
-      }
+      return querySnapshot.docs.isNotEmpty;
     } catch (e) {
       // Handle any errors during the query
-      print('Error checking uid existence: $e');
+      if (kDebugMode) {
+        print('Error checking uid existence: $e');
+      }
+      return false;
+    }
+  }
+
+  Future<bool> checkRandomNumberExists(CollectionReference ref, String id) async {
+    try {
+      DocumentSnapshot docSnapshot = await ref.doc(id).get();
+      // If there are documents in the query result, it means the uid already exists
+      return docSnapshot.exists;
+    } catch (e) {
+      // Handle any errors during the query
+      if (kDebugMode) {
+        print('Error checking document existence: $e');
+      }
       return false;
     }
   }
@@ -92,7 +105,7 @@ class DatabaseService {
 
   Future<void> updateViewCount(String id, bool isIncrease) async {
     try {
-      await firestore.collection('webinar').doc(id).update({
+      await firestore.collection('Webinar').doc(id).update({
         'views': FieldValue.increment(isIncrease? 1: -1),
       });
     } catch (e) {
@@ -100,7 +113,7 @@ class DatabaseService {
     }
   }
 
-  Future<void> chat(String text, String id,String roleType) async {
+  Future<void> chat(String text, String id,String roleType,String userID) async {
     try {
       String commentId = const Uuid().v1();
       await firestore.collection('Webinar')
@@ -112,7 +125,7 @@ class DatabaseService {
         'createdAt' : DateTime.now(),
         'commentId' : commentId,
         'roleType' : roleType,
-        'uid' : uid,
+        'uid' : userID,
 
       });
 
