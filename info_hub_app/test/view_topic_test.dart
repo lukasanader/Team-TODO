@@ -918,7 +918,7 @@ void main() {
         });
     CollectionReference topicCollectionRef = firestore.collection('topics');
     await auth.createUserWithEmailAndPassword(email: 'user@gmail.com', password: 'User123!');
-    String uid = auth.currentUser!.uid;
+    uid = auth.currentUser!.uid;
     await firestore.collection('Users').doc(uid).set({
       'email': 'admin@gmail.com',
       'firstName': 'John',
