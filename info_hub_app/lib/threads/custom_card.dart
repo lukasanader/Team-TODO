@@ -180,7 +180,12 @@ class _CustomCardState extends State<CustomCard> {
               ),
               leading: CircleAvatar(
                 radius: 38,
-                child: Text(title[0]),
+                backgroundImage: docData['selectedProfilePhoto'] != null &&
+                        docData['selectedProfilePhoto'].isNotEmpty
+                    ? NetworkImage(docData['selectedProfilePhoto'] as String)
+                        as ImageProvider
+                    : AssetImage('assets/default_profile_photo.png')
+                        as ImageProvider,
               ),
             ),
           ),
