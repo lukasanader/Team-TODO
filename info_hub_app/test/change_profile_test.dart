@@ -5,9 +5,6 @@ import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 
 
-
-//to do : change profile test 
-
 void main() {
   testWidgets('Test if first name TextField is present', (WidgetTester tester) async {
     final firestore = FakeFirebaseFirestore();
