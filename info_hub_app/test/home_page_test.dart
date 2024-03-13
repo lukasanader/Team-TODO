@@ -72,7 +72,14 @@ void main() {
   testWidgets('Trendings topic are in right order',
       (WidgetTester tester) async {
     // Build your widget
-
+    await auth.createUserWithEmailAndPassword(email: 'test@tested.org', password: 'Password123!');
+    String uid = auth.currentUser!.uid;
+    await firestore.collection('Users').doc(uid).set({
+        'email': 'test@tested.org',
+        'firstName' : 'James',
+        'lastName' : 'Doe',
+        'roleType' : 'Patient'
+        });
 
     await tester.pumpWidget(trendingTopicWidget);
     await tester.pumpAndSettle();
@@ -169,7 +176,14 @@ void main() {
 
  testWidgets('Click into a topic test',
       (WidgetTester tester) async {
-
+      await auth.createUserWithEmailAndPassword(email: 'test@tested.org', password: 'Password123!');
+      String uid = auth.currentUser!.uid;
+      await firestore.collection('Users').doc(uid).set({
+        'email': 'test@tested.org',
+        'firstName' : 'James',
+        'lastName' : 'Doe',
+        'roleType' : 'Patient'
+        });
       await tester.pumpWidget(trendingTopicWidget);
       await tester.pumpAndSettle();
 
@@ -219,7 +233,14 @@ void main() {
 
  testWidgets('Click onto patient experience leads to patient experience view',
       (WidgetTester tester) async {
-      
+      await auth.createUserWithEmailAndPassword(email: 'test@tested.org', password: 'Password123!');
+      String uid = auth.currentUser!.uid;
+      await firestore.collection('Users').doc(uid).set({
+        'email': 'test@tested.org',
+        'firstName' : 'James',
+        'lastName' : 'Doe',
+        'roleType' : 'Patient'
+        });
       await tester.pumpWidget(trendingTopicWidget);
       await tester.pumpAndSettle();
 
@@ -232,7 +253,14 @@ void main() {
 
  testWidgets('Click onto webinar view leads to webinar view',
       (WidgetTester tester) async {
-      
+      await auth.createUserWithEmailAndPassword(email: 'test@tested.org', password: 'Password123!');
+      String uid = auth.currentUser!.uid;
+      await firestore.collection('Users').doc(uid).set({
+        'email': 'test@tested.org',
+        'firstName' : 'James',
+        'lastName' : 'Doe',
+        'roleType' : 'Patient'
+        });
       await tester.pumpWidget(trendingTopicWidget);
       await tester.pumpAndSettle();
 
