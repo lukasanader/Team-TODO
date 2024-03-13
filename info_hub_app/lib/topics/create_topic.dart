@@ -17,6 +17,7 @@ class CreateTopicScreen extends StatefulWidget {
   final FirebaseFirestore firestore;
   final FirebaseStorage storage;
   QueryDocumentSnapshot? topic;
+  QueryDocumentSnapshot? draft;
   final FirebaseAuth auth;
 
   CreateTopicScreen({
@@ -24,6 +25,7 @@ class CreateTopicScreen extends StatefulWidget {
     required this.firestore,
     required this.storage,
     this.topic,
+    this.draft,
     required this.auth,
   }) : super(key: key);
 
@@ -83,6 +85,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
 
     currentIndex = 0;
     editing = widget.topic != null;
+    drafting = widget.draft != null;
     mediaUrls = [];
     originalUrls = [];
     networkUrls = [];
@@ -108,18 +111,49 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
       _categories = widget.topic!['categories'];
       initData();
       updatedTopicDoc = widget.topic!;
+    } else if (drafting) {
+      mediaUrls = [...widget.draft!['media']];
+      originalUrls = [...mediaUrls];
+      List<dynamic> tempUrls = [];
+      for (var item in mediaUrls) {
+        tempUrls.add(item['url']);
+      }
+      networkUrls = [...tempUrls];
+      appBarTitle = "Draft";
+      prevTitle = widget.draft!['title'];
+      prevDescription = widget.draft!['description'];
+      prevArticleLink = widget.draft!['articleLink'];
+
+      titleController = TextEditingController(text: prevTitle);
+      descriptionController = TextEditingController(text: prevDescription);
+      articleLinkController = TextEditingController(text: prevArticleLink);
+      _tags = widget.draft!['tags'];
+      _categories = widget.draft!['categories'];
+      initData();
     }
   }
 
   Future<void> initData() async {
-    if (widget.topic!['media'].length > 0) {
-      if (widget.topic!['media'][currentIndex]['mediaType'] == 'video') {
-        _videoURL = widget.topic!['media'][currentIndex]['url'];
+    if (widget.topic != null && widget.topic!['media']!.length > 0) {
+      if (widget.topic!['media']![currentIndex]['mediaType']! == 'video') {
+        _videoURL = widget.topic!['media']![currentIndex]['url']!;
         _imageUrl = null;
 
         await _initializeVideoPlayer();
       } else {
-        _imageUrl = widget.topic!['media'][currentIndex]['url'];
+        _imageUrl = widget.topic!['media']![currentIndex]['url']!;
+        _videoURL = null;
+        await _initializeImage();
+      }
+    }
+    if (widget.draft != null && widget.draft!['media'].length > 0) {
+      if (widget.draft!['media']![currentIndex]['mediaType']! == 'video') {
+        _videoURL = widget.draft!['media']![currentIndex]['url']!;
+        _imageUrl = null;
+
+        await _initializeVideoPlayer();
+      } else {
+        _imageUrl = widget.draft!['media']![currentIndex]['url']!;
         _videoURL = null;
         await _initializeImage();
       }
@@ -159,11 +193,10 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
             },
           ),
           actions: <Widget>[
-            if (!editing)
+            if (!editing && !drafting)
               TextButton(
                 key: const Key('draft_btn'),
                 onPressed: () async {
-                  // save draft
                   await saveDraft(context);
                 },
                 child: const Text(
@@ -463,9 +496,9 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                           await _uploadTopic(context);
                         }
                       },
-                      child: const Text(
-                        "PUBLISH TOPIC",
-                        style: TextStyle(
+                      child: Text(
+                        editing ? "UPDATE TOPIC" : "PUBLISH TOPIC",
+                        style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
                         ),
@@ -763,7 +796,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
     CollectionReference topicCollectionRef =
         widget.firestore.collection('topics');
 
-    if (!editing) {
+    if (!editing && !drafting) {
       final topicDetails = {
         'title': titleController.text,
         'description': descriptionController.text,
@@ -782,39 +815,38 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => CheckmarkAnimationScreen(
-            firestore: widget.firestore,
-            topic: widget.topic!,
-            storage: widget.storage,
-            auth: widget.auth,
-          ),
+          builder: (context) => CheckmarkAnimationScreen(),
         ),
       );
 
       await Future.delayed(const Duration(seconds: 2));
 
-      final topicDetails = {
-        'title': titleController.text,
-        'description': descriptionController.text,
-        'articleLink': articleLinkController.text,
-        'media': mediaList,
-        'views': widget.topic!['views'],
-        'likes': widget.topic!['likes'],
-        'categories': _categories,
-        'dislikes': widget.topic!['dislikes'],
-        'date': widget.topic!['date'],
-        'tags': _tags,
-      };
+      final topicDetails = editing
+          ? {
+              'title': titleController.text,
+              'description': descriptionController.text,
+              'articleLink': articleLinkController.text,
+              'media': mediaList,
+              'views': widget.topic!['views'],
+              'likes': widget.topic!['likes'],
+              'categories': _categories,
+              'dislikes': widget.topic!['dislikes'],
+              'date': widget.topic!['date'],
+              'tags': _tags,
+            }
+          : {
+              'title': titleController.text,
+              'description': descriptionController.text,
+              'articleLink': articleLinkController.text,
+              'media': mediaList,
+              'views': widget.draft!['views'],
+              'likes': widget.draft!['likes'],
+              'categories': _categories,
+              'dislikes': widget.draft!['dislikes'],
+              'date': widget.draft!['date'],
+              'tags': _tags,
+            };
 
-      await topicCollectionRef.doc(widget.topic!.id).update(topicDetails);
-      QuerySnapshot? data = await topicCollectionRef.orderBy('title').get();
-      for (QueryDocumentSnapshot doc in data.docs) {
-        // Check if the document ID matches the ID of the topic
-        if (doc.id == widget.topic!.id) {
-          updatedTopicDoc = doc as QueryDocumentSnapshot<Object>;
-          break;
-        }
-      }
       for (var item in originalUrls) {
         if (!mediaList
             .map((map) => map['url'])
@@ -824,17 +856,33 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
         }
       }
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => ViewTopicScreen(
-            firestore: widget.firestore,
-            topic: updatedTopicDoc!,
-            storage: widget.storage,
-            auth: widget.auth,
+      if (editing) {
+        await topicCollectionRef.doc(widget.topic!.id).update(topicDetails);
+        QuerySnapshot? data = await topicCollectionRef.orderBy('title').get();
+        for (QueryDocumentSnapshot doc in data.docs) {
+          // Check if the document ID matches the ID of the topic
+          if (doc.id == widget.topic!.id) {
+            updatedTopicDoc = doc as QueryDocumentSnapshot<Object>;
+            break;
+          }
+        }
+      } else if (drafting) {
+        await topicCollectionRef.add(topicDetails);
+        Navigator.pop(context);
+      }
+      if (editing) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ViewTopicScreen(
+              firestore: widget.firestore,
+              topic: updatedTopicDoc!,
+              storage: widget.storage,
+              auth: widget.auth,
+            ),
           ),
-        ),
-      );
+        );
+      }
     }
   }
 
@@ -1083,18 +1131,6 @@ class StoreData {
 }
 
 class CheckmarkAnimationScreen extends StatefulWidget {
-  final FirebaseFirestore firestore;
-  final FirebaseStorage storage;
-  final QueryDocumentSnapshot topic;
-  final FirebaseAuth auth;
-  const CheckmarkAnimationScreen(
-      {Key? key,
-      required this.topic,
-      required this.firestore,
-      required this.auth,
-      required this.storage})
-      : super(key: key);
-
   @override
   _CheckmarkAnimationScreenState createState() =>
       _CheckmarkAnimationScreenState();

@@ -62,15 +62,15 @@ void main() async {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Patient'));
     int maxScrollAttempts = 5;
-    bool found = false;
+
     for (int i = 0; i < maxScrollAttempts; i++) {
       if (tester.any(find.text('Gym'))) {
-        found = true;
         break;
       }
       await tester.scrollUntilVisible(
           find.text('Gym'), 100); // Scroll down by 100 pixels
     }
+
     await tester.pumpAndSettle();
     await tester.tap(find.text('Gym'));
 
@@ -154,38 +154,32 @@ void main() async {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Patient'));
     int maxScrollAttempts = 5;
-    bool found = false;
+
     for (int i = 0; i < maxScrollAttempts; i++) {
       if (tester.any(find.text('Gym'))) {
-        found = true;
         break;
       }
       await tester.scrollUntilVisible(
           find.text('Gym'), 100); // Scroll down by 100 pixels
-      found = false;
     }
     await tester.tap(find.text('Gym'));
 
     for (int i = 0; i < maxScrollAttempts; i++) {
       if (tester.any(find.text('School'))) {
-        found = true;
         break;
       }
       await tester.scrollUntilVisible(
           find.text('School'), 100); // Scroll down by 100 pixels
-      found = false;
     }
     await tester.pumpAndSettle();
     await tester.tap(find.text('School'));
 
     for (int i = 0; i < maxScrollAttempts; i++) {
       if (tester.any(find.text('Smoking'))) {
-        found = true;
         break;
       }
       await tester.scrollUntilVisible(
           find.text('Smoking'), 100); // Scroll down by 100 pixels
-      found = false;
     }
     await tester.pumpAndSettle();
     await tester.tap(find.text('Smoking'));
@@ -1234,7 +1228,8 @@ void main() async {
             'It should be in the portrait view after the fullscreen actions done');
   });
 
-  testWidgets('Topic with valid fields updates', (WidgetTester tester) async {
+  testWidgets('edited topic with valid fields updates',
+      (WidgetTester tester) async {
     CollectionReference topicCollectionRef;
     QuerySnapshot data;
 
@@ -1332,7 +1327,7 @@ void main() async {
       await Future.delayed(const Duration(milliseconds: 100));
     }
 
-    final updateButtonFinder = find.text('PUBLISH TOPIC');
+    final updateButtonFinder = find.text('UPDATE TOPIC');
 
     await tester.ensureVisible(updateButtonFinder);
 
@@ -1371,7 +1366,7 @@ void main() async {
     );
   });
 
-  testWidgets('Test back button navigates to View Topic screen',
+  testWidgets('Test back button on edit topic navigates to View Topic screen',
       (WidgetTester tester) async {
     MockFirebaseStorage mockStorage = MockFirebaseStorage();
     CollectionReference topicCollectionRef;
@@ -1666,7 +1661,7 @@ void main() async {
         break;
       }
 
-      if (DateTime.now().difference(startTime).inSeconds > 1800) {
+      if (DateTime.now().difference(startTime2).inSeconds > 1800) {
         fail('Timed out waiting for the "Change Media" text to appear');
       }
       await Future.delayed(const Duration(milliseconds: 100));
@@ -1829,12 +1824,205 @@ void main() async {
       await Future.delayed(const Duration(milliseconds: 100));
     }
 
-    await tester.ensureVisible(find.text('PUBLISH TOPIC'));
+    await tester.ensureVisible(find.text('UPDATE TOPIC'));
 
-    await tester.tap(find.text('PUBLISH TOPIC'));
+    await tester.tap(find.text('UPDATE TOPIC'));
 
     await tester.pumpAndSettle();
     final ListResult result = await mockStorage.ref().child('media').listAll();
     expect(result.items.length, 1);
+  });
+
+  testWidgets('drafted topic with valid fields and image is created',
+      (WidgetTester tester) async {
+    CollectionReference draftCollectionRef;
+    QuerySnapshot data;
+
+    draftCollectionRef = firestore.collection('topicDrafts');
+    auth =
+        MockFirebaseAuth(signedIn: true, mockUser: MockUser(uid: 'adminUser'));
+
+    firestore.collection('Users').doc('adminUser').set({
+      'name': 'John Doe',
+      'email': 'john@example.com',
+      'roleType': 'admin',
+      'likedTopics': [],
+      'dislikedTopics': [],
+    });
+
+    await draftCollectionRef.add({
+      'title': 'Test Topic',
+      'description': 'Test Description',
+      'articleLink': '',
+      'media': [
+        {'url': 'http://via.placeholder.com/350x150', 'mediaType': 'image'}
+      ],
+      'tags': ['Patient'],
+      'likes': 0,
+      'views': 0,
+      'dislikes': 0,
+      'categories': ['Sports'],
+      'date': DateTime.now()
+    });
+
+    data = await draftCollectionRef.orderBy('title').get();
+    MockFirebaseStorage mockStorage = MockFirebaseStorage();
+
+    await tester.pumpWidget(MaterialApp(
+      home: CreateTopicScreen(
+        draft: data.docs[0] as QueryDocumentSnapshot<Object>,
+        auth: auth,
+        firestore: firestore,
+        storage: mockStorage,
+      ),
+    ));
+
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+        find.byKey(const Key('titleField')), 'Updated title');
+
+    await tester.enterText(
+        find.byKey(const Key('descField')), 'Updated description');
+
+    await tester.enterText(find.byKey(const Key('linkField')),
+        'https://www.health.org.uk/publications/journal-articles');
+
+    final publishButtonFinder = find.text('PUBLISH TOPIC');
+
+    await tester.ensureVisible(publishButtonFinder);
+
+    await tester.tap(publishButtonFinder);
+
+    await tester.pump();
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+
+    final QuerySnapshot<Map<String, dynamic>> querySnapshot =
+        await firestore.collection("topics").get();
+
+    final List<DocumentSnapshot<Map<String, dynamic>>> documents =
+        querySnapshot.docs;
+
+    expect(
+      documents.any(
+        (doc) => doc.data()?['title'] == 'Updated title',
+      ),
+      isTrue,
+    );
+
+    expect(
+      documents.any(
+        (doc) => doc.data()?['description'] == 'Updated description',
+      ),
+      isTrue,
+    );
+
+    expect(
+      documents.any(
+        (doc) =>
+            doc.data()?['articleLink'] ==
+            'https://www.health.org.uk/publications/journal-articles',
+      ),
+      isTrue,
+    );
+  });
+
+  testWidgets('drafted topic with valid fields and video is created',
+      (WidgetTester tester) async {
+    CollectionReference draftCollectionRef;
+
+    QuerySnapshot data;
+
+    draftCollectionRef = firestore.collection('topicDrafts');
+
+    auth =
+        MockFirebaseAuth(signedIn: true, mockUser: MockUser(uid: 'adminUser'));
+
+    firestore.collection('Users').doc('adminUser').set({
+      'name': 'John Doe',
+      'email': 'john@example.com',
+      'roleType': 'admin',
+      'likedTopics': [],
+      'dislikedTopics': [],
+    });
+
+    await draftCollectionRef.add({
+      'title': 'Test Topic',
+      'description': 'Test Description',
+      'articleLink': '',
+      'media': [
+        {
+          'url':
+              'https://firebasestorage.googleapis.com/v0/b/team-todo-38f76.appspot.com/o/videos%2F2024-02-27%2022%3A09%3A02.035911.mp4?alt=media&token=ea6b51e9-9e9f-4d2e-a014-64fc3631e321',
+          'mediaType': 'video'
+        }
+      ],
+      'tags': ['Patient'],
+      'likes': 0,
+      'views': 0,
+      'dislikes': 0,
+      'categories': ['Sports'],
+      'date': DateTime.now()
+    });
+
+    data = await draftCollectionRef.orderBy('title').get();
+    MockFirebaseStorage mockStorage = MockFirebaseStorage();
+
+    await tester.pumpWidget(MaterialApp(
+      home: CreateTopicScreen(
+        draft: data.docs[0] as QueryDocumentSnapshot<Object>,
+        auth: auth,
+        firestore: firestore,
+        storage: mockStorage,
+      ),
+    ));
+
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+        find.byKey(const Key('titleField')), 'Updated title');
+
+    await tester.enterText(
+        find.byKey(const Key('descField')), 'Updated description');
+
+    await tester.enterText(find.byKey(const Key('linkField')),
+        'https://www.health.org.uk/publications/journal-articles');
+
+    final publishButtonFinder = find.text('PUBLISH TOPIC');
+
+    await tester.ensureVisible(publishButtonFinder);
+
+    await tester.tap(publishButtonFinder);
+
+    await tester.pumpAndSettle();
+
+    final QuerySnapshot<Map<String, dynamic>> querySnapshot =
+        await firestore.collection("topics").get();
+
+    final List<DocumentSnapshot<Map<String, dynamic>>> documents =
+        querySnapshot.docs;
+
+    expect(
+      documents.any(
+        (doc) => doc.data()?['title'] == 'Updated title',
+      ),
+      isTrue,
+    );
+
+    expect(
+      documents.any(
+        (doc) => doc.data()?['description'] == 'Updated description',
+      ),
+      isTrue,
+    );
+
+    expect(
+      documents.any(
+        (doc) =>
+            doc.data()?['articleLink'] ==
+            'https://www.health.org.uk/publications/journal-articles',
+      ),
+      isTrue,
+    );
   });
 }
