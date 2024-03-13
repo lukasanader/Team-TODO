@@ -12,7 +12,6 @@ void main() {
   late MockFirebaseStorage storage;
   late CollectionReference topicsCollectionRef;
   late Widget discoveryViewWidget;
-
   setUp(() {
     firestore = FakeFirebaseFirestore();
     auth = MockFirebaseAuth();
@@ -24,24 +23,44 @@ void main() {
       'description': 'this is a test',
       'articleLink': '',
       'videoUrl': '',
+      'views':1,
+      'date': DateTime.now(),
+      'likes': 0,
+      'dislikes': 0,
+      'tags': ['Patient']
     });
     topicsCollectionRef.add({
       'title': 'D test',
       'description': 'this is a test',
       'articleLink': '',
       'videoUrl': '',
+      'views':1,
+      'date': DateTime.now(),
+      'likes': 0,
+      'dislikes': 0,
+      'tags': ['Patient']
     });
     topicsCollectionRef.add({
       'title': 'A test',
       'description': 'this is a test',
       'articleLink': '',
       'videoUrl': '',
+      'views':1,
+      'date': DateTime.now(),
+      'likes': 0,
+      'dislikes': 0,
+      'tags': ['Patient']
     });
     topicsCollectionRef.add({
       'title': 'C test',
       'description': 'this is a test',
       'articleLink': '',
       'videoUrl': '',
+      'views':1,
+      'date': DateTime.now(),
+      'likes': 0,
+      'dislikes': 0,
+      'tags': ['Patient']
     });
 
     discoveryViewWidget = MaterialApp(

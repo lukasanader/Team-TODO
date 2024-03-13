@@ -38,6 +38,7 @@ void main() {
       'date': DateTime.now(),
       'likes': 0,
       'dislikes': 0,
+      'tags' : ['Patient']
     });
     topicCollectionRef.add({
       'title': 'test 2',
@@ -48,6 +49,7 @@ void main() {
       'date': DateTime.now(),
       'likes': 0,
       'dislikes': 0,
+      'tags': ['Patient']
     });
     topicCollectionRef.add({
       'title': 'test 3',
@@ -58,6 +60,7 @@ void main() {
       'date': DateTime.now(),
       'likes': 0,
       'dislikes': 0,
+      'tags': ['Patient']
     });
 
     trendingTopicWidget = MaterialApp(
@@ -92,6 +95,15 @@ void main() {
   testWidgets('Shows only first 6 trending topics',
       (WidgetTester tester) async {
     // Build your widget
+    await auth.createUserWithEmailAndPassword(email: 'test@tested.org', password: 'Password123!');
+    String uid = auth.currentUser!.uid;
+    await firestore.collection('Users').doc(uid).set({
+        'email': 'test@tested.org',
+        'firstName' : 'James',
+        'lastName' : 'Doe',
+        'roleType' : 'Patient'
+        });
+    await auth.signInWithEmailAndPassword(email: 'test@tested.org', password: 'Password123!');
     CollectionReference topicCollectionRef = firestore.collection('topics');
     topicCollectionRef.add({
       'title': 'test 4',
@@ -102,6 +114,7 @@ void main() {
       'date': DateTime.now(),
       'likes': 0,
       'dislikes': 0,
+      'tags': ['Patient']
     });
     topicCollectionRef.add({
       'title': 'test 5',
@@ -112,6 +125,7 @@ void main() {
       'date': DateTime.now(),
       'likes': 0,
       'dislikes': 0,
+      'tags': ['Patient']
     });
     topicCollectionRef.add({
       'title': 'test 6',
@@ -122,6 +136,7 @@ void main() {
       'date': DateTime.now(),
       'likes': 0,
       'dislikes': 0,
+      'tags': ['Patient']
     });
     topicCollectionRef.add({
       'title': 'test 7',
@@ -132,6 +147,7 @@ void main() {
       'date': DateTime.now(),
       'likes': 0,
       'dislikes': 0,
+      'tags': ['Patient']
     });
 
     await tester.pumpWidget(trendingTopicWidget);
@@ -226,5 +242,83 @@ void main() {
 
       expect(find.byType(WebinarView), findsOne);
       });
+
+  testWidgets('Topics with the same tag as user role are shown',
+      (WidgetTester tester) async {
+    // Build your widget
+    await auth.createUserWithEmailAndPassword(email: 'test@tested.org', password: 'Password123!');
+    String uid = auth.currentUser!.uid;
+    await firestore.collection('Users').doc(uid).set({
+        'email': 'test@tested.org',
+        'firstName' : 'James',
+        'lastName' : 'Doe',
+        'roleType' : 'Patient'
+        });
+    await auth.signInWithEmailAndPassword(email: 'test@tested.org', password: 'Password123!');
+    CollectionReference topicCollectionRef = firestore.collection('topics');
+    topicCollectionRef.add({
+      'title': 'test 4',
+      'description': 'this is a test',
+      'articleLink': '',
+      'videoUrl': '',
+      'views': 5,
+      'date': DateTime.now(),
+      'likes': 0,
+      'dislikes': 0,
+      'tags': ['Patient']
+    });
+    topicCollectionRef.add({
+      'title': 'test 5',
+      'description': 'this is a test',
+      'articleLink': '',
+      'videoUrl': '',
+      'views': 4,
+      'date': DateTime.now(),
+      'likes': 0,
+      'dislikes': 0,
+      'tags': ['Parent']
+    });
+    topicCollectionRef.add({
+      'title': 'test 6',
+      'description': 'this is a test',
+      'articleLink': '',
+      'videoUrl': '',
+      'views': 3,
+      'date': DateTime.now(),
+      'likes': 0,
+      'dislikes': 0,
+      'tags': ['Patient']
+    });
+    topicCollectionRef.add({
+      'title': 'test 7',
+      'description': 'this is a test',
+      'articleLink': '',
+      'videoUrl': '',
+      'views': 1,
+      'date': DateTime.now(),
+      'likes': 0,
+      'dislikes': 0,
+      'tags': ['Patient']
+    });
+
+    await tester.pumpWidget(trendingTopicWidget);
+    await tester.pumpAndSettle();
+
+    // Tap into the ListView
+    Finder listViewFinder = find.byType(ListView);
+    expect(listViewFinder, findsOneWidget);
+
+    // Get the list of cards
+    Finder cardFinder = find.byType(Card);
+    expect(cardFinder, findsNWidgets(6));
+
+    final textFinders = find.byType(Text);
+
+    // Check that test 6 is seen but test 5 is not
+    expect((textFinders.at(5).evaluate().single.widget as Text).data, 'test 6');
+    expect(find.text('test 5'), findsNothing);
+    
+});
+
 
 }
