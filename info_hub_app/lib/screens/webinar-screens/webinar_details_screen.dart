@@ -4,6 +4,7 @@ import 'package:info_hub_app/models/user_model.dart';
 import 'package:info_hub_app/screens/webinar-screens/chat.dart';
 import 'package:info_hub_app/services/database_service.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
+import 'package:flutter/services.dart';
 
 // Displays base broadcasting screen
 class BroadcastScreen extends StatefulWidget {
@@ -37,6 +38,11 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
   @override
   void initState() {
     super.initState();
+    super.initState();
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
     participants.add(widget.currentUser.uid);
     modifiedURL = YoutubePlayer.convertUrlToId(widget.youtubeURL);
     _controller = YoutubePlayerController(
@@ -47,11 +53,25 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
         disableDragSeek: false,
         isLive: true,
         forceHD: true,
-        enableCaption: true,
+        enableCaption: false,
+        showLiveFullscreenButton: false,
       ),
     )..addListener(listener);
     _videoMetaData = const YoutubeMetaData();
     _playerState = PlayerState.unknown;  
+  }
+
+  @override
+  void deactivate() {
+    // Pauses video while navigating to next page.
+    _controller.pause();
+    super.deactivate();
+  }
+
+  @override
+  void dispose() {
+    _leaveChannel();
+    super.dispose();
   }
 
   void listener() {
@@ -63,22 +83,14 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
     }
   }
   
-  @override
-  void deactivate() {
-    // Pauses video while navigating to next page.
-    _controller.pause();
-    super.deactivate();
-  }
+
 
   /* initates leaving sequence. If user is webinar lead, the stream is ended and everybody is removed
   If they are merely a member watching, they will exit the screen
   */
   _leaveChannel() async {
-    if (widget.currentUser.uid == widget.webinarID) {
-      await DatabaseService(firestore: widget.firestore).endLiveStream(widget.webinarID);
-    } else {
-      await DatabaseService(firestore: widget.firestore).updateViewCount(widget.webinarID, false);
-    }
+    participants.remove(widget.currentUser.uid);
+    await DatabaseService(firestore: widget.firestore).updateViewCount(widget.webinarID, false);
   }
 
   void _showGuideDialog() {
@@ -161,17 +173,26 @@ Widget build(BuildContext context) {
         children: [
           Center(
             child: SizedBox(
-              width: 300,
-              height: 250,
+              width: double.infinity,
+              height:250,
               child: Column(
                 children: [
                   YoutubePlayer(
                     controller: _controller,
                     showVideoProgressIndicator: true,
-                    progressIndicatorColor: Colors.blueAccent,
+                    progressIndicatorColor: Colors.redAccent,
                   ),
                 ],
               ),
+            ),
+          ),
+          Text(
+            "${participants.length} watching",
+            style: const TextStyle(
+              fontSize: 12,
+              fontFamily: 'Roboto', 
+              color: Colors.grey,
+              fontStyle: FontStyle.italic,
             ),
           ),
           Expanded(
