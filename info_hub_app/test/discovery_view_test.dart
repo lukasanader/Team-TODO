@@ -57,21 +57,6 @@ void main() {
     expect(find.widgetWithIcon(IconButton, Icons.search), findsOneWidget);
   });
 
-  /*
-  testWidgets('DiscoveryView back button pops user out of search screen', (WidgetTester tester) async {
-    await tester.pumpWidget(discoveryViewWidget);
-
-    expect(find.byWidget(discoveryViewWidget), findsOneWidget);
-
-    final backButton = find.widgetWithIcon(IconButton, Icons.arrow_back);
-
-    await tester.tap(backButton);
-    await tester.pumpAndSettle();
-
-    expect(find.byWidget(discoveryViewWidget), findsNothing);
-
-  });
-  */
 
   testWidgets('DiscoveryView search button does nothing (is null)',
       (WidgetTester tester) async {
@@ -163,6 +148,258 @@ void main() {
     expect((textFinders.at(1).evaluate().single.widget as Text).data, 'B test');
     expect((textFinders.at(2).evaluate().single.widget as Text).data, 'C test');
     expect((textFinders.at(3).evaluate().single.widget as Text).data, 'D test');
+  });
+
+
+
+  testWidgets(
+      'DiscoveryView will display categories as toggle buttons',
+      (WidgetTester tester) async {
+    
+    await firestore
+      .collection('categories')
+      .add({
+        'name' : 'Gym'});
+    await firestore
+      .collection('categories')
+      .add({
+        'name' : 'School'});
+    await firestore
+      .collection('categories')
+      .add({
+        'name' : 'Smoking'});
+
+
+    await tester.pumpWidget(discoveryViewWidget);
+    await tester.pumpAndSettle();
+
+    await tester.ensureVisible(find.text('Gym'));
+    await tester.pumpAndSettle();
+    expect(find.text('Gym'), findsOneWidget);
+
+    await tester.ensureVisible(find.text('School'));
+    await tester.pumpAndSettle();
+    expect(find.text('School'), findsOneWidget);
+
+    await tester.ensureVisible(find.text('Smoking'));
+    await tester.pumpAndSettle();
+    expect(find.text('Smoking'), findsOneWidget);
+  });
+
+  testWidgets(
+      'DiscoveryView will display topics specific to one category',
+      (WidgetTester tester) async {
+    
+    await firestore
+      .collection('categories')
+      .add({
+        'name' : 'Gym'});
+    await firestore
+      .collection('categories')
+      .add({
+        'name' : 'School'});
+    await firestore
+      .collection('categories')
+      .add({
+        'name' : 'Smoking'});
+
+    topicsCollectionRef.add({
+      'title': 'Gym topic should only show',
+      'description': 'this is a test',
+      'articleLink': '',
+      'videoUrl': '',
+      'categories' : ['Gym']
+    });
+
+    topicsCollectionRef.add({
+      'title': 'Gym topic should only show 2',
+      'description': 'this is a test',
+      'articleLink': '',
+      'videoUrl': '',
+      'categories' : ['Gym']
+    });
+
+    await tester.pumpWidget(discoveryViewWidget);
+    await tester.pumpAndSettle();
+
+    await tester.ensureVisible(find.text('Gym'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Gym'));
+    await tester.pumpAndSettle();
+
+    Finder cardFinder = find.byType(Card);
+    expect(cardFinder, findsNWidgets(2));
+
+    
+    expect(find.text('Gym topic should only show'), findsOneWidget);
+    expect(find.text('Gym topic should only show 2'), findsOneWidget);
+
+  });
+
+  testWidgets(
+      'Tapping the filters twice will turn it off',
+      (WidgetTester tester) async {
+    
+    await firestore
+      .collection('categories')
+      .add({
+        'name' : 'Gym'});
+    await firestore
+      .collection('categories')
+      .add({
+        'name' : 'School'});
+    await firestore
+      .collection('categories')
+      .add({
+        'name' : 'Smoking'});
+
+    topicsCollectionRef.add({
+      'title': 'Gym topic should only show',
+      'description': 'this is a test',
+      'articleLink': '',
+      'videoUrl': '',
+      'categories' : ['Gym']
+    });
+
+    topicsCollectionRef.add({
+      'title': 'Gym topic should only show 2',
+      'description': 'this is a test',
+      'articleLink': '',
+      'videoUrl': '',
+      'categories' : ['Gym']
+    });
+
+    await tester.pumpWidget(discoveryViewWidget);
+    await tester.pumpAndSettle();
+
+    await tester.ensureVisible(find.text('Gym'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Gym'));
+    await tester.pumpAndSettle();
+
+    //filters to two
+    Finder cardFinder = find.byType(Card);
+    expect(cardFinder, findsNWidgets(2));
+
+    //pressing filter again
+    await tester.tap(find.text('Gym'));
+    await tester.pumpAndSettle();
+
+    //all topics are now visible as filter is off
+    expect(cardFinder, findsNWidgets(6));
+
+  });
+
+  testWidgets(
+      'DiscoveryView will display topics based on multiple filters',
+      (WidgetTester tester) async {
+    
+    await firestore
+      .collection('categories')
+      .add({
+        'name' : 'Gym'});
+    await firestore
+      .collection('categories')
+      .add({
+        'name' : 'School'});
+    await firestore
+      .collection('categories')
+      .add({
+        'name' : 'Smoking'});
+
+    topicsCollectionRef.add({
+      'title': 'Gym topic should only show',
+      'description': 'this is a test',
+      'articleLink': '',
+      'videoUrl': '',
+      'categories' : ['Gym']
+    });
+
+    topicsCollectionRef.add({
+      'title': 'Gym and smoking',
+      'description': 'this is a test',
+      'articleLink': '',
+      'videoUrl': '',
+      'categories' : ['Gym', 'Smoking']
+    });
+
+    await tester.pumpWidget(discoveryViewWidget);
+    await tester.pumpAndSettle();
+
+    await tester.ensureVisible(find.text('Gym'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Gym'));
+    await tester.pumpAndSettle();
+
+    await tester.ensureVisible(find.text('Smoking'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Smoking'));
+    await tester.pumpAndSettle();
+
+    Finder cardFinder = find.byType(Card);
+    expect(cardFinder, findsNWidgets(1));
+
+    
+    expect(find.text('Gym and smoking'), findsOneWidget);
+  });
+
+  testWidgets(
+      'DiscoveryView will display topics based on filter and search',
+      (WidgetTester tester) async {
+    
+    await firestore
+      .collection('categories')
+      .add({
+        'name' : 'Gym'});
+    await firestore
+      .collection('categories')
+      .add({
+        'name' : 'School'});
+    await firestore
+      .collection('categories')
+      .add({
+        'name' : 'Smoking'});
+
+    topicsCollectionRef.add({
+      'title': 'Smoking topic',
+      'description': 'this is a test',
+      'articleLink': '',
+      'videoUrl': '',
+      'categories' : ['Smoking']
+    });
+
+    topicsCollectionRef.add({
+      'title': 'Smoking topic with specific title',
+      'description': 'this is a test',
+      'articleLink': '',
+      'videoUrl': '',
+      'categories' : ['Smoking']
+    });
+
+    await tester.pumpWidget(discoveryViewWidget);
+    await tester.pumpAndSettle();
+
+    await tester.ensureVisible(find.text('Smoking'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Smoking'));
+    await tester.pumpAndSettle();
+
+    //expecting both topics to show
+    Finder cardFinder = find.byType(Card);
+    expect(cardFinder, findsNWidgets(2));
+
+    final searchTextField = find.byType(TextField);
+
+    await tester.enterText(searchTextField, 'specific');
+    await tester.pump();
+
+    //smoking topic should be gone
+    expect(cardFinder, findsNWidgets(1));
+
+    expect(find.text('Smoking topic'), findsNothing);    
+    expect(find.text('Smoking topic with specific title'), findsOneWidget);
   });
 
   testWidgets('Show Post Dialog Test', (WidgetTester tester) async {

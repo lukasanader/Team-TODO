@@ -11,9 +11,10 @@ import 'package:info_hub_app/discovery_view/discovery_view.dart';
 import 'package:info_hub_app/settings/settings_view.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:info_hub_app/home_page/home_page.dart';
+import 'package:info_hub_app/admin/admin_dash.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
-class Base extends StatelessWidget {
+class Base extends StatefulWidget {
   FirebaseAuth auth;
   FirebaseFirestore firestore;
   FirebaseStorage storage;
@@ -24,26 +25,81 @@ class Base extends StatelessWidget {
       required this.firestore});
 
   @override
+  State<Base> createState() => _BaseState();
+}
+
+class _BaseState extends State<Base> {
+  String currentUserRoleType = '';
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    getCurrentUserRoleType();
+  }
+
+  Future<void> getCurrentUserRoleType() async{
+    User? user = widget.auth.currentUser;
+    if (user != null) {
+      DocumentSnapshot snapshot = await widget.firestore
+          .collection('Users')
+          .doc(user.uid)
+          .get();
+      
+      setState(() {
+        currentUserRoleType = snapshot['roleType'];
+      });
+    }
+  }
+
+  List<Widget> getScreenBasedOnUser() {
+    if (currentUserRoleType == 'admin') {
+      return [
+        AdminHomepage(
+          auth: widget.auth,
+          storage: widget.storage,
+          firestore: widget.firestore,
+        ),
+        DiscoveryView(
+          auth: widget.auth,
+          storage: widget.storage,
+          firestore: widget.firestore,
+        ), 
+        SettingsView(
+          auth: widget.auth,
+          firestore: widget.firestore,
+          storage: widget.storage,
+        ), 
+      ];
+    }
+    else {
+      return [
+        HomePage(
+          auth: widget.auth,
+          storage: widget.storage,
+          firestore: widget.firestore,
+        ),
+        DiscoveryView(
+          auth: widget.auth,
+          storage: widget.storage,
+          firestore: widget.firestore,
+        ), 
+        SettingsView(
+          auth: widget.auth,
+          firestore: widget.firestore,
+          storage: widget.storage,
+        ), 
+      ];
+    }
+  }
+
+
+
+  @override
   Widget build(BuildContext context) {
     // Bottom Navigation Bar
     List<Widget> buildScreens() {
-      return [
-        HomePage(
-          auth: auth,
-          storage: storage,
-          firestore: firestore,
-        ),
-        DiscoveryView(
-          auth: auth,
-          storage: storage,
-          firestore: firestore,
-        ), // Should be replaced with the genuine page
-        SettingsView(
-          auth: auth,
-          firestore: firestore,
-          storage: storage,
-        ), // Should be replaced with the genuine page
-      ];
+      List<Widget> screens = getScreenBasedOnUser();
+      return screens;
     }
 
     // Styling for Bottom Navigation Bar

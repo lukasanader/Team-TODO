@@ -15,8 +15,8 @@ class _WebinarViewState extends State<WebinarView> {
       appBar: AppBar(
         title: const Text("Webinars"),
       ),
-      body: 1 == 1
-      ? SingleChildScrollView(
+      body: 
+      SingleChildScrollView(
         child: Column(
           children: [
             const Text("Currently Live"),
@@ -105,25 +105,6 @@ class _WebinarViewState extends State<WebinarView> {
             ),
           ],
         ),
-      )
-      : SafeArea(
-          child: Column(
-            children: [
-              const Text("Upcoming Webinars"),
-              const SizedBox(
-                height: 20),
-              Expanded(
-                child: ListView.builder(
-                itemCount: 5,
-                itemBuilder: (context, index) {
-                  return Card(
-                    child: Text(index.toString()),
-                  );
-                }
-              ),
-            ),
-          ],
-        ) 
       )
     );
   }
