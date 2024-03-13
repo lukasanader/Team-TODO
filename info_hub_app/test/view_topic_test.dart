@@ -11,7 +11,7 @@ import 'package:url_launcher_platform_interface/url_launcher_platform_interface.
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:info_hub_app/helpers/mock_classes.dart';
+import 'mock_classes.dart';
 import 'package:info_hub_app/helpers/base.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:info_hub_app/threads/threads.dart';
@@ -86,6 +86,7 @@ void main() {
       'views': 0,
       'quizId': "",
       'dislikes': 0,
+      'categories': ['Sports'],
       'date': DateTime.now()
     });
 
@@ -134,6 +135,7 @@ void main() {
       'views': 0,
       'quizId': "",
       'dislikes': 0,
+      'categories': ['Sports'],
       'date': DateTime.now()
     });
 
@@ -186,6 +188,7 @@ void main() {
       'views': 0,
       'quizId': "",
       'dislikes': 0,
+      'categories': ['Sports'],
       'date': DateTime.now()
     });
 
@@ -251,6 +254,7 @@ void main() {
       'views': 0,
       'quizId': "",
       'dislikes': 0,
+      'categories': ['Sports'],
       'date': DateTime.now()
     });
 
@@ -313,6 +317,7 @@ void main() {
       'views': 0,
       'quizId': "",
       'dislikes': 0,
+      'categories': ['Sports'],
       'date': DateTime.now()
     });
 
@@ -383,6 +388,7 @@ void main() {
       'views': 0,
       'quizId': "",
       'dislikes': 0,
+      'categories': ['Sports'],
       'date': DateTime.now()
     });
 
@@ -423,6 +429,7 @@ void main() {
       'views': 0,
       'quizId': "",
       'dislikes': 0,
+      'categories': ['Sports'],
       'date': DateTime.now()
     });
 
@@ -471,6 +478,7 @@ void main() {
       'quizId': "",
       'tags': ['Patient'],
       'dislikes': 0,
+      'categories': ['Sports'],
       'date': DateTime.now()
     });
 
@@ -518,6 +526,7 @@ void main() {
       'quizId': "",
       'tags': ['Patient'],
       'dislikes': 0,
+      'categories': ['Sports'],
       'date': DateTime.now()
     });
 
@@ -583,6 +592,7 @@ void main() {
       'quizId': "",
       'tags': ['Patient'],
       'dislikes': 0,
+      'categories': ['Sports'],
       'date': DateTime.now()
     });
 
@@ -643,6 +653,7 @@ void main() {
       'quizId': "",
       'tags': ['Patient'],
       'dislikes': 0,
+      'categories': ['Sports'],
       'date': DateTime.now()
     });
 
@@ -700,6 +711,7 @@ void main() {
       'views': 0,
       'quizId': "",
       'dislikes': 0,
+      'categories': ['Sports'],
       'date': DateTime.now()
     });
 
@@ -751,6 +763,7 @@ void main() {
       'quizId': "",
       'tags': ['Patient'],
       'dislikes': 0,
+      'categories': ['Sports'],
       'date': DateTime.now()
     });
 
@@ -809,6 +822,7 @@ void main() {
       'quizId': "",
       'tags': ['Patient'],
       'dislikes': 0,
+      'categories': ['Sports'],
       'date': DateTime.now()
     });
 
@@ -846,12 +860,6 @@ void main() {
 
   testWidgets('Non-Admin user cannot see delete topic button',
       (WidgetTester tester) async {
-    final MockUser mockUser = MockUser(
-      isAnonymous: false,
-      uid: 'user123',
-      email: 'test@example.com',
-    );
-
     CollectionReference topicCollectionRef = firestore.collection('topics');
 
     await topicCollectionRef.add({
@@ -864,6 +872,7 @@ void main() {
       'quizId': "",
       'tags': ['Patient'],
       'dislikes': 0,
+      'categories': ['Sports'],
       'date': DateTime.now()
     });
 
@@ -905,6 +914,7 @@ void main() {
       'quizId': "",
       'tags': ['Patient'],
       'dislikes': 0,
+      'categories': ['Sports'],
       'date': DateTime.now()
     });
 
@@ -963,6 +973,7 @@ void main() {
       'views': 0,
       'quizId': "",
       'dislikes': 0,
+      'categories': ['Sports'],
       'date': DateTime.now()
     });
 
@@ -1015,6 +1026,7 @@ void main() {
       'views': 0,
       'quizId': "",
       'dislikes': 0,
+      'categories': ['Sports'],
       'date': DateTime.now()
     });
 
@@ -1087,6 +1099,7 @@ void main() {
       'views': 0,
       'quizId': "",
       'dislikes': 0,
+      'categories': ['Sports'],
       'date': DateTime.now()
     });
 
@@ -1157,6 +1170,7 @@ void main() {
       'views': 0,
       'quizId': "",
       'dislikes': 0,
+      'categories': ['Sports'],
       'date': DateTime.now()
     });
 
@@ -1201,6 +1215,7 @@ void main() {
       'views': 0,
       'quizId': "",
       'dislikes': 0,
+      'categories': ['Sports'],
       'date': DateTime.now()
     });
 

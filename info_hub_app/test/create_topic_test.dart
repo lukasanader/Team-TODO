@@ -1,11 +1,8 @@
-import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:info_hub_app/topics/create_topic.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:integration_test/integration_test.dart';
@@ -13,7 +10,7 @@ import 'package:chewie/chewie.dart';
 import 'package:video_player_platform_interface/video_player_platform_interface.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
-import 'package:info_hub_app/helpers/mock_classes.dart';
+import 'mock_classes.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:info_hub_app/topics/view_topic.dart';
 import 'package:mocktail_image_network/mocktail_image_network.dart';
@@ -25,9 +22,17 @@ void main() async {
 
   setUp(() {
     mockFilePicker();
+
+    firestore = FakeFirebaseFirestore();
+
+    final fakeVideoPlayerPlatform = FakeVideoPlayerPlatform();
+
+    VideoPlayerPlatform.instance = fakeVideoPlayerPlatform;
+  });
+  testWidgets('Topic with title,description and tag save',
+      (WidgetTester tester) async {
     auth =
         MockFirebaseAuth(signedIn: true, mockUser: MockUser(uid: 'adminUser'));
-    firestore = FakeFirebaseFirestore();
 
     firestore.collection('Users').doc('adminUser').set({
       'name': 'John Doe',
@@ -36,16 +41,13 @@ void main() async {
       'likedTopics': [],
       'dislikedTopics': [],
     });
-
-    final fakeVideoPlayerPlatform = FakeVideoPlayerPlatform();
-
-    VideoPlayerPlatform.instance = fakeVideoPlayerPlatform;
-  });
-  testWidgets('Topic with title,description and tag save',
-      (WidgetTester tester) async {
     MockFirebaseStorage mockStorage = MockFirebaseStorage();
+
+    await firestore.collection('categories').add({'name': 'Gym'});
+
     await tester.pumpWidget(MaterialApp(
       home: CreateTopicScreen(
+        auth: auth,
         firestore: firestore,
         storage: mockStorage,
       ),
@@ -59,6 +61,18 @@ void main() async {
     await tester.ensureVisible(find.text('Patient'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Patient'));
+    int maxScrollAttempts = 5;
+    bool found = false;
+    for (int i = 0; i < maxScrollAttempts; i++) {
+      if (tester.any(find.text('Gym'))) {
+        found = true;
+        break;
+      }
+      await tester.scrollUntilVisible(
+          find.text('Gym'), 100); // Scroll down by 100 pixels
+    }
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Gym'));
 
     await tester.ensureVisible(find.text('PUBLISH TOPIC'));
 
@@ -95,13 +109,392 @@ void main() async {
       isTrue,
     );
 
+    expect(
+      documents.any(
+        (doc) =>
+            (doc.data()?['categories'] as List).contains('Gym') &&
+            (doc.data()?['categories'] as List).length == 1,
+      ),
+      isTrue,
+    );
+
     expect(documents.length, 1);
+  });
+
+  testWidgets('Topic with title,description and multiple category save',
+      (WidgetTester tester) async {
+    final firestore = FakeFirebaseFirestore();
+    final mockStorage = MockFirebaseStorage();
+    auth =
+        MockFirebaseAuth(signedIn: true, mockUser: MockUser(uid: 'adminUser'));
+
+    firestore.collection('Users').doc('adminUser').set({
+      'name': 'John Doe',
+      'email': 'john@example.com',
+      'roleType': 'admin',
+      'likedTopics': [],
+      'dislikedTopics': [],
+    });
+
+    await firestore.collection('categories').add({'name': 'Gym'});
+    await firestore.collection('categories').add({'name': 'Smoking'});
+    await firestore.collection('categories').add({'name': 'School'});
+
+    await tester.pumpWidget(MaterialApp(
+      home: CreateTopicScreen(
+          firestore: firestore, storage: mockStorage, auth: auth),
+    ));
+
+    await tester.enterText(find.byKey(const Key('titleField')), 'Test title');
+
+    await tester.enterText(
+        find.byKey(const Key('descField')), 'Test description');
+
+    await tester.ensureVisible(find.text('Patient'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Patient'));
+    int maxScrollAttempts = 5;
+    bool found = false;
+    for (int i = 0; i < maxScrollAttempts; i++) {
+      if (tester.any(find.text('Gym'))) {
+        found = true;
+        break;
+      }
+      await tester.scrollUntilVisible(
+          find.text('Gym'), 100); // Scroll down by 100 pixels
+      found = false;
+    }
+    await tester.tap(find.text('Gym'));
+
+    for (int i = 0; i < maxScrollAttempts; i++) {
+      if (tester.any(find.text('School'))) {
+        found = true;
+        break;
+      }
+      await tester.scrollUntilVisible(
+          find.text('School'), 100); // Scroll down by 100 pixels
+      found = false;
+    }
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('School'));
+
+    for (int i = 0; i < maxScrollAttempts; i++) {
+      if (tester.any(find.text('Smoking'))) {
+        found = true;
+        break;
+      }
+      await tester.scrollUntilVisible(
+          find.text('Smoking'), 100); // Scroll down by 100 pixels
+      found = false;
+    }
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Smoking'));
+
+    await tester.tap(find.text('PUBLISH TOPIC'));
+
+    await tester.pumpAndSettle();
+
+    final QuerySnapshot<Map<String, dynamic>> querySnapshot =
+        await firestore.collection("topics").get();
+
+    final List<DocumentSnapshot<Map<String, dynamic>>> documents =
+        querySnapshot.docs;
+
+    expect(
+      documents.any(
+        (doc) => doc.data()?['title'] == 'Test title',
+      ),
+      isTrue,
+    );
+
+    expect(
+      documents.any(
+        (doc) => doc.data()?['description'] == 'Test description',
+      ),
+      isTrue,
+    );
+
+    expect(
+      documents.any(
+        (doc) =>
+            (doc.data()?['tags'] as List).contains('Patient') &&
+            (doc.data()?['tags'] as List).length == 1,
+      ),
+      isTrue,
+    );
+
+    expect(
+      documents.any(
+        (doc) =>
+            (doc.data()?['categories'] as List).contains('Gym') &&
+            (doc.data()?['categories'] as List).contains('School') &&
+            (doc.data()?['categories'] as List).contains('Smoking') &&
+            (doc.data()?['categories'] as List).length == 3,
+      ),
+      isTrue,
+    );
+
+    expect(documents.length, 1);
+  });
+
+  testWidgets('Can create a new category', (WidgetTester tester) async {
+    final firestore = FakeFirebaseFirestore();
+    final mockStorage = MockFirebaseStorage();
+    auth =
+        MockFirebaseAuth(signedIn: true, mockUser: MockUser(uid: 'adminUser'));
+
+    firestore.collection('Users').doc('adminUser').set({
+      'name': 'John Doe',
+      'email': 'john@example.com',
+      'roleType': 'admin',
+      'likedTopics': [],
+      'dislikedTopics': [],
+    });
+
+    await tester.pumpWidget(MaterialApp(
+      home: CreateTopicScreen(
+        firestore: firestore,
+        storage: mockStorage,
+        auth: auth,
+      ),
+    ));
+
+    await tester.tap(find.byIcon(Icons.add));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byType(TextField).last, 'Gym');
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Gym'), findsOne);
+  });
+
+  testWidgets('Can create a draft', (WidgetTester tester) async {
+    final firestore = FakeFirebaseFirestore();
+    final mockStorage = MockFirebaseStorage();
+
+    auth =
+        MockFirebaseAuth(signedIn: true, mockUser: MockUser(uid: 'adminUser'));
+
+    firestore.collection('Users').doc('adminUser').set({
+      'name': 'John Doe',
+      'email': 'john@example.com',
+      'roleType': 'admin',
+      'likedTopics': [],
+      'dislikedTopics': [],
+    });
+
+    await tester.pumpWidget(MaterialApp(
+      home: CreateTopicScreen(
+        firestore: firestore,
+        storage: mockStorage,
+        auth: auth,
+      ),
+    ));
+
+    await tester.enterText(find.byKey(const Key('titleField')), 'Test title');
+
+    await tester.enterText(
+        find.byKey(const Key('descField')), 'Test description');
+
+    await tester.ensureVisible(find.text('Patient'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Patient'));
+
+    await tester.ensureVisible(find.byKey(const Key('uploadMediaButton')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('uploadMediaButton')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Upload Video'));
+    await tester.pumpAndSettle();
+
+    bool videoFound = false;
+    final startTime = DateTime.now();
+    while (!videoFound) {
+      await tester.pump();
+
+      if (find.text('Change Media').evaluate().isNotEmpty) {
+        videoFound = true;
+        break;
+      }
+
+      if (DateTime.now().difference(startTime).inSeconds > 1800) {
+        fail('Timed out waiting for the "Change Media" text to appear');
+      }
+      await Future.delayed(const Duration(milliseconds: 100));
+    }
+
+    await tester.ensureVisible(find.byKey(const Key('draft_btn')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('draft_btn')));
+
+    final QuerySnapshot<Map<String, dynamic>> querySnapshot =
+        await firestore.collection("topicDrafts").get();
+
+    final List<DocumentSnapshot<Map<String, dynamic>>> documents =
+        querySnapshot.docs;
+
+    expect(
+      documents.any(
+        (doc) => doc.data()?['title'] == 'Test title',
+      ),
+      isTrue,
+    );
+
+    expect(
+      documents.any(
+        (doc) => doc.data()?['description'] == 'Test description',
+      ),
+      isTrue,
+    );
+
+    expect(
+      documents.any(
+        (doc) => doc.data()?['userID'] == auth.currentUser?.uid,
+      ),
+      isTrue,
+    );
+
+    final ListResult result = await mockStorage.ref().child('media').listAll();
+    final DocumentSnapshot<Map<String, dynamic>> userDocSnapshot =
+        await firestore.collection('Users').doc('adminUser').get();
+
+    final userData = userDocSnapshot.data();
+    expect(userData, isNotNull);
+    expect(userData?['draftedTopics'], hasLength(1));
+    final List<String> draftedTopics =
+        List<String>.from(userData?['draftedTopics']);
+    expect(draftedTopics[0], equals(documents[0].id));
+
+    expect(result.items.length, greaterThan(0));
+  });
+
+  testWidgets('Cannot create a blank category', (WidgetTester tester) async {
+    final firestore = FakeFirebaseFirestore();
+    final mockStorage = MockFirebaseStorage();
+
+    auth =
+        MockFirebaseAuth(signedIn: true, mockUser: MockUser(uid: 'adminUser'));
+
+    firestore.collection('Users').doc('adminUser').set({
+      'name': 'John Doe',
+      'email': 'john@example.com',
+      'roleType': 'admin',
+      'likedTopics': [],
+      'dislikedTopics': [],
+    });
+
+    await tester.pumpWidget(MaterialApp(
+      home: CreateTopicScreen(
+          firestore: firestore, storage: mockStorage, auth: auth),
+    ));
+
+    await tester.tap(find.byIcon(Icons.add));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byType(TextField).last, '');
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Warning!'), findsOne);
+  });
+
+  testWidgets('Cannot create a category that already exists',
+      (WidgetTester tester) async {
+    final firestore = FakeFirebaseFirestore();
+    final mockStorage = MockFirebaseStorage();
+
+    auth =
+        MockFirebaseAuth(signedIn: true, mockUser: MockUser(uid: 'adminUser'));
+
+    firestore.collection('Users').doc('adminUser').set({
+      'name': 'John Doe',
+      'email': 'john@example.com',
+      'roleType': 'admin',
+      'likedTopics': [],
+      'dislikedTopics': [],
+    });
+
+    await firestore.collection('categories').add({'name': 'Gym'});
+
+    await tester.pumpWidget(MaterialApp(
+      home: CreateTopicScreen(
+          firestore: firestore, storage: mockStorage, auth: auth),
+    ));
+
+    await tester.tap(find.byIcon(Icons.add));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byType(TextField).last, 'Gym');
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Warning!'), findsOne);
+  });
+
+  testWidgets('Can delete a category', (WidgetTester tester) async {
+    final firestore = FakeFirebaseFirestore();
+    final mockStorage = MockFirebaseStorage();
+
+    auth =
+        MockFirebaseAuth(signedIn: true, mockUser: MockUser(uid: 'adminUser'));
+
+    firestore.collection('Users').doc('adminUser').set({
+      'name': 'John Doe',
+      'email': 'john@example.com',
+      'roleType': 'admin',
+      'likedTopics': [],
+      'dislikedTopics': [],
+    });
+
+    await firestore.collection('categories').add({'name': 'Gym'});
+
+    await tester.pumpWidget(MaterialApp(
+      home: CreateTopicScreen(
+          firestore: firestore, storage: mockStorage, auth: auth),
+    ));
+
+    await tester.enterText(find.byKey(const Key('titleField')), 'Test title');
+
+    await tester.enterText(
+        find.byKey(const Key('descField')), 'Test description');
+
+    await tester.ensureVisible(find.text('Patient'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Patient'));
+
+    await tester.ensureVisible(find.text('Gym'));
+    expect(find.text('Gym'), findsOne);
+
+    //steps to remove Gym
+    await tester.tap(find.byIcon(Icons.close));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Gym').last);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Gym'), findsNothing);
   });
 
   testWidgets('Topic with no title does not save', (WidgetTester tester) async {
     MockFirebaseStorage mockStorage = MockFirebaseStorage();
+
+    auth =
+        MockFirebaseAuth(signedIn: true, mockUser: MockUser(uid: 'adminUser'));
+
+    firestore.collection('Users').doc('adminUser').set({
+      'name': 'John Doe',
+      'email': 'john@example.com',
+      'roleType': 'admin',
+      'likedTopics': [],
+      'dislikedTopics': [],
+    });
     await tester.pumpWidget(MaterialApp(
       home: CreateTopicScreen(
+        auth: auth,
         firestore: firestore,
         storage: mockStorage,
       ),
@@ -134,8 +527,20 @@ void main() async {
     final firestore = FakeFirebaseFirestore();
     final mockStorage = MockFirebaseStorage();
 
+    auth =
+        MockFirebaseAuth(signedIn: true, mockUser: MockUser(uid: 'adminUser'));
+
+    firestore.collection('Users').doc('adminUser').set({
+      'name': 'John Doe',
+      'email': 'john@example.com',
+      'roleType': 'admin',
+      'likedTopics': [],
+      'dislikedTopics': [],
+    });
+
     await tester.pumpWidget(MaterialApp(
       home: CreateTopicScreen(
+        auth: auth,
         firestore: firestore,
         storage: mockStorage,
       ),
@@ -158,8 +563,20 @@ void main() async {
   testWidgets('Topic no tags does not save', (WidgetTester tester) async {
     MockFirebaseStorage mockStorage = MockFirebaseStorage();
 
+    auth =
+        MockFirebaseAuth(signedIn: true, mockUser: MockUser(uid: 'adminUser'));
+
+    firestore.collection('Users').doc('adminUser').set({
+      'name': 'John Doe',
+      'email': 'john@example.com',
+      'roleType': 'admin',
+      'likedTopics': [],
+      'dislikedTopics': [],
+    });
+
     await tester.pumpWidget(MaterialApp(
       home: CreateTopicScreen(
+        auth: auth,
         firestore: firestore,
         storage: mockStorage,
       ),
@@ -185,8 +602,20 @@ void main() async {
   testWidgets('Topic invalid article link does not save',
       (WidgetTester tester) async {
     MockFirebaseStorage mockStorage = MockFirebaseStorage();
+
+    auth =
+        MockFirebaseAuth(signedIn: true, mockUser: MockUser(uid: 'adminUser'));
+
+    firestore.collection('Users').doc('adminUser').set({
+      'name': 'John Doe',
+      'email': 'john@example.com',
+      'roleType': 'admin',
+      'likedTopics': [],
+      'dislikedTopics': [],
+    });
     await tester.pumpWidget(MaterialApp(
       home: CreateTopicScreen(
+        auth: auth,
         firestore: firestore,
         storage: mockStorage,
       ),
@@ -219,8 +648,20 @@ void main() async {
   testWidgets('Topic with valid article link saves',
       (WidgetTester tester) async {
     MockFirebaseStorage mockStorage = MockFirebaseStorage();
+
+    auth =
+        MockFirebaseAuth(signedIn: true, mockUser: MockUser(uid: 'adminUser'));
+
+    firestore.collection('Users').doc('adminUser').set({
+      'name': 'John Doe',
+      'email': 'john@example.com',
+      'roleType': 'admin',
+      'likedTopics': [],
+      'dislikedTopics': [],
+    });
     await tester.pumpWidget(MaterialApp(
       home: CreateTopicScreen(
+        auth: auth,
         firestore: firestore,
         storage: mockStorage,
       ),
@@ -272,10 +713,22 @@ void main() async {
     );
   });
 
-  testWidgets('Test all form fields are present', (WidgetTester tester) async {
+  testWidgets('Test all form parts are present', (WidgetTester tester) async {
     MockFirebaseStorage mockStorage = MockFirebaseStorage();
+
+    auth =
+        MockFirebaseAuth(signedIn: true, mockUser: MockUser(uid: 'adminUser'));
+
+    firestore.collection('Users').doc('adminUser').set({
+      'name': 'John Doe',
+      'email': 'john@example.com',
+      'roleType': 'admin',
+      'likedTopics': [],
+      'dislikedTopics': [],
+    });
     await tester.pumpWidget(MaterialApp(
       home: CreateTopicScreen(
+        auth: auth,
         firestore: firestore,
         storage: mockStorage,
       ),
@@ -294,6 +747,8 @@ void main() async {
     expect(find.text('Parent'), findsOneWidget);
 
     expect(find.text('Healthcare Professional'), findsOneWidget);
+
+    expect(find.byKey(const Key('draft_btn')), findsOneWidget);
   });
 
   testWidgets('Navigates back after submitting form',
@@ -301,8 +756,20 @@ void main() async {
     final firestore = FakeFirebaseFirestore();
     final mockStorage = MockFirebaseStorage();
 
+    auth =
+        MockFirebaseAuth(signedIn: true, mockUser: MockUser(uid: 'adminUser'));
+
+    firestore.collection('Users').doc('adminUser').set({
+      'name': 'John Doe',
+      'email': 'john@example.com',
+      'roleType': 'admin',
+      'likedTopics': [],
+      'dislikedTopics': [],
+    });
+
     await tester.pumpWidget(MaterialApp(
       home: CreateTopicScreen(
+        auth: auth,
         firestore: firestore,
         storage: mockStorage,
       ),
@@ -323,8 +790,20 @@ void main() async {
   testWidgets('Navigates back after submitting form',
       (WidgetTester tester) async {
     MockFirebaseStorage mockStorage = MockFirebaseStorage();
+
+    auth =
+        MockFirebaseAuth(signedIn: true, mockUser: MockUser(uid: 'adminUser'));
+
+    firestore.collection('Users').doc('adminUser').set({
+      'name': 'John Doe',
+      'email': 'john@example.com',
+      'roleType': 'admin',
+      'likedTopics': [],
+      'dislikedTopics': [],
+    });
     await tester.pumpWidget(MaterialApp(
       home: CreateTopicScreen(
+        auth: auth,
         firestore: firestore,
         storage: mockStorage,
       ),
@@ -346,8 +825,20 @@ void main() async {
   testWidgets('Uploaded video is successfully stored and displays',
       (WidgetTester tester) async {
     MockFirebaseStorage mockStorage = MockFirebaseStorage();
+
+    auth =
+        MockFirebaseAuth(signedIn: true, mockUser: MockUser(uid: 'adminUser'));
+
+    firestore.collection('Users').doc('adminUser').set({
+      'name': 'John Doe',
+      'email': 'john@example.com',
+      'roleType': 'admin',
+      'likedTopics': [],
+      'dislikedTopics': [],
+    });
     await tester.pumpWidget(MaterialApp(
       home: CreateTopicScreen(
+        auth: auth,
         firestore: firestore,
         storage: mockStorage,
       ),
@@ -395,8 +886,20 @@ void main() async {
 
   testWidgets('Uploaded media can be cleared', (WidgetTester tester) async {
     MockFirebaseStorage mockStorage = MockFirebaseStorage();
+
+    auth =
+        MockFirebaseAuth(signedIn: true, mockUser: MockUser(uid: 'adminUser'));
+
+    firestore.collection('Users').doc('adminUser').set({
+      'name': 'John Doe',
+      'email': 'john@example.com',
+      'roleType': 'admin',
+      'likedTopics': [],
+      'dislikedTopics': [],
+    });
     await tester.pumpWidget(MaterialApp(
       home: CreateTopicScreen(
+        auth: auth,
         firestore: firestore,
         storage: mockStorage,
       ),
@@ -561,8 +1064,20 @@ void main() async {
   testWidgets('Uploaded video is stored in Firebase Storage',
       (WidgetTester tester) async {
     MockFirebaseStorage mockStorage = MockFirebaseStorage();
+
+    auth =
+        MockFirebaseAuth(signedIn: true, mockUser: MockUser(uid: 'adminUser'));
+
+    firestore.collection('Users').doc('adminUser').set({
+      'name': 'John Doe',
+      'email': 'john@example.com',
+      'roleType': 'admin',
+      'likedTopics': [],
+      'dislikedTopics': [],
+    });
     await tester.pumpWidget(MaterialApp(
       home: CreateTopicScreen(
+        auth: auth,
         firestore: firestore,
         storage: mockStorage,
       ),
@@ -611,8 +1126,20 @@ void main() async {
   });
   testWidgets('Test back button pops', (WidgetTester tester) async {
     MockFirebaseStorage mockStorage = MockFirebaseStorage();
+
+    auth =
+        MockFirebaseAuth(signedIn: true, mockUser: MockUser(uid: 'adminUser'));
+
+    firestore.collection('Users').doc('adminUser').set({
+      'name': 'John Doe',
+      'email': 'john@example.com',
+      'roleType': 'admin',
+      'likedTopics': [],
+      'dislikedTopics': [],
+    });
     await tester.pumpWidget(MaterialApp(
       home: CreateTopicScreen(
+        auth: auth,
         firestore: firestore,
         storage: mockStorage,
       ),
@@ -631,6 +1158,16 @@ void main() async {
 
   testWidgets('Orientation adjusts correctly', (WidgetTester tester) async {
     MockFirebaseStorage mockStorage = MockFirebaseStorage();
+    auth =
+        MockFirebaseAuth(signedIn: true, mockUser: MockUser(uid: 'adminUser'));
+
+    firestore.collection('Users').doc('adminUser').set({
+      'name': 'John Doe',
+      'email': 'john@example.com',
+      'roleType': 'admin',
+      'likedTopics': [],
+      'dislikedTopics': [],
+    });
     final logs = [];
 
     tester.binding.defaultBinaryMessenger
@@ -645,6 +1182,7 @@ void main() async {
 
     await tester.pumpWidget(MaterialApp(
       home: CreateTopicScreen(
+        auth: auth,
         firestore: firestore,
         storage: mockStorage,
       ),
@@ -701,6 +1239,16 @@ void main() async {
     QuerySnapshot data;
 
     topicCollectionRef = firestore.collection('topics');
+    auth =
+        MockFirebaseAuth(signedIn: true, mockUser: MockUser(uid: 'adminUser'));
+
+    firestore.collection('Users').doc('adminUser').set({
+      'name': 'John Doe',
+      'email': 'john@example.com',
+      'roleType': 'admin',
+      'likedTopics': [],
+      'dislikedTopics': [],
+    });
 
     await topicCollectionRef.add({
       'title': 'Test Topic',
@@ -713,6 +1261,7 @@ void main() async {
       'likes': 0,
       'views': 0,
       'dislikes': 0,
+      'categories': ['Sports'],
       'date': DateTime.now()
     });
 
@@ -826,6 +1375,17 @@ void main() async {
       (WidgetTester tester) async {
     MockFirebaseStorage mockStorage = MockFirebaseStorage();
     CollectionReference topicCollectionRef;
+
+    auth =
+        MockFirebaseAuth(signedIn: true, mockUser: MockUser(uid: 'adminUser'));
+
+    firestore.collection('Users').doc('adminUser').set({
+      'name': 'John Doe',
+      'email': 'john@example.com',
+      'roleType': 'admin',
+      'likedTopics': [],
+      'dislikedTopics': [],
+    });
     QuerySnapshot data;
 
     topicCollectionRef = firestore.collection('topics');
@@ -839,6 +1399,7 @@ void main() async {
       'likes': 0,
       'views': 0,
       'dislikes': 0,
+      'categories': ['Sports'],
       'date': DateTime.now()
     });
 
@@ -846,8 +1407,8 @@ void main() async {
 
     await tester.pumpWidget(MaterialApp(
       home: CreateTopicScreen(
-        topic: data.docs[0] as QueryDocumentSnapshot<Object>,
         auth: auth,
+        topic: data.docs[0] as QueryDocumentSnapshot<Object>,
         firestore: firestore,
         storage: mockStorage,
       ),
@@ -867,6 +1428,7 @@ void main() async {
   testWidgets('next and previous buttons change current media',
       (WidgetTester tester) async {
     MockFirebaseStorage mockStorage = MockFirebaseStorage();
+
     final MockUser mockUser = MockUser(
       isAnonymous: false,
       uid: 'user123',
@@ -875,6 +1437,17 @@ void main() async {
 
     auth = MockFirebaseAuth(mockUser: mockUser, signedIn: true);
     final firestore = FakeFirebaseFirestore();
+
+    auth =
+        MockFirebaseAuth(signedIn: true, mockUser: MockUser(uid: 'adminUser'));
+
+    firestore.collection('Users').doc('adminUser').set({
+      'name': 'John Doe',
+      'email': 'john@example.com',
+      'roleType': 'admin',
+      'likedTopics': [],
+      'dislikedTopics': [],
+    });
 
     CollectionReference topicCollectionRef = firestore.collection('topics');
 
@@ -900,6 +1473,7 @@ void main() async {
       'views': 0,
       'quizId': "",
       'dislikes': 0,
+      'categories': ['Sports'],
       'date': DateTime.now()
     });
 
@@ -908,10 +1482,10 @@ void main() async {
     // Pass a valid URL when creating the VideoPlayerController instance
     await mockNetworkImages(() async => await tester.pumpWidget(MaterialApp(
           home: CreateTopicScreen(
+            auth: auth,
             firestore: firestore,
             storage: mockStorage,
             topic: data.docs[0],
-            auth: auth,
           ),
         )));
 
@@ -939,10 +1513,21 @@ void main() async {
     expect(find.byType(Chewie), findsOneWidget);
   });
 
-  testWidgets('Selcted media can be replaced', (WidgetTester tester) async {
+  testWidgets('Selected media can be replaced', (WidgetTester tester) async {
     MockFirebaseStorage mockStorage = MockFirebaseStorage();
+    auth =
+        MockFirebaseAuth(signedIn: true, mockUser: MockUser(uid: 'adminUser'));
+
+    firestore.collection('Users').doc('adminUser').set({
+      'name': 'John Doe',
+      'email': 'john@example.com',
+      'roleType': 'admin',
+      'likedTopics': [],
+      'dislikedTopics': [],
+    });
     await tester.pumpWidget(MaterialApp(
       home: CreateTopicScreen(
+        auth: auth,
         firestore: firestore,
         storage: mockStorage,
       ),
@@ -1022,9 +1607,20 @@ void main() async {
 
   testWidgets('after clearing, uploaded media navigates correctly',
       (WidgetTester tester) async {
+    auth =
+        MockFirebaseAuth(signedIn: true, mockUser: MockUser(uid: 'adminUser'));
+
+    firestore.collection('Users').doc('adminUser').set({
+      'name': 'John Doe',
+      'email': 'john@example.com',
+      'roleType': 'admin',
+      'likedTopics': [],
+      'dislikedTopics': [],
+    });
     MockFirebaseStorage mockStorage = MockFirebaseStorage();
     await tester.pumpWidget(MaterialApp(
       home: CreateTopicScreen(
+        auth: auth,
         firestore: firestore,
         storage: mockStorage,
       ),
@@ -1153,6 +1749,16 @@ void main() async {
     QuerySnapshot data;
     MockFirebaseStorage mockStorage = MockFirebaseStorage();
     topicCollectionRef = firestore.collection('topics');
+    auth =
+        MockFirebaseAuth(signedIn: true, mockUser: MockUser(uid: 'adminUser'));
+
+    firestore.collection('Users').doc('adminUser').set({
+      'name': 'John Doe',
+      'email': 'john@example.com',
+      'roleType': 'admin',
+      'likedTopics': [],
+      'dislikedTopics': [],
+    });
 
     await topicCollectionRef.add({
       'title': 'Test Topic',
@@ -1169,6 +1775,7 @@ void main() async {
       'tags': ['Patient'],
       'views': 0,
       'dislikes': 0,
+      'categories': ['Sports'],
       'date': DateTime.now()
     });
 
@@ -1190,8 +1797,8 @@ void main() async {
 
     await tester.pumpWidget(MaterialApp(
       home: CreateTopicScreen(
-        topic: data.docs[0] as QueryDocumentSnapshot<Object>,
         auth: auth,
+        topic: data.docs[0] as QueryDocumentSnapshot<Object>,
         firestore: firestore,
         storage: mockStorage,
       ),

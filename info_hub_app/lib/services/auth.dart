@@ -12,21 +12,23 @@ class AuthService {
 
   // create user model
   UserModel? _userFromFirebaseUser(
-      User user,
-      String firstName,
-      String lastName,
-      String email,
-      String roleType,
-      List<String> likedTopics,
-      List<String> dislikedTopics) {
+    User user,
+    String firstName,
+    String lastName,
+    String email,
+    String roleType,
+    List<String> likedTopics,
+    List<String> dislikedTopics,
+  ) {
     return UserModel(
-        uid: user.uid,
-        firstName: firstName,
-        email: email,
-        lastName: lastName,
-        roleType: roleType,
-        likedTopics: likedTopics,
-        dislikedTopics: dislikedTopics);
+      uid: user.uid,
+      firstName: firstName,
+      email: email,
+      lastName: lastName,
+      roleType: roleType,
+      likedTopics: likedTopics,
+      dislikedTopics: dislikedTopics,
+    );
   }
 
   Stream<User?> get user {

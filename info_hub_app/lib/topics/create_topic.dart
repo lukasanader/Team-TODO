@@ -17,14 +17,14 @@ class CreateTopicScreen extends StatefulWidget {
   final FirebaseFirestore firestore;
   final FirebaseStorage storage;
   QueryDocumentSnapshot? topic;
-  FirebaseAuth? auth;
+  final FirebaseAuth auth;
 
   CreateTopicScreen({
     Key? key,
     required this.firestore,
     required this.storage,
     this.topic,
-    this.auth,
+    required this.auth,
   }) : super(key: key);
 
   @override
@@ -44,16 +44,21 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
   late String prevDescription;
   late String prevArticleLink;
   late String appBarTitle;
+
   late QueryDocumentSnapshot<Object?>? updatedTopicDoc;
   List<dynamic> _tags = [];
   List<String> options = ['Patient', 'Parent', 'Healthcare Professional'];
   String quizID = '';
   bool quizAdded = false;
-
+  List<dynamic> _categories = [];
+  List<String> _categoriesOptions = [];
+  final TextEditingController _newCategoryNameController =
+      TextEditingController();
   String? _videoURL;
   String? _imageUrl;
   bool changingMedia = false;
   bool editing = false;
+  bool drafting = false;
   String? _downloadURL;
   VideoPlayerController? _videoController;
   ChewieController? _chewieController;
@@ -67,8 +72,15 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    getCategoryList();
+  }
+
+  @override
   void initState() {
     super.initState();
+
     currentIndex = 0;
     editing = widget.topic != null;
     mediaUrls = [];
@@ -93,7 +105,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
       descriptionController = TextEditingController(text: prevDescription);
       articleLinkController = TextEditingController(text: prevArticleLink);
       _tags = widget.topic!['tags'];
-
+      _categories = widget.topic!['categories'];
       initData();
       updatedTopicDoc = widget.topic!;
     }
@@ -118,35 +130,48 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.red,
-        title: Text(
-          appBarTitle,
-          style:
-              const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back,
-            color: Colors.white,
+          backgroundColor: Colors.red,
+          title: Text(
+            appBarTitle,
+            style: const TextStyle(
+                color: Colors.white, fontWeight: FontWeight.bold),
           ),
-          onPressed: () {
-            if (editing) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ViewTopicScreen(
-                      firestore: widget.firestore,
-                      topic: updatedTopicDoc!,
-                      storage: widget.storage,
-                      auth: widget.auth!),
+          leading: IconButton(
+            icon: const Icon(
+              Icons.arrow_back,
+              color: Colors.white,
+            ),
+            onPressed: () {
+              if (editing) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ViewTopicScreen(
+                        firestore: widget.firestore,
+                        topic: updatedTopicDoc!,
+                        storage: widget.storage,
+                        auth: widget.auth),
+                  ),
+                );
+              } else {
+                Navigator.pop(context);
+              }
+            },
+          ),
+          actions: <Widget>[
+            if (!editing)
+              TextButton(
+                key: const Key('draft_btn'),
+                onPressed: () async {
+                  // save draft
+                  await saveDraft(context);
+                },
+                child: const Text(
+                  'Save Draft',
+                  style: TextStyle(color: Colors.white),
                 ),
-              );
-            } else {
-              Navigator.pop(context);
-            }
-          },
-        ),
-      ),
+              )
+          ]),
       body: Form(
         key: _topicFormKey,
         child: Column(
@@ -191,6 +216,41 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                         border: OutlineInputBorder(),
                       ),
                       validator: validateTitle,
+                    ),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          IconButton(
+                              onPressed: () {
+                                createNewCategoryDialog(context);
+                              },
+                              icon: const Icon(Icons.add)),
+                          IconButton(
+                              onPressed: () {
+                                deleteCategoryDialog(context);
+                              },
+                              icon: const Icon(Icons.close)),
+                          if (_categoriesOptions.isEmpty)
+                            const Text('Add a category'),
+                          if (_categoriesOptions.isNotEmpty)
+                            Padding(
+                              padding: const EdgeInsets.all(20.0),
+                              child: ChipsChoice<dynamic>.multiple(
+                                value: _categories,
+                                onChanged: (val) =>
+                                    setState(() => _categories = val),
+                                choiceItems: C2Choice.listFrom<String, String>(
+                                  source: _categoriesOptions,
+                                  value: (i, v) => v,
+                                  label: (i, v) => v,
+                                ),
+                                choiceCheckmark: true,
+                                choiceStyle: C2ChipStyle.outlined(),
+                              ),
+                            ),
+                        ],
+                      ),
                     ),
                     const SizedBox(height: 10.0),
                     TextFormField(
@@ -636,6 +696,50 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
     );
   }
 
+  Future<void> saveDraft(context) async {
+    List<Map<String, String>> mediaList = [];
+
+    for (var item in mediaUrls) {
+      String url = item['url']!;
+      String mediaType = item['mediaType']!;
+
+      _downloadURL = await _storeData().uploadFile(url);
+
+      Map<String, String> uploadData = {
+        'url': _downloadURL!,
+        'mediaType': mediaType,
+      };
+
+      mediaList.add(uploadData);
+    }
+    CollectionReference topicDraftsCollectionRef =
+        widget.firestore.collection('topicDrafts');
+
+    final draftDetails = {
+      'title': titleController.text,
+      'description': descriptionController.text,
+      'articleLink': articleLinkController.text,
+      'media': mediaList,
+      'views': 0,
+      'likes': 0,
+      'dislikes': 0,
+      'tags': _tags,
+      'categories': _categories,
+      'date': DateTime.now(),
+      'userID': widget.auth.currentUser?.uid,
+    };
+
+    final topicDraftRef = await topicDraftsCollectionRef.add(draftDetails);
+    final user = widget.auth.currentUser;
+    if (user != null) {
+      final userDocRef = widget.firestore.collection('Users').doc(user.uid);
+      await userDocRef.update({
+        'draftedTopics': FieldValue.arrayUnion([topicDraftRef.id])
+      });
+    }
+    Navigator.pop(context);
+  }
+
   Future<void> _uploadTopic(context) async {
     List<Map<String, String>> mediaList = [];
 
@@ -669,6 +773,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
         'likes': 0,
         'dislikes': 0,
         'tags': _tags,
+        'categories': _categories,
         'date': DateTime.now(),
       };
       await topicCollectionRef.add(topicDetails);
@@ -681,7 +786,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
             firestore: widget.firestore,
             topic: widget.topic!,
             storage: widget.storage,
-            auth: widget.auth!,
+            auth: widget.auth,
           ),
         ),
       );
@@ -695,6 +800,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
         'media': mediaList,
         'views': widget.topic!['views'],
         'likes': widget.topic!['likes'],
+        'categories': _categories,
         'dislikes': widget.topic!['dislikes'],
         'date': widget.topic!['date'],
         'tags': _tags,
@@ -725,7 +831,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
             firestore: widget.firestore,
             topic: updatedTopicDoc!,
             storage: widget.storage,
-            auth: widget.auth!,
+            auth: widget.auth,
           ),
         ),
       );
@@ -835,6 +941,132 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
       return 'Please enter a Description';
     }
     return null;
+  }
+
+  void createNewCategoryDialog(context) {
+    _newCategoryNameController.clear();
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text("Create a new category"),
+            content: TextField(
+              controller: _newCategoryNameController,
+            ),
+            actions: [
+              ElevatedButton(
+                onPressed: () async {
+                  if (!_categoriesOptions
+                          .contains(_newCategoryNameController.text) &&
+                      _newCategoryNameController.text.isNotEmpty) {
+                    addCategory(_newCategoryNameController.text);
+                    getCategoryList();
+                    Navigator.of(context).pop();
+                  } else {
+                    return showDialog<void>(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return const AlertDialog(
+                          title: Text('Warning!'),
+                          content: Text(
+                              "Make sure category names are different/not blank!"),
+                        );
+                      },
+                    );
+                  }
+                },
+                child: const Text("OK"),
+              ),
+            ],
+          );
+        });
+  }
+
+  Future getCategoryList() async {
+    QuerySnapshot data =
+        await widget.firestore.collection('categories').orderBy('name').get();
+
+    List<Object> dataList = List.from(data.docs);
+    List<String> tempList = [];
+
+    for (dynamic category in dataList) {
+      tempList.add(category['name']);
+    }
+
+    setState(() {
+      _categoriesOptions = tempList;
+    });
+  }
+
+  void deleteCategoryDialog(context) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
+            return AlertDialog(
+              title: const Text("Delete a category"),
+              content: SizedBox(
+                height: 300,
+                width: 200,
+                child: ListView.builder(
+                  itemCount: _categoriesOptions.length,
+                  itemBuilder: (context, index) {
+                    return ListTile(
+                      title: Text(_categoriesOptions[index]),
+                      onTap: () {
+                        deleteCategoryConfirmation(
+                            _categoriesOptions[index], context);
+                      },
+                    );
+                  },
+                ),
+              ),
+            );
+          });
+        });
+  }
+
+  Future<void> deleteCategoryConfirmation(String categoryName, context) async {
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Warning!'),
+          content: const Text("Are you sure you want to delete?"),
+          actions: [
+            ElevatedButton(
+              onPressed: () async {
+                deleteCategory(categoryName);
+                _categoriesOptions.remove(categoryName);
+                getCategoryList();
+                Navigator.of(context).pop();
+                Navigator.of(context).pop();
+              },
+              child: const Text("OK"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> deleteCategory(String categoryName) async {
+    QuerySnapshot categoryToDelete = await widget.firestore
+        .collection('categories')
+        .where('name', isEqualTo: categoryName)
+        .get();
+
+    QueryDocumentSnapshot category = categoryToDelete.docs[0];
+    await widget.firestore.collection('categories').doc(category.id).delete();
+
+    setState(() {
+      _categoriesOptions.remove(categoryName);
+    });
+  }
+
+  Future<void> addCategory(String categoryName) async {
+    await widget.firestore.collection('categories').add({'name': categoryName});
   }
 }
 

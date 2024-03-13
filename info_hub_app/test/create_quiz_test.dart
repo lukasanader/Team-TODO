@@ -5,15 +5,29 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import 'package:info_hub_app/topics/create_topic.dart';
 import 'package:info_hub_app/topics/quiz/create_quiz.dart';
+import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 
 void main() {
   late FirebaseFirestore firestore = FakeFirebaseFirestore();
   late MockFirebaseStorage mockStorage = MockFirebaseStorage();
   late Widget quizWidget;
+  late MockFirebaseAuth auth;
 
   setUp(() {
+    auth =
+        MockFirebaseAuth(signedIn: true, mockUser: MockUser(uid: 'adminUser'));
+    firestore = FakeFirebaseFirestore();
+
+    firestore.collection('Users').doc('adminUser').set({
+      'name': 'John Doe',
+      'email': 'john@example.com',
+      'roleType': 'admin',
+      'likedTopics': [],
+      'dislikedTopics': [],
+    });
     quizWidget = MaterialApp(
-      home: CreateTopicScreen(firestore: firestore, storage: mockStorage),
+      home: CreateTopicScreen(
+          firestore: firestore, storage: mockStorage, auth: auth),
     );
   });
 

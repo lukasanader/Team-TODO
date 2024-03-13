@@ -69,6 +69,7 @@ class _AdminHomepageState extends State<AdminHomepage> {
                           return CreateTopicScreen(
                             storage: widget.storage,
                             firestore: widget.firestore,
+                            auth: widget.auth,
                             topic: null,
                           );
                         },
