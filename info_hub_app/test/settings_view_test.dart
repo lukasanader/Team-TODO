@@ -5,9 +5,8 @@ import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:info_hub_app/notifications/manage_notifications.dart';
-import 'package:info_hub_app/registration/start_page.dart';
 import 'package:info_hub_app/settings/settings_view.dart';
-import 'package:info_hub_app/registration/registration_screen.dart';
+import 'package:info_hub_app/settings/help_page.dart';
 
 void main() {
   late Widget settingsViewWidget;
@@ -103,4 +102,16 @@ void main() {
     await tester.pumpAndSettle();
     expect(firebaseAuth.currentUser,null);
 });
+
+testWidgets('Test tapping on Help navigates to HelpPage', (WidgetTester tester) async {
+  await tester.pumpWidget(MaterialApp(home: settingsViewWidget)); // Replace YourParentWidget with the widget containing the ListTile
+
+  // Tap on the ListTile to navigate to the HelpPage
+  await tester.tap(find.byIcon(Icons.help));
+  await tester.pumpAndSettle();
+
+  // Verify that HelpPage is pushed onto the navigator's stack
+  expect(find.byType(HelpPage), findsOneWidget);
+});
+
 }
