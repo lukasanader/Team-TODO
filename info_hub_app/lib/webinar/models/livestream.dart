@@ -1,5 +1,4 @@
 class Livestream {
-<<<<<<< HEAD
   final String webinarID;
   final String title;
   final String image;
@@ -30,15 +29,3 @@ class Livestream {
     );
   }
 }
-=======
-  final String title;
-  final String image;
-  final String uid;
-
-  Livestream({
-    required this.title, 
-    required this.image, 
-    required this.uid,
-    });
-}
->>>>>>> 4be5c79165084e1a0bad9f23ce17b713b3dc3638
