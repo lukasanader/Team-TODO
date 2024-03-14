@@ -2,9 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/registration/user_model.dart';
 import 'package:info_hub_app/webinar/models/livestream.dart';
-import 'package:info_hub_app/webinar/webinar-screens/dashboard.dart';
+import 'package:info_hub_app/webinar/admin-webinar-screens/dashboard.dart';
 import 'package:info_hub_app/webinar/webinar-screens/webinar_details_screen.dart';
-import 'package:info_hub_app/webinar/webinar-screens/webinar_service.dart';
+import 'package:info_hub_app/webinar/service/webinar_service.dart';
 
 class FeedScreen extends StatefulWidget {
   final FirebaseFirestore firestore;

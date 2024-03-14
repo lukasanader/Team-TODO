@@ -11,6 +11,7 @@ import 'package:info_hub_app/helpers/test_page.dart';
 import 'package:info_hub_app/message_feature/patient_message_view.dart';
 import 'package:info_hub_app/patient_experience/admin_experience_view.dart';
 import 'package:info_hub_app/patient_experience/patient_experience_view.dart';
+import 'package:info_hub_app/registration/user_model.dart';
 import 'package:info_hub_app/topics/topics_card.dart';
 import 'package:info_hub_app/notifications/notifications.dart';
 import 'package:info_hub_app/threads/threads.dart';
@@ -186,10 +187,27 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
                 ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
+                    String uid = widget.auth.currentUser!.uid;
+                    DocumentSnapshot userDoc = await widget.firestore.collection('Users').doc(uid).get();
+                    List<String> likedTopics = List<String>.from(userDoc['likedTopics']);
+                    List<String> dislikedTopics = List<String>.from(userDoc['dislikedTopics']);
+                    UserModel user = UserModel(
+                      uid: uid,
+                      firstName: userDoc['firstName'],
+                      lastName: userDoc['lastName'],
+                      email: userDoc['email'],
+                      roleType: userDoc['roleType'],
+                      likedTopics: likedTopics,
+                      dislikedTopics: dislikedTopics,
+                    );
+                    // ignore: use_build_context_synchronously
                     PersistentNavBarNavigator.pushNewScreen(
                       context,
-                      screen: const WebinarView(),
+                      screen: WebinarView(
+                        firestore: widget.firestore,
+                        user: user,
+                      ),
                       withNavBar: false,
                     );
                   },
