@@ -211,14 +211,13 @@ class WelcomePage extends StatelessWidget {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () {
-                      Widget nextPage = Base(
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (context) => Base(
                         auth: auth,
                         storage: storage,
                         firestore: firestore,
-                      );
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(builder: (context) => nextPage),
+                      ),),
                         (Route<dynamic> route) => false,
                       );
                     },

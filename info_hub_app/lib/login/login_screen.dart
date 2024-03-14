@@ -8,7 +8,6 @@ import 'package:info_hub_app/reset_password/reset_password.dart';
 import 'package:info_hub_app/services/auth.dart';
 import 'package:info_hub_app/helpers/base.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:info_hub_app/welcome_message/welcome_message.dart';
 
 class LoginScreen extends StatefulWidget {
   final FirebaseFirestore firestore;
@@ -91,24 +90,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     User? user = await _auth.signInUser(
                         emailController.text, passwordController.text);
                     if (user != null) {
-                      DocumentSnapshot snapshot = await widget.firestore
-                          .collection('Users')
-                          .doc(user.uid)
-                          .get();
-                      Widget nextPage;
-                      if (snapshot['roleType'] == 'admin') {
-                        nextPage = AdminHomepage(
-                          firestore: widget.firestore,
-                          auth: widget.auth,
-                          storage: widget.storage,
-                        );
-                      } else {
-                        nextPage = Base( //change back to Base
-                          firestore: widget.firestore,
-                          auth: widget.auth,
-                          storage: widget.storage,
-                        );
-                      }
                       Widget nextPage = Base(
                         firestore: widget.firestore,
                         auth: widget.auth,

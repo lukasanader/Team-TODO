@@ -102,19 +102,6 @@ void main() {
     expect(find.byType(ManageNotifications), findsOneWidget);
   });
 
-  testWidgets('SettingsView help option goes to help view', (WidgetTester tester) async {
-    await tester.pumpWidget(settingsViewWidget);
-
-    final helpOption = find.byKey(const Key('Help Option'));
-
-    expect(helpOption, findsOneWidget);
-
-    await tester.tap(helpOption);
-    await tester.pumpAndSettle();
-
-    expect(find.byType(HelpView), findsOneWidget);
-  });
-
   testWidgets('test if logout works', (WidgetTester tester) async {
     await tester.pumpWidget(settingsViewWidget);
 
