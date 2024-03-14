@@ -8,6 +8,7 @@ class AdminExperienceView extends StatefulWidget {
   const AdminExperienceView({super.key, required this.firestore});
 
   @override
+  // ignore: library_private_types_in_public_api
   _AdminExperienceViewState createState() => _AdminExperienceViewState();
 }
 

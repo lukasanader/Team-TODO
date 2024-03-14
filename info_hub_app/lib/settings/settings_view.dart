@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:info_hub_app/registration/user_model.dart';
 import 'package:info_hub_app/notifications/manage_notifications.dart';
 import 'package:info_hub_app/services/database.dart';
-import 'package:info_hub_app/settings/help_page/help_page.dart';
+import 'package:info_hub_app/settings/help_page.dart';
 import 'package:provider/provider.dart';
 import 'package:info_hub_app/settings/privacy_base.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';

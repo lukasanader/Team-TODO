@@ -11,6 +11,7 @@ class ExperienceView extends StatefulWidget {
       {super.key, required this.firestore, required this.auth});
 
   @override
+  // ignore: library_private_types_in_public_api
   _ExperienceViewState createState() => _ExperienceViewState();
 }
 

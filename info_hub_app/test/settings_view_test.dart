@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:info_hub_app/notifications/manage_notifications.dart';
 import 'package:info_hub_app/registration/start_page.dart';
-import 'package:info_hub_app/settings/help_page/help_page.dart';
+import 'package:info_hub_app/settings/settings_view.dart';
 import 'package:info_hub_app/settings/privacy_base.dart';
 import 'package:info_hub_app/settings/settings_view.dart';
 import 'package:info_hub_app/settings/help_page.dart';
