@@ -7,17 +7,17 @@ class ResetPassword extends StatefulWidget {
   final FirebaseAuth auth;
 
   const ResetPassword({
-    Key? key,
+    super.key,
     required this.firestore,
     required this.auth,
-  }) : super(key: key);
+  });
 
   @override
+  // ignore: library_private_types_in_public_api
   _ResetPasswordState createState() => _ResetPasswordState();
 }
 
 class _ResetPasswordState extends State<ResetPassword> {
-  late NavigatorState _navigatorState;
 
   final TextEditingController _emailController = TextEditingController();
   String _errorText = '';
@@ -25,7 +25,6 @@ class _ResetPasswordState extends State<ResetPassword> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _navigatorState = Navigator.of(context);
   }
 
   @override
@@ -50,15 +49,12 @@ class _ResetPasswordState extends State<ResetPassword> {
             const SizedBox(height: 10),
             ElevatedButton(
               onPressed: () async {
-                // Check if the email is valid
                 if (!_isEmailValid(_emailController.text)) {
                   setState(() {
                     _errorText = 'Invalid email address';
                   });
                   return;
                 }
-
-                // Send password reset email and handle result
                 await _sendPasswordResetEmail(_emailController.text);
               },
               child: const Text('Send Email'),
@@ -66,7 +62,7 @@ class _ResetPasswordState extends State<ResetPassword> {
             const SizedBox(height: 10),
             Text(
               _errorText,
-              style: TextStyle(color: Colors.red),
+              style: const TextStyle(color: Colors.red),
             ),
           ],
         ),
@@ -80,16 +76,15 @@ class _ResetPasswordState extends State<ResetPassword> {
   }
 
   Future<void> _sendPasswordResetEmail(String email) async {
-    // Check if the email exists in the Firebase database
     final QuerySnapshot<Map<String, dynamic>> result = await widget.firestore
         .collection('Users')
         .where('email', isEqualTo: email)
         .get();
 
     if (result.docs.isEmpty) {
-      // If the email does not exist in the database, show an error message
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('Email does not exist'),
           duration: Duration(seconds: 3),
           backgroundColor: Colors.red,
@@ -97,20 +92,17 @@ class _ResetPasswordState extends State<ResetPassword> {
       );
       return;
     }
-
-    // If the email exists, send password reset email
     await widget.auth.sendPasswordResetEmail(email: email);
 
-    // Show a green notification saying "Email sent"
+    // ignore: use_build_context_synchronously
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
+      const SnackBar(
         content: Text('Email sent'),
         duration: Duration(seconds: 3),
         backgroundColor: Colors.green,
       ),
     );
-
-    // Navigate back to the previous screen
+    // ignore: use_build_context_synchronously
     Navigator.pop(context);
   }
 }

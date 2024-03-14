@@ -9,7 +9,7 @@ import 'package:info_hub_app/registration/start_page.dart';
 import 'package:info_hub_app/settings/help_page/help_page.dart';
 import 'package:info_hub_app/settings/privacy_base.dart';
 import 'package:info_hub_app/settings/settings_view.dart';
-import 'package:info_hub_app/registration/registration_screen.dart';
+import 'package:info_hub_app/settings/help_page.dart';
 
 void main() {
   late Widget settingsViewWidget;
@@ -102,19 +102,6 @@ void main() {
     expect(find.byType(ManageNotifications), findsOneWidget);
   });
 
-  testWidgets('SettingsView help option goes to help view', (WidgetTester tester) async {
-    await tester.pumpWidget(settingsViewWidget);
-
-    final helpOption = find.byKey(const Key('Help Option'));
-
-    expect(helpOption, findsOneWidget);
-
-    await tester.tap(helpOption);
-    await tester.pumpAndSettle();
-
-    expect(find.byType(HelpView), findsOneWidget);
-  });
-
   testWidgets('test if logout works', (WidgetTester tester) async {
     await tester.pumpWidget(settingsViewWidget);
 
@@ -122,4 +109,16 @@ void main() {
     await tester.pumpAndSettle();
     expect(firebaseAuth.currentUser, null);
   });
+
+testWidgets('Test tapping on Help navigates to HelpPage', (WidgetTester tester) async {
+  await tester.pumpWidget(MaterialApp(home: settingsViewWidget)); // Replace YourParentWidget with the widget containing the ListTile
+
+  // Tap on the ListTile to navigate to the HelpPage
+  await tester.tap(find.byIcon(Icons.help));
+  await tester.pumpAndSettle();
+
+  // Verify that HelpPage is pushed onto the navigator's stack
+  expect(find.byType(HelpPage), findsOneWidget);
+});
+
 }

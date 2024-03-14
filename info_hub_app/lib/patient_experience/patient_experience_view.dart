@@ -216,9 +216,9 @@ class _ExperienceViewState extends State<ExperienceView> {
                   }
 
                   _saveExperience();
-                  Navigator.of(context).pop(); // Close the dialog
+                  Navigator.of(context).pop(); 
 
-                  // Show the thank you message dialog
+
                   showDialog(
                     context: context,
                     builder: (BuildContext context) {

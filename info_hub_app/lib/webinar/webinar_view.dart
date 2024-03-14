@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:info_hub_app/webinar/webinar_card.dart';
 
 class WebinarView extends StatefulWidget {
   const WebinarView({super.key});
@@ -27,38 +28,7 @@ class _WebinarViewState extends State<WebinarView> {
               shrinkWrap: true,
               itemCount: 2,
               itemBuilder: (context, index) {
-                return Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start, // Align children to the start of the row
-                      children: [
-                        Image.asset(
-                          'assets/base_image.png',
-                          width: 100,
-                          height: 100,
-                        ),
-                        const SizedBox(width: 12), // Add some spacing between the image and the column
-                        const Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Title of webinar",
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                              SizedBox(height: 30), // Add some spacing between the title and the date
-                              Text(
-                                "20/03/2024",
-                                style: TextStyle(color: Colors.grey),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
+                return const WebinarCard();
               }
             ),
             const SizedBox(
@@ -69,38 +39,7 @@ class _WebinarViewState extends State<WebinarView> {
               shrinkWrap: true,
               itemCount: 5,
               itemBuilder: (context, index) {
-                return Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start, // Align children to the start of the row
-                      children: [
-                        Image.asset(
-                          'assets/base_image.png',
-                          width: 100,
-                          height: 100,
-                        ),
-                        const SizedBox(width: 12), // Add some spacing between the image and the column
-                        const Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Title of webinar",
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                              SizedBox(height: 30), // Add some spacing between the title and the date
-                              Text(
-                                "20/03/2024",
-                                style: TextStyle(color: Colors.grey),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
+                return const WebinarCard();
               }
             ),
           ],
