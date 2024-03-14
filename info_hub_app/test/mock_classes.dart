@@ -229,7 +229,8 @@ mockFilePicker() {
   TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
       .setMockMethodCallHandler(channelFilePicker,
           (MethodCall methodCall) async {
-    final ByteData data = await rootBundle.load('/assets/sample-5s.mp4');
+    final ByteData data =
+        await rootBundle.load('info_hub_app/assets/sample-5s.mp4');
     final Uint8List bytes = data.buffer.asUint8List();
     final Directory tempDir = await getTemporaryDirectory();
     final File file = await File(

@@ -2,15 +2,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
 import 'package:info_hub_app/analytics/analytics_base.dart';
-
 import 'package:info_hub_app/message_feature/admin_message_view.dart';
-
 import 'package:info_hub_app/patient_experience/admin_experience_view.dart';
 import 'package:info_hub_app/topics/create_topic.dart';
 import 'package:info_hub_app/ask_question/question_view.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:file_picker/file_picker.dart';
 
 class AdminHomepage extends StatefulWidget {
   final FirebaseFirestore firestore;
@@ -34,6 +32,18 @@ class _AdminHomepageState extends State<AdminHomepage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     getUserList();
+  }
+
+  Future<FilePickerResult?> customFilePicker({
+    bool allowMultiple = false,
+    List<String>? allowedExtensions,
+    FileType type = FileType.any,
+  }) async {
+    return await FilePicker.platform.pickFiles(
+      type: type,
+      allowedExtensions: allowedExtensions,
+      allowMultiple: allowMultiple,
+    );
   }
 
   @override

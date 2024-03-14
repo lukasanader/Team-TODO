@@ -12,6 +12,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:path/path.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:info_hub_app/topics/view_topic.dart';
+import 'package:path/path.dart' as path;
 
 class CreateTopicScreen extends StatefulWidget {
   final FirebaseFirestore firestore;
@@ -19,6 +20,7 @@ class CreateTopicScreen extends StatefulWidget {
   QueryDocumentSnapshot? topic;
   QueryDocumentSnapshot? draft;
   final FirebaseAuth auth;
+  List<PlatformFile>? selectedFiles;
 
   CreateTopicScreen({
     Key? key,
@@ -26,6 +28,7 @@ class CreateTopicScreen extends StatefulWidget {
     required this.storage,
     this.topic,
     this.draft,
+    this.selectedFiles,
     required this.auth,
   }) : super(key: key);
 
@@ -431,12 +434,14 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                                     _imageUrl = null;
                                     setState(() {});
                                     await _initializeVideoPlayer();
+
                                     setState(() {});
                                   } else if (mediaUrls[currentIndex]
                                           ['mediaType'] ==
                                       'image') {
                                     _imageUrl = mediaUrls[currentIndex]['url'];
                                     _videoURL = null;
+
                                     setState(() {});
                                     await _initializeImage();
                                     setState(() {});
@@ -545,13 +550,36 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
   }
 
   Future<void> _pickImageFromDevice() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['jpg', 'jpeg', 'png'],
-      allowMultiple: !changingMedia,
-    );
-    if (result != null) {
-      for (PlatformFile file in result.files) {
+    if (widget.selectedFiles == null) {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['jpg', 'jpeg', 'png'],
+        allowMultiple: !changingMedia,
+      );
+      if (result != null && result.files.isNotEmpty) {
+        // Check if files are selected
+        for (PlatformFile file in result.files) {
+          String imagePath = file.path!;
+          setState(() {
+            _imageUrl = imagePath;
+
+            Map<String, String> imageInfo = {
+              'url': imagePath,
+              'mediaType': 'image',
+            };
+            if (!changingMedia) {
+              mediaUrls.add(imageInfo);
+              currentIndex = mediaUrls.length - 1;
+            } else {
+              mediaUrls[currentIndex] = imageInfo;
+            }
+            _videoURL = null; // Reset video if any
+          });
+        }
+        await _initializeImage();
+      }
+    } else {
+      for (PlatformFile file in filterImages(widget.selectedFiles!)) {
         String imagePath = file.path!;
         setState(() {
           _imageUrl = imagePath;
@@ -568,22 +596,71 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
           }
           _videoURL = null; // Reset video if any
         });
-        if (file == result.files.last) {
-          await _initializeImage();
-        }
+      }
+      if (filterImages(widget.selectedFiles!).isNotEmpty) {
+        await _initializeImage();
       }
     }
   }
 
-  Future<void> _pickVideoFromDevice() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['mp4', 'mov', 'avi', 'mkv', 'wmv'],
-      allowMultiple: !changingMedia,
-    );
+  List<PlatformFile> filterImages(List<PlatformFile> files) {
+    return files.where((file) {
+      // Get the file extension
+      String extension = path.extension(file.path!).toLowerCase();
 
-    if (result != null) {
-      for (PlatformFile file in result.files) {
+      // Check if the extension is for an image file
+      return extension == '.jpg' || extension == '.jpeg' || extension == '.png';
+    }).toList();
+  }
+
+  List<PlatformFile> filterVideos(List<PlatformFile> files) {
+    return files.where((file) {
+      // Get the file extension
+      String extension = path.extension(file.path!).toLowerCase();
+
+      // Check if the extension is for a video file
+      return extension == '.mp4' ||
+          extension == '.mov' ||
+          extension == '.avi' ||
+          extension == '.mkv' ||
+          extension == '.wmv' ||
+          extension == '.flv';
+    }).toList();
+  }
+
+  Future<void> _pickVideoFromDevice() async {
+    if (widget.selectedFiles == null) {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['mp4', 'mov', 'avi', 'mkv', 'wmv'],
+        allowMultiple: !changingMedia,
+      );
+
+      if (result != null) {
+        for (PlatformFile file in result.files) {
+          String videoPath = file.path!;
+          setState(() {
+            _videoURL = videoPath;
+
+            Map<String, String> videoInfo = {
+              'url': videoPath,
+              'mediaType': 'video',
+            };
+            if (!changingMedia) {
+              mediaUrls.add(videoInfo);
+              currentIndex = mediaUrls.length - 1;
+            } else {
+              mediaUrls[currentIndex] = videoInfo;
+            }
+            _imageUrl = null; // Reset image if any
+          });
+          if (file == result.files.last) {
+            await _initializeVideoPlayer();
+          }
+        }
+      }
+    } else {
+      for (PlatformFile file in filterVideos(widget.selectedFiles!)) {
         String videoPath = file.path!;
         setState(() {
           _videoURL = videoPath;
@@ -600,7 +677,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
           }
           _imageUrl = null; // Reset image if any
         });
-        if (file == result.files.last) {
+        if (file == filterVideos(widget.selectedFiles!).last) {
           await _initializeVideoPlayer();
         }
       }
@@ -897,6 +974,9 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
   void _clearImageSelection() {
     List<Map<String, dynamic>> oldMediaUrls = [...mediaUrls];
     setState(() {
+      if (mediaUrls.length == 1) {
+        currentIndex = 0;
+      }
       mediaUrls.removeAt(currentIndex);
       if (mediaUrls.length + 1 > 1) {
         if (currentIndex - 1 >= 0) {
@@ -906,6 +986,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
         }
         if (oldMediaUrls[currentIndex]['mediaType'] == 'video') {
           _videoURL = oldMediaUrls[currentIndex]['url'];
+
           _imageUrl = null;
           setState(() {});
           _initializeVideoPlayer();
@@ -915,6 +996,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
           _videoURL = null;
           setState(() {});
           _initializeImage();
+
           setState(() {});
         }
       } else {
@@ -928,6 +1010,9 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
     List<Map<String, dynamic>> oldMediaUrls = [...mediaUrls];
     setState(() {
       _disposeVideoPlayer();
+      if (mediaUrls.length == 1) {
+        currentIndex = 0;
+      }
       mediaUrls.removeAt(currentIndex);
       if (mediaUrls.length + 1 > 1) {
         if (currentIndex - 1 >= 0) {
@@ -943,6 +1028,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
           setState(() {});
         } else if (oldMediaUrls[currentIndex]['mediaType'] == 'image') {
           _imageUrl = oldMediaUrls[currentIndex]['url'];
+
           _videoURL = null;
           setState(() {});
           _initializeImage();
