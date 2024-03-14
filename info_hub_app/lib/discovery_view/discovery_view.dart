@@ -255,29 +255,30 @@ class _DiscoveryViewState extends State<DiscoveryView> {
                 Navigator.of(context).pop();
 
                 // Show the message dialog
+                // ignore: use_build_context_synchronously
                 showDialog(
                   context: context,
                   builder: (BuildContext context) {
                     return AlertDialog(
                       title: const Text('Message'),
-                      content: Column(
+                      content: const Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.check_circle,
                             color: Colors.green,
                             size: 50,
                           ),
-                          const SizedBox(height: 10),
-                          const Text(
+                          SizedBox(height: 10),
+                          Text(
                             'Thank you!',
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          const SizedBox(height: 10),
-                          const Text(
+                          SizedBox(height: 10),
+                          Text(
                             'Your question has been submitted.\n'
                             'An admin will get back to you shortly.',
                             textAlign: TextAlign.center,
@@ -304,5 +305,4 @@ class _DiscoveryViewState extends State<DiscoveryView> {
     },
   );
 }
-
 }
