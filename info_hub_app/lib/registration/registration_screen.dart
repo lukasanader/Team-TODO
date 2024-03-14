@@ -1,10 +1,14 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/helpers/base.dart';
 import 'package:info_hub_app/services/auth.dart';
 import 'package:info_hub_app/registration/user_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:info_hub_app/legal_agreements/terms_of_services.dart';
+import 'package:info_hub_app/legal_agreements/privacy_policy.dart';
 import 'package:info_hub_app/welcome_message/welcome_message.dart';
 
 class RegistrationScreen extends StatefulWidget {
@@ -174,6 +178,53 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     child: Text('Healthcare Professional'),
                   ),
                 ],
+              ),
+              const SizedBox(height: 20),
+              // RichText widget to display the legal agreements
+              RichText(
+                key: const Key('legal_agreements'),
+                text: TextSpan(
+                  style: TextStyle(color: Colors.grey[600]),
+                  children: [
+                    const TextSpan(
+                      text: 'By clicking "Register", you agree to our ',
+                    ),
+                    TextSpan(
+                      text: 'Terms of Service',
+                      style: const TextStyle(color: Colors.blue),
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () {
+                          // Navigate to Terms of Service page
+                          Navigator.push(
+                            context,
+                            CupertinoPageRoute(
+                              builder: (context) => const TermsOfServicesPage(),
+                            ),
+                          );
+                        },
+                    ),
+                    const TextSpan(
+                      text: ' and ',
+                    ),
+                    TextSpan(
+                      text: 'Privacy Policy',
+                      style: const TextStyle(color: Colors.blue),
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () {
+                          // Navigate to Privacy Policy page
+                          Navigator.push(
+                            context,
+                            CupertinoPageRoute(
+                              builder: (context) => const PrivacyPolicyPage(),
+                            ),
+                          );
+                        },
+                    ),
+                    const TextSpan(
+                      text: '.',
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 20),
               ElevatedButton(

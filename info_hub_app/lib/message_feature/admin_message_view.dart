@@ -27,9 +27,7 @@ class _MessageViewState extends State<MessageView> {
   List<Object> _chatList = [];
 
 
-
-
-
+  
 
   @override
   void didChangeDependencies() {

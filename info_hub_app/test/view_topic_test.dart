@@ -908,7 +908,23 @@ void main() {
 
   testWidgets('Test back button navigates to Base screen',
       (WidgetTester tester) async {
+      await auth.createUserWithEmailAndPassword(email: 'test@tested.org', password: 'Password123!');
+  String uid = auth.currentUser!.uid;
+  await firestore.collection('Users').doc(uid).set({
+        'email': 'test@tested.org',
+        'firstName' : 'James',
+        'lastName' : 'Doe',
+        'roleType' : 'Patient'
+        });
     CollectionReference topicCollectionRef = firestore.collection('topics');
+    await auth.createUserWithEmailAndPassword(email: 'user@gmail.com', password: 'User123!');
+    uid = auth.currentUser!.uid;
+    await firestore.collection('Users').doc(uid).set({
+      'email': 'admin@gmail.com',
+      'firstName': 'John',
+      'lastName': 'Doe',
+      'roleType': 'Patient'
+    });
 
     await topicCollectionRef.add({
       'title': 'no video topic',

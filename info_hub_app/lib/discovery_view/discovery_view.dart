@@ -25,10 +25,19 @@ class _DiscoveryViewState extends State<DiscoveryView> {
   List<Object> _searchedTopicsList = [];
   int topicLength = 0;
 
+  late List<bool> isSelected = [];
+  List<Widget> _categoriesWidget = [];
+  List<String> _categories = [];
+  List<String> categoriesSelected = [];
+
+
+
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    getTopicsList();
+    getCategoryList();
+    updateTopicsList();
   }
 
   @override
@@ -48,10 +57,27 @@ class _DiscoveryViewState extends State<DiscoveryView> {
           )
         ],
       ),
-      body: SafeArea(
-          child: Column(
+      body: SingleChildScrollView(
+        child: Column(
         children: [
+          ToggleButtons(
+            isSelected: isSelected,
+            onPressed: (int index) {
+              setState(() {
+                isSelected[index] = !isSelected[index];
+                if (!categoriesSelected.contains(_categories[index])) {
+                  categoriesSelected.add(_categories[index]);
+                }
+                else {
+                  categoriesSelected.remove(_categories[index]);
+                }
+                updateTopicListBasedOnCategory(categoriesSelected);
+              });
+            },
+            children: _categoriesWidget
+          ),
           ListView.builder(
+            physics: const NeverScrollableScrollPhysics(),
             shrinkWrap: true,
             itemCount: topicLength == 0 ? 1 : topicLength,
             itemBuilder: (context, index) {
@@ -88,7 +114,8 @@ class _DiscoveryViewState extends State<DiscoveryView> {
               onPressed: () {
                 _showPostDialog();
               },
-              child: const Text("Ask a question!"))
+              child: const Text("Ask a question!")
+          )
         ],
       )),
     );
@@ -114,16 +141,86 @@ class _DiscoveryViewState extends State<DiscoveryView> {
     });
   }
 
-  Future getTopicsList() async {
-    QuerySnapshot data =
-        await widget.firestore.collection('topics').orderBy('title').get();
+  Future<List<Object>> getTopicsList() async {
+    String uid = widget.auth.currentUser!.uid;
+    DocumentSnapshot user = await widget.firestore.collection('Users').doc(uid).get();
+    String role = user['roleType'];
+    QuerySnapshot data = await widget.firestore.collection('topics')
+        .where('tags', arrayContains: role)
+        .orderBy('title')
+        .get();
+
+    return List.from(data.docs);
+  }
+
+  Future updateTopicsList() async {
+    List<Object> tempTopicList = await getTopicsList();
 
     setState(() {
-      _topicsList = List.from(data.docs);
-     
+      _topicsList = tempTopicList;
       topicLength = _topicsList.length;
     });
   }
+
+
+
+
+  Future updateTopicListBasedOnCategory(List<String> categories) async {
+    if (categories.isEmpty) {
+      updateTopicsList();
+    }
+    else {
+      List<Object> allTopics = await getTopicsList();
+
+      List<Object> categoryTopicList = [];
+
+      for (dynamic topic in allTopics) {
+        var data = topic.data(); 
+        if (
+        data != null 
+        && data.containsKey('categories') 
+        ) {
+          if (categories.every((item) => data['categories'].contains(item))) {
+            categoryTopicList.add(topic);
+          }
+
+        }
+      }
+
+      setState(() {
+        _topicsList = categoryTopicList;
+        topicLength = _topicsList.length;
+      });
+    }
+  }
+
+
+  Future getCategoryList() async {
+    QuerySnapshot data = await widget.firestore
+        .collection('categories')
+        .orderBy('name')
+        .get();
+
+    List<Object> dataList = List.from(data.docs);
+    List<String> tempStringList = [];
+    List<Widget> tempWidgetList = [];
+
+    for (dynamic category in dataList) {
+      tempStringList.add(category['name']); 
+      tempWidgetList.add(Text(category['name'])); 
+    }
+
+    setState(() {
+      _categories = tempStringList;
+      _categoriesWidget = tempWidgetList;
+      isSelected = List<bool>.filled(_categoriesWidget.length, false);
+    });
+  }
+
+
+
+
+
 
   void _showPostDialog() {
   showDialog(

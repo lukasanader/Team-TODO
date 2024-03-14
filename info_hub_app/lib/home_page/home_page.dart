@@ -46,6 +46,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   List<Object> _topicsList = [];
+  List<Object> _FiltList = [];
   int topicLength = 0;
 
   @override
@@ -204,8 +205,14 @@ class _HomePageState extends State<HomePage> {
         ));
   }
 
+
   Future getTopicsList() async {
-    QuerySnapshot data = await widget.firestore.collection('topics').get();
+    String uid = widget.auth.currentUser!.uid;
+    DocumentSnapshot user = await widget.firestore.collection('Users').doc(uid).get();
+    String role = user['roleType'];
+    QuerySnapshot data = await widget.firestore.collection('topics').where('tags', arrayContains: role).get();
+    
+
 
     setState(() {
       _topicsList = List.from(data.docs);

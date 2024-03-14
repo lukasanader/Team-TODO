@@ -109,6 +109,11 @@ class _LoginScreenState extends State<LoginScreen> {
                           storage: widget.storage,
                         );
                       }
+                      Widget nextPage = Base(
+                        firestore: widget.firestore,
+                        auth: widget.auth,
+                        storage: widget.storage,
+                      );
                       Navigator.pushAndRemoveUntil(
                         context,
                         MaterialPageRoute(builder: (context) => nextPage),

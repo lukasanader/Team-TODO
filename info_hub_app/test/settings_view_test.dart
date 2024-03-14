@@ -5,6 +5,9 @@ import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:info_hub_app/notifications/manage_notifications.dart';
+import 'package:info_hub_app/registration/start_page.dart';
+import 'package:info_hub_app/settings/help_page/help_page.dart';
+import 'package:info_hub_app/settings/privacy_base.dart';
 import 'package:info_hub_app/settings/settings_view.dart';
 import 'package:info_hub_app/settings/help_page.dart';
 
@@ -14,11 +17,16 @@ void main() {
   late MockFirebaseStorage firebaseStorage;
   late FakeFirebaseFirestore firestore;
 
-  setUp(() { 
+  setUp(() {
     firebaseAuth = MockFirebaseAuth();
     firebaseStorage = MockFirebaseStorage();
     firestore = FakeFirebaseFirestore();
-    settingsViewWidget =  MaterialApp(home: SettingsView(auth: firebaseAuth, firestore: firestore, storage: firebaseStorage,));
+    settingsViewWidget = MaterialApp(
+        home: SettingsView(
+      auth: firebaseAuth,
+      firestore: firestore,
+      storage: firebaseStorage,
+    ));
   });
 
   testWidgets('SettingsView has appbar with back button and title "Settings"',
@@ -53,7 +61,8 @@ void main() {
     expect(find.text("About TEAM TODO"), findsOneWidget);
   });
 
-  testWidgets('Test entering privacy settings works', (WidgetTester tester) async {
+  testWidgets('Test entering privacy settings works',
+      (WidgetTester tester) async {
     // Build our PrivacyPage widget and trigger a frame.
     await tester.pumpWidget(settingsViewWidget);
 
@@ -61,15 +70,17 @@ void main() {
     await tester.tap(find.text('Manage Privacy Settings'));
     await tester.pumpAndSettle();
 
+    // Verify that PrivacyPage is rendered after tapping on the ListTile.
+    expect(find.byType(PrivacyPage), findsOneWidget);
+
     // Verify that TermsOfServicesPage renders an AppBar with the title "Terms of Services".
     expect(find.text('Privacy'), findsOneWidget);
-
-    // Verify that TermsOfServicesPage renders the specified text.
-    expect(find.text('TeamTODO Terms of Services'), findsOneWidget);
   });
 
-  testWidgets('Test entering manage settings works', (WidgetTester tester) async {
-    await firebaseAuth.createUserWithEmailAndPassword(email: 'user@gmail.com', password: 'User123!');
+  testWidgets('Test entering manage settings works',
+      (WidgetTester tester) async {
+    await firebaseAuth.createUserWithEmailAndPassword(
+        email: 'user@gmail.com', password: 'User123!');
     String uid = firebaseAuth.currentUser!.uid;
     await firestore.collection('Users').doc(uid).set({
       'email': 'user@gmail.com',
@@ -78,11 +89,9 @@ void main() {
       'roleType': 'Patient'
     });
 
-    CollectionReference preferenceCollection = firestore.collection('preferences');
-    preferenceCollection.add({
-      'push_notifications' : false,
-      'uid' : uid
-    });
+    CollectionReference preferenceCollection =
+        firestore.collection('preferences');
+    preferenceCollection.add({'push_notifications': false, 'uid': uid});
 
     await tester.pumpWidget(settingsViewWidget);
 
@@ -91,17 +100,28 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(ManageNotifications), findsOneWidget);
+  });
 
+  testWidgets('SettingsView help option goes to help view', (WidgetTester tester) async {
+    await tester.pumpWidget(settingsViewWidget);
+
+    final helpOption = find.byKey(const Key('Help Option'));
+
+    expect(helpOption, findsOneWidget);
+
+    await tester.tap(helpOption);
+    await tester.pumpAndSettle();
+
+    expect(find.byType(HelpView), findsOneWidget);
   });
 
   testWidgets('test if logout works', (WidgetTester tester) async {
-    
     await tester.pumpWidget(settingsViewWidget);
 
     await tester.tap(find.byIcon(Icons.logout));
     await tester.pumpAndSettle();
-    expect(firebaseAuth.currentUser,null);
-});
+    expect(firebaseAuth.currentUser, null);
+  });
 
 testWidgets('Test tapping on Help navigates to HelpPage', (WidgetTester tester) async {
   await tester.pumpWidget(MaterialApp(home: settingsViewWidget)); // Replace YourParentWidget with the widget containing the ListTile
