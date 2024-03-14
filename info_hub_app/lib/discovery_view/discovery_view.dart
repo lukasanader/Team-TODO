@@ -37,7 +37,7 @@ class _DiscoveryViewState extends State<DiscoveryView> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     getCategoryList();
-    getTopicsList();
+    updateTopicsList();
   }
 
   @override
@@ -107,7 +107,6 @@ class _DiscoveryViewState extends State<DiscoveryView> {
               }
             },
           ),
-
           const SizedBox(
             height: 20,
           ),
@@ -142,46 +141,54 @@ class _DiscoveryViewState extends State<DiscoveryView> {
     });
   }
 
-  Future getTopicsList() async {
-    QuerySnapshot data =
-        await widget.firestore.collection('topics').orderBy('title').get();
+  Future<List<Object>> getTopicsList() async {
+    String uid = widget.auth.currentUser!.uid;
+    DocumentSnapshot user = await widget.firestore.collection('Users').doc(uid).get();
+    String role = user['roleType'];
+    QuerySnapshot data = await widget.firestore.collection('topics')
+        .where('tags', arrayContains: role)
+        .orderBy('title')
+        .get();
+
+    return List.from(data.docs);
+  }
+
+  Future updateTopicsList() async {
+    List<Object> tempTopicList = await getTopicsList();
 
     setState(() {
-      _topicsList = List.from(data.docs);
+      _topicsList = tempTopicList;
       topicLength = _topicsList.length;
     });
   }
 
 
 
+
   Future updateTopicListBasedOnCategory(List<String> categories) async {
     if (categories.isEmpty) {
-      getTopicsList();
-    } else {
-      List<QuerySnapshot> snapshots = [];
-      for (String category in categories) {
-        QuerySnapshot snapshot = await widget.firestore
-            .collection('topics')
-            .where('categories', arrayContains: category)
-            .orderBy('title')
-            .get();
-        snapshots.add(snapshot);
-      }
+      updateTopicsList();
+    }
+    else {
+      List<Object> allTopics = await getTopicsList();
 
-      // Find the intersection of documents
-      List<QueryDocumentSnapshot> intersection = [];
-      if (snapshots.isNotEmpty) {
-        intersection = snapshots.first.docs;
-        for (int i = 1; i < snapshots.length; i++) {
-          intersection = intersection
-              .where((doc1) => snapshots[i].docs
-                  .any((doc2) => doc1.id == doc2.id))
-              .toList();
+      List<Object> categoryTopicList = [];
+
+      for (dynamic topic in allTopics) {
+        var data = topic.data(); 
+        if (
+        data != null 
+        && data.containsKey('categories') 
+        ) {
+          if (categories.every((item) => data['categories'].contains(item))) {
+            categoryTopicList.add(topic);
+          }
+
         }
       }
 
       setState(() {
-        _topicsList = intersection;
+        _topicsList = categoryTopicList;
         topicLength = _topicsList.length;
       });
     }
