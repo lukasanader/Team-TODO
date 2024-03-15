@@ -145,10 +145,19 @@ class _DiscoveryViewState extends State<DiscoveryView> {
     String uid = widget.auth.currentUser!.uid;
     DocumentSnapshot user = await widget.firestore.collection('Users').doc(uid).get();
     String role = user['roleType'];
-    QuerySnapshot data = await widget.firestore.collection('topics')
+    late QuerySnapshot data;
+
+    if (role == 'admin') {
+      data = await widget.firestore.collection('topics')
+        .orderBy('title')
+        .get();      
+    }
+    else {
+      data = await widget.firestore.collection('topics')
         .where('tags', arrayContains: role)
         .orderBy('title')
         .get();
+    }
 
     return List.from(data.docs);
   }
