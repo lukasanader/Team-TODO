@@ -48,8 +48,6 @@ void main() {
     await tester.pumpWidget(experienceViewWidget);
     await tester.pumpAndSettle();
 
-
-
     expect(find.text('Example 1'), findsOneWidget);
 
   });
@@ -111,5 +109,24 @@ void main() {
     expect(experienceList[0].verified, isFalse);
   });
 
+  testWidgets('Delete button removes an experience',
+      (WidgetTester tester) async {
+    // Build our app and trigger a frame.
+    await tester.pumpWidget(experienceViewWidget);
+    await tester.pumpAndSettle();
+
+    Finder deleteButton = find.byIcon(Icons.delete).first;
+
+    await tester.ensureVisible(deleteButton);
+    await tester.tap(deleteButton);
+    await tester.pumpAndSettle();
+
+    expect(find.byType(AlertDialog), findsOneWidget);
+
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Example 1'), findsNothing);
+  });
 
 }
