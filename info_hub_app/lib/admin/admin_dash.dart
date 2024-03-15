@@ -17,7 +17,10 @@ class AdminHomepage extends StatefulWidget {
   final FirebaseAuth auth;
   final FirebaseStorage storage;
   const AdminHomepage(
-      {super.key, required this.firestore, required this.auth, required this.storage});
+      {super.key,
+      required this.firestore,
+      required this.auth,
+      required this.storage});
   @override
   _AdminHomepageState createState() => _AdminHomepageState();
 }
@@ -66,6 +69,7 @@ class _AdminHomepageState extends State<AdminHomepage> {
                           return CreateTopicScreen(
                             storage: widget.storage,
                             firestore: widget.firestore,
+                            auth: widget.auth,
                           );
                         },
                       ),
@@ -176,7 +180,6 @@ class _AdminHomepageState extends State<AdminHomepage> {
                 ],
               ),
             ),
-
           ])),
     );
   }

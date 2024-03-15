@@ -18,15 +18,16 @@ void main() {
   late MockFirebaseStorage mockStorage = MockFirebaseStorage();
   late Widget quizWidget;
 
-  setUp(() async{
-    auth =MockFirebaseAuth();
+  setUp(() async {
+    auth = MockFirebaseAuth();
     firestore = FakeFirebaseFirestore();
-    auth.createUserWithEmailAndPassword(email: 'test@email.com', password: 'Password123!');
+    auth.createUserWithEmailAndPassword(
+        email: 'test@email.com', password: 'Password123!');
     await firestore.collection('topics').add({
       'title': 'Test Topic',
       'description': 'This is a test',
       'articleLink': '',
-      'videoUrl': '',
+      'media': [],
       'views': 0,
       'likes': 0,
       'dislikes': 0,
@@ -37,23 +38,28 @@ void main() {
     final topic = topicsSnapshot.docs.first;
     //Add the questions
     await firestore.collection('quizQuestions').add({
-      'question' : 'What is a liver?',
-      'correctAnswers' : ['An organ'],
-      'wrongAnswers' : ['A dog','A cat','A person'],
-      'quizID' : '1', 
+      'question': 'What is a liver?',
+      'correctAnswers': ['An organ'],
+      'wrongAnswers': ['A dog', 'A cat', 'A person'],
+      'quizID': '1',
     });
     await firestore.collection('quizQuestions').add({
-      'question' : 'What is a hospital?',
-      'correctAnswers' : ['A building'],
-      'wrongAnswers' : ['A car','A taxi','A bus'],
-      'quizID' : '1', 
+      'question': 'What is a hospital?',
+      'correctAnswers': ['A building'],
+      'wrongAnswers': ['A car', 'A taxi', 'A bus'],
+      'quizID': '1',
     });
     quizWidget = MaterialApp(
-      home: ViewTopicScreen(firestore: firestore, storage: mockStorage, topic: topic,auth: auth,),
+      home: ViewTopicScreen(
+        firestore: firestore,
+        storage: mockStorage,
+        topic: topic,
+        auth: auth,
+      ),
     );
   });
 
-    testWidgets('Test Complete Quiz Screen', (WidgetTester tester) async {
+  testWidgets('Test Complete Quiz Screen', (WidgetTester tester) async {
     await tester.pumpWidget(quizWidget);
     await tester.pumpAndSettle();
 
@@ -62,9 +68,9 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(CompleteQuiz), findsOne);
-  
+
     //Ensure all questions and answers are there
-    
+
     expect(find.text('1. What is a liver?'), findsOne);
     expect(find.text('2. What is a hospital?'), findsOne);
 
@@ -97,9 +103,8 @@ void main() {
 
     // Check if the retrieved document has the expected values
     expect(querySnapshot.docs.length, 1); // Expecting one document
-    final quizDoc = querySnapshot.docs.first.data();// Check topicID
+    final quizDoc = querySnapshot.docs.first.data(); // Check topicID
     expect(quizDoc['uid'], auth.currentUser?.uid); // Check uID
-    expect(quizDoc['score'], "1/2"); 
-    });
+    expect(quizDoc['score'], "1/2");
+  });
 }
-
