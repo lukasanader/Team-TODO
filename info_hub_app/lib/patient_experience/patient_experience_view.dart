@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:info_hub_app/patient_experience/experience_controller.dart';
 import 'package:info_hub_app/patient_experience/experience_model.dart';
 import 'package:info_hub_app/patient_experience/experiences_card.dart';
 
@@ -15,16 +16,28 @@ class ExperienceView extends StatefulWidget {
 }
 
 class _ExperienceViewState extends State<ExperienceView> {
+  late ExperienceController _experienceController;
+
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _titleController = TextEditingController();
-  final Experience _experience = Experience();
   List<Experience> _experienceList = [];
   // ignore: prefer_final_fields
+
+
+
+
+  @override
+  void initState() {
+    super.initState();
+    _experienceController = ExperienceController(
+      widget.auth, 
+      widget.firestore);
+  }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    getExperienceList();
+    updateExperienceList();
   }
 
   @override
@@ -215,10 +228,12 @@ class _ExperienceViewState extends State<ExperienceView> {
                     return _blankTitleOrExperienceAlert(context);
                   }
 
-                  _saveExperience();
+                  _experienceController.saveExperience(
+                    _titleController.text,
+                    _descriptionController.text
+                  );
+
                   Navigator.of(context).pop(); 
-
-
                   showDialog(
                     context: context,
                     builder: (BuildContext context) {
@@ -247,32 +262,15 @@ class _ExperienceViewState extends State<ExperienceView> {
     );
   }
 
-  Future getExperienceList() async {
-    QuerySnapshot data = await widget.firestore
-        .collection('experiences')
-        .where('verified', isEqualTo: true)
-        .get();
+  Future updateExperienceList() async {
+    List<Experience> data = await _experienceController.getVerifiedExperienceList();
 
     setState(() {
-      _experienceList =
-          List.from(data.docs.map((doc) => Experience.fromSnapshot(doc)));
+      _experienceList = data;
     });
   }
 
-  void _saveExperience() async {
-    // FirebaseAuth auth = FirebaseAuth.instance;
-    // User? user = auth.currentUser;
 
-    _experience.title = _titleController.text;
-    _experience.description = _descriptionController.text;
-    // if (user != null) {
-    //   _experience.uid = user.uid;
-    // }
-    _experience.verified = false;
-
-    CollectionReference db = widget.firestore.collection('experiences');
-    await db.add(_experience.toJson());
-  }
 
   Future<void> _blankTitleOrExperienceAlert(BuildContext context) async {
     return showDialog<void>(

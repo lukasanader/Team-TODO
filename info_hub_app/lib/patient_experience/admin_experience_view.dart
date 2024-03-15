@@ -1,25 +1,39 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:info_hub_app/patient_experience/experience_controller.dart';
 import 'package:info_hub_app/patient_experience/experiences_card.dart';
 import 'package:info_hub_app/patient_experience/experience_model.dart';
 
 class AdminExperienceView extends StatefulWidget {
   final FirebaseFirestore firestore;
-  const AdminExperienceView({super.key, required this.firestore});
+  final FirebaseAuth auth;
+  const AdminExperienceView({
+    super.key, 
+    required this.firestore,
+    required this.auth});
 
   @override
   _AdminExperienceViewState createState() => _AdminExperienceViewState();
 }
 
 class _AdminExperienceViewState extends State<AdminExperienceView> {
-  List<Experience> _experienceList = [];
+  late ExperienceController _experienceController;
   List<Experience> _verifiedExperienceList = [];
   List<Experience> _unverifiedExperienceList = [];
 
   @override
+  void initState() {
+    super.initState();
+    _experienceController = ExperienceController(
+      widget.auth, 
+      widget.firestore);
+  }
+
+  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    getExperienceList();
+    updateExperiencesList();
   }
 
   @override
@@ -47,8 +61,9 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
                           flex: 1,
                           child: IconButton(
                               onPressed: () {
-                                updateVerification(
+                                _experienceController.updateVerification(
                                     _verifiedExperienceList[index]);
+                                updateExperiencesList();
                               },
                               icon: const Icon(Icons.close)))
                     ],
@@ -71,8 +86,9 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
                           flex: 1,
                           child: IconButton(
                               onPressed: () {
-                                updateVerification(
+                                _experienceController.updateVerification(
                                     _unverifiedExperienceList[index]);
+                                updateExperiencesList();
                               },
                               icon: const Icon(Icons.check)))
                     ],
@@ -82,28 +98,15 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
         )));
   }
 
-  Future getExperienceList() async {
-    QuerySnapshot data = await widget.firestore.collection('experiences').get();
+  Future updateExperiencesList() async {
+    List<Experience> verifiedExperiences = await _experienceController.getVerifiedExperienceList();
+    List<Experience> unverifiedExperiences = await _experienceController.getUnverifiedExperienceList();
 
     setState(() {
-      _experienceList =
-          List.from(data.docs.map((doc) => Experience.fromSnapshot(doc)));
-      _verifiedExperienceList = _experienceList
-          .where((experience) => experience.verified == true)
-          .toList();
-      _unverifiedExperienceList = _experienceList
-          .where((experience) => experience.verified == false)
-          .toList();
+      _verifiedExperienceList = verifiedExperiences;
+      _unverifiedExperienceList = unverifiedExperiences;
     });
   }
 
-  Future<void> updateVerification(Experience experience) async {
-    bool newValue = experience.verified == true ? false : true;
 
-    await widget.firestore.collection('experiences').doc(experience.id).update({
-      'verified': newValue,
-    });
-
-    getExperienceList();
-  }
 }

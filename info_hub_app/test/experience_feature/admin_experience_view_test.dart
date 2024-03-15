@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
@@ -7,11 +8,13 @@ import 'package:info_hub_app/patient_experience/experience_model.dart';
 
 void main() {
   late FakeFirebaseFirestore firestore;
+  late MockFirebaseAuth auth;
   late CollectionReference topicsCollectionRef;
   late Widget experienceViewWidget;
 
   setUp(() {
     firestore = FakeFirebaseFirestore();
+    auth = MockFirebaseAuth();
     topicsCollectionRef = firestore.collection('experiences');
 
     topicsCollectionRef.add({
@@ -26,7 +29,7 @@ void main() {
     });
 
     experienceViewWidget = MaterialApp(
-      home: AdminExperienceView(firestore: firestore),
+      home: AdminExperienceView(firestore: firestore, auth: auth,),
     );
   });
 
