@@ -14,7 +14,7 @@ class AdminExperienceView extends StatefulWidget {
     required this.auth});
 
   @override
-  _AdminExperienceViewState createState() => _AdminExperienceViewState();
+  State<AdminExperienceView> createState() => _AdminExperienceViewState();
 }
 
 class _AdminExperienceViewState extends State<AdminExperienceView> {

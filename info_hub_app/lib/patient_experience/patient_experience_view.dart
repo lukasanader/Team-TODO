@@ -12,7 +12,7 @@ class ExperienceView extends StatefulWidget {
       {super.key, required this.firestore, required this.auth});
 
   @override
-  _ExperienceViewState createState() => _ExperienceViewState();
+  State<ExperienceView> createState() => _ExperienceViewState();
 }
 
 class _ExperienceViewState extends State<ExperienceView> {
