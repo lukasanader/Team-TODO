@@ -61,6 +61,13 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
                           flex: 1,
                           child: IconButton(
                               onPressed: () {
+                                deleteExperienceConfirmation(_verifiedExperienceList[index]);
+                              },
+                              icon: const Icon(Icons.delete))),
+                      Flexible(
+                          flex: 1,
+                          child: IconButton(
+                              onPressed: () {
                                 _experienceController.updateVerification(
                                     _verifiedExperienceList[index]);
                                 updateExperiencesList();
@@ -86,6 +93,13 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
                           flex: 1,
                           child: IconButton(
                               onPressed: () {
+                                deleteExperienceConfirmation(_unverifiedExperienceList[index]);
+                              },
+                              icon: const Icon(Icons.delete))),
+                      Flexible(
+                          flex: 1,
+                          child: IconButton(
+                              onPressed: () {
                                 _experienceController.updateVerification(
                                     _unverifiedExperienceList[index]);
                                 updateExperiencesList();
@@ -97,6 +111,29 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
           ],
         )));
   }
+
+  Future<void> deleteExperienceConfirmation(Experience experience) async {
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Warning!'),
+          content: const Text("Are you sure you want to delete?"),
+          actions: [
+            ElevatedButton(
+              onPressed: () async {
+                _experienceController.deleteExperience(experience);
+                updateExperiencesList();
+                Navigator.of(context).pop();
+              },
+              child: const Text("OK"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
 
   Future updateExperiencesList() async {
     List<Experience> verifiedExperiences = await _experienceController.getVerifiedExperienceList();

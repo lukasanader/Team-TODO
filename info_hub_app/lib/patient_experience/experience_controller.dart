@@ -26,6 +26,11 @@ class ExperienceController {
     await db.add(newExperience.toJson());
   }
 
+  void deleteExperience(Experience experience) async {
+    await _firestore.collection('experiences').doc(experience.id).delete();
+  }
+
+
   Future<List<Experience>> getVerifiedExperienceList() async {
     QuerySnapshot experiencesSnapshot = await _firestore
         .collection('experiences')
