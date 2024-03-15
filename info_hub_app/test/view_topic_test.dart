@@ -952,8 +952,6 @@ void main() {
     await tester.tap(find.byIcon(Icons.arrow_back));
 
     await tester.pumpAndSettle();
-
-    // check if the Base screen is navigated to
     expect(find.byType(Base), findsOneWidget);
   });
 

@@ -488,7 +488,6 @@ void main() {
   await tester.tap(find.text('OK'));
   await tester.pumpAndSettle();
 
-  // Verify that both AlertDialogs are closed
   expect(find.byType(AlertDialog), findsNothing);
 
   // Verify that the question is added to the Firestore collection

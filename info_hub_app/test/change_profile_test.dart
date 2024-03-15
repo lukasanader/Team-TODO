@@ -68,8 +68,8 @@ testWidgets('Test if first name contains only letters', (WidgetTester tester) as
   await tester.pumpWidget(MaterialApp(home: ChangeProfile(firestore: firestore, auth: auth)));
   final firstNameField = find.widgetWithText(TextField, 'First Name');
   await tester.enterText(firstNameField, '123');
-  await tester.tap(find.text('Save Changes')); // Trigger the onPressed callback
-  await tester.pumpAndSettle(); // Wait for all animations to complete
+  await tester.tap(find.text('Save Changes')); 
+  await tester.pumpAndSettle(); 
   expect(find.text('First name must consist of letters only'), findsOneWidget);
 });
 
@@ -79,11 +79,11 @@ testWidgets('Test if last name contains only letters', (WidgetTester tester) asy
   final auth = MockFirebaseAuth();
   await tester.pumpWidget(MaterialApp(home: ChangeProfile(firestore: firestore, auth: auth)));
   final lastNameField = find.widgetWithText(TextField, 'Last Name');
-  expect(lastNameField, findsOneWidget); // Check if last name field is found
-  await tester.enterText(lastNameField, '1234'); // Enter non-alphabetic characters
-  await tester.tap(find.text('Save Changes')); // Trigger onPressed event
-  await tester.pumpAndSettle(); // Wait for all animations to complete
-  expect(find.text('Last name must consist of letters only'), findsOneWidget); // Verify error message
+  expect(lastNameField, findsOneWidget); 
+  await tester.enterText(lastNameField, '1234'); 
+  await tester.tap(find.text('Save Changes')); 
+  await tester.pumpAndSettle(); 
+  expect(find.text('Last name must consist of letters only'), findsOneWidget); 
 });
 
 
@@ -93,8 +93,8 @@ testWidgets('Test if password meets the criteria', (WidgetTester tester) async {
   await tester.pumpWidget(MaterialApp(home: ChangeProfile(firestore: firestore, auth: auth)));
   final newPasswordField = find.widgetWithText(TextField, 'New Password');
   await tester.enterText(newPasswordField, 'weakpassword');
-  await tester.tap(find.text('Save Changes')); // Trigger the onPressed callback
-  await tester.pumpAndSettle(); // Wait for all animations to complete
+  await tester.tap(find.text('Save Changes')); 
+  await tester.pumpAndSettle(); 
   expect(find.text('Password must contain:\n- At least one lowercase letter\n- One uppercase letter\n- One number\n- One special character'), findsOneWidget);
 });
 
@@ -106,18 +106,17 @@ testWidgets('Test if passwords match', (WidgetTester tester) async {
   final confirmPasswordField = find.widgetWithText(TextField, 'Confirm Password');
   await tester.enterText(newPasswordField, 'Password@123');
   await tester.enterText(confirmPasswordField, 'Password@456');
-  await tester.tap(find.text('Save Changes')); // Trigger the onPressed callback
-  await tester.pumpAndSettle(); // Wait for all animations to complete
+  await tester.tap(find.text('Save Changes')); 
+  await tester.pumpAndSettle(); 
   expect(find.text('Passwords do not match'), findsOneWidget);
 });
 
 
-testWidgets('Test if first name and last name are updated in Firestore', (WidgetTester tester) async {
+testWidgets('Test if first name is updated in Firestore', (WidgetTester tester) async {
   final firestore = FakeFirebaseFirestore();
   final auth = MockFirebaseAuth();
   auth.createUserWithEmailAndPassword(email: 'testcaseemail@example.org', password: 'Password123!');
 
-  // Create a fake user document with old first name
   final fakeUserId = auth.currentUser?.uid;
   final fakeUser = {
     'email':'testcaseemail@example.org',
@@ -126,12 +125,7 @@ testWidgets('Test if first name and last name are updated in Firestore', (Widget
     'lastName': 'OldLastName',
   };
   await firestore.collection('Users').doc(fakeUserId).set(fakeUser);
-
-  // Mock FirebaseAuth to return the expected current user
-
   await tester.pumpWidget(MaterialApp(home: ChangeProfile(firestore: firestore, auth: auth)));
-
-  // Enter new first name and last name and passwords
   final firstNameField = find.widgetWithText(TextField, 'First Name');
   await tester.enterText(firstNameField, 'NewFirstName');
   final lastNameField = find.widgetWithText(TextField, 'Last Name');
@@ -140,19 +134,39 @@ testWidgets('Test if first name and last name are updated in Firestore', (Widget
   await tester.enterText(newPasswordField, 'Password@123');
   final confirmPasswordField = find.widgetWithText(TextField, 'Confirm Password');
   await tester.enterText(confirmPasswordField, 'Password@123');
-
-  // Trigger the save changes button
   await tester.tap(find.text('Save Changes'));
   await tester.pumpAndSettle();
-
-  // Check if the user document in Firestore has been updated
   final updatedUserDoc = await firestore.collection('Users').doc(fakeUserId).get();
-  // Ensure that the updated user document refers to the same user as the one with the old last name
   expect(updatedUserDoc['firstName'], 'NewFirstName');
-  expect(updatedUserDoc['lastName'], 'NewLastName');
-  
 });
 
+testWidgets('Test if Last Name is updated in Firestore', (WidgetTester tester) async {
+  final firestore = FakeFirebaseFirestore();
+  final auth = MockFirebaseAuth();
+  auth.createUserWithEmailAndPassword(email: 'testcaseemail@example.org', password: 'Password123!');
+
+  final fakeUserId = auth.currentUser?.uid;
+  final fakeUser = {
+    'email':'testcaseemail@example.org',
+    'roleType': 'Patient',
+    'firstName': 'OldFirstName',
+    'lastName': 'OldLastName',
+  };
+  await firestore.collection('Users').doc(fakeUserId).set(fakeUser);
+  await tester.pumpWidget(MaterialApp(home: ChangeProfile(firestore: firestore, auth: auth)));
+  final firstNameField = find.widgetWithText(TextField, 'First Name');
+  await tester.enterText(firstNameField, 'NewFirstName');
+  final lastNameField = find.widgetWithText(TextField, 'Last Name');
+  await tester.enterText(lastNameField, 'NewLastName');
+  final newPasswordField = find.widgetWithText(TextField, 'New Password');
+  await tester.enterText(newPasswordField, 'Password@123');
+  final confirmPasswordField = find.widgetWithText(TextField, 'Confirm Password');
+  await tester.enterText(confirmPasswordField, 'Password@123');
+  await tester.tap(find.text('Save Changes'));
+  await tester.pumpAndSettle();
+  final updatedUserDoc = await firestore.collection('Users').doc(fakeUserId).get();
+  expect(updatedUserDoc['lastName'], 'NewLastName');
+});
 
 }
 

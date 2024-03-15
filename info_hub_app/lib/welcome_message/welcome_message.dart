@@ -88,7 +88,6 @@ class WelcomePage extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20.0),
                   child: ExpansionTile(
-
                     title: const Text(
                       'Guide',
                       key: Key('guide_expansion_tile'),
@@ -187,19 +186,72 @@ class WelcomePage extends StatelessWidget {
                   child: ExpansionTile(
                     title: const Text(
                       'FAQs',
+                      key: Key('faq_expansion_tile'),
                       style: TextStyle(
                         fontSize: 20,
                         color: Colors.black,
                       ),
                     ),
                     children: <Widget>[
-                      Padding( 
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                        child: Text(
-                          'FAQs information goes here.',
+                      ListTile(
+                        title: const Text(
+                          'What are the common symptoms of liver disease?',
                           style: TextStyle(
                             fontSize: 18,
-                            color: Colors.grey[800],
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                        subtitle: Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Text(
+                            'Common symptoms of liver disease include jaundice, abdominal pain and swelling, nausea, vomiting, fatigue, and dark urine. However, symptoms may vary depending on the specific liver condition and its severity.',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey[800],
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      ListTile(
+                        title: const Text(
+                          'How is liver disease diagnosed?',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                        subtitle: Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Text(
+                            'Liver disease is diagnosed through a combination of medical history, physical examination, blood tests, imaging studies (such as ultrasound or MRI), and sometimes liver biopsy. These tests help determine the cause, severity, and extent of liver damage.',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey[800],
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      ListTile(
+                        title: const Text(
+                          'What are some lifestyle changes recommended for managing liver disease?',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                        subtitle: Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Text(
+                            "Lifestyle changes that may help manage liver disease include maintaining a healthy diet low in fat and processed foods, avoiding alcohol and tobacco, exercising regularly, managing stress, and following prescribed treatment plans. It's essential to consult healthcare professionals.",
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey[800],
+                            ),
                           ),
                         ),
                       ),
@@ -246,6 +298,8 @@ class WelcomePage extends StatelessWidget {
     );
   }
 }
+
+
 
 
 

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:info_hub_app/helpers/base.dart';
 import 'package:info_hub_app/welcome_message/welcome_message.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
-import 'package:info_hub_app/helpers/base.dart';
 
 void main() {
   testWidgets('Test if Welcome Message is present',
@@ -108,6 +108,8 @@ testWidgets('Test if FAQs ExpansionTile is present', (WidgetTester tester) async
 
   expect(find.text('FAQs'), findsOneWidget);
 });
+
+
       testWidgets(
   'Test if "Topics" option in Guide ExpansionTile dropdown is displayed',
   (WidgetTester tester) async {
@@ -327,7 +329,171 @@ testWidgets('Test if FAQs ExpansionTile is present', (WidgetTester tester) async
   },
 );
 
+    testWidgets('FAQs first question should be displayed', 
+      (WidgetTester tester) async {
+    final firestore = FakeFirebaseFirestore();
+    final auth = MockFirebaseAuth();
+    final storage = MockFirebaseStorage();
+
+    await tester.pumpWidget(MaterialApp(
+      home: WelcomePage(
+        firestore: firestore,
+        storage: storage,
+        auth: auth,
+      ),
+    ));
+    final generalExpansionTileFinder = find.byKey(const Key('faq_expansion_tile'));
+    expect(generalExpansionTileFinder, findsOneWidget);
+
+    await tester.tap(generalExpansionTileFinder);
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.textContaining('What are the common symptoms of liver disease?'));
+      expect(find.text('What are the common symptoms of liver disease?'), findsOneWidget);
+  });
+
+  testWidgets('FAQs first answer should be displayed', 
+          (WidgetTester tester) async {
+    final firestore = FakeFirebaseFirestore();
+    final auth = MockFirebaseAuth();
+    final storage = MockFirebaseStorage();
+
+    await tester.pumpWidget(MaterialApp(
+      home: WelcomePage(
+        firestore: firestore,
+        storage: storage,
+        auth: auth,
+      ),
+    ));
+    final generalExpansionTileFinder = find.byKey(const Key('faq_expansion_tile'));
+    expect(generalExpansionTileFinder, findsOneWidget);
+
+    await tester.tap(generalExpansionTileFinder);
+    await tester.pumpAndSettle();
+    expect(find.text('Common symptoms of liver disease include jaundice, abdominal pain and swelling, nausea, vomiting, fatigue, and dark urine. However, symptoms may vary depending on the specific liver condition and its severity.'), findsOneWidget);
+  });
+
+    testWidgets('FAQs second question should be displayed', 
+          (WidgetTester tester) async {
+    final firestore = FakeFirebaseFirestore();
+    final auth = MockFirebaseAuth();
+    final storage = MockFirebaseStorage();
+
+    await tester.pumpWidget(MaterialApp(
+      home: WelcomePage(
+        firestore: firestore,
+        storage: storage,
+        auth: auth,
+      ),
+    ));
+    final generalExpansionTileFinder = find.byKey(const Key('faq_expansion_tile'));
+    expect(generalExpansionTileFinder, findsOneWidget);
+
+    await tester.tap(generalExpansionTileFinder);
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.textContaining('How is liver disease diagnosed?'));
+    expect(find.text('How is liver disease diagnosed?'), findsOneWidget);
+  });
+
+    testWidgets('FAQs second answer should be displayed',
+          (WidgetTester tester) async {
+    final firestore = FakeFirebaseFirestore();
+    final auth = MockFirebaseAuth();
+    final storage = MockFirebaseStorage();
+
+    await tester.pumpWidget(MaterialApp(
+      home: WelcomePage(
+        firestore: firestore,
+        storage: storage,
+        auth: auth,
+      ),
+    ));
+    final generalExpansionTileFinder = find.byKey(const Key('faq_expansion_tile'));
+    expect(generalExpansionTileFinder, findsOneWidget);
+
+    await tester.tap(generalExpansionTileFinder);
+    await tester.pumpAndSettle();
+    expect(find.text('Liver disease is diagnosed through a combination of medical history, physical examination, blood tests, imaging studies (such as ultrasound or MRI), and sometimes liver biopsy. These tests help determine the cause, severity, and extent of liver damage.'), findsOneWidget);
+  });
+
+    testWidgets('FAQs third question should be displayed',
+              (WidgetTester tester) async {
+        final firestore = FakeFirebaseFirestore();
+        final auth = MockFirebaseAuth();
+        final storage = MockFirebaseStorage();
+
+        await tester.pumpWidget(MaterialApp(
+          home: WelcomePage(
+            firestore: firestore,
+            storage: storage,
+            auth: auth,
+          ),
+        ));
+
+    final generalExpansionTileFinder = find.byKey(const Key('faq_expansion_tile'));
+    expect(generalExpansionTileFinder, findsOneWidget);
+
+    await tester.tap(generalExpansionTileFinder);
+    await tester.pumpAndSettle();
+    expect(find.text('What are some lifestyle changes recommended for managing liver disease?'), findsOneWidget);
+  });
+
+    testWidgets('FAQs third answer should be displayed', 
+              (WidgetTester tester) async {
+    final firestore = FakeFirebaseFirestore();
+    final auth = MockFirebaseAuth();
+    final storage = MockFirebaseStorage();
+
+    await tester.pumpWidget(MaterialApp(
+      home: WelcomePage(
+        firestore: firestore,
+        storage: storage,
+        auth: auth,
+      ),
+    ));
+    final generalExpansionTileFinder = find.byKey(const Key('faq_expansion_tile'));
+    expect(generalExpansionTileFinder, findsOneWidget);
+
+    await tester.tap(generalExpansionTileFinder);
+    await tester.pumpAndSettle();
+    expect(find.text( "Lifestyle changes that may help manage liver disease include maintaining a healthy diet low in fat and processed foods, avoiding alcohol and tobacco, exercising regularly, managing stress, and following prescribed treatment plans. It's essential to consult healthcare professionals."), findsOneWidget);
+  });
+
+  testWidgets('WelcomePage "Get Started" button test if it brings you to the Home Page', (WidgetTester tester) async {
+    final firestore = FakeFirebaseFirestore();
+    final auth = MockFirebaseAuth();
+    final storage = MockFirebaseStorage();
+    await tester.pumpWidget(MaterialApp(
+      home: WelcomePage(
+        auth: auth,
+        firestore: firestore,
+        storage: storage,
+      ),
+    ));
+    await tester.ensureVisible(find.textContaining('Get Started'));
+    expect(find.text('Get Started'), findsOneWidget);
+    await tester.tap(find.text('Get Started'));
+    await tester.pumpAndSettle();
+    expect(find.byType(Base), findsOneWidget);
+  });
+
+    testWidgets('WelcomePage "Get Started" button is visible', (WidgetTester tester) async {
+    final firestore = FakeFirebaseFirestore();
+    final auth = MockFirebaseAuth();
+    final storage = MockFirebaseStorage();
+    await tester.pumpWidget(MaterialApp(
+      home: WelcomePage(
+        auth: auth,
+        firestore: firestore,
+        storage: storage,
+      ),
+    ));
+
+    await tester.ensureVisible(find.textContaining('Get Started'));
+    expect(find.text('Get Started'), findsOneWidget);
+    });
+
 }
+
 
 
 

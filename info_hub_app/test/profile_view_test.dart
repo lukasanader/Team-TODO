@@ -6,6 +6,42 @@ import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:info_hub_app/change_profile/change_profile.dart';
 
 void main() {
+
+        testWidgets('Test if Your Profile title is visible at the top of the page', (WidgetTester tester) async {
+    final firestore = FakeFirebaseFirestore();
+    final auth = MockFirebaseAuth();
+     auth.createUserWithEmailAndPassword(email: 'profileview@example.org', password: 'Password123!');
+    final fakeUserId = auth.currentUser!.uid;
+    final fakeUser = {
+      'firstName': 'John',
+      'lastName': 'Doe',
+      'email': 'profileview@example.org',
+      'roleType' : 'Patient',
+    };
+    await firestore.collection('Users').doc(fakeUserId).set(fakeUser);
+    await tester.pumpWidget(MaterialApp(home: ProfileView(firestore: firestore, auth: auth)));
+    await tester.pumpAndSettle(); 
+
+    expect(find.text('Profile'), findsOneWidget);
+  });
+
+      testWidgets('Test if Your Profile title is visible', (WidgetTester tester) async {
+    final firestore = FakeFirebaseFirestore();
+    final auth = MockFirebaseAuth();
+     auth.createUserWithEmailAndPassword(email: 'profileview@example.org', password: 'Password123!');
+    final fakeUserId = auth.currentUser!.uid;
+    final fakeUser = {
+      'firstName': 'John',
+      'lastName': 'Doe',
+      'email': 'profileview@example.org',
+      'roleType' : 'Patient',
+    };
+    await firestore.collection('Users').doc(fakeUserId).set(fakeUser);
+    await tester.pumpWidget(MaterialApp(home: ProfileView(firestore: firestore, auth: auth)));
+    await tester.pumpAndSettle(); 
+
+    expect(find.text('Your Profile'), findsOneWidget);
+  });
   testWidgets('Test if profile view displays first name', (WidgetTester tester) async {
     final firestore = FakeFirebaseFirestore();
     final auth = MockFirebaseAuth();
@@ -23,6 +59,25 @@ void main() {
     await tester.pumpAndSettle(); 
 
     expect(find.text('John'), findsOneWidget);
+  });
+
+    testWidgets('Test if Last Name title is visible', (WidgetTester tester) async {
+    final firestore = FakeFirebaseFirestore();
+    final auth = MockFirebaseAuth();
+    auth.createUserWithEmailAndPassword(email: 'profileview@example.org', password: 'Password123!');
+    final fakeUserId = auth.currentUser!.uid;
+    final fakeUser = {
+      'firstName': 'John',
+      'lastName': 'Doe',
+      'email': 'profileview@example.org',
+      'roleType' : 'Patient',
+    };
+    await firestore.collection('Users').doc(fakeUserId).set(fakeUser);
+
+    await tester.pumpWidget(MaterialApp(home: ProfileView(firestore: firestore, auth: auth)));
+    await tester.pumpAndSettle(); 
+
+    expect(find.text('Last Name'), findsOneWidget);
   });
 
   testWidgets('Test if profile view displays last name', (WidgetTester tester) async {
@@ -79,6 +134,24 @@ void main() {
     await tester.pumpAndSettle(); 
 
     expect(find.text('Patient'), findsOneWidget);
+  });
+
+    testWidgets('Test if Role Type title is visible', (WidgetTester tester) async {
+    final firestore = FakeFirebaseFirestore();
+    final auth = MockFirebaseAuth();
+     auth.createUserWithEmailAndPassword(email: 'profileview@example.org', password: 'Password123!');
+    final fakeUserId = auth.currentUser!.uid;
+    final fakeUser = {
+      'firstName': 'John',
+      'lastName': 'Doe',
+      'email': 'profileview@example.org',
+      'roleType' : 'Patient',
+    };
+    await firestore.collection('Users').doc(fakeUserId).set(fakeUser);
+    await tester.pumpWidget(MaterialApp(home: ProfileView(firestore: firestore, auth: auth)));
+    await tester.pumpAndSettle(); 
+
+    expect(find.text('Role Type'), findsOneWidget);
   });
 
     testWidgets('Test if default profile photo is the placeholder', (WidgetTester tester) async {
