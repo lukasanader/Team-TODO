@@ -51,30 +51,7 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
                 shrinkWrap: true,
                 itemCount: _verifiedExperienceList.length,
                 itemBuilder: (context, index) {
-                  return Row(
-                    children: [
-                      Flexible(
-                          flex: 9,
-                          child:
-                              ExperienceCard(_verifiedExperienceList[index])),
-                      Flexible(
-                          flex: 1,
-                          child: IconButton(
-                              onPressed: () {
-                                deleteExperienceConfirmation(_verifiedExperienceList[index]);
-                              },
-                              icon: const Icon(Icons.delete))),
-                      Flexible(
-                          flex: 1,
-                          child: IconButton(
-                              onPressed: () {
-                                _experienceController.updateVerification(
-                                    _verifiedExperienceList[index]);
-                                updateExperiencesList();
-                              },
-                              icon: const Icon(Icons.close)))
-                    ],
-                  );
+                  return displayExperiencesForAdmin(_verifiedExperienceList[index]);
                 }),
             const SizedBox(height: 30),
             const Text("Unverified experiences"),
@@ -83,34 +60,66 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
                 shrinkWrap: true,
                 itemCount: _unverifiedExperienceList.length,
                 itemBuilder: (context, index) {
-                  return Row(
-                    children: [
-                      Flexible(
-                          flex: 9,
-                          child:
-                              ExperienceCard(_unverifiedExperienceList[index])),
-                      Flexible(
-                          flex: 1,
-                          child: IconButton(
-                              onPressed: () {
-                                deleteExperienceConfirmation(_unverifiedExperienceList[index]);
-                              },
-                              icon: const Icon(Icons.delete))),
-                      Flexible(
-                          flex: 1,
-                          child: IconButton(
-                              onPressed: () {
-                                _experienceController.updateVerification(
-                                    _unverifiedExperienceList[index]);
-                                updateExperiencesList();
-                              },
-                              icon: const Icon(Icons.check)))
-                    ],
-                  );
+                  return displayExperiencesForAdmin(_unverifiedExperienceList[index]);
                 }),
           ],
         )));
   }
+
+  Widget displayExperiencesForAdmin(Experience experience) {
+    bool? experienceVerification = experience.verified;
+    late Icon buttonType;
+
+    if (experienceVerification != null && experienceVerification) {
+      buttonType = const Icon(Icons.close);
+    }
+    else {
+      buttonType = const Icon(Icons.check);
+    }
+
+
+    return Column(
+      children: [
+        const SizedBox(height: 10,),
+        Row(
+          children: [
+            const SizedBox(width: 10,),
+            Text (
+              experience.userEmail.toString(),
+              style: const TextStyle(
+                fontWeight: FontWeight.bold
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10,),
+        Row(
+          children: [
+            Flexible(
+                flex: 9,
+                child:
+                    ExperienceCard(experience)),
+            Flexible(
+                flex: 1,
+                child: IconButton(
+                    onPressed: () {
+                      deleteExperienceConfirmation(experience);
+                    },
+                    icon: const Icon(Icons.delete))),
+            Flexible(
+                flex: 1,
+                child: IconButton(
+                    onPressed: () {
+                      _experienceController.updateVerification(experience);
+                      updateExperiencesList();
+                    },
+                    icon: buttonType))
+          ],
+        )
+      ],
+    );
+  }
+
 
   Future<void> deleteExperienceConfirmation(Experience experience) async {
     return showDialog<void>(

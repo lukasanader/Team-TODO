@@ -15,11 +15,12 @@ class ExperienceController {
 
   void saveExperience(String title, String description) async {
     Experience newExperience = Experience();
-    // User? user =_auth.currentUser;
+    String uid = _auth.currentUser!.uid;
+    DocumentSnapshot user = await _firestore.collection('Users').doc(uid).get();
 
-    // newExperience.uid = user!.uid;
     newExperience.title = title;
     newExperience.description = description;
+    newExperience.userEmail = user['email'];
     newExperience.verified = false;
 
     CollectionReference db = _firestore.collection('experiences');

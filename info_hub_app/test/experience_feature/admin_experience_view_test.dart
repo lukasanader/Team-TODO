@@ -20,11 +20,13 @@ void main() {
     topicsCollectionRef.add({
       'title': 'Example 1',
       'description': 'Example experience',
+      'userEmail' : 'test@example.org',
       'verified': true
     });
     topicsCollectionRef.add({
       'title': 'Example 2',
       'description': 'Example experience',
+      'userEmail' : 'test2@example.org',
       'verified': false
     });
 
@@ -109,7 +111,7 @@ void main() {
     expect(experienceList[0].verified, isFalse);
   });
 
-  testWidgets('Delete button removes an experience',
+  testWidgets('Delete button removes an experience from verified list',
       (WidgetTester tester) async {
     // Build our app and trigger a frame.
     await tester.pumpWidget(experienceViewWidget);
@@ -127,6 +129,26 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Example 1'), findsNothing);
+  });
+
+  testWidgets('Delete button removes an experience from unverified list',
+      (WidgetTester tester) async {
+    // Build our app and trigger a frame.
+    await tester.pumpWidget(experienceViewWidget);
+    await tester.pumpAndSettle();
+
+    Finder deleteButton = find.byIcon(Icons.delete).last;
+
+    await tester.ensureVisible(deleteButton);
+    await tester.tap(deleteButton);
+    await tester.pumpAndSettle();
+
+    expect(find.byType(AlertDialog), findsOneWidget);
+
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Example 2'), findsNothing);
   });
 
 }
