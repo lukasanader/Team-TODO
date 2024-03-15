@@ -17,9 +17,6 @@ class ExperienceView extends StatefulWidget {
 
 class _ExperienceViewState extends State<ExperienceView> {
   late ExperienceController _experienceController;
-
-  final TextEditingController _descriptionController = TextEditingController();
-  final TextEditingController _titleController = TextEditingController();
   List<Experience> _experienceList = [];
   // ignore: prefer_final_fields
 
@@ -189,8 +186,11 @@ class _ExperienceViewState extends State<ExperienceView> {
   }
 
   void _showPostDialog() {
-    _descriptionController.clear();
-    _titleController.clear();
+    final TextEditingController descriptionController = TextEditingController();
+    final TextEditingController titleController = TextEditingController();
+
+    descriptionController.clear();
+    titleController.clear();
 
     showDialog(
       context: context,
@@ -203,7 +203,7 @@ class _ExperienceViewState extends State<ExperienceView> {
               TextField(
                 maxLines: 1,
                 maxLength: 70,
-                controller: _titleController,
+                controller: titleController,
                 decoration: const InputDecoration(
                   labelText: 'Title',
                   border: OutlineInputBorder(),
@@ -214,7 +214,7 @@ class _ExperienceViewState extends State<ExperienceView> {
                 maxLines: 5,
                 maxLength: 1000,
                 keyboardType: TextInputType.multiline,
-                controller: _descriptionController,
+                controller: descriptionController,
                 decoration: const InputDecoration(
                   labelText: 'Share your experience!',
                   border: OutlineInputBorder(),
@@ -223,14 +223,14 @@ class _ExperienceViewState extends State<ExperienceView> {
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () async {
-                  if (_titleController.text.isEmpty ||
-                      _descriptionController.text.isEmpty) {
+                  if (titleController.text.isEmpty ||
+                      descriptionController.text.isEmpty) {
                     return _blankTitleOrExperienceAlert(context);
                   }
 
                   _experienceController.saveExperience(
-                    _titleController.text,
-                    _descriptionController.text
+                    titleController.text,
+                    descriptionController.text
                   );
 
                   Navigator.of(context).pop(); 
