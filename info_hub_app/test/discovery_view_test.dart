@@ -539,4 +539,57 @@ void main() {
     expect(find.text('test 1'), findsOneWidget);
     expect(find.text('test 2'), findsNothing);
 });
+
+  testWidgets('test that admin can see all topics', (WidgetTester tester) async {
+    // Build our app and trigger a frame.
+    await auth.createUserWithEmailAndPassword(email: 'admin@tested.org', password: 'Password123!');
+    String uid = auth.currentUser!.uid;
+    await firestore.collection('Users').doc(uid).set({
+        'email': 'admin@tested.org',
+        'firstName' : 'James',
+        'lastName' : 'Doe',
+        'roleType' : 'admin'
+        });
+
+    CollectionReference topicCollectionRef = firestore.collection('topics');
+    topicCollectionRef.add({
+      'title': 'test 1',
+      'description': 'this is a test',
+      'articleLink': '',
+      'videoUrl': '',
+      'views':1,
+      'date': DateTime.now(),
+      'likes': 0,
+      'dislikes': 0,
+      'tags': ['Patient']
+    });
+    topicCollectionRef.add({
+      'title': 'test 2',
+      'description': 'this is a test again',
+      'articleLink': '',
+      'videoUrl': '',
+      'views':1,
+      'date': DateTime.now(),
+      'likes': 0,
+      'dislikes': 0,
+      'tags': ['Parent']
+    });
+    topicCollectionRef.add({
+      'title': 'test 3',
+      'description': 'this is a test again',
+      'articleLink': '',
+      'videoUrl': '',
+      'views':1,
+      'date': DateTime.now(),
+      'likes': 0,
+      'dislikes': 0,
+      'tags': ['Healthcare Professional']
+    });
+    await tester.pumpWidget(discoveryViewWidget);
+    await tester.pumpAndSettle();
+
+    expect(find.text('test 1'), findsOneWidget);
+    expect(find.text('test 2'), findsOneWidget);
+    expect(find.text('test 3'), findsOneWidget);
+  });
 }

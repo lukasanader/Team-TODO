@@ -121,6 +121,7 @@ class _AdminHomepageState extends State<AdminHomepage> {
                   builder: (BuildContext context) {
                     return AdminExperienceView(
                       firestore: widget.firestore,
+                      auth: widget.auth,
                     );
                   },
                 ),
