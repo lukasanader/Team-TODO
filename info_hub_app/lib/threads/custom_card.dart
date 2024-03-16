@@ -7,11 +7,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:info_hub_app/threads/name_generator.dart';
 
+/*
 class CustomCard extends StatefulWidget {
   final QuerySnapshot? snapshot;
   final int index;
   final FirebaseFirestore firestore;
   final FirebaseAuth auth;
+  final String userProfilePhoto;
 
   const CustomCard({
     Key? key,
@@ -19,6 +21,7 @@ class CustomCard extends StatefulWidget {
     required this.index,
     required this.firestore,
     required this.auth,
+    required this.userProfilePhoto,
   }) : super(key: key);
 
   @override
@@ -28,6 +31,192 @@ class CustomCard extends StatefulWidget {
 class _CustomCardState extends State<CustomCard> {
   late TextEditingController titleInputController;
   late TextEditingController descriptionInputController;
+  late bool isEdited;
+
+  @override
+  void initState() {
+    super.initState();
+    titleInputController = TextEditingController();
+    descriptionInputController = TextEditingController();
+
+    var docData =
+        widget.snapshot!.docs[widget.index].data() as Map<String, dynamic>;
+    isEdited = docData['isEdited'] ??
+        false; // Initialize isEdited based on the Firestore document
+  }
+
+  @override
+  void dispose() {
+    titleInputController.dispose();
+    descriptionInputController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    var docData =
+        widget.snapshot!.docs[widget.index].data() as Map<String, dynamic>;
+    var title = docData['title'] ?? 'No title';
+    var description = docData['description'] ?? 'No description';
+    var authorName = generateUniqueName(docData['creator'] ?? '');
+    var timestamp = docData['timestamp']?.toDate();
+    var formatter = timestamp != null
+        ? DateFormat("dd-MMM-yyyy 'at' HH:mm").format(timestamp)
+        : 'Timestamp not available';
+
+    return Column(
+      children: <Widget>[
+        SizedBox(
+          height: 140,
+          child: Card(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(6),
+            ),
+            elevation: 5,
+            child: ListTile(
+              title: Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+              ),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Text(
+                    description,
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 2,
+                  ),
+                  SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Text("$authorName: ",
+                          style: TextStyle(
+                              fontSize: 14, fontWeight: FontWeight.bold)),
+                      Text(formatter, style: TextStyle(fontSize: 12)),
+                      if (isEdited)
+                        Text(" (edited)",
+                            style: TextStyle(
+                                fontSize: 12, fontStyle: FontStyle.italic)),
+                    ],
+                  ),
+                ],
+              ),
+              leading: CircleAvatar(
+                radius: 38,
+                backgroundImage: widget.userProfilePhoto.startsWith('http')
+                    ? NetworkImage(widget.userProfilePhoto)
+                        as ImageProvider<Object>
+                    : AssetImage('assets/${widget.userProfilePhoto}')
+                        as ImageProvider<Object>,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  _showDialog(BuildContext context, String docId) async {
+    bool showErrorTitle = false;
+    bool showErrorDescription = false;
+
+    var docSnapshot =
+        await widget.firestore.collection("thread").doc(docId).get();
+    var docData = docSnapshot.data() as Map<String, dynamic>;
+    titleInputController.text = docData['title'] ?? '';
+    descriptionInputController.text = docData['description'] ?? '';
+
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                TextField(
+                  key: const Key('Title'),
+                  controller: titleInputController,
+                  decoration: InputDecoration(
+                      labelText: "Title",
+                      errorText:
+                          showErrorTitle ? "Please enter a title" : null),
+                ),
+                TextField(
+                  key: const Key('Description'),
+                  controller: descriptionInputController,
+                  decoration: InputDecoration(
+                      labelText: "Description",
+                      errorText: showErrorDescription
+                          ? "Please enter a description"
+                          : null),
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () {
+                if (!showErrorTitle && !showErrorDescription) {
+                  widget.firestore.collection("thread").doc(docId).update({
+                    "title": titleInputController.text,
+                    "description": descriptionInputController.text,
+                    "isEdited": true,
+                  }).then((_) {
+                    Navigator.pop(context);
+                  });
+                }
+              },
+              child: const Text("Update"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+
+
+*/
+
+class CustomCard extends StatefulWidget {
+  final QuerySnapshot? snapshot;
+  final int index;
+  final FirebaseFirestore firestore;
+  final FirebaseAuth auth;
+  final String userProfilePhoto;
+  final VoidCallback onEditCompleted;
+
+  const CustomCard({
+    Key? key,
+    this.snapshot,
+    required this.index,
+    required this.firestore,
+    required this.auth,
+    required this.userProfilePhoto,
+    required this.onEditCompleted,
+  }) : super(key: key);
+
+  @override
+  _CustomCardState createState() => _CustomCardState();
+}
+
+class _CustomCardState extends State<CustomCard> {
+  late TextEditingController titleInputController;
+  late TextEditingController descriptionInputController;
+  late String _userProfilePhoto = 'assets/default_profile_photo.png';
+  late bool isEdited;
   //late TextEditingController nameInputController;
 
   @override
@@ -41,8 +230,27 @@ class _CustomCardState extends State<CustomCard> {
     nameInputController = TextEditingController(text: docData['name']); */
     titleInputController = TextEditingController();
     descriptionInputController = TextEditingController();
+    var docData =
+        widget.snapshot!.docs[widget.index].data() as Map<String, dynamic>;
+    isEdited = docData['isEdited'] ?? false;
+    // Initialize isEdited based on the Firestore document
+    //_fetchUserProfilePhoto();
     //nameInputController = TextEditingController();
   }
+/*
+  void _fetchUserProfilePhoto() async {
+    var userDoc = await widget.firestore
+        .collection('Users')
+        .doc(widget.snapshot!.docs[widget.index].get('creator'))
+        .get();
+    String? profilePhoto = userDoc.data()?['selectedProfilePhoto'];
+    if (profilePhoto != null && profilePhoto.isNotEmpty) {
+      setState(() {
+        _userProfilePhoto = profilePhoto;
+      });
+    }
+  }
+  */
 
   @override
   void dispose() {
@@ -57,6 +265,8 @@ class _CustomCardState extends State<CustomCard> {
     var docData =
         widget.snapshot!.docs[widget.index].data() as Map<String, dynamic>;
     var docId = widget.snapshot!.docs[widget.index].id;
+
+    // print('Selected Profile Photo: ${docData['selectedProfilePhoto']}');
 
     var title = docData['title'] ?? 'No title';
     var description = docData['description'] ?? 'No description';
@@ -152,6 +362,15 @@ class _CustomCardState extends State<CustomCard> {
                     overflow: TextOverflow.ellipsis,
                     maxLines: 2,
                   ),
+                  if (isEdited) // Check if the post is edited
+                    const Text(
+                      " (edited)",
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Color.fromARGB(255, 255, 0, 0),
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
                   const Padding(padding: EdgeInsets.all(2)),
                   const SizedBox(height: 4),
                   Row(
@@ -180,12 +399,11 @@ class _CustomCardState extends State<CustomCard> {
               ),
               leading: CircleAvatar(
                 radius: 38,
-                backgroundImage: docData['selectedProfilePhoto'] != null &&
-                        docData['selectedProfilePhoto'].isNotEmpty
-                    ? NetworkImage(docData['selectedProfilePhoto'] as String)
-                        as ImageProvider
-                    : AssetImage('assets/default_profile_photo.png')
-                        as ImageProvider,
+                backgroundImage: widget.userProfilePhoto.startsWith('http')
+                    ? NetworkImage(widget.userProfilePhoto)
+                        as ImageProvider<Object>
+                    : AssetImage('assets/${widget.userProfilePhoto}')
+                        as ImageProvider<Object>,
               ),
             ),
           ),
@@ -195,19 +413,22 @@ class _CustomCardState extends State<CustomCard> {
   }
 
   _showDialog(BuildContext context, String docId) async {
-    bool showErrorName = false;
+    // bool showErrorName = false;
     bool showErrorTitle = false;
     bool showErrorDescription = false;
 
     var docSnapshot =
         await widget.firestore.collection("thread").doc(docId).get();
     var docData = docSnapshot.data() as Map<String, dynamic>;
+    // print("Selected Profile Photo: ${docData['selectedProfilePhoto']}");
 
     if (!mounted) return;
 
     titleInputController.text = docData['title'] ?? '';
     descriptionInputController.text = docData['description'] ?? '';
     //nameInputController.text = docData['name'] ?? '';
+    bool isEdited = docData['isEdited'] ?? false;
+    bool tempIsEdited = docData['isEdited'] ?? false;
 
     await showDialog(
       context: context,
@@ -277,15 +498,15 @@ class _CustomCardState extends State<CustomCard> {
                           descriptionInputController.text.isEmpty;
                     });
 
-                    if (!showErrorName &&
-                        !showErrorTitle &&
-                        !showErrorDescription) {
+                    if ( //!showErrorName &&
+                        !showErrorTitle && !showErrorDescription) {
                       widget.firestore.collection("thread").doc(docId).update({
                         "title": titleInputController.text,
-                        "description":
-                            "${descriptionInputController.text} (edited)",
+                        "description": descriptionInputController.text,
+                        "isEdited": true,
                         "timestamp": FieldValue.serverTimestamp(),
                       }).then((response) {
+                        widget.onEditCompleted();
                         //print(response.id);
                         /* nameInputController.clear();
                         titleInputController.clear();

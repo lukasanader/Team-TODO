@@ -34,44 +34,45 @@ class _ProfileViewState extends State<ProfileView> {
       final docRef = widget.firestore.collection('Users');
 
       final querySnapshot = await docRef.get();
-      final userDoc = querySnapshot.docs.firstWhere((doc) => doc.id == user.uid);
+      final userDoc =
+          querySnapshot.docs.firstWhere((doc) => doc.id == user.uid);
 
       setState(() {
         _currentUser = userDoc.data();
-        _selectedProfilePhoto =
-            _currentUser?['selectedProfilePhoto'] ?? 'default_profile_photo.png';
+        _selectedProfilePhoto = _currentUser?['selectedProfilePhoto'] ??
+            'default_profile_photo.png';
         _isLoading = false; // Mark loading as complete
       });
     }
   }
 
   @override
-Widget build(BuildContext context) {
-  return Scaffold(
-    appBar: AppBar(
-      title: const Text('Profile'),
-      backgroundColor: Colors.purple,
-    ),
-    body: _isLoading
-        ? Center(child: CircularProgressIndicator())
-        : Center(
-            child: SingleChildScrollView(
-              padding: EdgeInsets.fromLTRB(16, 8, 16, 16), // Adjust top padding here
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  _buildProfileHeader(),
-                  SizedBox(height: 20),
-                  _buildUserInfoSection(),
-                  SizedBox(height: 100),
-                  _buildChangeProfileButton(),
-                ],
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Profile'),
+        backgroundColor: Colors.purple,
+      ),
+      body: _isLoading
+          ? Center(child: CircularProgressIndicator())
+          : Center(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.fromLTRB(
+                    16, 8, 16, 16), // Adjust top padding here
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    _buildProfileHeader(),
+                    SizedBox(height: 20),
+                    _buildUserInfoSection(),
+                    SizedBox(height: 100),
+                    _buildChangeProfileButton(),
+                  ],
+                ),
               ),
             ),
-          ),
-  );
-}
-
+    );
+  }
 
   Widget _buildProfileHeader() {
     return Column(
@@ -81,12 +82,15 @@ Widget build(BuildContext context) {
           alignment: Alignment.center,
           children: [
             GestureDetector(
-              onTap: _showProfilePhotoOptions, // Show options when tapping the profile photo
+              onTap:
+                  _showProfilePhotoOptions, // Show options when tapping the profile photo
               child: ClipOval(
                 child: CircleAvatar(
                   radius: 50, // Adjust the radius to your desired size
-                  backgroundImage:
-                      AssetImage('assets/$_selectedProfilePhoto'), // Profile photo
+                  backgroundImage: _selectedProfilePhoto.startsWith('http')
+                      ? NetworkImage(_selectedProfilePhoto)
+                      : AssetImage('assets/$_selectedProfilePhoto')
+                          as ImageProvider, // Profile photo
                 ),
               ),
             ),
@@ -216,23 +220,3 @@ Widget build(BuildContext context) {
     }
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

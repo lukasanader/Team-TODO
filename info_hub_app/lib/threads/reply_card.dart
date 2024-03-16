@@ -11,6 +11,7 @@ class ReplyCard extends StatefulWidget {
   final int index;
   final FirebaseFirestore firestore;
   final FirebaseAuth auth;
+  final String userProfilePhoto;
 
   const ReplyCard({
     Key? key,
@@ -18,6 +19,7 @@ class ReplyCard extends StatefulWidget {
     required this.index,
     required this.firestore,
     required this.auth,
+    required this.userProfilePhoto,
   }) : super(key: key);
 
   @override
@@ -70,7 +72,11 @@ class _ReplyCardState extends State<ReplyCard> {
             elevation: 5,
             child: ListTile(
               leading: CircleAvatar(
-                child: Text(authorName[0].toUpperCase()),
+                backgroundImage: widget.userProfilePhoto.startsWith('http')
+                    ? NetworkImage(widget.userProfilePhoto)
+                        as ImageProvider<Object>
+                    : AssetImage('assets/${widget.userProfilePhoto}')
+                        as ImageProvider<Object>,
               ),
               title: Text(
                 authorName,

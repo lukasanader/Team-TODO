@@ -42,6 +42,14 @@ class _ThreadAppState extends State<ThreadApp> {
   }
 
   @override
+  void dispose() {
+    //nameInputController.dispose();
+    titleInputController.dispose();
+    descriptionInputController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
 //current appbar is placeholder, replace with actual appbar or equivalent
@@ -104,7 +112,7 @@ class _ThreadAppState extends State<ThreadApp> {
                 );
           } */
 
-        child: const Icon(FontAwesomeIcons.solidQuestionCircle),
+        child: const Icon(FontAwesomeIcons.solidCircleQuestion),
       ),
       body: StreamBuilder(
         stream: firestoreDb,
@@ -113,12 +121,36 @@ class _ThreadAppState extends State<ThreadApp> {
           return ListView.builder(
             itemCount: snapshot.data!.docs.length,
             itemBuilder: (context, int index) {
-              //return Text(snapshot.data!.docs[index]['title']);
-              return CustomCard(
-                snapshot: snapshot.data,
-                index: index,
-                firestore: widget.firestore,
-                auth: widget.auth,
+              var threadDoc = snapshot.data!.docs[index];
+              var creatorId = threadDoc['creator'];
+
+              return FutureBuilder<DocumentSnapshot>(
+                future:
+                    widget.firestore.collection('Users').doc(creatorId).get(),
+                builder: (BuildContext context,
+                    AsyncSnapshot<DocumentSnapshot> userSnapshot) {
+                  if (!userSnapshot.hasData) {
+                    return CircularProgressIndicator(); // Or some placeholder widget
+                  }
+
+                  var userDocData =
+                      userSnapshot.data?.data() as Map<String, dynamic>?;
+                  var profilePhoto = userDocData?['selectedProfilePhoto'] ??
+                      'default_profile_photo.png';
+
+                  return CustomCard(
+                    snapshot: snapshot.data,
+                    index: index,
+                    firestore: widget.firestore,
+                    auth: widget.auth,
+                    userProfilePhoto: profilePhoto,
+                    onEditCompleted: () {
+                      setState(() {
+                        // This empty setState will just trigger a rebuild
+                      });
+                    },
+                  );
+                },
               );
             },
           );

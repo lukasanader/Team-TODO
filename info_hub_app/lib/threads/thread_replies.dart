@@ -123,12 +123,36 @@ class _ThreadRepliesState extends State<ThreadReplies> {
                     return ListView.builder(
                       itemCount: snapshot.data!.docs.length,
                       itemBuilder: (context, index) {
-                        return ReplyCard(
-                          snapshot: snapshot.data!,
-                          index: index,
-                          firestore: widget
-                              .firestore, // Use the passed firestore instance
-                          auth: widget.auth,
+                        var replyDoc = snapshot.data!.docs[index];
+                        var creatorId = replyDoc[
+                            'creator']; // Assuming 'creator' is the user ID
+
+                        return FutureBuilder<DocumentSnapshot>(
+                          future: widget.firestore
+                              .collection('Users')
+                              .doc(creatorId)
+                              .get(),
+                          builder: (BuildContext context,
+                              AsyncSnapshot<DocumentSnapshot> userSnapshot) {
+                            if (!userSnapshot.hasData) {
+                              return CircularProgressIndicator(); // Or some placeholder widget
+                            }
+
+                            var userDocData = userSnapshot.data?.data()
+                                as Map<String, dynamic>?;
+                            var profilePhoto =
+                                userDocData?['selectedProfilePhoto'] ??
+                                    'default_profile_photo.png';
+
+                            return ReplyCard(
+                              snapshot: snapshot.data!,
+                              index: index,
+                              firestore: widget.firestore,
+                              auth: widget.auth,
+                              userProfilePhoto:
+                                  profilePhoto, // Pass the profile photo here
+                            );
+                          },
                         );
                       },
                     );
