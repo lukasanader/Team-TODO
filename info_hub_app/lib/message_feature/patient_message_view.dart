@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:info_hub_app/message_feature/message_room/message_room_controller.dart';
 import 'package:info_hub_app/message_feature/message_rooms_card.dart';
 
 class PatientMessageView extends StatefulWidget {
@@ -20,7 +21,7 @@ class _PatientMessageViewState extends State<PatientMessageView> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    getChatList();
+    updateChatList();
   }
 
   
@@ -52,12 +53,12 @@ class _PatientMessageViewState extends State<PatientMessageView> {
   }
 
 
-  Future getChatList() async {
-    QuerySnapshot data = await widget.firestore
-        .collection('message_rooms_members')
-        .where('patientId', isEqualTo: widget.auth.currentUser!.uid)
-        .get();
-    List<Object> tempList = List.from(data.docs);
+  Future updateChatList() async {
+    MessageRoomController messageRoomController = MessageRoomController(
+      widget.auth, 
+      widget.firestore);
+
+    List<Object> tempList = await messageRoomController.getMessageRoomsList();
     
     setState(() {
       _chatList = tempList;

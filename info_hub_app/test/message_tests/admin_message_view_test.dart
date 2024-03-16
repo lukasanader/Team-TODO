@@ -11,6 +11,7 @@ import 'package:info_hub_app/message_feature/message_model.dart';
 import 'package:info_hub_app/message_feature/message_rooms_card.dart';
 import 'package:info_hub_app/message_feature/messaging_room_view.dart';
 import 'package:info_hub_app/patient_experience/admin_experience_view.dart';
+import 'package:info_hub_app/threads/name_generator.dart';
 import 'package:info_hub_app/topics/create_topic.dart';
 import 'package:info_hub_app/ask_question/question_view.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
@@ -40,19 +41,31 @@ void main() {
     });
 
     CollectionReference userCollectionRef = firestore.collection('Users');
-    userCollectionRef.doc('123456789').set({
+    userCollectionRef.doc('1').set({
       'email': 'user@gmail.com',
+      'firstName': 'John',
+      'lastName': 'Doe',
+      'roleType': 'Patient'
+    });
+    userCollectionRef.doc('2').set({
+      'email': 'user2@gmail.com',
+      'firstName': 'John',
+      'lastName': 'Doe',
+      'roleType': 'Patient'
+    });
+    userCollectionRef.doc('3').set({
+      'email': 'user3@gmail.com',
       'firstName': 'John',
       'lastName': 'Doe',
       'roleType': 'Patient'
     });
 
 
-    CollectionReference chatRoomMembersCollectionReference = firestore.collection('message_rooms_members');
+    CollectionReference chatRoomMembersCollectionReference = firestore.collection('message_rooms');
 
     chatRoomMembersCollectionReference.doc('1').set({
       'adminId' : uid,
-      'patientId' : '123456789'
+      'patientId' : '1'
     });
 
     adminMessageViewWidget = MaterialApp(
@@ -64,7 +77,7 @@ void main() {
 
 
   testWidgets('Will display 3 existing chats', (WidgetTester tester) async {
-    CollectionReference chatRoomMembersCollectionReference = firestore.collection('message_rooms_members');
+    CollectionReference chatRoomMembersCollectionReference = firestore.collection('message_rooms');
 
     chatRoomMembersCollectionReference.doc('2').set({
       'adminId' : auth.currentUser!.uid,
@@ -120,9 +133,7 @@ void main() {
         'Sorry there are no patients matching this email.');
     expect(tester.widget<Text>(textFinder).data,
         'Sorry there are no patients matching this email.');
-  });
-
-  testWidgets('Can message correct patient through dialogue', (WidgetTester tester) async {
+  });testWidgets('Can message correct patient through dialogue', (WidgetTester tester) async {
 
 
     // Build our app and trigger a frame.
@@ -132,17 +143,18 @@ void main() {
     await tester.tap(find.text('Message new patient'));
     await tester.pump();
 
-    Finder textFinder = find.text('user@gmail.com');
-    expect(tester.widget<Text>(textFinder).data, 'user@gmail.com');
+    expect(find.text('user2@gmail.com'), findsOneWidget);
+    
+    String userName = generateUniqueName('2');
 
-
-    await tester.tap(find.text('user@gmail.com'));
+    await tester.tap(find.text('user2@gmail.com'));
     await tester.pumpAndSettle();
-    expect(find.text('123456789'), findsOneWidget);
+    expect(find.text(userName), findsOneWidget);
     expect(find.byType(MessageRoomView), findsOne);
 
+  })
 
-  });
+  ;
 
   testWidgets('Pressing onto existing chat leads to correct message room view', (WidgetTester tester) async {
     
@@ -152,7 +164,7 @@ void main() {
       .collection('messages')
       .add({
         'senderId' : auth.currentUser!.uid,
-        'receiverId' : '123456789',
+        'receiverId' : '1',
         'message' : 'Hello world',
         'timestamp' : DateTime.now(),
       });
@@ -164,14 +176,45 @@ void main() {
     Finder cardFinder = find.byType(MessageRoomCard);
     expect(cardFinder, findsNWidgets(1));
 
+    String userName = generateUniqueName('1');
+
 
     await tester.tap(find.byType(MessageRoomCard));
     await tester.pumpAndSettle();
 
-    expect(find.text('123456789'), findsOneWidget);
+    expect(find.text(userName), findsOneWidget);
     expect(find.byType(MessageRoomView), findsOne);
 
   });
 
+  testWidgets('Delete button deletes message room',
+      (WidgetTester tester) async {
+    // Build our app and trigger a frame.
+    await tester.pumpWidget(adminMessageViewWidget);
+    await tester.pumpAndSettle();
+
+    expect(find.text('user@gmail.com'), findsOneWidget);
+
+    Finder deleteButton = find.byIcon(Icons.delete).first;
+
+    await tester.ensureVisible(deleteButton);
+    await tester.tap(deleteButton);
+    await tester.pumpAndSettle();
+
+    expect(find.byType(AlertDialog), findsOneWidget);
+
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+
+    QuerySnapshot messages = await firestore
+      .collection('message_rooms')
+      .doc('1')
+      .collection('messages')
+      .get();
+
+    expect(messages.docs.isEmpty, true);
+
+    expect(find.text('user@gmail.com'), findsNothing);    
+  });
 
 }
