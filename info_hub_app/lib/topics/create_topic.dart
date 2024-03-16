@@ -798,15 +798,18 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
         } else {
           mediaUrls[currentIndex] = fileInfo;
         }
+        if (type == "image") {
+          _videoURL = null;
+        } else {
+          _imageURL = null;
+        }
       });
     }
     if (data.isNotEmpty) {
       if (type == 'image') {
         await _initializeImage();
-        _videoURL = null;
       } else {
         await _initializeVideoPlayer();
-        _imageURL = null;
       }
     }
   }
