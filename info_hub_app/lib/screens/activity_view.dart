@@ -17,12 +17,14 @@ class ActivityView extends StatefulWidget {
 
 class _ActivityViewState extends State<ActivityView> {
   List<dynamic> _topicsList = [];
+  List<dynamic> _likedTopics =[];
+  List<dynamic> _threadList = [];
 
 
   @override
   Future<void> didChangeDependencies() async {
     super.didChangeDependencies();
-    getTopicsList();
+    getActivityList();
   }
 
   @override
@@ -31,11 +33,12 @@ class _ActivityViewState extends State<ActivityView> {
       appBar: AppBar(
         title: const Text("Activity"),
       ),
-      body: Column(
+      body: SingleChildScrollView(
+        child: Column(
         children: [
           const Text(textAlign: TextAlign.left,
           
-          'Topics',
+          'Viewed Topics',
           ),
           Container(
             height: 250,
@@ -47,32 +50,62 @@ class _ActivityViewState extends State<ActivityView> {
               },
             ),
           ),
-          SizedBox(height: 40,),
+          const Text(textAlign: TextAlign.left,
+          
+          'Liked Topics',
+          ),
           Container(
             height: 250,
             child: ListView.builder(
               shrinkWrap: true,
-              itemCount: 5, // Replace with the actual number of items
+              itemCount:_likedTopics.isEmpty ? 0 : _likedTopics.length, // Replace with the actual number of items
               itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text('comment $index'),
-                );
+                return ActivityCard(_likedTopics[index], widget.firestore, widget.auth);
+              },
+            ),
+          ),
+          SizedBox(height: 40,),
+          const Text(textAlign: TextAlign.left,
+          
+          'Replied threads',
+          ),
+          Container(
+            height: 250,
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: _threadList.isEmpty ? 0 : _threadList.length, // Replace with the actual number of items
+              itemBuilder: (context, index) {
+                
+                  return ActivityCard(_threadList[index], widget.firestore, widget.auth);
+                
               },
             ),
           ),
         ],
       ),
+      )
     );
   }
-  Future getTopicsList() async {
-    List<dynamic> temp = await DatabaseService(uid: widget.auth.currentUser!.uid,firestore: widget.firestore).getActivityList('topics');
+  Future getActivityList() async {
+    List<dynamic> topicTemp = await DatabaseService(uid: widget.auth.currentUser!.uid,firestore: widget.firestore).getActivityList('topics');
+    List<dynamic> threadTemp = await DatabaseService(uid: widget.auth.currentUser!.uid,firestore: widget.firestore).getActivityList('thread');
+    List<dynamic> likedTemp = await DatabaseService(uid: widget.auth.currentUser!.uid,firestore: widget.firestore).getLikedTopics();
     setState(() {
-      _topicsList = temp;
+      _topicsList = topicTemp;
       _topicsList.sort(((a, b) {
         DateTime dateA = a['viewDate'].toDate();
         DateTime dateB = b['viewDate'].toDate();
         return dateB.compareTo(dateA);
     }));
-  });
+    _threadList = threadTemp;
+      _threadList.sort(((a, b) {
+        DateTime dateA = a['viewDate'].toDate();
+        DateTime dateB = b['viewDate'].toDate();
+        return dateB.compareTo(dateA);
+  }));
+    _likedTopics = likedTemp;
+    });
 }
+
+
 }
