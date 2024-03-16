@@ -6,7 +6,7 @@ class StatisticCard extends StatelessWidget {
   final IconData icon;
   final Color color;
 
-  const StatisticCard({
+  const StatisticCard({super.key, 
     required this.label,
     required this.value,
     required this.icon,
@@ -33,7 +33,7 @@ class StatisticCard extends StatelessWidget {
             SizedBox(height: 8),
             Text(
               label,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.bold,
               ),

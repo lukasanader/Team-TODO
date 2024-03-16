@@ -62,14 +62,8 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
   }
 
   @override
-  void deactivate() {
-    // Pauses video while navigating to next page.
-    _controller.pause();
-    super.deactivate();
-  }
-
-  @override
   void dispose() {
+    _controller.pause();
     _leaveChannel();
     super.dispose();
   }

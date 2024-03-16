@@ -13,7 +13,7 @@ class CreateWebinarScreen extends StatefulWidget {
   final UserModel user;
   final FirebaseFirestore firestore;
  
-  const CreateWebinarScreen({Key? key, required this.user, required this.firestore}) : super(key: key);
+  const CreateWebinarScreen({super.key, required this.user, required this.firestore});
 
   @override
   State<CreateWebinarScreen> createState() => _CreateWebinarScreenState();
