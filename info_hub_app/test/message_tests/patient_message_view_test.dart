@@ -10,6 +10,7 @@ import 'package:info_hub_app/message_feature/patient_message_view.dart';
 import 'package:info_hub_app/message_feature/message_model.dart';
 import 'package:info_hub_app/message_feature/messaging_room_view.dart';
 import 'package:info_hub_app/patient_experience/admin_experience_view.dart';
+import 'package:info_hub_app/threads/name_generator.dart';
 import 'package:info_hub_app/topics/create_topic.dart';
 import 'package:info_hub_app/ask_question/question_view.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
@@ -43,6 +44,18 @@ void main() {
     CollectionReference userCollectionRef = firestore.collection('Users');
     userCollectionRef.doc('1').set({
       'email': 'admin@gmail.com',
+      'firstName': 'John',
+      'lastName': 'Doe',
+      'roleType': 'admin'
+    });
+    userCollectionRef.doc('2').set({
+      'email': 'admin2@gmail.com',
+      'firstName': 'John',
+      'lastName': 'Doe',
+      'roleType': 'admin'
+    });
+    userCollectionRef.doc('3').set({
+      'email': 'admin3@gmail.com',
       'firstName': 'John',
       'lastName': 'Doe',
       'roleType': 'admin'
@@ -110,7 +123,10 @@ void main() {
     await tester.tap(find.byType(MessageRoomCard));
     await tester.pumpAndSettle();
 
-    expect(find.text('1'), findsOneWidget);
+    //username for admin
+    String userName = generateUniqueName('1');
+
+    expect(find.text(userName), findsOneWidget);
     expect(find.byType(MessageRoomView), findsOne);
 
   });
