@@ -891,21 +891,6 @@ void main() async {
 
     expect(find.byType(Chewie), findsOneWidget);
 
-    await tester.ensureVisible(find.byKey(const Key('uploadMediaButton')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('uploadMediaButton')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Upload Video'));
-    await tester.pumpAndSettle();
-    int reps = 0;
-
-    while (reps < 100) {
-      await tester.pump();
-
-      await Future.delayed(const Duration(milliseconds: 100));
-      reps += 1;
-    }
-
     await tester.tap(find.text('PUBLISH TOPIC'));
 
     final ListResult result = await mockStorage.ref().child('media').listAll();
@@ -968,21 +953,6 @@ void main() async {
 
     expect(find.byType(Image), findsOneWidget);
 
-    await tester.ensureVisible(find.byKey(const Key('uploadMediaButton')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('uploadMediaButton')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Upload Image'));
-    await tester.pumpAndSettle();
-    int reps = 0;
-
-    while (reps < 100) {
-      await tester.pump();
-
-      await Future.delayed(const Duration(milliseconds: 100));
-      reps += 1;
-    }
-
     await tester.tap(find.text('PUBLISH TOPIC'));
 
     final ListResult result = await mockStorage.ref().child('media').listAll();
@@ -990,69 +960,89 @@ void main() async {
     expect(result.items.length, greaterThan(0));
   });
 
-  testWidgets('Uploaded images can be cleared and navigate correctly',
+  testWidgets('media can be cleared and navigates to media in front correctly',
       (WidgetTester tester) async {
     MockFirebaseStorage mockStorage = MockFirebaseStorage();
-
-    auth =
-        MockFirebaseAuth(signedIn: true, mockUser: MockUser(uid: 'adminUser'));
-
-    firestore.collection('Users').doc('adminUser').set({
-      'name': 'John Doe',
-      'email': 'john@example.com',
-      'roleType': 'admin',
-      'likedTopics': [],
-      'dislikedTopics': [],
-    });
+    List<PlatformFile> media = [videoFile, imageFile];
 
     await tester.pumpWidget(MaterialApp(
       home: CreateTopicScreen(
         auth: auth,
         firestore: firestore,
         storage: mockStorage,
-        selectedFiles: fileListOneImage,
+        selectedFiles: media,
       ),
     ));
 
+    // upload a video
     await tester.ensureVisible(find.byKey(const Key('uploadMediaButton')));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('uploadMediaButton')));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Upload Image'));
+    await tester.tap(find.text('Upload Video'));
     await tester.pumpAndSettle();
+    // add an image
     await tester.ensureVisible(find.byKey(const Key('moreMediaButton')));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('moreMediaButton')));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Upload Image'));
     await tester.pumpAndSettle();
-    await tester.ensureVisible(find.byKey(const Key('moreMediaButton')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('moreMediaButton')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Upload Image'));
-    await tester.pumpAndSettle();
-
-    await tester.ensureVisible(find.byKey(const Key('deleteImageButton')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('deleteImageButton')));
-    await tester.pumpAndSettle();
-
+    // go back to the video
     await tester.ensureVisible(find.byKey(const Key('previousMediaButton')));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('previousMediaButton')));
     await tester.pumpAndSettle();
-
+    // clear the video selection
+    await tester.ensureVisible(find.byKey(const Key('deleteVideoButton')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('deleteVideoButton')));
+    await tester.pumpAndSettle();
+    // check that image in front has been navigated to
+    expect(find.byType(Image), findsOneWidget);
+    // add a video
+    await tester.ensureVisible(find.byKey(const Key('moreMediaButton')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('moreMediaButton')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Upload Video'));
+    await tester.pumpAndSettle();
+    // go back to the image
+    await tester.ensureVisible(find.byKey(const Key('previousMediaButton')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('previousMediaButton')));
+    await tester.pumpAndSettle();
+    // clear the image selection
     await tester.ensureVisible(find.byKey(const Key('deleteImageButton')));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('deleteImageButton')));
     await tester.pumpAndSettle();
+    //check that the video in front has been navigated to
+    expect(find.byType(Chewie), findsOneWidget);
 
-    await tester.ensureVisible(find.byKey(const Key('deleteImageButton')));
+    await tester.ensureVisible(find.byKey(const Key('deleteVideoButton')));
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('deleteImageButton')));
+    await tester.tap(find.byKey(const Key('deleteVideoButton')));
     await tester.pumpAndSettle();
+    //check that no video appears
+    expect(find.byType(Chewie), findsNothing);
+  });
 
+  testWidgets('cleared media navigates to media behind correctly',
+      (WidgetTester tester) async {
+    MockFirebaseStorage mockStorage = MockFirebaseStorage();
+    List<PlatformFile> media = [videoFile, imageFile];
+
+    await tester.pumpWidget(MaterialApp(
+      home: CreateTopicScreen(
+        auth: auth,
+        firestore: firestore,
+        storage: mockStorage,
+        selectedFiles: media,
+      ),
+    ));
+
+    //upload an image
     await tester.ensureVisible(find.byKey(const Key('uploadMediaButton')));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('uploadMediaButton')));
@@ -1060,13 +1050,40 @@ void main() async {
     await tester.tap(find.text('Upload Image'));
     await tester.pumpAndSettle();
 
+    // upload a video
+    await tester.ensureVisible(find.byKey(const Key('moreMediaButton')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('moreMediaButton')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Upload Video'));
+    await tester.pumpAndSettle();
+
+    // add another image
+    await tester.ensureVisible(find.byKey(const Key('moreMediaButton')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('moreMediaButton')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Upload Image'));
+    await tester.pumpAndSettle();
+    // clear the image selection
+    await tester.ensureVisible(find.byKey(const Key('deleteImageButton')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('deleteImageButton')));
+    await tester.pumpAndSettle();
+    // check that video behind has been navigated to
+    expect(find.byType(Chewie), findsOneWidget);
+    await tester.ensureVisible(find.byKey(const Key('deleteVideoButton')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('deleteVideoButton')));
+    await tester.pumpAndSettle();
+    // check that Image behind has been navigated to
     expect(find.byType(Image), findsOneWidget);
 
     await tester.ensureVisible(find.byKey(const Key('deleteImageButton')));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('deleteImageButton')));
     await tester.pumpAndSettle();
-
+    // check that no image is found
     expect(find.byType(Image), findsNothing);
   });
 
@@ -1511,145 +1528,6 @@ void main() async {
     // video replaces the image
     expect(find.byType(Chewie), findsOneWidget);
     expect(find.byType(Image), findsNothing);
-  });
-
-  testWidgets('videos can be cleared and navigate to videos correctly',
-      (WidgetTester tester) async {
-    auth =
-        MockFirebaseAuth(signedIn: true, mockUser: MockUser(uid: 'adminUser'));
-
-    firestore.collection('Users').doc('adminUser').set({
-      'name': 'John Doe',
-      'email': 'john@example.com',
-      'roleType': 'admin',
-      'likedTopics': [],
-      'dislikedTopics': [],
-    });
-    List<PlatformFile> threeVideos = [videoFile, imageFile];
-
-    MockFirebaseStorage mockStorage = MockFirebaseStorage();
-    await tester.pumpWidget(MaterialApp(
-      home: CreateTopicScreen(
-        auth: auth,
-        firestore: firestore,
-        storage: mockStorage,
-        selectedFiles: threeVideos,
-      ),
-    ));
-
-    await tester.ensureVisible(find.byKey(const Key('uploadMediaButton')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('uploadMediaButton')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Upload Video'));
-    await tester.pumpAndSettle();
-
-    await tester.ensureVisible(find.byKey(const Key('moreMediaButton')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('moreMediaButton')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Upload Video'));
-    await tester.pumpAndSettle();
-
-    await tester.ensureVisible(find.byKey(const Key('moreMediaButton')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('moreMediaButton')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Upload Video'));
-    await tester.pumpAndSettle();
-
-    expect(find.byKey(const Key('deleteVideoButton')), findsOneWidget);
-
-    await tester.ensureVisible(find.byKey(const Key('deleteVideoButton')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('deleteVideoButton')));
-    await tester.pumpAndSettle();
-
-    await tester.ensureVisible(find.byKey(const Key('previousMediaButton')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('previousMediaButton')));
-    await tester.pumpAndSettle();
-
-    await tester.ensureVisible(find.byKey(const Key('deleteVideoButton')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('deleteVideoButton')));
-    await tester.pumpAndSettle();
-
-    await tester.ensureVisible(find.byKey(const Key('deleteVideoButton')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('deleteVideoButton')));
-    await tester.pumpAndSettle();
-
-    expect(find.byType(Chewie), findsNothing);
-  });
-  testWidgets('mixed media can be cleared and navigate to videos correctly',
-      (WidgetTester tester) async {
-    auth =
-        MockFirebaseAuth(signedIn: true, mockUser: MockUser(uid: 'adminUser'));
-
-    firestore.collection('Users').doc('adminUser').set({
-      'name': 'John Doe',
-      'email': 'john@example.com',
-      'roleType': 'admin',
-      'likedTopics': [],
-      'dislikedTopics': [],
-    });
-    List<PlatformFile> threeVideos = [videoFile, imageFile];
-
-    MockFirebaseStorage mockStorage = MockFirebaseStorage();
-    await tester.pumpWidget(MaterialApp(
-      home: CreateTopicScreen(
-        auth: auth,
-        firestore: firestore,
-        storage: mockStorage,
-        selectedFiles: threeVideos,
-      ),
-    ));
-
-    await tester.ensureVisible(find.byKey(const Key('uploadMediaButton')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('uploadMediaButton')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Upload Video'));
-    await tester.pumpAndSettle();
-
-    await tester.ensureVisible(find.byKey(const Key('moreMediaButton')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('moreMediaButton')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Upload Image'));
-    await tester.pumpAndSettle();
-
-    await tester.ensureVisible(find.byKey(const Key('previousMediaButton')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('previousMediaButton')));
-    await tester.pumpAndSettle();
-
-    expect(find.byKey(const Key('deleteVideoButton')), findsOneWidget);
-
-    await tester.ensureVisible(find.byKey(const Key('deleteVideoButton')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('deleteVideoButton')));
-    await tester.pumpAndSettle();
-    expect(find.byType(Image), findsOneWidget);
-
-    await tester.ensureVisible(find.byKey(const Key('moreMediaButton')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('moreMediaButton')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Upload Video'));
-    await tester.pumpAndSettle();
-
-    await tester.ensureVisible(find.byKey(const Key('previousMediaButton')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('previousMediaButton')));
-    await tester.pumpAndSettle();
-
-    await tester.ensureVisible(find.byKey(const Key('deleteImageButton')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('deleteImageButton')));
-    await tester.pumpAndSettle();
-    expect(find.byType(Chewie), findsOneWidget);
   });
 
   testWidgets(
