@@ -33,31 +33,37 @@ void main() {
       'title': 'test 1',
       'description': 'this is a test',
       'articleLink': '',
-      'videoUrl': '',
+      'media': [],
       'views': 10,
       'date': DateTime.now(),
       'likes': 0,
       'dislikes': 0,
+      'tags': ['Patient'],
+      'categories': ['Gym']
     });
     topicCollectionRef.add({
       'title': 'test 2',
       'description': 'this is a test',
       'articleLink': '',
-      'videoUrl': '',
+      'media': [],
       'views': 9,
       'date': DateTime.now(),
       'likes': 0,
       'dislikes': 0,
+      'tags': ['Patient'],
+      'categories': ['Gym']
     });
     topicCollectionRef.add({
       'title': 'test 3',
       'description': 'this is a test',
       'articleLink': '',
-      'videoUrl': '',
+      'media': [],
       'views': 8,
       'date': DateTime.now(),
       'likes': 0,
       'dislikes': 0,
+      'tags': ['Patient'],
+      'categories': ['Gym']
     });
 
     trendingTopicWidget = MaterialApp(
@@ -65,11 +71,18 @@ void main() {
     );
   });
 
-  
   testWidgets('Trendings topic are in right order',
       (WidgetTester tester) async {
     // Build your widget
-
+    await auth.createUserWithEmailAndPassword(
+        email: 'test@tested.org', password: 'Password123!');
+    String uid = auth.currentUser!.uid;
+    await firestore.collection('Users').doc(uid).set({
+      'email': 'test@tested.org',
+      'firstName': 'James',
+      'lastName': 'Doe',
+      'roleType': 'Patient'
+    });
 
     await tester.pumpWidget(trendingTopicWidget);
     await tester.pumpAndSettle();
@@ -92,46 +105,65 @@ void main() {
   testWidgets('Shows only first 6 trending topics',
       (WidgetTester tester) async {
     // Build your widget
+    await auth.createUserWithEmailAndPassword(
+        email: 'test@tested.org', password: 'Password123!');
+    String uid = auth.currentUser!.uid;
+    await firestore.collection('Users').doc(uid).set({
+      'email': 'test@tested.org',
+      'firstName': 'James',
+      'lastName': 'Doe',
+      'roleType': 'Patient'
+    });
+    await auth.signInWithEmailAndPassword(
+        email: 'test@tested.org', password: 'Password123!');
     CollectionReference topicCollectionRef = firestore.collection('topics');
     topicCollectionRef.add({
       'title': 'test 4',
       'description': 'this is a test',
       'articleLink': '',
-      'videoUrl': '',
+      'media': [],
       'views': 5,
       'date': DateTime.now(),
       'likes': 0,
       'dislikes': 0,
+      'tags': ['Patient'],
+      'categories': ['Gym']
     });
     topicCollectionRef.add({
       'title': 'test 5',
       'description': 'this is a test',
       'articleLink': '',
-      'videoUrl': '',
+      'media': [],
       'views': 4,
       'date': DateTime.now(),
       'likes': 0,
       'dislikes': 0,
+      'tags': ['Patient'],
+      'categories': ['Gym']
     });
     topicCollectionRef.add({
       'title': 'test 6',
       'description': 'this is a test',
       'articleLink': '',
-      'videoUrl': '',
+      'media': [],
       'views': 3,
       'date': DateTime.now(),
       'likes': 0,
       'dislikes': 0,
+      'tags': ['Patient'],
+      'categories': ['Gym']
     });
     topicCollectionRef.add({
       'title': 'test 7',
       'description': 'this is a test',
       'articleLink': '',
-      'videoUrl': '',
+      'media': [],
       'views': 1,
       'date': DateTime.now(),
       'likes': 0,
       'dislikes': 0,
+      'tags': ['Patient'],
+      'categories': ['Gym']
     });
 
     await tester.pumpWidget(trendingTopicWidget);
@@ -151,80 +183,180 @@ void main() {
     expect((textFinders.at(6).evaluate().single.widget as Text).data, 'test 6');
   });
 
- testWidgets('Click into a topic test',
+  testWidgets('Click into a topic test', (WidgetTester tester) async {
+    await auth.createUserWithEmailAndPassword(
+        email: 'test@tested.org', password: 'Password123!');
+    String uid = auth.currentUser!.uid;
+    await firestore.collection('Users').doc(uid).set({
+      'email': 'test@tested.org',
+      'firstName': 'James',
+      'lastName': 'Doe',
+      'roleType': 'Patient'
+    });
+    await tester.pumpWidget(trendingTopicWidget);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byType(Card).first);
+    await tester.pumpAndSettle();
+    expect(find.byType(ViewTopicScreen), findsOne);
+  });
+
+  testWidgets('Click onto inbox leads to patient message view',
       (WidgetTester tester) async {
+    await auth.createUserWithEmailAndPassword(
+        email: 'patient@gmail.com', password: 'Patient123!');
+    String uid = auth.currentUser!.uid;
+    await firestore.collection('Users').doc(uid).set({
+      'email': 'patient@gmail.com',
+      'firstName': 'John',
+      'lastName': 'Doe',
+      'roleType': 'Patient'
+    });
 
-      await tester.pumpWidget(trendingTopicWidget);
-      await tester.pumpAndSettle();
+    CollectionReference userCollectionRef = firestore.collection('Users');
+    userCollectionRef.doc('1').set({
+      'email': 'admin@gmail.com',
+      'firstName': 'John',
+      'lastName': 'Doe',
+      'roleType': 'admin'
+    });
 
-      await tester.tap(find.byType(Card).first);
-      await tester.pumpAndSettle();
-      expect(find.byType(ViewTopicScreen), findsOne);
-      });
+    CollectionReference chatRoomMembersCollectionReference =
+        firestore.collection('message_rooms');
 
- testWidgets('Click onto inbox leads to patient message view',
+    chatRoomMembersCollectionReference.add({'adminId': '1', 'patientId': uid});
+
+    await tester.pumpWidget(trendingTopicWidget);
+    await tester.pumpAndSettle();
+
+    Finder inboxButton = find.byIcon(Icons.email);
+    await tester.tap(inboxButton);
+    await tester.pumpAndSettle();
+
+    expect(find.byType(PatientMessageView), findsOne);
+  });
+
+  testWidgets('Click onto patient experience leads to patient experience view',
       (WidgetTester tester) async {
-      
-      await auth.createUserWithEmailAndPassword(
-        email: 'patient@gmail.com',
-        password: 'Patient123!');
-      String uid = auth.currentUser!.uid;
-      await firestore.collection('Users').doc(uid).set({
-        'email': 'patient@gmail.com',
-        'firstName': 'John',
-        'lastName': 'Doe',
-        'roleType': 'Patient'
-      });
+    await auth.createUserWithEmailAndPassword(
+        email: 'test@tested.org', password: 'Password123!');
+    String uid = auth.currentUser!.uid;
+    await firestore.collection('Users').doc(uid).set({
+      'email': 'test@tested.org',
+      'firstName': 'James',
+      'lastName': 'Doe',
+      'roleType': 'Patient'
+    });
+    await tester.pumpWidget(trendingTopicWidget);
+    await tester.pumpAndSettle();
 
-      CollectionReference userCollectionRef = firestore.collection('Users');
-      userCollectionRef.doc('1').set({
-        'email': 'admin@gmail.com',
-        'firstName': 'John',
-        'lastName': 'Doe',
-        'roleType': 'admin'
-      });      
+    Finder experienceViewButton = find.text('Patient Experience');
+    await tester.tap(experienceViewButton);
+    await tester.pumpAndSettle();
 
-      CollectionReference chatRoomMembersCollectionReference = firestore.collection('message_rooms_members');
+    expect(find.byType(ExperienceView), findsOne);
+  });
 
-      chatRoomMembersCollectionReference.add({
-        'adminId' : '1',
-        'patientId' : uid
-      });
-
-      await tester.pumpWidget(trendingTopicWidget);
-      await tester.pumpAndSettle();
-
-      Finder inboxButton = find.byIcon(Icons.email);
-      await tester.tap(inboxButton);
-      await tester.pumpAndSettle();
-
-      expect(find.byType(PatientMessageView), findsOne);
-      });
-
- testWidgets('Click onto patient experience leads to patient experience view',
+  testWidgets('Click onto webinar view leads to webinar view',
       (WidgetTester tester) async {
-      
-      await tester.pumpWidget(trendingTopicWidget);
-      await tester.pumpAndSettle();
+    await auth.createUserWithEmailAndPassword(
+        email: 'test@tested.org', password: 'Password123!');
+    String uid = auth.currentUser!.uid;
+    await firestore.collection('Users').doc(uid).set({
+      'email': 'test@tested.org',
+      'firstName': 'James',
+      'lastName': 'Doe',
+      'roleType': 'Patient'
+    });
+    await tester.pumpWidget(trendingTopicWidget);
+    await tester.pumpAndSettle();
 
-      Finder experienceViewButton = find.text('Patient Experience');
-      await tester.tap(experienceViewButton);
-      await tester.pumpAndSettle();
+    Finder webinarViewButton = find.text('Webinars');
+    await tester.tap(webinarViewButton);
+    await tester.pumpAndSettle();
 
-      expect(find.byType(ExperienceView), findsOne);
-      });
+    expect(find.byType(WebinarView), findsOne);
+  });
 
- testWidgets('Click onto webinar view leads to webinar view',
+  testWidgets('Topics with the same tag as user role are shown',
       (WidgetTester tester) async {
-      
-      await tester.pumpWidget(trendingTopicWidget);
-      await tester.pumpAndSettle();
+    // Build your widget
+    await auth.createUserWithEmailAndPassword(
+        email: 'test@tested.org', password: 'Password123!');
+    String uid = auth.currentUser!.uid;
+    await firestore.collection('Users').doc(uid).set({
+      'email': 'test@tested.org',
+      'firstName': 'James',
+      'lastName': 'Doe',
+      'roleType': 'Patient'
+    });
+    await auth.signInWithEmailAndPassword(
+        email: 'test@tested.org', password: 'Password123!');
+    CollectionReference topicCollectionRef = firestore.collection('topics');
+    topicCollectionRef.add({
+      'title': 'test 4',
+      'description': 'this is a test',
+      'articleLink': '',
+      'media': [],
+      'views': 5,
+      'date': DateTime.now(),
+      'likes': 0,
+      'dislikes': 0,
+      'tags': ['Patient'],
+      'categories': ['Gym']
+    });
+    topicCollectionRef.add({
+      'title': 'test 5',
+      'description': 'this is a test',
+      'articleLink': '',
+      'media': [],
+      'views': 4,
+      'date': DateTime.now(),
+      'likes': 0,
+      'dislikes': 0,
+      'tags': ['Parent'],
+      'categories': ['Gym']
+    });
+    topicCollectionRef.add({
+      'title': 'test 6',
+      'description': 'this is a test',
+      'articleLink': '',
+      'media': [],
+      'views': 3,
+      'date': DateTime.now(),
+      'likes': 0,
+      'dislikes': 0,
+      'tags': ['Patient'],
+      'categories': ['Gym']
+    });
+    topicCollectionRef.add({
+      'title': 'test 7',
+      'description': 'this is a test',
+      'articleLink': '',
+      'media': [],
+      'views': 1,
+      'date': DateTime.now(),
+      'likes': 0,
+      'dislikes': 0,
+      'tags': ['Patient'],
+      'categories': ['Gym']
+    });
 
-      Finder webinarViewButton = find.text('Webinars');
-      await tester.tap(webinarViewButton);
-      await tester.pumpAndSettle();
+    await tester.pumpWidget(trendingTopicWidget);
+    await tester.pumpAndSettle();
 
-      expect(find.byType(WebinarView), findsOne);
-      });
+    // Tap into the ListView
+    Finder listViewFinder = find.byType(ListView);
+    expect(listViewFinder, findsOneWidget);
 
+    // Get the list of cards
+    Finder cardFinder = find.byType(Card);
+    expect(cardFinder, findsNWidgets(6));
+
+    final textFinders = find.byType(Text);
+
+    // Check that test 6 is seen but test 5 is not
+    expect((textFinders.at(5).evaluate().single.widget as Text).data, 'test 6');
+    expect(find.text('test 5'), findsNothing);
+  });
 }

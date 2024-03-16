@@ -7,12 +7,13 @@ class ChangeProfile extends StatefulWidget {
   final FirebaseAuth auth;
 
   const ChangeProfile({
-    Key? key,
+    super.key,
     required this.firestore,
     required this.auth,
-  }) : super(key: key);
+  });
 
   @override
+  // ignore: library_private_types_in_public_api
   _ChangeProfileState createState() => _ChangeProfileState();
 }
 
@@ -48,7 +49,7 @@ class _ChangeProfileState extends State<ChangeProfile> {
               controller: _firstNameController,
               decoration: InputDecoration(
                 labelText: 'First Name',
-                border: OutlineInputBorder(),
+                border: const OutlineInputBorder(),
                 errorText: _firstNameErrorText.isNotEmpty ? _firstNameErrorText : null,
               ),
             ),
@@ -57,7 +58,7 @@ class _ChangeProfileState extends State<ChangeProfile> {
               controller: _lastNameController,
               decoration: InputDecoration(
                 labelText: 'Last Name',
-                border: OutlineInputBorder(),
+                border: const OutlineInputBorder(),
                 errorText: _lastNameErrorText.isNotEmpty ? _lastNameErrorText : null,
               ),
             ),
@@ -99,9 +100,11 @@ class _ChangeProfileState extends State<ChangeProfile> {
                 await _updateProfile();
 
                 // Navigate and show success message
+                // ignore: use_build_context_synchronously
                 Navigator.pop(context);
+                // ignore: use_build_context_synchronously
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
+                  const SnackBar(
                     content: Text('Changes saved'),
                     duration: Duration(seconds: 5),
                     backgroundColor: Colors.green,

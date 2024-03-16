@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:info_hub_app/patient_experience/experience_controller.dart';
 import 'package:info_hub_app/patient_experience/experience_model.dart';
 import 'package:info_hub_app/patient_experience/experiences_card.dart';
 
@@ -11,20 +12,29 @@ class ExperienceView extends StatefulWidget {
       {super.key, required this.firestore, required this.auth});
 
   @override
-  _ExperienceViewState createState() => _ExperienceViewState();
+  State<ExperienceView> createState() => _ExperienceViewState();
 }
 
 class _ExperienceViewState extends State<ExperienceView> {
-  final TextEditingController _descriptionController = TextEditingController();
-  final TextEditingController _titleController = TextEditingController();
-  final Experience _experience = Experience();
+  late ExperienceController _experienceController;
   List<Experience> _experienceList = [];
   // ignore: prefer_final_fields
+
+
+
+
+  @override
+  void initState() {
+    super.initState();
+    _experienceController = ExperienceController(
+      widget.auth, 
+      widget.firestore);
+  }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    getExperienceList();
+    updateExperienceList();
   }
 
   @override
@@ -176,8 +186,11 @@ class _ExperienceViewState extends State<ExperienceView> {
   }
 
   void _showPostDialog() {
-    _descriptionController.clear();
-    _titleController.clear();
+    final TextEditingController descriptionController = TextEditingController();
+    final TextEditingController titleController = TextEditingController();
+
+    descriptionController.clear();
+    titleController.clear();
 
     showDialog(
       context: context,
@@ -190,7 +203,7 @@ class _ExperienceViewState extends State<ExperienceView> {
               TextField(
                 maxLines: 1,
                 maxLength: 70,
-                controller: _titleController,
+                controller: titleController,
                 decoration: const InputDecoration(
                   labelText: 'Title',
                   border: OutlineInputBorder(),
@@ -201,7 +214,7 @@ class _ExperienceViewState extends State<ExperienceView> {
                 maxLines: 5,
                 maxLength: 1000,
                 keyboardType: TextInputType.multiline,
-                controller: _descriptionController,
+                controller: descriptionController,
                 decoration: const InputDecoration(
                   labelText: 'Share your experience!',
                   border: OutlineInputBorder(),
@@ -210,15 +223,17 @@ class _ExperienceViewState extends State<ExperienceView> {
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () async {
-                  if (_titleController.text.isEmpty ||
-                      _descriptionController.text.isEmpty) {
+                  if (titleController.text.isEmpty ||
+                      descriptionController.text.isEmpty) {
                     return _blankTitleOrExperienceAlert(context);
                   }
 
-                  _saveExperience();
-                  Navigator.of(context).pop(); // Close the dialog
+                  _experienceController.saveExperience(
+                    titleController.text,
+                    descriptionController.text
+                  );
 
-                  // Show the thank you message dialog
+                  Navigator.of(context).pop(); 
                   showDialog(
                     context: context,
                     builder: (BuildContext context) {
@@ -247,32 +262,15 @@ class _ExperienceViewState extends State<ExperienceView> {
     );
   }
 
-  Future getExperienceList() async {
-    QuerySnapshot data = await widget.firestore
-        .collection('experiences')
-        .where('verified', isEqualTo: true)
-        .get();
+  Future updateExperienceList() async {
+    List<Experience> data = await _experienceController.getVerifiedExperienceList();
 
     setState(() {
-      _experienceList =
-          List.from(data.docs.map((doc) => Experience.fromSnapshot(doc)));
+      _experienceList = data;
     });
   }
 
-  void _saveExperience() async {
-    // FirebaseAuth auth = FirebaseAuth.instance;
-    // User? user = auth.currentUser;
 
-    _experience.title = _titleController.text;
-    _experience.description = _descriptionController.text;
-    // if (user != null) {
-    //   _experience.uid = user.uid;
-    // }
-    _experience.verified = false;
-
-    CollectionReference db = widget.firestore.collection('experiences');
-    await db.add(_experience.toJson());
-  }
 
   Future<void> _blankTitleOrExperienceAlert(BuildContext context) async {
     return showDialog<void>(

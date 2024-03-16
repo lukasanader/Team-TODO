@@ -7,19 +7,16 @@ class ProfileView extends StatefulWidget {
   final FirebaseFirestore firestore;
   final FirebaseAuth auth;
 
-  const ProfileView({Key? key, required this.firestore, required this.auth})
-      : super(key: key);
+  const ProfileView({super.key, required this.firestore, required this.auth});
 
   @override
   State<ProfileView> createState() => _ProfileViewState();
-  // Getter for selectedProfilePhoto
 }
 
 class _ProfileViewState extends State<ProfileView> {
-  late Map<String, dynamic>? _currentUser; // Store current user data
-  late String _selectedProfilePhoto =
-      'default_profile_photo.png'; // Store selected profile photo URL
-  bool _isLoading = true; // Track loading state
+  late Map<String, dynamic>? _currentUser;
+  late String _selectedProfilePhoto = 'default_profile_photo.png';
+  bool _isLoading = true;
 
   @override
   void initState() {
@@ -41,7 +38,7 @@ class _ProfileViewState extends State<ProfileView> {
         _currentUser = userDoc.data();
         _selectedProfilePhoto = _currentUser?['selectedProfilePhoto'] ??
             'default_profile_photo.png';
-        _isLoading = false; // Mark loading as complete
+        _isLoading = false;
       });
     }
   }
@@ -49,29 +46,27 @@ class _ProfileViewState extends State<ProfileView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Profile'),
-        backgroundColor: Colors.purple,
-      ),
-      body: _isLoading
-          ? Center(child: CircularProgressIndicator())
-          : Center(
-              child: SingleChildScrollView(
-                padding: EdgeInsets.fromLTRB(
-                    16, 8, 16, 16), // Adjust top padding here
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    _buildProfileHeader(),
-                    SizedBox(height: 20),
-                    _buildUserInfoSection(),
-                    SizedBox(height: 100),
-                    _buildChangeProfileButton(),
-                  ],
+        appBar: AppBar(
+          title: const Text('Profile'),
+          backgroundColor: Colors.purple,
+        ),
+        body: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : Center(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      _buildProfileHeader(),
+                      const SizedBox(height: 20),
+                      _buildUserInfoSection(),
+                      const SizedBox(height: 100),
+                      _buildChangeProfileButton(),
+                    ],
+                  ),
                 ),
-              ),
-            ),
-    );
+              ));
   }
 
   Widget _buildProfileHeader() {
@@ -99,20 +94,20 @@ class _ProfileViewState extends State<ProfileView> {
               right: 0,
               child: IconButton(
                 onPressed: _showProfilePhotoOptions,
-                icon: Icon(Icons.edit),
+                icon: const Icon(Icons.edit),
                 tooltip: 'Edit Profile Photo',
               ),
             ),
           ],
         ),
-        SizedBox(height: 10),
+        const SizedBox(height: 10),
         Text(
           '${_currentUser?['firstName'] ?? 'N/A'} ${_currentUser?['lastName'] ?? 'N/A'}',
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
         Text(
           _currentUser?['email'] ?? 'N/A',
-          style: TextStyle(fontSize: 16, color: Colors.grey),
+          style: const TextStyle(fontSize: 16, color: Colors.grey),
         ),
       ],
     );
@@ -122,11 +117,11 @@ class _ProfileViewState extends State<ProfileView> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Text(
+        const Text(
           'Your Profile',
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
-        SizedBox(height: 10),
+        const SizedBox(height: 10),
         _buildInfoTile('First Name', _currentUser?['firstName']),
         _buildInfoTile('Last Name', _currentUser?['lastName']),
         _buildInfoTile('Role Type', _currentUser?['roleType']),
@@ -140,14 +135,14 @@ class _ProfileViewState extends State<ProfileView> {
       children: [
         Text(
           title,
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
-        SizedBox(height: 4),
+        const SizedBox(height: 4),
         Text(
           value ?? 'N/A',
-          style: TextStyle(fontSize: 16),
+          style: const TextStyle(fontSize: 16),
         ),
-        Divider(),
+        const Divider(),
       ],
     );
   }
@@ -165,7 +160,7 @@ class _ProfileViewState extends State<ProfileView> {
           ),
         );
       },
-      child: Text('Change Profile'),
+      child: const Text('Change Profile'),
     );
   }
 
@@ -174,27 +169,27 @@ class _ProfileViewState extends State<ProfileView> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Select a Profile Photo'),
+          title: const Text('Select a Profile Photo'),
           content: SingleChildScrollView(
             child: ListBody(
               children: <Widget>[
                 ListTile(
-                  leading: Icon(Icons.account_circle),
-                  title: Text('Dog'),
+                  leading: const Icon(Icons.account_circle),
+                  title: const Text('Dog'),
                   onTap: () {
                     Navigator.of(context).pop('profile_photo_1.png');
                   },
                 ),
                 ListTile(
-                  leading: Icon(Icons.account_circle),
-                  title: Text('Walrus'),
+                  leading: const Icon(Icons.account_circle),
+                  title: const Text('Walrus'),
                   onTap: () {
                     Navigator.of(context).pop('profile_photo_2.png');
                   },
                 ),
                 ListTile(
-                  leading: Icon(Icons.account_circle),
-                  title: Text('Penguin'),
+                  leading: const Icon(Icons.account_circle),
+                  title: const Text('Penguin'),
                   onTap: () {
                     Navigator.of(context).pop('profile_photo_3.png');
                   },

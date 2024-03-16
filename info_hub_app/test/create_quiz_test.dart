@@ -5,28 +5,41 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import 'package:info_hub_app/topics/create_topic.dart';
 import 'package:info_hub_app/topics/quiz/create_quiz.dart';
+import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 
 void main() {
   late FirebaseFirestore firestore = FakeFirebaseFirestore();
   late MockFirebaseStorage mockStorage = MockFirebaseStorage();
   late Widget quizWidget;
+  late MockFirebaseAuth auth;
 
   setUp(() {
+    firestore.collection('Users').doc('adminUser').set({
+      'name': 'John Doe',
+      'email': 'john@example.com',
+      'roleType': 'admin',
+      'likedTopics': [],
+      'dislikedTopics': [],
+    });
+    auth =
+        MockFirebaseAuth(signedIn: true, mockUser: MockUser(uid: 'adminUser'));
     quizWidget = MaterialApp(
-      home: CreateTopicScreen(firestore: firestore, storage: mockStorage),
-    );
+        home: CreateTopicScreen(
+            firestore: firestore, storage: mockStorage, auth: auth));
   });
 
   testWidgets('Test Create Quiz Screen', (WidgetTester tester) async {
     await tester.pumpWidget(quizWidget);
     await tester.pumpAndSettle();
-
+    await tester.ensureVisible(find.text('ADD QUIZ'));
     expect(find.text('ADD QUIZ'), findsOneWidget);
     await tester.tap(find.text('ADD QUIZ'));
     await tester.pumpAndSettle();
     expect(find.byType(CreateQuiz), findsOne);
+    await tester.ensureVisible(find.text('Add Question'));
 
     final addQuestionButton = find.text('Add Question');
+
     expect(addQuestionButton, findsOneWidget);
 
     await tester.tap(addQuestionButton); //Add an invalid question
@@ -87,23 +100,28 @@ void main() {
       (WidgetTester tester) async {
     await tester.pumpWidget(quizWidget);
     await tester.pumpAndSettle();
-
+    await tester.ensureVisible(find.text('ADD QUIZ'));
     await tester.tap(find.text('ADD QUIZ'));
     await tester.pumpAndSettle();
+
     final addQuestionButton = find.text('Add Question');
+    await tester.ensureVisible(addQuestionButton);
     await tester.tap(addQuestionButton); //Add an invalid question
     await tester.pumpAndSettle();
 
     await tester.enterText(find.byType(TextField), 'What is a liver?');
+    await tester.ensureVisible(addQuestionButton);
     await tester.tap(addQuestionButton);
     await tester.pumpAndSettle();
 
     final addAnswerButton = find.byIcon(Icons.add);
     await tester.enterText(find.byKey(const Key('answerField')), 'An organ');
+    await tester.ensureVisible(addAnswerButton);
     await tester.tap(addAnswerButton);
     await tester.pumpAndSettle();
 
     await tester.enterText(find.byKey(const Key('answerField')), 'A person');
+    await tester.ensureVisible(addAnswerButton);
     await tester.tap(addAnswerButton);
     await tester.pumpAndSettle();
 

@@ -49,7 +49,7 @@ void main() {
     });
 
 
-    CollectionReference chatRoomMembersCollectionReference = firestore.collection('message_rooms_members');
+    CollectionReference chatRoomMembersCollectionReference = firestore.collection('message_rooms');
 
     chatRoomMembersCollectionReference.doc('1').set({
       'adminId' : uid,
@@ -57,7 +57,7 @@ void main() {
     });
 
     messageRoomViewWidget = MaterialApp(
-      home: MessageRoomView(auth: auth, senderId: uid, receiverId: '123456789', messageService: MessageService(auth, firestore)),
+      home: MessageRoomView(firestore: firestore, auth: auth, senderId: uid, receiverId: '123456789'),
     );
   });
 
