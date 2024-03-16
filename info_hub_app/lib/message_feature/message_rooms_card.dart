@@ -51,7 +51,7 @@ class _MessageRoomCardState extends State<MessageRoomCard> {
       });
     }
     else {
-      displayName = Text(generateUniqueName(senderId));
+      displayName = Text(generateUniqueName(receiverId));
     }
   }
 
