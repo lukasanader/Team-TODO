@@ -8,17 +8,17 @@ import 'package:info_hub_app/registration/user_model.dart';
 import 'package:info_hub_app/webinar/service/webinar_service.dart';
 import '../webinar-screens/webinar_details_screen.dart';
 
-class GoLiveScreen extends StatefulWidget {
+class CreateWebinarScreen extends StatefulWidget {
   final UserModel user;
   final FirebaseFirestore firestore;
-
-  const GoLiveScreen({Key? key, required this.user, required this.firestore}) : super(key: key);
+ 
+  const CreateWebinarScreen({Key? key, required this.user, required this.firestore}) : super(key: key);
 
   @override
-  State<GoLiveScreen> createState() => _GoLiveScreenState();
+  State<CreateWebinarScreen> createState() => _CreateWebinarScreenState();
 }
 
-class _GoLiveScreenState extends State<GoLiveScreen> {
+class _CreateWebinarScreenState extends State<CreateWebinarScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _urlController = TextEditingController();
@@ -227,7 +227,7 @@ Widget _buildStep({required int stepNumber, required String stepDescription}) {
             child: Column(
               children: [
                 Container(
-                  padding: const EdgeInsets.only(top: 50),
+                  padding: const EdgeInsets.only(top: 15),
                   child: GestureDetector(
                     onTap: () async {
                       Uint8List? pickedImage = await _pickImage();

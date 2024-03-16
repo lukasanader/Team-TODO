@@ -49,7 +49,10 @@ class _WebinarViewState extends State<WebinarView> {
                     Livestream post = Livestream.fromMap(
                       snapshot.data!.docs[index].data() as Map<String, dynamic>,
                     );
-                    return WebinarCard(post: post); // Removed const
+                    return WebinarCard(
+                      post: post,
+                      firestore: widget.firestore, 
+                      user: widget.user); // Removed const
                   },
                 );
               },

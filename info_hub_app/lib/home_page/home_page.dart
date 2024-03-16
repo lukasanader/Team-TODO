@@ -188,19 +188,7 @@ class _HomePageState extends State<HomePage> {
                 ),
                 ElevatedButton(
                   onPressed: () async {
-                    String uid = widget.auth.currentUser!.uid;
-                    DocumentSnapshot userDoc = await widget.firestore.collection('Users').doc(uid).get();
-                    List<String> likedTopics = List<String>.from(userDoc['likedTopics']);
-                    List<String> dislikedTopics = List<String>.from(userDoc['dislikedTopics']);
-                    UserModel user = UserModel(
-                      uid: uid,
-                      firstName: userDoc['firstName'],
-                      lastName: userDoc['lastName'],
-                      email: userDoc['email'],
-                      roleType: userDoc['roleType'],
-                      likedTopics: likedTopics,
-                      dislikedTopics: dislikedTopics,
-                    );
+                    UserModel user = await generateCurrentUser() ;
                     // ignore: use_build_context_synchronously
                     PersistentNavBarNavigator.pushNewScreen(
                       context,
@@ -223,6 +211,22 @@ class _HomePageState extends State<HomePage> {
         ));
   }
 
+  Future<UserModel> generateCurrentUser() async {
+    String uid = widget.auth.currentUser!.uid;
+    DocumentSnapshot userDoc = await widget.firestore.collection('Users').doc(uid).get();
+    List<String> likedTopics = List<String>.from(userDoc['likedTopics']);
+    List<String> dislikedTopics = List<String>.from(userDoc['dislikedTopics']);
+    UserModel user = UserModel(
+      uid: uid,
+      firstName: userDoc['firstName'],
+      lastName: userDoc['lastName'],
+      email: userDoc['email'],
+      roleType: userDoc['roleType'],
+      likedTopics: likedTopics,
+      dislikedTopics: dislikedTopics,
+    );
+    return user;
+  }
 
   Future getTopicsList() async {
     String uid = widget.auth.currentUser!.uid;
