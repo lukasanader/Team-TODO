@@ -6,6 +6,7 @@ class Livestream {
   final String startedBy;
   final int viewers;
   final String startTime;
+  final String status;
 
   Livestream({
     required this.webinarID,
@@ -15,6 +16,7 @@ class Livestream {
     required this.youtubeURL,
     required this.startedBy,
     required this.startTime,
+    required this.status,
   });
 
   factory Livestream.fromMap(Map<String, dynamic> map) {
@@ -26,6 +28,7 @@ class Livestream {
       startedBy : map['webinarleadname'] ?? '',
       startTime: map['startTime'] ?? '',
       viewers: map['views'] ?? '',
+      status: map['status'] ?? '',
     );
   }
 }

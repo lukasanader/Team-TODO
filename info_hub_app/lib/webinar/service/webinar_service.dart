@@ -12,7 +12,7 @@ class WebinarService {
 
   WebinarService({required this.firestore});
     
-  Future<String> startLiveStream(String title,String url, Uint8List? image,String name, String startTime) async {
+  Future<String> startLiveStream(String title,String url, Uint8List? image,String name, String startTime, String streamStatus) async {
     // assign random integer as document name
     String collectionId = (Random().nextInt(4294967296) + 100000).toString();
     try {
@@ -36,6 +36,7 @@ class WebinarService {
             'startTime' : startTime,
             'views': 0,
             'dateStarted' : startTime,
+            'status': streamStatus,
           });
 
         } else {
@@ -123,6 +124,7 @@ class WebinarService {
       debugPrint(e.toString());
     }
   }
+
   Future<void> endLiveStream(String channelId) async {
     try {
       QuerySnapshot snap = await firestore
@@ -143,6 +145,41 @@ class WebinarService {
     } catch (e) {
       debugPrint(e.toString());
     }
+  }
+
+  Future<String> getNumberOfLiveWebinars() async {
+    QuerySnapshot snap = await firestore
+      .collection('Webinar')
+      .get();
+    return snap.docs.length.toString();
+  }
+
+  Future<String> getNumberOfUpcomingWebinars() async {
+    QuerySnapshot snap = await firestore
+      .collection('Webinar')
+      .where('status', isEqualTo: "Upcoming")
+      .get();
+    return snap.docs.length.toString();
+  }
+
+  Future<String> getNumberOfLiveViewers() async {
+    int totalViews = 0;
+    QuerySnapshot snap = await firestore
+      .collection('Webinar')
+      .where('views', isGreaterThan: 0)
+      .get();
+    for (int i = 0; i < snap.docs.length; i++) {
+      totalViews += snap.docs[i]['views'] as int;
+    }
+    return totalViews.toString();
+  }
+
+  Future<String> getNumberOfArchivedWebinars() async {
+    QuerySnapshot snap = await firestore
+      .collection('Webinar')
+      .where('status', isEqualTo: "Archived")
+      .get();
+    return snap.docs.length.toString();
   }
 
 }

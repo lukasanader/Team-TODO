@@ -4,25 +4,35 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:info_hub_app/registration/user_model.dart';
 import 'package:info_hub_app/webinar/admin-webinar-screens/create_webinar_screen.dart';
 import 'package:info_hub_app/webinar/admin-webinar-screens/stats_cards.dart';
+import 'package:info_hub_app/webinar/service/webinar_service.dart';
 import 'package:info_hub_app/webinar/webinar-screens/webinar_view.dart';
 
 class WebinarDashboard extends StatefulWidget {
   final UserModel user;
   final FirebaseFirestore firestore;
 
-  const WebinarDashboard({Key? key, required this.user, required this.firestore}) : super(key: key);
+  const WebinarDashboard({super.key, required this.user, required this.firestore});
 
   @override
+  // ignore: library_private_types_in_public_api
   _WebinarDashboardState createState() => _WebinarDashboardState();
 }
 
 class _WebinarDashboardState extends State<WebinarDashboard> {
+  late WebinarService webinarService;
+
+  @override
+  void initState() {
+    super.initState();
+    webinarService = WebinarService(firestore: widget.firestore);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.red,
-        title: Text('Webinar Dashboard'),
+        title: const Text('Webinar Dashboard'),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -30,7 +40,7 @@ class _WebinarDashboardState extends State<WebinarDashboard> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(
+              const Text(
                 'Webinar Analytics',
                 style: TextStyle(
                   fontSize: 24,
@@ -38,34 +48,60 @@ class _WebinarDashboardState extends State<WebinarDashboard> {
                   color: Colors.red,
                 ),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               GridView.count(
                 shrinkWrap: true,
                 crossAxisCount: 2,
                 crossAxisSpacing: 10,
                 mainAxisSpacing: 10,
                 children: [
-                  StatisticCard(
-                    label: 'Live Webinars',
-                    value: '5',
-                    icon: Icons.play_circle_filled,
-                    color: Colors.green,
+                  FutureBuilder<String>(
+                    future: webinarService.getNumberOfLiveWebinars(),
+                    builder: (context, snapshot) {
+                      return StatisticCard(
+                        label: 'Live Webinars',
+                        value: snapshot.data ?? '',
+                        icon: Icons.play_circle_filled,
+                        color: Colors.green,
+                      );
+                    },
                   ),
-                  StatisticCard(
-                    label: 'Upcoming Webinars',
-                    value: '10',
-                    icon: Icons.schedule,
-                    color: Colors.blue,
+                  FutureBuilder<String>(
+                    future: webinarService.getNumberOfUpcomingWebinars(),
+                    builder: (context, snapshot) {
+                      return StatisticCard(
+                        label: 'Upcoming Webinars',
+                        value: snapshot.data ?? '',
+                        icon: Icons.schedule,
+                        color: Colors.blue,
+                      );
+                    },
                   ),
-                  StatisticCard(
-                    label: 'Live Viewers',
-                    value: '50',
-                    icon: Icons.visibility,
-                    color: Colors.orange,
+                  FutureBuilder<String>(
+                    future: webinarService.getNumberOfLiveViewers(),
+                    builder: (context, snapshot) {
+                      return StatisticCard(
+                        label: 'Live Viewers',
+                        value: snapshot.data ?? '',
+                        icon: Icons.visibility,
+                        color: Colors.orange,
+                      );
+                    },
+                  ),
+                  FutureBuilder<String>(
+                    future: webinarService.getNumberOfArchivedWebinars(),
+                    builder: (context, snapshot) {
+                      return StatisticCard(
+                        label: 'Archived Webinars',
+                        value: snapshot.data ?? '',
+                        icon: Icons.archive,
+                        color: Colors.grey,
+                      );
+                    },
                   ),
                 ],
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
                   Navigator.of(context).push(
@@ -82,12 +118,12 @@ class _WebinarDashboardState extends State<WebinarDashboard> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red,
                 ),
-                child: Text(
+                child: const Text(
                   'View Webinars',
                   style: TextStyle(color: Colors.black),
                 ),
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               ElevatedButton(
                 onPressed: () {
                   Navigator.of(context).push(
@@ -104,7 +140,7 @@ class _WebinarDashboardState extends State<WebinarDashboard> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red,
                 ),
-                child: Text(
+                child: const Text(
                   'Create Webinars',
                   style: TextStyle(color: Colors.black),
                 ),

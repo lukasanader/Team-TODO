@@ -30,7 +30,7 @@ class _CreateWebinarScreenState extends State<CreateWebinarScreen> {
     super.initState();
     _urlController.addListener(_removeFeatureShared);
   }
-  
+
   @override
   void dispose() {
     _titleController.dispose();
@@ -48,6 +48,7 @@ class _CreateWebinarScreenState extends State<CreateWebinarScreen> {
   Future<void> _goLiveWebinar(DateTime? time,{bool isScheduled = false}) async {
     if (_formKey.currentState!.validate()) {
       time ??= DateTime.now();
+      String statusText = isScheduled ? 'Upcoming' : 'Live';
       final DateFormat formatter = DateFormat('dd-MM-yyyy HH:mm', 'en_GB');
       String webinarID = await WebinarService(firestore: widget.firestore)
           .startLiveStream(
@@ -55,7 +56,8 @@ class _CreateWebinarScreenState extends State<CreateWebinarScreen> {
             _urlController.text,
             image,
             ("${widget.user.firstName} ${widget.user.lastName}"),
-            formatter.format(time).toString()
+            formatter.format(time).toString(),
+            statusText
           );
       if (webinarID.isNotEmpty) {
         if (!isScheduled) {
@@ -71,6 +73,7 @@ class _CreateWebinarScreenState extends State<CreateWebinarScreen> {
             ),
           );
         } else {
+
           Navigator.of(context).pop();
         }
       } else {
