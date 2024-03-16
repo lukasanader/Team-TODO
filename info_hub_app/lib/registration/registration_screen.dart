@@ -9,16 +9,19 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:info_hub_app/legal_agreements/terms_of_services.dart';
 import 'package:info_hub_app/legal_agreements/privacy_policy.dart';
+import 'package:info_hub_app/theme/theme_manager.dart';
 
 class RegistrationScreen extends StatefulWidget {
   final FirebaseFirestore firestore;
   final FirebaseAuth auth;
   final FirebaseStorage storage;
+  final ThemeManager themeManager;
   const RegistrationScreen(
       {super.key,
       required this.firestore,
       required this.storage,
-      required this.auth});
+      required this.auth,
+      required this.themeManager});
 
   @override
   State<RegistrationScreen> createState() => _RegistrationScreenState();
@@ -154,8 +157,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 },
                 decoration: const InputDecoration(
                   labelText: 'I am a...',
-                  labelStyle: TextStyle(color: Colors.red),
-                  hintStyle: TextStyle(color: Colors.black),
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -255,6 +256,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         auth: widget.auth,
                         storage: widget.storage,
                         firestore: widget.firestore,
+                        themeManager: widget.themeManager,
                       );
                       Navigator.pushAndRemoveUntil(
                         context,
@@ -297,8 +299,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       decoration: InputDecoration(
         hintText: hintText,
         labelText: labelText,
-        labelStyle: const TextStyle(color: Colors.red),
-        hintStyle: const TextStyle(color: Colors.black),
       ),
       style: const TextStyle(color: Colors.black),
       validator: validator,

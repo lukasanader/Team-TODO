@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:info_hub_app/topics/quiz/create_quiz.dart';
 
 import 'package:video_player/video_player.dart';
@@ -17,13 +18,15 @@ class EditTopicScreen extends StatefulWidget {
   final FirebaseStorage storage;
   final QueryDocumentSnapshot topic;
   final FirebaseAuth auth;
+  final ThemeManager themeManager;
 
   const EditTopicScreen(
       {Key? key,
       required this.topic,
       required this.firestore,
       required this.auth,
-      required this.storage})
+      required this.storage,
+      required this.themeManager})
       : super(key: key);
 
   @override
@@ -120,7 +123,8 @@ class _EditTopicScreenState extends State<EditTopicScreen> {
                     firestore: widget.firestore,
                     topic: updatedTopicDoc,
                     storage: widget.storage,
-                    auth: widget.auth),
+                    auth: widget.auth,
+                    themeManager: widget.themeManager),
               ),
             );
           },
@@ -394,6 +398,7 @@ class _EditTopicScreenState extends State<EditTopicScreen> {
             topic: widget.topic,
             storage: widget.storage,
             auth: widget.auth,
+            themeManager: widget.themeManager,
           ),
         ),
       );
@@ -505,6 +510,7 @@ class _EditTopicScreenState extends State<EditTopicScreen> {
             topic: updatedTopicDoc,
             storage: widget.storage,
             auth: widget.auth,
+            themeManager: widget.themeManager,
           ),
         ),
       );

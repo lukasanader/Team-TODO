@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:info_hub_app/topics/topics_card.dart';
-import 'package:info_hub_app/helpers/helper.dart' show getTrending;
+import 'package:info_hub_app/util/helper_functions.dart' show getTrending;
 
 class AnalyticsTopicView extends StatefulWidget {
   final FirebaseFirestore firestore;

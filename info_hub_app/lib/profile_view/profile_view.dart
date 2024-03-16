@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:info_hub_app/change_profile/change_profile.dart';
+import 'package:info_hub_app/util/helper_widgets.dart';
 
 class ProfileView extends StatefulWidget {
   final FirebaseFirestore firestore;
@@ -34,59 +35,59 @@ class _ProfileViewState extends State<ProfileView> {
       final docRef = widget.firestore.collection('Users');
 
       final querySnapshot = await docRef.get();
-      final userDoc = querySnapshot.docs.firstWhere((doc) => doc.id == user.uid);
+      final userDoc =
+          querySnapshot.docs.firstWhere((doc) => doc.id == user.uid);
 
       setState(() {
         _currentUser = userDoc.data();
-        _selectedProfilePhoto =
-            _currentUser?['selectedProfilePhoto'] ?? 'default_profile_photo.png';
+        _selectedProfilePhoto = _currentUser?['selectedProfilePhoto'] ??
+            'default_profile_photo.png';
         _isLoading = false; // Mark loading as complete
       });
     }
   }
 
   @override
-Widget build(BuildContext context) {
-  return Scaffold(
-    appBar: AppBar(
-      title: const Text('Profile'),
-      backgroundColor: Colors.purple,
-    ),
-    body: _isLoading
-        ? Center(child: CircularProgressIndicator())
-        : Center(
-            child: SingleChildScrollView(
-              padding: EdgeInsets.fromLTRB(16, 8, 16, 16), // Adjust top padding here
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Profile'),
+      ),
+      body: _isLoading
+          ? Center(child: CircularProgressIndicator())
+          : Center(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  _buildProfileHeader(),
-                  SizedBox(height: 20),
-                  _buildUserInfoSection(),
-                  SizedBox(height: 100),
-                  _buildChangeProfileButton(),
+                  addVerticalSpace(20),
+                  SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        _buildProfileHeader(),
+                        SizedBox(height: 15),
+                        // _buildUserInfoSection(),
+                        _buildChangeProfileButton(),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
-          ),
-  );
-}
-
+    );
+  }
 
   Widget _buildProfileHeader() {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Stack(
-          alignment: Alignment.center,
           children: [
             GestureDetector(
-              onTap: _showProfilePhotoOptions, // Show options when tapping the profile photo
+              onTap:
+                  _showProfilePhotoOptions, // Show options when tapping the profile photo
               child: ClipOval(
                 child: CircleAvatar(
                   radius: 50, // Adjust the radius to your desired size
-                  backgroundImage:
-                      AssetImage('assets/$_selectedProfilePhoto'), // Profile photo
+                  backgroundImage: AssetImage(
+                      'assets/$_selectedProfilePhoto'), // Profile photo
                 ),
               ),
             ),
@@ -101,11 +102,17 @@ Widget build(BuildContext context) {
             ),
           ],
         ),
-        SizedBox(height: 10),
+        addVerticalSpace(10),
         Text(
           '${_currentUser?['firstName'] ?? 'N/A'} ${_currentUser?['lastName'] ?? 'N/A'}',
           style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
+        addVerticalSpace(4),
+        Text(
+          '${_currentUser?['roleType'] ?? 'N/A'}',
+          style: TextStyle(fontSize: 20),
+        ),
+        addVerticalSpace(3),
         Text(
           _currentUser?['email'] ?? 'N/A',
           style: TextStyle(fontSize: 16, color: Colors.grey),
@@ -119,13 +126,10 @@ Widget build(BuildContext context) {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Text(
-          'Your Profile',
+          '${_currentUser?['roleType'] ?? 'N/A'}',
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
-        SizedBox(height: 10),
-        _buildInfoTile('First Name', _currentUser?['firstName']),
-        _buildInfoTile('Last Name', _currentUser?['lastName']),
-        _buildInfoTile('Role Type', _currentUser?['roleType']),
+        addVerticalSpace(5),
       ],
     );
   }
@@ -143,7 +147,6 @@ Widget build(BuildContext context) {
           value ?? 'N/A',
           style: TextStyle(fontSize: 16),
         ),
-        Divider(),
       ],
     );
   }
@@ -216,23 +219,3 @@ Widget build(BuildContext context) {
     }
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

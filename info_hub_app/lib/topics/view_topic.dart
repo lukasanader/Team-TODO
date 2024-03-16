@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:info_hub_app/topics/edit_topic.dart';
 import 'package:info_hub_app/helpers/base.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -20,12 +21,14 @@ class ViewTopicScreen extends StatefulWidget {
   final FirebaseStorage storage;
 
   final FirebaseAuth auth;
+  final ThemeManager themeManager;
 
   const ViewTopicScreen(
       {required this.firestore,
       required this.topic,
       required this.storage,
       required this.auth,
+      required this.themeManager,
       Key? key})
       : super(key: key);
 
@@ -300,7 +303,8 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
                     builder: (context) => Base(
                         auth: widget.auth,
                         storage: widget.storage,
-                        firestore: widget.firestore)),
+                        firestore: widget.firestore,
+                        themeManager: widget.themeManager)),
               );
             },
           ),
@@ -318,6 +322,7 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
                         firestore: widget.firestore,
                         auth: widget.auth,
                         storage: widget.storage,
+                        themeManager: widget.themeManager,
                       ),
                     ),
                   );
