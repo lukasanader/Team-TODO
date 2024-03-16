@@ -62,7 +62,7 @@ void main() {
     });
 
 
-    CollectionReference chatRoomMembersCollectionReference = firestore.collection('message_rooms_members');
+    CollectionReference chatRoomMembersCollectionReference = firestore.collection('message_rooms');
 
     chatRoomMembersCollectionReference.add({
       'adminId' : '1',
@@ -78,7 +78,7 @@ void main() {
 
 
   testWidgets('Will display 3 existing chats', (WidgetTester tester) async {
-    CollectionReference chatRoomMembersCollectionReference = firestore.collection('message_rooms_members');
+    CollectionReference chatRoomMembersCollectionReference = firestore.collection('message_rooms');
 
     chatRoomMembersCollectionReference.add({
       'adminId' : '2',

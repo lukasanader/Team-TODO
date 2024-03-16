@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:info_hub_app/message_feature/message_room/message_room_controller.dart';
 import 'package:info_hub_app/message_feature/message_rooms_card.dart';
 import 'package:info_hub_app/message_feature/message_service.dart';
 import 'package:info_hub_app/message_feature/messaging_room_view.dart';
@@ -25,11 +26,18 @@ class _MessageViewState extends State<MessageView> {
   final TextEditingController _searchController = TextEditingController();
   List<Object> _userList = [];
   List<Object> _chatList = [];
+  late MessageRoomController messageRoomController;
+
+  @override
+  void initState() {
+    super.initState();
+    messageRoomController = MessageRoomController(widget.auth, widget.firestore);
+  }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    getChatList();
+    updateChatList();
     getUserList();
   }
 
@@ -58,7 +66,18 @@ class _MessageViewState extends State<MessageView> {
                   itemCount: _chatList.length,
                   itemBuilder: (context, index) {
                     dynamic chat = _chatList[index]; 
-                    return MessageRoomCard(widget.firestore, widget.auth, chat);
+                    return Row(
+                      children: [
+                        Expanded(
+                          child: MessageRoomCard(widget.firestore, widget.auth, chat), 
+                        ),                    
+                        IconButton(
+                          onPressed: () {
+                            deleteMessageRoomConfirmation(chat.id);
+                          }, 
+                          icon: const Icon(Icons.delete))
+                      ],
+                    );
                   }
                 ),
               ],
@@ -129,6 +148,30 @@ class _MessageViewState extends State<MessageView> {
         });
   }
 
+  Future<void> deleteMessageRoomConfirmation(String chatId) async {
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Warning!'),
+          content: const Text("Are you sure you want to delete?"),
+          actions: [
+            ElevatedButton(
+              onPressed: () async {
+                messageRoomController.deleteMessageRoom(chatId);
+                Navigator.pop(context);
+                updateChatList();
+              },
+              child: const Text("OK"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+
+
   String getEmail(QueryDocumentSnapshot user) {
     return user['email'];
   }
@@ -155,12 +198,8 @@ class _MessageViewState extends State<MessageView> {
     });
   }
 
-  Future getChatList() async {
-    QuerySnapshot data = await widget.firestore
-        .collection('message_rooms_members')
-        .where('adminId', isEqualTo: widget.auth.currentUser!.uid)
-        .get();
-    List<Object> tempList = List.from(data.docs);
+  Future updateChatList() async {
+    List<Object> tempList = await messageRoomController.getMessageRoomsList();
     
     setState(() {
       _chatList = tempList;

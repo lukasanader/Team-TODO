@@ -49,7 +49,7 @@ void main() {
     });
 
 
-    CollectionReference chatRoomMembersCollectionReference = firestore.collection('message_rooms_members');
+    CollectionReference chatRoomMembersCollectionReference = firestore.collection('message_rooms');
 
     chatRoomMembersCollectionReference.doc('1').set({
       'adminId' : uid,

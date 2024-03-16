@@ -222,7 +222,7 @@ void main() {
     });
 
     CollectionReference chatRoomMembersCollectionReference =
-        firestore.collection('message_rooms_members');
+        firestore.collection('message_rooms');
 
     chatRoomMembersCollectionReference.add({'adminId': '1', 'patientId': uid});
 

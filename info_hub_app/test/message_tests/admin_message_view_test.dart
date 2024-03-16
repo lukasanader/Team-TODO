@@ -61,7 +61,7 @@ void main() {
     });
 
 
-    CollectionReference chatRoomMembersCollectionReference = firestore.collection('message_rooms_members');
+    CollectionReference chatRoomMembersCollectionReference = firestore.collection('message_rooms');
 
     chatRoomMembersCollectionReference.doc('1').set({
       'adminId' : uid,
@@ -77,7 +77,7 @@ void main() {
 
 
   testWidgets('Will display 3 existing chats', (WidgetTester tester) async {
-    CollectionReference chatRoomMembersCollectionReference = firestore.collection('message_rooms_members');
+    CollectionReference chatRoomMembersCollectionReference = firestore.collection('message_rooms');
 
     chatRoomMembersCollectionReference.doc('2').set({
       'adminId' : auth.currentUser!.uid,
@@ -187,5 +187,34 @@ void main() {
 
   });
 
+  testWidgets('Delete button deletes message room',
+      (WidgetTester tester) async {
+    // Build our app and trigger a frame.
+    await tester.pumpWidget(adminMessageViewWidget);
+    await tester.pumpAndSettle();
+
+    expect(find.text('user@gmail.com'), findsOneWidget);
+
+    Finder deleteButton = find.byIcon(Icons.delete).first;
+
+    await tester.ensureVisible(deleteButton);
+    await tester.tap(deleteButton);
+    await tester.pumpAndSettle();
+
+    expect(find.byType(AlertDialog), findsOneWidget);
+
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+
+    QuerySnapshot messages = await firestore
+      .collection('message_rooms')
+      .doc('1')
+      .collection('messages')
+      .get();
+
+    expect(messages.docs.isEmpty, true);
+
+    expect(find.text('user@gmail.com'), findsNothing);    
+  });
 
 }
