@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
@@ -23,40 +24,58 @@ class _CreateWebinarScreenState extends State<CreateWebinarScreen> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _urlController = TextEditingController();
   Uint8List? image;
-  DateTime? selectedDateTime;
 
+  @override
+  void initState() {
+    super.initState();
+    _urlController.addListener(_removeFeatureShared);
+  }
+  
   @override
   void dispose() {
     _titleController.dispose();
     _urlController.dispose();
     super.dispose();
-  }
 
-  Future<void> _goLiveWebinar() async {
+  }
+  
+  void _removeFeatureShared() {
+    setState(() {
+      _urlController.text = _urlController.text.replaceAll('?feature=shared', '');
+    });
+  }
+  
+  Future<void> _goLiveWebinar(DateTime? time,{bool isScheduled = false}) async {
     if (_formKey.currentState!.validate()) {
+      time ??= DateTime.now();
+      final DateFormat formatter = DateFormat('dd-MM-yyyy HH:mm', 'en_GB');
       String webinarID = await WebinarService(firestore: widget.firestore)
           .startLiveStream(
             _titleController.text,
             _urlController.text,
             image,
             ("${widget.user.firstName} ${widget.user.lastName}"),
-            "TEST",
+            formatter.format(time).toString()
           );
       if (webinarID.isNotEmpty) {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => BroadcastScreen(
-              webinarID: webinarID,
-              youtubeURL: _urlController.text,
-              currentUser: widget.user,
-              firestore: widget.firestore,
-              title: _titleController.text,
+        if (!isScheduled) {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => BroadcastScreen(
+                webinarID: webinarID,
+                youtubeURL: _urlController.text,
+                currentUser: widget.user,
+                firestore: widget.firestore,
+                title: _titleController.text,
+              ),
             ),
-          ),
-        );
+          );
+        } else {
+          Navigator.of(context).pop();
+        }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text('A webinar with this URL may already exist. Please try again.'),
             duration: Duration(seconds: 3),
           ),
@@ -88,30 +107,39 @@ class _CreateWebinarScreenState extends State<CreateWebinarScreen> {
       );
 
       if (pickedTime != null) {
-        setState(() {
-          selectedDateTime = DateTime(
+        DateTime selectedDateTime = DateTime(
             pickedDate.year,
             pickedDate.month,
             pickedDate.day,
             pickedTime.hour,
             pickedTime.minute,
           );
-        });
+          _goLiveWebinar(
+            selectedDateTime,
+            isScheduled: true);
       }
     }
   }
 
   String? _validateUrl(String? url) {
     final RegExp _youtubeUrlRegex = RegExp(
-      r'^https?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)$',
+      r'^https?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)(\?feature=shared)?$',
     );
+    final RegExp _youtubeLiveUrlRegex = RegExp(
+      r'^https?:\/\/(?:www\.)?youtube\.com\/live\/([a-zA-Z0-9_-]+)',
+    );
+    
     if (url == null || url.isEmpty) {
       return 'URL is required';
-    } else if (!_youtubeUrlRegex.hasMatch(url)) {
+    }
+
+    if (!_youtubeUrlRegex.hasMatch(url) && !_youtubeLiveUrlRegex.hasMatch(url)) {
       return 'Enter a valid YouTube video URL';
     }
+
     return null;
   }
+
 
 void _showWebinarStartingHelpDialogue() {
   showDialog(
@@ -384,7 +412,9 @@ Widget _buildStep({required int stepNumber, required String stepDescription}) {
                 Padding(
                   padding: const EdgeInsets.only(bottom: 10),
                   child: ElevatedButton(
-                    onPressed: _goLiveWebinar,
+                    onPressed: () async {
+                      await _goLiveWebinar(null);
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red,
                       shape: RoundedRectangleBorder(

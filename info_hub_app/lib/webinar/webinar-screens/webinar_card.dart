@@ -70,7 +70,7 @@ class WebinarCard extends StatelessWidget {
                             ),
                             SizedBox(height: 30), // Add some spacing between the title and the date
                             Text(
-                              "20/03/2024",
+                              post.startTime,
                               style: TextStyle(color: Colors.grey),
                             ),
                           ],

@@ -35,6 +35,7 @@ class WebinarService {
             'webinarleadname' : name,
             'startTime' : startTime,
             'views': 0,
+            'dateStarted' : startTime,
           });
 
         } else {
