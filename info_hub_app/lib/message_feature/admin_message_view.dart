@@ -104,11 +104,8 @@ class _MessageViewState extends State<MessageView> {
                             onTap: () {
                               dynamic receiverUser = _userList[index];
           
-
+                              // Navigator.pop(context);
                               Navigator.pop(context);
-                              Navigator.pop(context);
-
-
                               Navigator.of(context).push(
                                 CupertinoPageRoute(
                                   builder: (BuildContext context) {

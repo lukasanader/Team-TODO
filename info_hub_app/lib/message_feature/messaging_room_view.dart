@@ -6,6 +6,7 @@ import 'package:info_hub_app/message_feature/message_service.dart';
 import 'package:info_hub_app/registration/user_model.dart';
 import 'package:info_hub_app/notifications/manage_notifications.dart';
 import 'package:info_hub_app/services/database.dart';
+import 'package:info_hub_app/threads/name_generator.dart';
 import 'package:provider/provider.dart';
 import 'package:info_hub_app/settings/privacy_base.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
@@ -30,11 +31,13 @@ class MessageRoomView extends StatefulWidget {
 class _MessageRoomViewState extends State<MessageRoomView> {
   final TextEditingController _messageController = TextEditingController();
   late MessageService messageService;
+  late Widget displayName = const Text('Loading');
 
   @override
   void initState() {
     super.initState();
     messageService = MessageService(widget.auth, widget.firestore);
+    getDisplayName();
   }
 
   void sendMessage() async {
@@ -45,11 +48,15 @@ class _MessageRoomViewState extends State<MessageRoomView> {
     }
   }
 
+  Future<void> getDisplayName() async {
+    displayName = Text(generateUniqueName(widget.receiverId));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.receiverId),
+        title: displayName,
       ),
       body: Column(
         children: [
