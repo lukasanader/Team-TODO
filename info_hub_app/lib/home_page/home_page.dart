@@ -23,7 +23,7 @@ import 'package:info_hub_app/change_profile/change_profile.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:info_hub_app/webinar/webinar_view.dart';
+import 'package:info_hub_app/webinar/webinar-screens/webinar_view.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 
 import 'package:info_hub_app/profile_view/profile_view.dart';
