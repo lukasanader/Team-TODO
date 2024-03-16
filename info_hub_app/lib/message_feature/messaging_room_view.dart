@@ -11,17 +11,17 @@ import 'package:info_hub_app/settings/privacy_base.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 
 class MessageRoomView extends StatefulWidget {
+  final FirebaseFirestore firestore;
   final FirebaseAuth auth;
   final String senderId;
   final String receiverId;
-  final MessageService messageService;
 
   const MessageRoomView(
       {super.key,
+      required this.firestore,
       required this.auth,
       required this.senderId,
-      required this.receiverId,
-      required this.messageService});
+      required this.receiverId});
 
   @override
   State<MessageRoomView> createState() => _MessageRoomViewState();
@@ -29,12 +29,18 @@ class MessageRoomView extends StatefulWidget {
 
 class _MessageRoomViewState extends State<MessageRoomView> {
   final TextEditingController _messageController = TextEditingController();
+  late MessageService messageService;
+
+  @override
+  void initState() {
+    super.initState();
+    messageService = MessageService(widget.auth, widget.firestore);
+  }
 
   void sendMessage() async {
     if (_messageController.text.isNotEmpty) {
-      await widget.messageService
+      await messageService
           .sendMessage(widget.receiverId, _messageController.text);
-
       _messageController.clear();
     }
   }
@@ -56,7 +62,7 @@ class _MessageRoomViewState extends State<MessageRoomView> {
 
   Widget _buildMessageList() {
     return StreamBuilder(
-        stream: widget.messageService
+        stream: messageService
             .getMessages(widget.receiverId, widget.auth.currentUser!.uid),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {

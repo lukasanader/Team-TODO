@@ -34,10 +34,10 @@ class MessageRoomCard extends StatelessWidget {
           PersistentNavBarNavigator.pushNewScreen(
             context,
             screen: MessageRoomView(
+              firestore: firestore,
               auth: auth, 
               senderId: senderId, 
-              receiverId: receiverId, 
-              messageService: MessageService(auth, firestore)),
+              receiverId: receiverId,),
             withNavBar: false,
           );
         },

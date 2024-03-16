@@ -26,9 +26,6 @@ class _MessageViewState extends State<MessageView> {
   List<Object> _userList = [];
   List<Object> _chatList = [];
 
-
-  
-
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -39,7 +36,6 @@ class _MessageViewState extends State<MessageView> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
         title: const Text("Message a user"),
@@ -117,10 +113,10 @@ class _MessageViewState extends State<MessageView> {
                                 CupertinoPageRoute(
                                   builder: (BuildContext context) {
                                     return MessageRoomView(
+                                      firestore: widget.firestore,
                                       auth: widget.auth,
                                       senderId: widget.auth.currentUser!.uid,
                                       receiverId: receiverUser.id,
-                                      messageService: MessageService(widget.auth, widget.firestore),
                                     );
                                   }
                                 )
