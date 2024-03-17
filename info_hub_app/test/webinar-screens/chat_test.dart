@@ -1,25 +1,37 @@
+import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:info_hub_app/models/user_model.dart';
-import 'package:info_hub_app/screens/webinar-screens/chat.dart';
+
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
+import 'package:info_hub_app/registration/user_model.dart';
+import 'package:info_hub_app/webinar/service/webinar_service.dart';
+import 'package:info_hub_app/webinar/webinar-screens/chat.dart';
 
 void main() {
   late FakeFirebaseFirestore firestore;
   late Widget ChatScreenWidget;
+  late MockFirebaseStorage mockStorage;
   late UserModel user;
 
   setUp(() {
     firestore = FakeFirebaseFirestore();
+    mockStorage = MockFirebaseStorage();
+    WebinarService webService = WebinarService(
+      firestore: firestore,
+      storage: mockStorage);
     user = UserModel(
       uid: 'mockUid',
       firstName: 'John',
       lastName: 'Doe',
       roleType: 'Patient',
       email: 'testemail@email.com',
+      likedTopics: [],
+      dislikedTopics: [],
     );
     ChatScreenWidget = MaterialApp(
-      home: Chat(firestore: firestore, user: user, channelId: 'test'),
+      home: Chat(firestore: firestore,
+      user: user, webinarID: 'test',
+      webinarService: webService)
     );
   });
 
