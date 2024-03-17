@@ -9,6 +9,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/discovery_view/discovery_view.dart';
 import 'package:info_hub_app/settings/settings_view.dart';
+import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:info_hub_app/home_page/home_page.dart';
 import 'package:info_hub_app/admin/admin_dash.dart';
@@ -18,11 +19,13 @@ class Base extends StatefulWidget {
   FirebaseAuth auth;
   FirebaseFirestore firestore;
   FirebaseStorage storage;
+  ThemeManager themeManager;
   Base(
       {super.key,
       required this.auth,
       required this.storage,
-      required this.firestore});
+      required this.firestore,
+      required this.themeManager});
 
   @override
   State<Base> createState() => _BaseState();
@@ -37,14 +40,12 @@ class _BaseState extends State<Base> {
     getCurrentUserRoleType();
   }
 
-  Future<void> getCurrentUserRoleType() async{
+  Future<void> getCurrentUserRoleType() async {
     User? user = widget.auth.currentUser;
     if (user != null) {
-      DocumentSnapshot snapshot = await widget.firestore
-          .collection('Users')
-          .doc(user.uid)
-          .get();
-      
+      DocumentSnapshot snapshot =
+          await widget.firestore.collection('Users').doc(user.uid).get();
+
       setState(() {
         currentUserRoleType = snapshot['roleType'];
       });
@@ -58,20 +59,21 @@ class _BaseState extends State<Base> {
           auth: widget.auth,
           storage: widget.storage,
           firestore: widget.firestore,
+          themeManager: widget.themeManager,
         ),
         DiscoveryView(
           auth: widget.auth,
           storage: widget.storage,
           firestore: widget.firestore,
-        ), 
+        ),
         SettingsView(
           auth: widget.auth,
           firestore: widget.firestore,
           storage: widget.storage,
-        ), 
+          themeManager: widget.themeManager,
+        ),
       ];
-    }
-    else {
+    } else {
       return [
         HomePage(
           auth: widget.auth,
@@ -82,17 +84,16 @@ class _BaseState extends State<Base> {
           auth: widget.auth,
           storage: widget.storage,
           firestore: widget.firestore,
-        ), 
+        ),
         SettingsView(
           auth: widget.auth,
           firestore: widget.firestore,
           storage: widget.storage,
-        ), 
+          themeManager: widget.themeManager,
+        ),
       ];
     }
   }
-
-
 
   @override
   Widget build(BuildContext context) {

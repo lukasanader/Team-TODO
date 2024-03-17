@@ -8,16 +8,19 @@ import 'package:info_hub_app/reset_password/reset_password.dart';
 import 'package:info_hub_app/services/auth.dart';
 import 'package:info_hub_app/helpers/base.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:info_hub_app/theme/theme_manager.dart';
 
 class LoginScreen extends StatefulWidget {
   final FirebaseFirestore firestore;
   final FirebaseAuth auth;
   final FirebaseStorage storage;
+  final ThemeManager themeManager;
   const LoginScreen(
       {super.key,
       required this.firestore,
       required this.auth,
-      required this.storage});
+      required this.storage,
+      required this.themeManager});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -94,6 +97,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         firestore: widget.firestore,
                         auth: widget.auth,
                         storage: widget.storage,
+                        themeManager: widget.themeManager,
                       );
                       Navigator.pushAndRemoveUntil(
                         context,

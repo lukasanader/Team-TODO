@@ -6,6 +6,7 @@ import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
+import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:info_hub_app/topics/create_topic.dart';
 import 'package:info_hub_app/topics/quiz/complete_quiz.dart';
 import 'package:info_hub_app/topics/quiz/create_quiz.dart';
@@ -17,10 +18,12 @@ void main() {
   late MockFirebaseAuth auth;
   late MockFirebaseStorage mockStorage = MockFirebaseStorage();
   late Widget quizWidget;
+  late ThemeManager themeManager;
 
   setUp(() async {
     auth = MockFirebaseAuth();
     firestore = FakeFirebaseFirestore();
+    themeManager = ThemeManager();
     auth.createUserWithEmailAndPassword(
         email: 'test@email.com', password: 'Password123!');
     await firestore.collection('topics').add({
@@ -55,6 +58,7 @@ void main() {
         storage: mockStorage,
         topic: topic,
         auth: auth,
+        themeManager: themeManager,
       ),
     );
   });

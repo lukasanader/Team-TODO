@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:info_hub_app/admin/admin_dash.dart';
 
 import 'package:info_hub_app/analytics/analytics_base.dart';
+import 'package:info_hub_app/main.dart';
 
 import 'package:info_hub_app/message_feature/admin_message_view.dart';
 
@@ -24,13 +25,14 @@ void main() {
   setUp(() {
     firestore = FakeFirebaseFirestore();
 
-
     adminWidget = MaterialApp(
-      home: AdminHomepage(firestore: firestore, auth: auth,storage: mockStorage),
+      home: AdminHomepage(
+        firestore: firestore,
+        auth: auth,
+        storage: mockStorage,
+        themeManager: themeManager,
+      ),
     );
-
-
-
   });
 
   testWidgets('Test create topic button', (WidgetTester tester) async {
@@ -73,10 +75,9 @@ void main() {
     expect(find.byType(AnalyticsBase), findsOneWidget);
   });
 
-
-
   testWidgets('Test view message feature button', (WidgetTester tester) async {
-    await auth.createUserWithEmailAndPassword(email: 'admin@gmail.com', password: 'Admin123!');
+    await auth.createUserWithEmailAndPassword(
+        email: 'admin@gmail.com', password: 'Admin123!');
     String uid = auth.currentUser!.uid;
     await firestore.collection('Users').doc(uid).set({
       'email': 'admin@gmail.com',
@@ -90,8 +91,6 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(MessageView), findsOneWidget);
   });
-
-
 
   testWidgets('Add admin test', (WidgetTester tester) async {
     CollectionReference userCollectionRef = firestore.collection('Users');
@@ -170,7 +169,4 @@ void main() {
     expect(tester.widget<Text>(textFinder).data,
         'Sorry there are no healthcare professionals matching this email.');
   });
-
-  
 }
-

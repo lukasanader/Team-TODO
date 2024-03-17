@@ -14,6 +14,7 @@ import 'package:info_hub_app/helpers/base.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import 'package:info_hub_app/message_feature/patient_message_view.dart';
 import 'package:info_hub_app/patient_experience/patient_experience_view.dart';
+import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:info_hub_app/topics/topics_card.dart';
 import 'package:info_hub_app/topics/view_topic.dart';
 import 'package:info_hub_app/webinar/webinar_view.dart';
@@ -23,11 +24,13 @@ void main() {
   late FakeFirebaseFirestore firestore;
   late MockFirebaseStorage storage;
   late Widget trendingTopicWidget;
+  late ThemeManager themeManager;
 
   setUp(() {
     auth = MockFirebaseAuth();
     firestore = FakeFirebaseFirestore();
     storage = MockFirebaseStorage();
+    themeManager = ThemeManager();
     CollectionReference topicCollectionRef = firestore.collection('topics');
     topicCollectionRef.add({
       'title': 'test 1',
@@ -67,7 +70,11 @@ void main() {
     });
 
     trendingTopicWidget = MaterialApp(
-      home: Base(storage: storage, auth: auth, firestore: firestore),
+      home: Base(
+          storage: storage,
+          auth: auth,
+          firestore: firestore,
+          themeManager: themeManager),
     );
   });
 

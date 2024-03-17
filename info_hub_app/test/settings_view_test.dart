@@ -10,22 +10,26 @@ import 'package:info_hub_app/settings/help_page/help_page.dart';
 import 'package:info_hub_app/settings/privacy_base.dart';
 import 'package:info_hub_app/settings/settings_view.dart';
 import 'package:info_hub_app/settings/help_page.dart';
+import 'package:info_hub_app/theme/theme_manager.dart';
 
 void main() {
   late Widget settingsViewWidget;
   late MockFirebaseAuth firebaseAuth;
   late MockFirebaseStorage firebaseStorage;
   late FakeFirebaseFirestore firestore;
+  late ThemeManager themeManager;
 
   setUp(() {
     firebaseAuth = MockFirebaseAuth();
     firebaseStorage = MockFirebaseStorage();
     firestore = FakeFirebaseFirestore();
+    themeManager = ThemeManager();
     settingsViewWidget = MaterialApp(
         home: SettingsView(
       auth: firebaseAuth,
       firestore: firestore,
       storage: firebaseStorage,
+      themeManager: themeManager,
     ));
   });
 
@@ -36,29 +40,17 @@ void main() {
     expect(find.text("Settings"), findsOneWidget);
   });
 
-  testWidgets(
-      'SettingsView has account profile pic with title (username) and role (patient, parent, or medical professional)',
-      (WidgetTester tester) async {
-    await tester.pumpWidget(settingsViewWidget);
-
-    expect(find.byType(CircleAvatar), findsOneWidget);
-    expect(find.text('Username'), findsOneWidget);
-    expect(find.text('Role'), findsOneWidget);
-  });
-
   testWidgets('SettingsView has all options', (WidgetTester tester) async {
     await tester.pumpWidget(settingsViewWidget);
 
-    expect(find.byIcon(Icons.notifications), findsOneWidget);
-    expect(find.byIcon(Icons.privacy_tip), findsOneWidget);
-    expect(find.byIcon(Icons.history_outlined), findsOneWidget);
-    expect(find.byIcon(Icons.help), findsOneWidget);
-
-    expect(find.text("Manage Notifications"), findsOneWidget);
-    expect(find.text("Manage Privacy Settings"), findsOneWidget);
+    expect(find.text("Account"), findsOneWidget);
+    expect(find.text("General"), findsOneWidget);
+    expect(find.text("Notifications"), findsOneWidget);
     expect(find.text("History"), findsOneWidget);
+    expect(find.text("Privacy"), findsOneWidget);
     expect(find.text("Help"), findsOneWidget);
     expect(find.text("About TEAM TODO"), findsOneWidget);
+    expect(find.text("Log Out"), findsOneWidget);
   });
 
   testWidgets('Test entering privacy settings works',
@@ -67,7 +59,7 @@ void main() {
     await tester.pumpWidget(settingsViewWidget);
 
     // Tap on the ListTile to navigate to TermsOfServicesPage.
-    await tester.tap(find.text('Manage Privacy Settings'));
+    await tester.tap(find.text('Privacy'));
     await tester.pumpAndSettle();
 
     // Verify that PrivacyPage is rendered after tapping on the ListTile.
@@ -96,7 +88,7 @@ void main() {
     await tester.pumpWidget(settingsViewWidget);
 
     // Tap on the ListTile to navigate to TermsOfServicesPage.
-    await tester.tap(find.text('Manage Notifications'));
+    await tester.tap(find.text('Notifications'));
     await tester.pumpAndSettle();
 
     expect(find.byType(ManageNotifications), findsOneWidget);
@@ -105,20 +97,22 @@ void main() {
   testWidgets('test if logout works', (WidgetTester tester) async {
     await tester.pumpWidget(settingsViewWidget);
 
-    await tester.tap(find.byIcon(Icons.logout));
+    await tester.tap(find.text("Log Out"));
     await tester.pumpAndSettle();
     expect(firebaseAuth.currentUser, null);
   });
 
-testWidgets('Test tapping on Help navigates to HelpPage', (WidgetTester tester) async {
-  await tester.pumpWidget(MaterialApp(home: settingsViewWidget)); // Replace YourParentWidget with the widget containing the ListTile
+  testWidgets('Test tapping on Help navigates to HelpPage',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(MaterialApp(
+        home:
+            settingsViewWidget)); // Replace YourParentWidget with the widget containing the ListTile
 
-  // Tap on the ListTile to navigate to the HelpPage
-  await tester.tap(find.byIcon(Icons.help));
-  await tester.pumpAndSettle();
+    // Tap on the ListTile to navigate to the HelpPage
+    await tester.tap(find.text("Help"));
+    await tester.pumpAndSettle();
 
-  // Verify that HelpPage is pushed onto the navigator's stack
-  expect(find.byType(HelpPage), findsOneWidget);
-});
-
+    // Verify that HelpPage is pushed onto the navigator's stack
+    expect(find.byType(HelpPage), findsOneWidget);
+  });
 }

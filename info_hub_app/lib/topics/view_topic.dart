@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:chewie/chewie.dart';
 import 'package:video_player/video_player.dart';
@@ -18,12 +19,14 @@ class ViewTopicScreen extends StatefulWidget {
   final FirebaseFirestore firestore;
   final FirebaseStorage storage;
   final FirebaseAuth auth;
+  final ThemeManager themeManager;
 
   const ViewTopicScreen({
     required this.firestore,
     required this.topic,
     required this.storage,
     required this.auth,
+    required this.themeManager,
     Key? key,
   }) : super(key: key);
 
@@ -316,7 +319,8 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
                     builder: (context) => Base(
                         auth: widget.auth,
                         storage: widget.storage,
-                        firestore: widget.firestore)),
+                        firestore: widget.firestore,
+                        themeManager: widget.themeManager)),
               );
             },
           ),
@@ -336,6 +340,7 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
                         firestore: widget.firestore,
                         storage: widget.storage,
                         auth: widget.auth,
+                        themeManager: widget.themeManager,
                       ),
                     ),
                   );

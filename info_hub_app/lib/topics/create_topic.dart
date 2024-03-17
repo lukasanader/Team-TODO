@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:chips_choice/chips_choice.dart';
 import 'package:flutter/material.dart';
+import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:video_player/video_player.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:chewie/chewie.dart';
@@ -23,6 +24,7 @@ class CreateTopicScreen extends StatefulWidget {
   QueryDocumentSnapshot? draft;
   final FirebaseAuth auth;
   List<PlatformFile>? selectedFiles;
+  final ThemeManager themeManager;
 
   CreateTopicScreen({
     Key? key,
@@ -32,6 +34,7 @@ class CreateTopicScreen extends StatefulWidget {
     this.draft,
     this.selectedFiles,
     required this.auth,
+    required this.themeManager,
   }) : super(key: key);
 
   @override
@@ -177,10 +180,12 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => ViewTopicScreen(
-                        firestore: widget.firestore,
-                        topic: updatedTopicDoc!,
-                        storage: widget.storage,
-                        auth: widget.auth),
+                      firestore: widget.firestore,
+                      topic: updatedTopicDoc!,
+                      storage: widget.storage,
+                      auth: widget.auth,
+                      themeManager: widget.themeManager,
+                    ),
                   ),
                 );
               } else {
@@ -619,6 +624,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
               topic: updatedTopicDoc!,
               storage: widget.storage,
               auth: widget.auth,
+              themeManager: widget.themeManager,
             ),
           ),
         );

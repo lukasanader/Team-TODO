@@ -80,6 +80,7 @@ class _MyAppState extends State<MyApp> {
           firestore: widget.firestore,
           storage: widget.storage,
           auth: widget.auth,
+          themeManager: themeManager,
         ),
         theme: lightTheme,
         darkTheme: darkTheme,

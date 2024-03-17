@@ -4,10 +4,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:info_hub_app/profile_view/profile_view.dart';
 import 'package:info_hub_app/registration/user_model.dart';
 import 'package:info_hub_app/notifications/manage_notifications.dart';
 import 'package:info_hub_app/services/database.dart';
+import 'package:info_hub_app/settings/general_settings.dart';
 import 'package:info_hub_app/settings/help_page/help_page.dart';
+import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:provider/provider.dart';
 import 'package:info_hub_app/settings/privacy_base.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
@@ -18,11 +21,13 @@ class SettingsView extends StatefulWidget {
   final FirebaseAuth auth;
   final FirebaseFirestore firestore;
   final FirebaseStorage storage;
+  final ThemeManager themeManager;
   const SettingsView(
       {super.key,
       required this.auth,
       required this.firestore,
-      required this.storage});
+      required this.storage,
+      required this.themeManager});
 
   @override
   State<SettingsView> createState() => _SettingsViewState();
@@ -47,59 +52,69 @@ class _SettingsViewState extends State<SettingsView> {
         ),
         body: ListView(
           children: [
-            const ListTile(
-              leading: CircleAvatar(
-                radius: 30,
-                foregroundColor: Color.fromRGBO(226, 4, 4, 0.612),
-                backgroundImage: AssetImage('assets/blank_pfp.png'),
-              ),
-              title: Text("Username"),
-              subtitle: Text("Role"),
-            ),
-            GestureDetector(
+            ListTile(
+              title: const Text("Account"),
               onTap: () {
-                PersistentNavBarNavigator.pushNewScreen(
+                Navigator.push(
                   context,
-                  screen: ManageNotifications(
-                    firestore: widget.firestore,
-                    auth: widget.auth,
-                  ),
-                  withNavBar: false,
+                  CupertinoPageRoute(
+                      builder: (context) => ProfileView(
+                            firestore: widget.firestore,
+                            auth: widget.auth,
+                          )),
                 );
               },
-              child: const ListTile(
-                leading: Icon(Icons.notifications),
-                title: Text('Manage Notifications'),
-              ),
             ),
             ListTile(
-              leading: Icon(Icons.privacy_tip),
-              title: Text('Manage Privacy Settings'),
+              title: const Text("General"),
               onTap: () {
-                PersistentNavBarNavigator.pushNewScreen(
+                Navigator.push(
                   context,
-                  screen: PrivacyPage(),
-                  withNavBar: false,
+                  CupertinoPageRoute(
+                    builder: (context) => GeneralSettings(
+                      themeManager: widget.themeManager,
+                    ),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              title: const Text("Notifications"),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  CupertinoPageRoute(
+                    builder: (context) => ManageNotifications(
+                        firestore: widget.firestore, auth: widget.auth),
+                  ),
                 );
               },
             ),
             const ListTile(
-              leading: Icon(Icons.history_outlined),
               title: Text('History'),
             ),
             ListTile(
-              leading: Icon(Icons.help),
-              title: Text('Help'),
+              title: const Text("Privacy"),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  CupertinoPageRoute(
+                    builder: (context) => const PrivacyPage(),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              title: const Text('Help'),
               onTap: () {
                 // Navigate to the HelpPage when tapped
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => HelpPage()),
+                  MaterialPageRoute(builder: (context) => const HelpPage()),
                 );
               },
             ),
             const AboutListTile(
-              icon: Icon(Icons.info),
               applicationLegalese: 'Legalese',
               applicationName: 'TEAM TODO',
               applicationVersion: '1.0.0',
@@ -108,7 +123,6 @@ class _SettingsViewState extends State<SettingsView> {
               ],
             ),
             ListTile(
-              leading: const Icon(Icons.logout),
               title: const Text('Log Out'),
               onTap: () {
                 widget.auth.signOut();
@@ -118,6 +132,7 @@ class _SettingsViewState extends State<SettingsView> {
                     firestore: widget.firestore,
                     auth: widget.auth,
                     storage: widget.storage,
+                    themeManager: widget.themeManager,
                   ),
                   withNavBar: false,
                 );
@@ -129,4 +144,3 @@ class _SettingsViewState extends State<SettingsView> {
     );
   }
 }
-
