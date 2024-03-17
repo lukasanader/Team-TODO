@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:info_hub_app/change_profile/change_profile.dart';
+import 'package:info_hub_app/threads/name_generator.dart';
 
 class ProfileView extends StatefulWidget {
   final FirebaseFirestore firestore;
@@ -70,6 +71,8 @@ class _ProfileViewState extends State<ProfileView> {
   }
 
   Widget _buildProfileHeader() {
+    //name gen
+    String uniqueName = generateUniqueName(widget.auth.currentUser?.uid ?? '');
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -102,7 +105,8 @@ class _ProfileViewState extends State<ProfileView> {
         ),
         const SizedBox(height: 10),
         Text(
-          '${_currentUser?['firstName'] ?? 'N/A'} ${_currentUser?['lastName'] ?? 'N/A'}',
+          uniqueName,
+          // '${_currentUser?['firstName'] ?? 'N/A'} ${_currentUser?['lastName'] ?? 'N/A'}',
           style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
         Text(
