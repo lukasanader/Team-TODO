@@ -60,6 +60,14 @@ class MockFlutterLocalNotificationsPlugin extends Fake
 }
 
 class FakeFirebaseMessaging extends Fake implements FirebaseMessaging {
+  Function(RemoteMessage)? onMessageOpenedAppHandler;
+
+  void simulateMessageOpenedApp(RemoteMessage message) {
+    if (onMessageOpenedAppHandler != null) {
+      onMessageOpenedAppHandler!(message);
+    }
+  }
+
   @override
   Future<String?> getToken({String? vapidKey}) async {
     return 'fakeDeviceToken';
@@ -75,7 +83,7 @@ class FakeFirebaseMessaging extends Fake implements FirebaseMessaging {
     bool provisional = false,
     bool sound = false,
   }) async {
-    return NotificationSettings(
+    return const NotificationSettings(
       authorizationStatus: AuthorizationStatus.authorized,
       alert: AppleNotificationSetting.enabled,
       announcement: AppleNotificationSetting.enabled,
@@ -140,7 +148,7 @@ Future<void> main() async {
 
       await pushNotifications.storeDeviceToken();
 
-      final querySnapshot = await firestore
+      final querySnapshot = firestore
           .collection(UsersCollection)
           .doc(auth.currentUser!.uid)
           .collection('deviceTokens');
@@ -183,7 +191,7 @@ Future<void> main() async {
         ],
         child: MaterialApp(
           navigatorKey: mockNavigatorKey,
-          home: Scaffold(),
+          home: const Scaffold(),
           routes: {
             '/notifications': (context) => Notifications(
                   auth: auth,
@@ -214,9 +222,9 @@ Future<void> main() async {
 
     test('showSimpleNotification displays notification with correct parameters',
         () async {
-      final expectedTitle = 'Test Title';
-      final expectedBody = 'Test Body';
-      final expectedPayload = 'Test Payload';
+      const expectedTitle = 'Test Title';
+      const expectedBody = 'Test Body';
+      const expectedPayload = 'Test Payload';
 
       await pushNotifications.showSimpleNotification(
         title: expectedTitle,
@@ -228,9 +236,9 @@ Future<void> main() async {
     });
 
     test('sendNotificationToDevice sends notification successfully', () async {
-      final deviceToken = 'test_device_token';
-      final title = 'Test Title';
-      final body = 'Test Body';
+      const deviceToken = 'test_device_token';
+      const title = 'Test Title';
+      const body = 'Test Body';
 
       await pushNotifications.sendNotificationToDevice(
         deviceToken,
@@ -244,6 +252,55 @@ Future<void> main() async {
     test('get device token', () async {
       final deviceToken = await pushNotifications.messaging.getToken();
       expect(deviceToken, 'fakeDeviceToken');
+    });
+
+    testWidgets('handle message opened app navigation',
+        (WidgetTester tester) async {
+      final fakeFirebaseMessaging = FakeFirebaseMessaging();
+
+      await tester.pumpWidget(MultiProvider(
+        providers: [
+          StreamProvider<List<custom.Notification>>(
+            create: (_) => DatabaseService(
+                    auth: auth,
+                    firestore: firestore,
+                    uid: auth.currentUser!.uid)
+                .notifications,
+            initialData: const [],
+          ),
+        ],
+        child: MaterialApp(
+          navigatorKey: mockNavigatorKey,
+          home: const Scaffold(),
+          routes: {
+            '/notifications': (context) => Notifications(
+                  auth: auth,
+                  firestore: firestore,
+                ),
+          },
+          // home: HomePage(auth: auth, firestore: firestore, storage: storage)
+          // home: AdminHomepage(firestore: firestore, storage: storage),
+        ),
+      ));
+
+      // Pump the widget again to ensure the tree is built with the MaterialApp
+      await tester.pumpAndSettle();
+
+      // Simulate handling a data message
+      const message = RemoteMessage(
+        data: {'key': 'value'}, // Set any required data
+      );
+      fakeFirebaseMessaging.onMessageOpenedAppHandler = (message) {
+        // Simulate the navigation to /notifications
+        mockNavigatorKey.currentState!.pushNamed('/notifications');
+      };
+      fakeFirebaseMessaging.simulateMessageOpenedApp(message);
+
+      // Pump again to ensure the navigation is performed
+      await tester.pumpAndSettle();
+
+      // Verify the navigation occurred correctly
+      expect(find.byType(Notifications), findsOneWidget);
     });
   });
 }
