@@ -11,11 +11,11 @@ class WebinarCard extends StatelessWidget {
   final UserModel user;
 
   const WebinarCard({
-    Key? key,
+    super.key,
     required this.post,
     required this.firestore,
     required this.user,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -23,9 +23,11 @@ class WebinarCard extends StatelessWidget {
 
     return GestureDetector(
       onTap: () async {
+        // if user attempts to click on a non-existent webinar, they should be prompted that they can't yet enter
         if (post.status == "Upcoming") {
           _showUpcomingDialog(context, post.startTime);
         } else {
+        // if live or archived redirect to watch screen and increment view counter
           await WebinarService(firestore: firestore).updateViewCount(post.webinarID, true);
           Navigator.of(context).push(
             MaterialPageRoute(
@@ -81,7 +83,7 @@ class WebinarCard extends StatelessWidget {
                   ],
                 ),
               ),
-              // if user is admin, they're able to modify webinar status
+              // if user is admin, they're able to modify webinar status using dropdown in the top right of each card
               if (isAdmin)
                 PopupMenuButton(
                   itemBuilder: (context) => [
@@ -107,6 +109,7 @@ class WebinarCard extends StatelessWidget {
     );
   }
 
+  // prompts the user with a dialog box to change a webinar from live -> archived
   void _showArchiveDialog(BuildContext context) {
     TextEditingController urlController = TextEditingController();
     bool isValidURL = true; // Track if the URL is valid
@@ -144,6 +147,7 @@ class WebinarCard extends StatelessWidget {
                   onPressed: () async {
                     String newURL = urlController.text;
                     if (newURL.isNotEmpty) {
+                      // validates url into expected formats and sets these changes into database
                       final RegExp regex = RegExp(r'https:\/\/(?:www\.)?youtube\.com\/watch\?v=([a-zA-Z0-9_-]+)|https:\/\/youtu\.be\/([a-zA-Z0-9_-]+)');
                       if (regex.hasMatch(newURL)) {
                         await WebinarService(firestore: firestore).setWebinarStatus(post.webinarID, newURL, changeToArchived: true);
@@ -169,6 +173,7 @@ class WebinarCard extends StatelessWidget {
     );
   }
 
+  // allows admin to change webinar card from upcoming to live
   void _showLiveDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -179,12 +184,14 @@ class WebinarCard extends StatelessWidget {
           actions: [
             TextButton(
               onPressed: () {
+                // if the user cancels the operation, nothing happens
                 Navigator.pop(context);
               },
               child: const Text('Cancel'),
             ),
             ElevatedButton(
               onPressed: () async {
+                // update database with new information and pop dialog box off the screen
                 await WebinarService(firestore: firestore).setWebinarStatus(post.webinarID, post.youtubeURL, changeToLive: true);
                 Navigator.pop(context);
               },
@@ -196,6 +203,7 @@ class WebinarCard extends StatelessWidget {
     );
   }
 
+  // prompts the user with an informative summary that a webinar is not yet available to be watched and when they should check
   void _showUpcomingDialog(BuildContext context, String startTime) {
     showDialog(
       context: context,
