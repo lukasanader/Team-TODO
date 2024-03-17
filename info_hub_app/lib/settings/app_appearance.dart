@@ -43,7 +43,7 @@ class _AppAppearanceViewState extends State<AppAppearanceView> {
       body: ListView(
         children: [
           ListTile(
-            title: Text('Match System'),
+            title: const Text('Match System'),
             trailing: _selectedIndex == 0 ? _buildBulletPoint() : null,
             onTap: () {
               _selectItem(0);
@@ -75,19 +75,6 @@ class _AppAppearanceViewState extends State<AppAppearanceView> {
   }
 
   Widget _buildBulletPoint() {
-    return CircleAvatar(
-      radius: 8.0, // Adjust size as needed
-      // backgroundColor: Colors.red.shade700, // Replace with your image
-      // Add border
-      child: Container(
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          border: Border.all(
-            color: Colors.white, // Border color
-            width: 2, // Border width
-          ),
-        ),
-      ),
-    );
+    return const CircleAvatar(radius: 6.0);
   }
 }

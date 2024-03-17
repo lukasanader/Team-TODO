@@ -12,7 +12,7 @@ class NotificationCard extends StatelessWidget {
     final timeAgo = timeago.format(notification.timestamp);
 
     return Padding(
-      padding: const EdgeInsets.only(top: 8.0),
+      padding: const EdgeInsets.only(top: 0.0, bottom: 5.0),
       child: Card(
         margin: const EdgeInsets.fromLTRB(20.0, 6.0, 20.0, 0.0),
         child: ListTile(

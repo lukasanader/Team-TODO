@@ -89,8 +89,8 @@ class _DiscoveryViewState extends State<DiscoveryView> {
             itemCount: topicLength == 0 ? 1 : topicLength,
             itemBuilder: (context, index) {
               if (_topicsList.isEmpty) {
-                return const ListTile(
-                  title: CircularProgressIndicator(),
+                return const Center(
+                  child: CircularProgressIndicator(),
                 );
               } else {
                 if (_searchController.text.isEmpty) {

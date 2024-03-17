@@ -54,7 +54,7 @@ class _ProfileViewState extends State<ProfileView> {
         title: const Text('Profile'),
       ),
       body: _isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : Center(
               child: Column(
                 children: [

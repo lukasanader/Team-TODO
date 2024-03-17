@@ -22,6 +22,7 @@ ThemeData lightTheme = ThemeData(
       primary: COLOR_PRIMARY_LIGHT,
     ),
     appBarTheme: AppBarTheme(
+      surfaceTintColor: COLOR_SECONDARY_LIGHT,
       titleTextStyle: const TextStyle(
         color: Colors.black,
         fontSize: 22,

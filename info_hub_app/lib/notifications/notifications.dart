@@ -28,22 +28,34 @@ class _NotificationsState extends State<Notifications> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.red[400],
         title: const Text('Notifications'),
       ),
       body: ListView.builder(
         itemCount: userNotifications.length,
         itemBuilder: (context, index) {
           final notification = userNotifications[index];
-          return Dismissible(
-            key: Key(notification.id),
-            child: NotificationCard(notification: notification),
-            onDismissed: (direction) {
-              DatabaseService(
-                      uid: widget.auth.currentUser!.uid,
-                      firestore: widget.firestore)
-                  .deleteNotification(notification.id);
-            },
+          return Column(
+            children: [
+              Dismissible(
+                key: Key(notification.id),
+                child: NotificationCard(notification: notification),
+                onDismissed: (direction) {
+                  DatabaseService(
+                          uid: widget.auth.currentUser!.uid,
+                          firestore: widget.firestore)
+                      .deleteNotification(notification.id);
+                },
+              ),
+              if (index != userNotifications.length - 1)
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 16), // Adjust horizontal padding as needed
+                  child: Container(
+                    height: 1, // Set thickness to 2 pixels
+                    color: Colors.grey, // Set color to grey
+                  ),
+                ),
+            ],
           );
         },
       ),
