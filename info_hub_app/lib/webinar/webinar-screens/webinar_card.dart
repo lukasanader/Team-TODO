@@ -10,31 +10,35 @@ class WebinarCard extends StatelessWidget {
   final Livestream post;
   final UserModel user;
 
-  const WebinarCard({super.key,
+  const WebinarCard({
+    Key? key,
     required this.post,
     required this.firestore,
     required this.user,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final bool isAdmin = user.roleType == 'admin'; // Check if user is admin
 
-    // builds a webinar card, displaying each webinar currently stored in the database
     return GestureDetector(
       onTap: () async {
-        await WebinarService(firestore: firestore).updateViewCount(post.webinarID, true);
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => BroadcastScreen(
-              webinarID: post.webinarID,
-              youtubeURL: post.youtubeURL,
-              currentUser: user,
-              firestore: firestore,
-              title: post.title,
+        if (post.status == "Upcoming") {
+          _showUpcomingDialog(context, post.startTime);
+        } else {
+          await WebinarService(firestore: firestore).updateViewCount(post.webinarID, true);
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => BroadcastScreen(
+                webinarID: post.webinarID,
+                youtubeURL: post.youtubeURL,
+                currentUser: user,
+                firestore: firestore,
+                title: post.title,
+              ),
             ),
-          ),
-        );
+          );
+        }
       },
       child: Card(
         child: Padding(
@@ -77,6 +81,7 @@ class WebinarCard extends StatelessWidget {
                   ],
                 ),
               ),
+              // if user is admin, they're able to modify webinar status
               if (isAdmin)
                 PopupMenuButton(
                   itemBuilder: (context) => [
@@ -102,68 +107,67 @@ class WebinarCard extends StatelessWidget {
     );
   }
 
-void _showArchiveDialog(BuildContext context) {
-  TextEditingController urlController = TextEditingController();
-  bool isValidURL = true; // Track if the URL is valid
-  showDialog(
-    context: context,
-    builder: (context) {
-      return StatefulBuilder(
-        builder: (BuildContext context, setState) {
-          return AlertDialog(
-            title: const Text('Move to Archived'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text('Are you sure you want to move this webinar to archived?'),
-                const SizedBox(height: 20),
-                TextField(
-                  controller: urlController,
-                  decoration: InputDecoration(
-                    labelText: 'Enter new YouTube video URL',
-                    // Set error text and style based on isValidURL
-                    errorText: isValidURL ? null : 'Invalid URL format',
-                    errorStyle: const TextStyle(color: Colors.red),
+  void _showArchiveDialog(BuildContext context) {
+    TextEditingController urlController = TextEditingController();
+    bool isValidURL = true; // Track if the URL is valid
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, setState) {
+            return AlertDialog(
+              title: const Text('Move to Archived'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text('Are you sure you want to move this webinar to archived?'),
+                  const SizedBox(height: 20),
+                  TextField(
+                    controller: urlController,
+                    decoration: InputDecoration(
+                      labelText: 'Enter new YouTube video URL',
+                      // Set error text and style based on isValidURL
+                      errorText: isValidURL ? null : 'Invalid URL format',
+                      errorStyle: const TextStyle(color: Colors.red),
+                    ),
                   ),
-                ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: const Text('Cancel'),
+                ],
               ),
-              ElevatedButton(
-                onPressed: () async {
-                  String newURL = urlController.text;
-                  if (newURL.isNotEmpty) {
-                    final RegExp regex = RegExp(r'https:\/\/(?:www\.)?youtube\.com\/watch\?v=([a-zA-Z0-9_-]+)|https:\/\/youtu\.be\/([a-zA-Z0-9_-]+)');
-                    if (regex.hasMatch(newURL)) {
-                      await WebinarService(firestore: firestore).setWebinarStatus(post.webinarID, newURL, changeToArchived: true);
-                      Navigator.pop(context);
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text('Cancel'),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    String newURL = urlController.text;
+                    if (newURL.isNotEmpty) {
+                      final RegExp regex = RegExp(r'https:\/\/(?:www\.)?youtube\.com\/watch\?v=([a-zA-Z0-9_-]+)|https:\/\/youtu\.be\/([a-zA-Z0-9_-]+)');
+                      if (regex.hasMatch(newURL)) {
+                        await WebinarService(firestore: firestore).setWebinarStatus(post.webinarID, newURL, changeToArchived: true);
+                        Navigator.pop(context);
+                      } else {
+                        setState(() {
+                          isValidURL = false; // Set isValidURL to false to trigger error
+                        });
+                      }
                     } else {
                       setState(() {
-                        isValidURL = false; // Set isValidURL to false to trigger error
+                        isValidURL = true; // Reset isValidURL when the text field is empty
                       });
                     }
-                  } else {
-                    setState(() {
-                      isValidURL = true; // Reset isValidURL when the text field is empty
-                    });
-                  }
-                },
-                child: const Text('Confirm'),
-              ),
-            ],
-          );
-        },
-      );
-    },
-  );
-}
-
+                  },
+                  child: const Text('Confirm'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
 
   void _showLiveDialog(BuildContext context) {
     showDialog(
@@ -181,10 +185,37 @@ void _showArchiveDialog(BuildContext context) {
             ),
             ElevatedButton(
               onPressed: () async {
-                await WebinarService(firestore: firestore).setWebinarStatus(post.webinarID,post.youtubeURL,changeToLive: true);
-                Navigator.pop(context); // Close the dialog
+                await WebinarService(firestore: firestore).setWebinarStatus(post.webinarID, post.youtubeURL, changeToLive: true);
+                Navigator.pop(context);
               },
               child: const Text('Confirm'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showUpcomingDialog(BuildContext context, String startTime) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Webinar Not Available Yet'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('This webinar is scheduled to start at $startTime.'),
+              const SizedBox(height: 20),
+              const Text('Please come back at the scheduled time to join the webinar.'),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text('OK'),
             ),
           ],
         );

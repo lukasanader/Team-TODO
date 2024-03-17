@@ -150,6 +150,7 @@ class WebinarService {
   Future<String> getNumberOfLiveWebinars() async {
     QuerySnapshot snap = await firestore
       .collection('Webinar')
+      .where('status', isEqualTo: "Live")
       .get();
     return snap.docs.length.toString();
   }
@@ -183,18 +184,16 @@ class WebinarService {
   }
 
   Future<void> setWebinarStatus(String webinarID, String url, {bool changeToLive = false, changeToArchived = false}) async {
-    String newStatus = "";
+    Map<String, dynamic> dataToUpdate = {
+      'url': url,
+    };
+
     if (changeToLive) {
-      newStatus = "Live";
+      dataToUpdate['status'] = "Live";
+    } else if (changeToArchived) {
+      dataToUpdate['status'] = "Archived";
     }
-    if (changeToArchived) {
-      newStatus = "Archived";
-    }
-    firestore.collection('Webinar')
-      .doc(webinarID)
-      .set({
-        'url' : url,
-        'status' : newStatus,
-      });
+
+    await firestore.collection('Webinar').doc(webinarID).update(dataToUpdate);
   }
 }
