@@ -236,7 +236,7 @@ void main() {
     await tester.pumpWidget(trendingTopicWidget);
     await tester.pumpAndSettle();
 
-    Finder inboxButton = find.byIcon(Icons.email);
+    Finder inboxButton = find.byIcon(Icons.email_outlined);
     await tester.tap(inboxButton);
     await tester.pumpAndSettle();
 

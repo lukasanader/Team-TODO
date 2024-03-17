@@ -55,8 +55,6 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Team TODO'), findsOneWidget);
-    expect(find.byIcon(Icons.notifications), findsOneWidget);
-    expect(find.byIcon(Icons.account_circle), findsOneWidget);
     expect(find.byType(HomePage), findsOneWidget);
   });
   testWidgets('Bottom Nav Bar to Search Page', (WidgetTester tester) async {
@@ -126,8 +124,6 @@ void main() {
     ));
 
     expect(find.text('Team TODO'), findsOneWidget);
-    expect(find.byIcon(Icons.notifications), findsOneWidget);
-    expect(find.byIcon(Icons.account_circle), findsOneWidget);
     expect(find.byType(HomePage), findsOneWidget);
   });
 
@@ -157,37 +153,10 @@ void main() {
         ),
       ),
     ));
-    await tester.tap(find.byIcon(Icons.notifications));
+    await tester.tap(find.byIcon(Icons.notifications_none_outlined));
     await tester.pumpAndSettle();
 
     expect(find.byType(Notifications), findsOneWidget);
-  });
-
-  testWidgets('HomePage to Profile Page', (WidgetTester tester) async {
-    final firestore = FakeFirebaseFirestore();
-    final auth = MockFirebaseAuth();
-    auth.createUserWithEmailAndPassword(
-        email: 'profileview@example.org', password: 'Password123!');
-    final fakeUserId = auth.currentUser!.uid;
-    final fakeUser = {
-      'firstName': 'John',
-      'lastName': 'Doe',
-      'email': 'profileview@example.org',
-      'roleType': 'Patient',
-    };
-    await firestore.collection('Users').doc(fakeUserId).set(fakeUser);
-    await tester.pumpWidget(MaterialApp(
-      home: HomePage(
-        storage: storage,
-        auth: auth,
-        firestore: firestore,
-      ),
-    ));
-
-    await tester.tap(find.byIcon(Icons.account_circle));
-    await tester.pumpAndSettle();
-
-    expect(find.byType(ProfileView), findsOneWidget);
   });
 
   testWidgets('NotificationPage UI Test', (WidgetTester tester) async {
