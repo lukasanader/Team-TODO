@@ -40,8 +40,6 @@ class _EditTopicScreenState extends State<EditTopicScreen> {
   late TextEditingController descriptionController;
   late TextEditingController articleLinkController;
   final _topicFormKey = GlobalKey<FormState>();
-  String quizID = '';
-  bool quizAdded = false;
 
   @override
   void initState() {
@@ -273,26 +271,21 @@ class _EditTopicScreenState extends State<EditTopicScreen> {
                       context,
                       MaterialPageRoute(
                         builder: (context) => CreateQuiz(
-                            firestore: widget.firestore, addQuiz: addQuiz),
+                            firestore: widget.firestore, auth: widget.auth,isEdit: true, topic: widget.topic,),
                       ),
                     );
                   },
-                  child: Row(children: [
-                    const SizedBox(
+                  child: const Row(children: [
+                    SizedBox(
                       width: 150,
                     ),
-                    const Text(
+                    Text(
                       "ADD QUIZ",
                       style: TextStyle(
                         color: Colors.red,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    if (quizAdded)
-                      const Icon(
-                        Icons.check,
-                        color: Colors.green,
-                      )
                   ])),
             ),
             Padding(
@@ -529,12 +522,6 @@ class _EditTopicScreenState extends State<EditTopicScreen> {
     // SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   }
 
-  void addQuiz(String qid) {
-    setState(() {
-      quizID = qid;
-      quizAdded = true;
-    });
-  }
 }
 
 class StoreData {

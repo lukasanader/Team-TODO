@@ -1,133 +1,142 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:info_hub_app/topics/quiz/quiz_service.dart';
-
-import 'quiz_answer_card.dart';
-
+import 'package:info_hub_app/controller/quiz_controller.dart';
+import 'package:info_hub_app/model/model.dart';
+import 'package:info_hub_app/topics/quiz/quiz_answer_card.dart';
 
 class QuizQuestionCard extends StatefulWidget {
-  String quizID = '';
-  String question = '';
-  int questionNo = -1;
+  final String quizID;
+  final String question;
+  final int questionNo;
   final FirebaseFirestore firestore;
-  QuizQuestionCard({required this.question,required this.questionNo,required this.quizID,required this.firestore, super.key});
+  final FirebaseAuth auth;
+  final QuizQuestion? editQuestion;
+
+  QuizQuestionCard({
+    required this.question,
+    required this.questionNo,
+    required this.quizID,
+    required this.firestore,
+    required this.auth,
+    this.editQuestion,
+    Key? key,
+  }) : super(key: key);
 
   @override
   State<QuizQuestionCard> createState() => _QuizQuestionCardState();
 }
 
-
 class _QuizQuestionCardState extends State<QuizQuestionCard> {
-  List<String> answers = [];
-  List<bool> selected = [];
-  bool invalidAnswer = false;
-  bool invalid =false;
-  bool saved = false;
   final TextEditingController _answerController = TextEditingController();
+  List<dynamic> answers = [];
+  List<bool> selected = [];
+  bool isExpanded = true; 
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if(widget.editQuestion != null){getAnswerList();}
+  }
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              "${widget.questionNo}. ${widget.question}",
-              style: const TextStyle(fontSize: 18),
-            ),
-            SizedBox(
-              height: 300,
-              child: 
-              ListView.builder(
-                itemCount: answers.length,
-                itemBuilder: (context, index) {
-                  return AnswerCard(
-                    key: Key('answerCard_$index'),
-                    answer: answers[index],
-                    anserNo: index + 1,
-                    onSelected: onSelected,
-                  );
-                },
+      child: isExpanded
+          ? ExpansionTile(
+              title: Text(
+                "${widget.questionNo}. ${widget.question}",
+                style: const TextStyle(fontSize: 18),
               ),
-              
-            ),
-            Row(
+              initiallyExpanded: isExpanded,
               children: [
-                Expanded(
-                  child: TextFormField(
-                    key: const Key('answerField'),
-                    controller: _answerController,
-                    decoration: const InputDecoration(
-                      hintText: 'Enter a possible answer',
-                      border: OutlineInputBorder(),
-                    ),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      SizedBox(
+                        height: 300,
+                        child: ListView.builder(
+                          itemCount: answers.length,
+                          itemBuilder: (context, index) {
+                            return AnswerCard(
+                              key: Key('answerCard_$index'),
+                              answer: answers[index],
+                              answerNo: index + 1,
+                              onSelected: onSelected,
+                            );
+                          },
+                        ),
+                      ),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextFormField(
+                              key: const Key('answerField'),
+                              controller: _answerController,
+                              decoration: const InputDecoration(
+                                hintText: 'Enter a possible answer',
+                                border: OutlineInputBorder(),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          SizedBox(
+                            height: 30,
+                            child: ElevatedButton(
+                              onPressed: () {
+                                setState(() {
+                                  if (_answerController.text.isEmpty) {
+                                    showSnackBar(context, 'Enter a valid answer');
+                                  } else {
+                                    answers.add(_answerController.text);
+                                    selected.add(false);
+                                    _answerController.clear();
+                                  }
+                                });
+                              },
+                              child: const Icon(Icons.add),
+                            ),
+                          )
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      ElevatedButton(
+                        onPressed: saveQuestion,
+                        child: const Text('Save'),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(width: 10),
-                SizedBox(
-                  height: 30,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        if(_answerController.text.isEmpty){
-                          invalidAnswer =true;
-                          saved=false;
-                        }else{
-                          invalidAnswer = false;
-                          invalid =false;
-                          answers.add(_answerController.text);
-                          selected.add(false);
-                          _answerController.clear();
-                        }
-                      });
-                    },
-                    child: const Icon(Icons.add),
-                  ),
-                )
               ],
+            )
+          : SizedBox(
+              height: 60, // Adjust the height as needed
+              child: ListTile(
+                title: Text(
+                  "${widget.questionNo}. ${widget.question}",
+                  style: const TextStyle(fontSize: 18),
+                ),
+              ),
             ),
-            const SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: () {
-                setState(() {
-                if(!selected.contains(true)){
-                  saved =false;
-                  invalid = true;
-                }else{
-                  invalid = false;
-                  invalidAnswer = false;
-                  saved = true;
-                  _answerController.clear();
-                  QuizService(firestore: widget.firestore).addQuestion(widget.question,getCorrectAnswers(),getWrongAnswers(),widget.quizID);
-                }
-                });
-              },
-              child: const Text('Save'),
-            ),
-          if (saved)
-          const Text('Question has been saved!')
-          else if (invalidAnswer)
-          const Text('Enter a valid answer')
-          else if (invalid)
-          const Text('Enter a valid question')
-          ],
-        ),
-
-      ),
-      
     );
   }
-bool onSelected(int index, bool isSelected) {
+
+  Future getAnswerList() async {
+    List tempList = widget.editQuestion!.correctAnswers +  widget.editQuestion!.wrongAnswers;
+    setState(() {
+      answers = tempList;
+      selected = List.generate(answers.length, (index) => false);
+    });
+  }
+
+  bool onSelected(int index, bool isSelected) {
     setState(() {
       for (int i = 0; i < selected.length; i++) {
-        // Only update the selected state for the tapped answer
         if (i == index) {
           selected[i] = isSelected;
         } else {
-          // If another answer was previously selected, unselect it
           selected[i] = false;
         }
       }
@@ -135,22 +144,33 @@ bool onSelected(int index, bool isSelected) {
     return true;
   }
 
-List<String> getCorrectAnswers(){
-  List<String> correctAnswers = [];
-  for (int i = 0; i < answers.length; i++) {
-    if (selected[i]) {
-      correctAnswers.add(answers[i]);
+  void showSnackBar(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+      ),
+    );
+  }
+
+  void saveQuestion() {
+    QuizController controller = QuizController(
+      firestore: widget.firestore,
+      auth: widget.auth,
+    );
+    if (!selected.contains(true)) {
+      showSnackBar(context, 'Select at least one correct answer');
+    } else {
+      controller.addQuestion(
+        widget.question,
+        controller.getAnswers(true, selected, answers),
+        controller.getAnswers(false, selected, answers),
+        widget.quizID,
+      );
+      showSnackBar(context, 'Question has been saved!');
+      setState(() {
+        _answerController.clear();
+        isExpanded = false; // Collapse the ExpansionTile
+      });
     }
   }
-  return correctAnswers;
-}
-List<String> getWrongAnswers(){
-  List<String> wrongAnswers = [];
-  for (int i = 0; i < answers.length; i++) {
-    if (!selected[i]) {
-      wrongAnswers.add(answers[i]);
-    }
-  }
-  return wrongAnswers;
-}
 }

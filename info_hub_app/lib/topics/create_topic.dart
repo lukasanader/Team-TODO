@@ -2,13 +2,12 @@ import 'dart:io';
 import 'package:chips_choice/chips_choice.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get_connect/http/src/utils/utils.dart';
 
 import 'package:info_hub_app/ask_question/question_card.dart';
 import 'package:info_hub_app/controller/topic_question_controller.dart';
 import 'package:info_hub_app/model/model.dart';
 import 'package:info_hub_app/topics/quiz/create_quiz.dart';
-import 'package:info_hub_app/topics/quiz/quiz_service.dart';
-
 
 import 'package:get/get.dart';
 import 'package:info_hub_app/topics/quiz/create_quiz.dart';
@@ -263,7 +262,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                       context,
                       MaterialPageRoute(
                         builder: (context) => CreateQuiz(
-                            firestore: widget.firestore, addQuiz: addQuiz),
+                            firestore: widget.firestore,addQuiz: addQuiz,auth: widget.auth,isEdit: false),
                       ),
                     );
                   },

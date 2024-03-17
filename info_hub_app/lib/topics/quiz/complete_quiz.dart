@@ -1,7 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:info_hub_app/topics/quiz/quiz_service.dart';
+import 'package:info_hub_app/controller/quiz_controller.dart';
+import 'package:info_hub_app/model/model.dart';
 import 'package:info_hub_app/topics/quiz/user_quiz_question_card.dart';
 
 class CompleteQuiz extends StatefulWidget {
@@ -18,7 +19,7 @@ const CompleteQuiz({super.key, required this.firestore,required this.topic, requ
 }
 
 class _CompleteQuizState extends State<CompleteQuiz> {
-  List<dynamic> questions=[]; 
+  List<QuizQuestion> questions=[]; 
   int questionListLength=0;
   bool completed =false; 
   List<bool> correctQuestions=[];
@@ -47,15 +48,15 @@ class _CompleteQuizState extends State<CompleteQuiz> {
               return UserQuizQuestionCard(
                   firestore: widget.firestore,
                   questionNo: index + 1,
-                  question: questions[index] as QueryDocumentSnapshot,
+                  question: questions[index],
                   completed: completed,
                   onUpdateAnswer: (isCorrect) {
                     if (isCorrect) {
                         setState(() {
                           correctQuestions[index] = true;
-
+                          score = correctQuestions.where((element) => element == true).length;
                         });
-                        getScore();
+                      QuizController(firestore: widget.firestore,auth: widget.auth).handleQuizCompletion(widget.topic,"$score/$questionListLength");
                     }
                   }
             );
@@ -64,9 +65,11 @@ class _CompleteQuizState extends State<CompleteQuiz> {
             if (completed)
             Text('Your score is $score out of $questionListLength'),
             ElevatedButton(onPressed: () async{
+                score = correctQuestions.where((element) => element == true).length;
                 setState(() {
                   completed=true;
                 });
+                
               },
             child:
               const Text('Done')),
@@ -78,18 +81,11 @@ class _CompleteQuizState extends State<CompleteQuiz> {
     
   }
  Future getQuestionsList() async {
-    List<dynamic> tempList = await QuizService(firestore: widget.firestore).getQuizQuestions(widget.topic);
+    List<QuizQuestion> tempList = await QuizController(firestore: widget.firestore, auth: widget.auth).getQuizQuestions(widget.topic);
     setState(() {
       questions = tempList;
       questionListLength = questions.length;
       correctQuestions=List.generate(questionListLength, (index) => false);
     });
   }
-
-void getScore(){
-  setState(() {
-    score = correctQuestions.where((element) => element == true).length;
-  });
-  QuizService(firestore: widget.firestore).saveQuiz(widget.topic,widget.auth.currentUser!.uid,questions[0]['quizID'],"$score/$questionListLength");
-}
 }
