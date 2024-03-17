@@ -7,6 +7,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:info_hub_app/helpers/helper_widgets.dart';
 import 'package:info_hub_app/helpers/test_page.dart';
 import 'package:info_hub_app/message_feature/patient_message_view.dart';
 import 'package:info_hub_app/patient_experience/admin_experience_view.dart';
@@ -70,7 +71,7 @@ class _HomePageState extends State<HomePage> {
           title: const Text('Team TODO'),
           actions: <Widget>[
             IconButton(
-              icon: const Icon(Icons.notifications),
+              icon: const Icon(Icons.notifications_none_outlined),
               onPressed: () {
                 // Placeholder method for notification icon
                 // Navigate to notification page
@@ -85,24 +86,7 @@ class _HomePageState extends State<HomePage> {
               },
             ),
             IconButton(
-              icon: const Icon(Icons.account_circle),
-              onPressed: () {
-                // Placeholder method for profile picture icon
-                // Navigate to profile page
-                Navigator.of(context).push(
-                  CupertinoPageRoute(
-                    builder: (BuildContext context) {
-                      return ProfileView(
-                        firestore: widget.firestore,
-                        auth: widget.auth,
-                      );
-                    },
-                  ),
-                );
-              },
-            ),
-            IconButton(
-              icon: const Icon(Icons.email),
+              icon: const Icon(Icons.email_outlined),
               onPressed: () {
                 PersistentNavBarNavigator.pushNewScreen(
                   context,
@@ -133,6 +117,7 @@ class _HomePageState extends State<HomePage> {
         //above is the floating action button
         body: SingleChildScrollView(
           child: Column(children: [
+            addVerticalSpace(10),
             const Text(
               "Trending topics",
               textAlign: TextAlign.left,
@@ -140,6 +125,7 @@ class _HomePageState extends State<HomePage> {
                 fontSize: 18,
               ),
             ),
+            addVerticalSpace(10),
             ListView.builder(
                 shrinkWrap: true,
                 itemCount: topicLength == 0 ? 0 : topicLength,
@@ -150,15 +136,14 @@ class _HomePageState extends State<HomePage> {
                       widget.storage,
                       _topicsList[index] as QueryDocumentSnapshot<Object>);
                 }),
-            const SizedBox(
-              height: 10,
-            ),
+            addVerticalSpace(10),
             const Text(
               "Explore",
               style: TextStyle(
                 fontSize: 18,
               ),
             ),
+            addVerticalSpace(10),
             GridView.extent(
               shrinkWrap: true,
               maxCrossAxisExtent: 150,
@@ -205,14 +190,15 @@ class _HomePageState extends State<HomePage> {
         ));
   }
 
-
   Future getTopicsList() async {
     String uid = widget.auth.currentUser!.uid;
-    DocumentSnapshot user = await widget.firestore.collection('Users').doc(uid).get();
+    DocumentSnapshot user =
+        await widget.firestore.collection('Users').doc(uid).get();
     String role = user['roleType'];
-    QuerySnapshot data = await widget.firestore.collection('topics').where('tags', arrayContains: role).get();
-    
-
+    QuerySnapshot data = await widget.firestore
+        .collection('topics')
+        .where('tags', arrayContains: role)
+        .get();
 
     setState(() {
       _topicsList = List.from(data.docs);
@@ -227,4 +213,3 @@ class _HomePageState extends State<HomePage> {
     });
   }
 }
-
