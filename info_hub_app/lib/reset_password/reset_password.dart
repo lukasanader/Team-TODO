@@ -44,7 +44,7 @@ class _ResetPasswordState extends State<ResetPassword> {
               controller: _emailController,
               decoration: const InputDecoration(
                 labelText: 'Email',
-                border: OutlineInputBorder(),
+                hintText: 'john.doe@example.org',
               ),
             ),
             const SizedBox(height: 10),
