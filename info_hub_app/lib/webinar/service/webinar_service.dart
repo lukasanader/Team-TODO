@@ -182,4 +182,19 @@ class WebinarService {
     return snap.docs.length.toString();
   }
 
+  Future<void> setWebinarStatus(String webinarID, String url, {bool changeToLive = false, changeToArchived = false}) async {
+    String newStatus = "";
+    if (changeToLive) {
+      newStatus = "Live";
+    }
+    if (changeToArchived) {
+      newStatus = "Archived";
+    }
+    firestore.collection('Webinar')
+      .doc(webinarID)
+      .set({
+        'url' : url,
+        'status' : newStatus,
+      });
+  }
 }

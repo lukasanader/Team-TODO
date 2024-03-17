@@ -125,10 +125,10 @@ class _CreateWebinarScreenState extends State<CreateWebinarScreen> {
   }
 
   String? _validateUrl(String? url) {
-    final RegExp _youtubeUrlRegex = RegExp(
+    final RegExp youtubeUrlRegex = RegExp(
       r'^https?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)(\?feature=shared)?$',
     );
-    final RegExp _youtubeLiveUrlRegex = RegExp(
+    final RegExp youtubeLiveUrlRegex = RegExp(
       r'^https?:\/\/(?:www\.)?youtube\.com\/live\/([a-zA-Z0-9_-]+)',
     );
     
@@ -136,7 +136,7 @@ class _CreateWebinarScreenState extends State<CreateWebinarScreen> {
       return 'URL is required';
     }
 
-    if (!_youtubeUrlRegex.hasMatch(url) && !_youtubeLiveUrlRegex.hasMatch(url)) {
+    if (!youtubeUrlRegex.hasMatch(url) && !youtubeLiveUrlRegex.hasMatch(url)) {
       return 'Enter a valid YouTube video URL';
     }
 
