@@ -18,7 +18,7 @@ class TestView extends StatefulWidget {
       required this.auth,
       required this.firestore,
       required this.storage});
-  
+
   FirebaseFirestore firestore;
   FirebaseAuth auth;
   FirebaseStorage storage;
@@ -40,26 +40,20 @@ class _TestViewState extends State<TestView> {
         child: const Icon(FontAwesomeIcons.comment),
       ),
       body: SafeArea(
-        child: Center(
-          child: Column(
-            children: [
-              ElevatedButton(
-                onPressed: () async {
-                  await DatabaseService(
-                          firestore: widget.firestore,
-                          uid: widget.auth.currentUser!.uid)
-                      .createNotification('Test Notification',
-                          'This is a test notification', DateTime.now());
-                },
-                child: const Text('Create Test Notification'),
-              ),
-            ]
-         ) 
-      
-        ) 
-
-      ),
+          child: Center(
+              child: Column(children: [
+        ElevatedButton(
+          onPressed: () async {
+            await DatabaseService(
+                    firestore: widget.firestore,
+                    auth: widget.auth,
+                    uid: widget.auth.currentUser!.uid)
+                .createNotification('Test Notification',
+                    'This is a test notification', DateTime.now());
+          },
+          child: const Text('Create Test Notification'),
+        ),
+      ]))),
     );
-
   }
 }

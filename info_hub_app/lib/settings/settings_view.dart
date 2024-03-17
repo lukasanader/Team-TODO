@@ -22,9 +22,10 @@ class _SettingsViewState extends State<SettingsView> {
       providers: [
         StreamProvider<List<UserModel>>(
           create: (_) => DatabaseService(
-                  uid: FirebaseAuth.instance.currentUser!.uid,
-                  firestore: FirebaseFirestore.instance)
-              .users,
+            auth: FirebaseAuth.instance,
+            firestore: FirebaseFirestore.instance,
+            uid: FirebaseAuth.instance.currentUser!.uid,
+          ).users,
           initialData: [], // Initial data while waiting for Firebase data
         ),
       ],
@@ -116,10 +117,8 @@ class _SettingsViewState extends State<SettingsView> {
                   ],
                 ),
               ),
-
             ],
           )),
-
     );
   }
 }

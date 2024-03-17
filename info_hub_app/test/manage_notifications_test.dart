@@ -42,7 +42,9 @@ Future<void> main() async {
         MaterialApp(
           home: StreamProvider<List<Preferences>>(
             create: (_) => DatabaseService(
-                    firestore: firestore, uid: auth.currentUser!.uid)
+                    firestore: firestore,
+                    auth: auth,
+                    uid: auth.currentUser!.uid)
                 .preferences,
             initialData: [],
             child: Scaffold(
@@ -74,7 +76,9 @@ Future<void> main() async {
         MaterialApp(
           home: StreamProvider<List<Preferences>>(
             create: (_) => DatabaseService(
-                    firestore: firestore, uid: auth.currentUser!.uid)
+                    firestore: firestore,
+                    auth: auth,
+                    uid: auth.currentUser!.uid)
                 .preferences,
             initialData: [],
             child: Scaffold(

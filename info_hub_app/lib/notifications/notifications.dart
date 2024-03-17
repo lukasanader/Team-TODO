@@ -40,8 +40,9 @@ class _NotificationsState extends State<Notifications> {
             child: NotificationCard(notification: notification),
             onDismissed: (direction) {
               DatabaseService(
-                      uid: widget.auth.currentUser!.uid,
-                      firestore: widget.firestore)
+                      auth: widget.auth,
+                      firestore: widget.firestore,
+                      uid: widget.auth.currentUser!.uid)
                   .deleteNotification(notification.id);
             },
           );

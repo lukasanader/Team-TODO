@@ -49,8 +49,9 @@ Future<void> main() async {
           providers: [
             StreamProvider<List<custom.Notification>>(
               create: (_) => DatabaseService(
-                uid: auth.currentUser!.uid,
+                auth: auth,
                 firestore: firestore,
+                uid: auth.currentUser!.uid,
               ).notifications,
               initialData: [],
             ),
@@ -83,8 +84,9 @@ Future<void> main() async {
                 ElevatedButton(
                   onPressed: () async {
                     String notificationId = await DatabaseService(
-                      uid: 'user',
+                      auth: auth,
                       firestore: firestore,
+                      uid: auth.currentUser!.uid,
                     ).createNotification(
                       'Test Title',
                       'Test Body',
@@ -94,9 +96,10 @@ Future<void> main() async {
                     expect(notificationId, isNotEmpty);
 
                     await DatabaseService(
-                      uid: 'user',
-                      firestore: firestore,
-                    ).deleteNotification(notificationId);
+                            auth: auth,
+                            firestore: firestore,
+                            uid: auth.currentUser!.uid)
+                        .deleteNotification(notificationId);
 
                     final notificationAfterDelete = firestore
                         .collection(NotificationCollection)
@@ -130,9 +133,10 @@ Future<void> main() async {
           providers: [
             StreamProvider<List<custom.Notification>>(
               create: (_) => DatabaseService(
-                uid: auth.currentUser!.uid,
-                firestore: firestore,
-              ).notifications,
+                      auth: auth,
+                      firestore: firestore,
+                      uid: auth.currentUser!.uid)
+                  .notifications,
               initialData: [],
             ),
           ],

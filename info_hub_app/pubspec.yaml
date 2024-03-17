@@ -74,7 +74,10 @@ dependencies:
   font_awesome_flutter: ^9.2.0
 
   uuid: ^4.3.3
-  firebase_messaging: ^14.7.17
+  firebase_messaging: ^14.6.8
+  flutter_local_notifications: ^15.1.1
+  http: ^1.2.0
+  rxdart: ^0.27.7
 
 
 
