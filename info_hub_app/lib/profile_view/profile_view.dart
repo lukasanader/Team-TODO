@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:info_hub_app/change_profile/change_profile.dart';
+import 'package:info_hub_app/threads/name_generator.dart';
 
 class ProfileView extends StatefulWidget {
   final FirebaseFirestore firestore;
   final FirebaseAuth auth;
 
-  const ProfileView({super.key, required this.firestore, required this.auth});
+  const ProfileView({Key? key, required this.firestore, required this.auth})
+      : super(key: key);
 
   @override
   State<ProfileView> createState() => _ProfileViewState();
@@ -48,30 +50,28 @@ class _ProfileViewState extends State<ProfileView> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Profile'),
-        key: const Key('profile_view_app_bar'),
-        backgroundColor: Colors.purple,
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : Center(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    _buildProfileHeader(),
-                    const SizedBox(height: 20),
-                    _buildUserInfoSection(),
-                    const SizedBox(height: 100),
-                    _buildChangeProfileButton(),
-                  ],
-                ),
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  _buildProfileHeader(),
+                  const SizedBox(height: 20),
+                  _buildUserInfoSection(),
+                  const SizedBox(height: 20),
+                  _buildChangeProfileButton(),
+                ],
               ),
             ),
     );
   }
 
   Widget _buildProfileHeader() {
+    // Name generation
+    String uniqueName = generateUniqueName(widget.auth.currentUser?.uid ?? '');
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -80,11 +80,10 @@ class _ProfileViewState extends State<ProfileView> {
           children: [
             GestureDetector(
               onTap: _showProfilePhotoOptions,
-              child: ClipOval(
-                child: CircleAvatar(
-                  radius: 50,
-                  backgroundImage: AssetImage('assets/$_selectedProfilePhoto'),
-                ),
+              child: CircleAvatar(
+                radius: 60,
+                backgroundColor: Colors.grey[200],
+                backgroundImage: AssetImage('assets/$_selectedProfilePhoto'),
               ),
             ),
             Positioned(
@@ -100,7 +99,7 @@ class _ProfileViewState extends State<ProfileView> {
         ),
         const SizedBox(height: 10),
         Text(
-          '${_currentUser?['firstName'] ?? 'N/A'} ${_currentUser?['lastName'] ?? 'N/A'}',
+          uniqueName,
           style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
         Text(
@@ -128,20 +127,35 @@ class _ProfileViewState extends State<ProfileView> {
   }
 
   Widget _buildInfoTile(String title, String? value) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Text(
-          title,
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          value ?? 'N/A',
-          style: const TextStyle(fontSize: 16),
-        ),
-        const Divider(),
-      ],
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+      margin: const EdgeInsets.symmetric(vertical: 6),
+      decoration: BoxDecoration(
+        color: Theme.of(context).brightness == Brightness.light
+            ? Colors.grey[200]
+            : Colors.grey[800],
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              value ?? 'N/A',
+              style: const TextStyle(fontSize: 16),
+              textAlign: TextAlign.right,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -172,21 +186,27 @@ class _ProfileViewState extends State<ProfileView> {
             child: ListBody(
               children: <Widget>[
                 ListTile(
-                  leading: const Icon(Icons.account_circle),
+                  leading: const CircleAvatar(
+                    backgroundImage: AssetImage('assets/profile_photo_1.png'),
+                  ),
                   title: const Text('Dog'),
                   onTap: () {
                     Navigator.of(context).pop('profile_photo_1.png');
                   },
                 ),
                 ListTile(
-                  leading: const Icon(Icons.account_circle),
+                  leading: const CircleAvatar(
+                    backgroundImage: AssetImage('assets/profile_photo_2.png'),
+                  ),
                   title: const Text('Walrus'),
                   onTap: () {
                     Navigator.of(context).pop('profile_photo_2.png');
                   },
                 ),
                 ListTile(
-                  leading: const Icon(Icons.account_circle),
+                  leading: const CircleAvatar(
+                    backgroundImage: AssetImage('assets/profile_photo_3.png'),
+                  ),
                   title: const Text('Penguin'),
                   onTap: () {
                     Navigator.of(context).pop('profile_photo_3.png');
@@ -208,7 +228,7 @@ class _ProfileViewState extends State<ProfileView> {
       final user = widget.auth.currentUser;
       if (user != null) {
         final docRef = widget.firestore.collection('Users').doc(user.uid);
-        await docRef.update({'selectedProfilePhoto': selectedPhoto});
+        docRef.update({'selectedProfilePhoto': selectedPhoto});
       }
     }
   }
