@@ -12,8 +12,9 @@ import '../webinar-screens/webinar_details_screen.dart';
 class CreateWebinarScreen extends StatefulWidget {
   final UserModel user;
   final FirebaseFirestore firestore;
+  final WebinarService webinarService;
  
-  const CreateWebinarScreen({super.key, required this.user, required this.firestore});
+  const CreateWebinarScreen({super.key, required this.user, required this.firestore, required this.webinarService});
 
   @override
   State<CreateWebinarScreen> createState() => _CreateWebinarScreenState();
@@ -50,7 +51,7 @@ class _CreateWebinarScreenState extends State<CreateWebinarScreen> {
       time ??= DateTime.now();
       String statusText = isScheduled ? 'Upcoming' : 'Live';
       final DateFormat formatter = DateFormat('dd-MM-yyyy HH:mm', 'en_GB');
-      String webinarID = await WebinarService(firestore: widget.firestore)
+      String webinarID = await widget.webinarService
           .startLiveStream(
             _titleController.text,
             _urlController.text,
@@ -69,6 +70,7 @@ class _CreateWebinarScreenState extends State<CreateWebinarScreen> {
                 currentUser: widget.user,
                 firestore: widget.firestore,
                 title: _titleController.text,
+                webinarService: widget.webinarService,
               ),
             ),
           );
@@ -237,20 +239,21 @@ Widget _buildStep({required int stepNumber, required String stepDescription}) {
 }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Setup Webinar'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.help_outline),
-            onPressed: () {
-              _showWebinarStartingHelpDialogue();
-            },
-          ),
-        ],
-      ),
-      body: Center(
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(
+      title: const Text('Setup Webinar'),
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.help_outline),
+          onPressed: () {
+            _showWebinarStartingHelpDialogue();
+          },
+        ),
+      ],
+    ),
+    body: SingleChildScrollView( // Wrap your Column with SingleChildScrollView
+      child: Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 18.0),
           child: Form(
@@ -274,38 +277,38 @@ Widget _buildStep({required int stepNumber, required String stepDescription}) {
                       child: image != null
                           ? Image.memory(image!)
                           : DottedBorder(
-                              borderType: BorderType.RRect,
-                              radius: const Radius.circular(10),
-                              dashPattern: const [10, 4],
-                              strokeCap: StrokeCap.round,
-                              color: Colors.red,
-                              child: Container(
-                                height: 200,
-                                width: double.infinity,
-                                decoration: BoxDecoration(
-                                  color: Colors.red.withOpacity(0.05),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    const Icon(
-                                      Icons.folder_open,
-                                      color: Colors.red,
-                                      size: 40.0,
-                                    ),
-                                    const SizedBox(height: 15),
-                                    Text(
-                                      'Select a thumbnail',
-                                      style: TextStyle(
-                                        fontSize: 15,
-                                        color: Colors.grey.shade800,
-                                      ),
-                                    ),
-                                  ],
+                        borderType: BorderType.RRect,
+                        radius: const Radius.circular(10),
+                        dashPattern: const [10, 4],
+                        strokeCap: StrokeCap.round,
+                        color: Colors.red,
+                        child: Container(
+                          height: 200,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: Colors.red.withOpacity(0.05),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(
+                                Icons.folder_open,
+                                color: Colors.red,
+                                size: 40.0,
+                              ),
+                              const SizedBox(height: 15),
+                              Text(
+                                'Select a thumbnail',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  color: Colors.grey.shade800,
                                 ),
                               ),
-                            ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -438,7 +441,8 @@ Widget _buildStep({required int stepNumber, required String stepDescription}) {
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+ }
 }
 

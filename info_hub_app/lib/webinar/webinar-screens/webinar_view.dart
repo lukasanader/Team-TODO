@@ -2,16 +2,19 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/registration/user_model.dart';
 import 'package:info_hub_app/webinar/models/livestream.dart';
+import 'package:info_hub_app/webinar/service/webinar_service.dart';
 import 'package:info_hub_app/webinar/webinar-screens/webinar_card.dart';
 
 class WebinarView extends StatefulWidget {
   final FirebaseFirestore firestore;
   final UserModel user;
+  final WebinarService webinarService;
 
   const WebinarView({
     super.key,
     required this.firestore,
     required this.user,
+    required this.webinarService,
   });
 
   @override
@@ -52,7 +55,9 @@ class _WebinarViewState extends State<WebinarView> {
                     return WebinarCard(
                       post: post,
                       firestore: widget.firestore, 
-                      user: widget.user); // Removed const
+                      user: widget.user,
+                      webinarService: widget.webinarService,
+                      );
                   },
                 );
               },

@@ -14,6 +14,7 @@ import 'package:info_hub_app/ask_question/question_view.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:info_hub_app/webinar/admin-webinar-screens/admin_webinar_dashboard.dart';
 import 'package:info_hub_app/webinar/admin-webinar-screens/create_webinar_screen.dart';
+import 'package:info_hub_app/webinar/service/webinar_service.dart';
 
 class AdminHomepage extends StatefulWidget {
   final FirebaseFirestore firestore;
@@ -182,12 +183,16 @@ class _AdminHomepageState extends State<AdminHomepage> {
             ElevatedButton(
               onPressed: () async {
                 UserModel currentAdmin = await generateCurrentUser();
+                WebinarService webService = WebinarService(
+                  firestore: widget.firestore,
+                  storage: widget.storage);
                 Navigator.of(context).push(
                   CupertinoPageRoute(
                     builder: (BuildContext context) {
                       return WebinarDashboard(
                         firestore: widget.firestore,
                         user: currentAdmin,
+                        webinarService: webService,
                       );
                     },
                   ),

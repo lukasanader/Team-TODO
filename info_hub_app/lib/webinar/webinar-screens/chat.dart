@@ -10,13 +10,15 @@ class Chat extends StatefulWidget {
   final String webinarID;
   final UserModel user;
   final FirebaseFirestore firestore;
+  final WebinarService webinarService;
 
   const Chat({
-    Key? key,
+    super.key,
     required this.webinarID,
     required this.user,
     required this.firestore,
-  }) : super(key: key);
+    required this.webinarService,
+  });
 
   @override
   State<Chat> createState() => _ChatState();
@@ -171,7 +173,7 @@ class _ChatState extends State<Chat> {
                       bool hasProfanities = filter.hasProfanity(_chatController.text);
                       bool hasName = _namePresent(_chatController.text);
                       if (!hasProfanities && !hasName) {
-                        await WebinarService(firestore: widget.firestore,)
+                        await widget.webinarService
                             .chat(_chatController.text, widget.webinarID, widget.user.roleType,widget.user.uid);
                       } else {
                         _showWarningDialog();

@@ -23,6 +23,7 @@ import 'package:info_hub_app/change_profile/change_profile.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:info_hub_app/webinar/service/webinar_service.dart';
 import 'package:info_hub_app/webinar/webinar-screens/webinar_view.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 
@@ -188,13 +189,15 @@ class _HomePageState extends State<HomePage> {
                 ),
                 ElevatedButton(
                   onPressed: () async {
-                    UserModel user = await generateCurrentUser() ;
+                    UserModel user = await generateCurrentUser();
+                    WebinarService webinarService = WebinarService(firestore: widget.firestore, storage: widget.storage);
                     // ignore: use_build_context_synchronously
                     PersistentNavBarNavigator.pushNewScreen(
                       context,
                       screen: WebinarView(
                         firestore: widget.firestore,
                         user: user,
+                        webinarService: webinarService,
                       ),
                       withNavBar: false,
                     );

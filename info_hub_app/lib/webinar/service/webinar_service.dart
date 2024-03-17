@@ -8,9 +8,9 @@ import 'package:uuid/uuid.dart';
 
 class WebinarService {
   final FirebaseFirestore firestore;
-  final FirebaseStorage _storage = FirebaseStorage.instance;
+  final FirebaseStorage storage;
 
-  WebinarService({required this.firestore});
+  WebinarService({required this.firestore, required this.storage});
     
   Future<String> startLiveStream(String title,String url, Uint8List? image,String name, String startTime, String streamStatus) async {
     // assign random integer as document name
@@ -85,7 +85,7 @@ class WebinarService {
 
     await tempFile.writeAsBytes(file);
     
-    Reference ref = _storage.ref().child(childName).child(uid);
+    Reference ref = storage.ref().child(childName).child(uid);
     UploadTask uploadTask = ref.putFile(tempFile);
     
     TaskSnapshot snapshot = await uploadTask;

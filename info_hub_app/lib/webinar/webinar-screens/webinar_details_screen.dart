@@ -15,6 +15,7 @@ class BroadcastScreen extends StatefulWidget {
   final UserModel currentUser;
   final FirebaseFirestore firestore;
   final String title;
+  final WebinarService webinarService;
 
   const BroadcastScreen({
     super.key,
@@ -23,6 +24,7 @@ class BroadcastScreen extends StatefulWidget {
     required this.currentUser,
     required this.firestore,
     required this.title,
+    required this.webinarService,
   });
 
   @override
@@ -86,7 +88,7 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
   */
   _leaveChannel() async {
     participants.remove(widget.currentUser.uid);
-    await WebinarService(firestore: widget.firestore).updateViewCount(widget.webinarID, false);
+    await widget.webinarService.updateViewCount(widget.webinarID, false);
   }
 
   void _showGuideDialog() {
@@ -196,6 +198,7 @@ Widget build(BuildContext context) {
               webinarID: widget.webinarID,
               user: widget.currentUser,
               firestore: widget.firestore,
+              webinarService: widget.webinarService,
             ),
           ),
         ],

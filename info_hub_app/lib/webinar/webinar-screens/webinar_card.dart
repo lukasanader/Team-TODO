@@ -9,12 +9,14 @@ class WebinarCard extends StatelessWidget {
   final FirebaseFirestore firestore;
   final Livestream post;
   final UserModel user;
+  final WebinarService webinarService;
 
   const WebinarCard({
     super.key,
     required this.post,
     required this.firestore,
     required this.user,
+    required this.webinarService,
   });
 
   @override
@@ -28,7 +30,7 @@ class WebinarCard extends StatelessWidget {
           _showUpcomingDialog(context, post.startTime);
         } else {
         // if live or archived redirect to watch screen and increment view counter
-          await WebinarService(firestore: firestore).updateViewCount(post.webinarID, true);
+          await webinarService.updateViewCount(post.webinarID, true);
           Navigator.of(context).push(
             MaterialPageRoute(
               builder: (context) => BroadcastScreen(
@@ -37,6 +39,7 @@ class WebinarCard extends StatelessWidget {
                 currentUser: user,
                 firestore: firestore,
                 title: post.title,
+                webinarService: webinarService,
               ),
             ),
           );
@@ -150,7 +153,7 @@ class WebinarCard extends StatelessWidget {
                       // validates url into expected formats and sets these changes into database
                       final RegExp regex = RegExp(r'https:\/\/(?:www\.)?youtube\.com\/watch\?v=([a-zA-Z0-9_-]+)|https:\/\/youtu\.be\/([a-zA-Z0-9_-]+)');
                       if (regex.hasMatch(newURL)) {
-                        await WebinarService(firestore: firestore).setWebinarStatus(post.webinarID, newURL, changeToArchived: true);
+                        await webinarService.setWebinarStatus(post.webinarID, newURL, changeToArchived: true);
                         Navigator.pop(context);
                       } else {
                         setState(() {
@@ -192,7 +195,7 @@ class WebinarCard extends StatelessWidget {
             ElevatedButton(
               onPressed: () async {
                 // update database with new information and pop dialog box off the screen
-                await WebinarService(firestore: firestore).setWebinarStatus(post.webinarID, post.youtubeURL, changeToLive: true);
+                await webinarService.setWebinarStatus(post.webinarID, post.youtubeURL, changeToLive: true);
                 Navigator.pop(context);
               },
               child: const Text('Confirm'),
