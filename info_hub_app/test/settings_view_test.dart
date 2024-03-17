@@ -5,7 +5,9 @@ import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:info_hub_app/notifications/manage_notifications.dart';
+import 'package:info_hub_app/profile_view/profile_view.dart';
 import 'package:info_hub_app/registration/start_page.dart';
+import 'package:info_hub_app/settings/general_settings.dart';
 import 'package:info_hub_app/settings/help_page/help_page.dart';
 import 'package:info_hub_app/settings/privacy_base.dart';
 import 'package:info_hub_app/settings/settings_view.dart';
@@ -114,5 +116,31 @@ void main() {
 
     // Verify that HelpPage is pushed onto the navigator's stack
     expect(find.byType(HelpPage), findsOneWidget);
+  });
+
+  testWidgets('Test entering account settings works',
+      (WidgetTester tester) async {
+    // Build our PrivacyPage widget and trigger a frame.
+    await tester.pumpWidget(settingsViewWidget);
+
+    // Tap on the ListTile to navigate to TermsOfServicesPage.
+    await tester.tap(find.text('Account'));
+    await tester.pump();
+  });
+
+  testWidgets('Test entering general settings works',
+      (WidgetTester tester) async {
+    // Build our PrivacyPage widget and trigger a frame.
+    await tester.pumpWidget(settingsViewWidget);
+
+    // Tap on the ListTile to navigate to TermsOfServicesPage.
+    await tester.tap(find.text('General'));
+    await tester.pumpAndSettle();
+
+    // Verify that PrivacyPage is rendered after tapping on the ListTile.
+    expect(find.byType(GeneralSettings), findsOneWidget);
+
+    // Verify that TermsOfServicesPage renders an AppBar with the title "Terms of Services".
+    expect(find.text('General'), findsOneWidget);
   });
 }

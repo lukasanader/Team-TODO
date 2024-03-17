@@ -14,10 +14,9 @@ class ProfileView extends StatefulWidget {
 }
 
 class _ProfileViewState extends State<ProfileView> {
-  late Map<String, dynamic>? _currentUser; 
-  late String _selectedProfilePhoto =
-      'default_profile_photo.png'; 
-  bool _isLoading = true; 
+  late Map<String, dynamic>? _currentUser;
+  late String _selectedProfilePhoto = 'default_profile_photo.png';
+  bool _isLoading = true;
 
   @override
   void initState() {
@@ -32,44 +31,45 @@ class _ProfileViewState extends State<ProfileView> {
       final docRef = widget.firestore.collection('Users');
 
       final querySnapshot = await docRef.get();
-      final userDoc = querySnapshot.docs.firstWhere((doc) => doc.id == user.uid);
+      final userDoc =
+          querySnapshot.docs.firstWhere((doc) => doc.id == user.uid);
 
       setState(() {
         _currentUser = userDoc.data();
-        _selectedProfilePhoto =
-            _currentUser?['selectedProfilePhoto'] ?? 'default_profile_photo.png';
-        _isLoading = false; 
+        _selectedProfilePhoto = _currentUser?['selectedProfilePhoto'] ??
+            'default_profile_photo.png';
+        _isLoading = false;
       });
     }
   }
 
   @override
-Widget build(BuildContext context) {
-  return Scaffold(
-    appBar: AppBar(
-      title: const Text('Profile'),
-      backgroundColor: Colors.purple,
-    ),
-    body: _isLoading
-        ? const Center(child: CircularProgressIndicator())
-        : Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16), 
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  _buildProfileHeader(),
-                  const SizedBox(height: 20),
-                  _buildUserInfoSection(),
-                  const SizedBox(height: 100),
-                  _buildChangeProfileButton(),
-                ],
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Profile'),
+        key: const Key('profile_view_app_bar'),
+        backgroundColor: Colors.purple,
+      ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    _buildProfileHeader(),
+                    const SizedBox(height: 20),
+                    _buildUserInfoSection(),
+                    const SizedBox(height: 100),
+                    _buildChangeProfileButton(),
+                  ],
+                ),
               ),
             ),
-          ),
-  );
-}
-
+    );
+  }
 
   Widget _buildProfileHeader() {
     return Column(
@@ -79,12 +79,11 @@ Widget build(BuildContext context) {
           alignment: Alignment.center,
           children: [
             GestureDetector(
-              onTap: _showProfilePhotoOptions, 
+              onTap: _showProfilePhotoOptions,
               child: ClipOval(
                 child: CircleAvatar(
-                  radius: 50, 
-                  backgroundImage:
-                      AssetImage('assets/$_selectedProfilePhoto'),
+                  radius: 50,
+                  backgroundImage: AssetImage('assets/$_selectedProfilePhoto'),
                 ),
               ),
             ),
@@ -214,23 +213,3 @@ Widget build(BuildContext context) {
     }
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

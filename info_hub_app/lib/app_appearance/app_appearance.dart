@@ -35,7 +35,7 @@ class _AppAppearanceState extends State<AppAppearance> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Selectable List Tiles'),
+        title: const Text('App Appearance'),
       ),
       body: ListView(
         children: [

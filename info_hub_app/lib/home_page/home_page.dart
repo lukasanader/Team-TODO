@@ -77,7 +77,7 @@ class _HomePageState extends State<HomePage> {
                 // Navigate to notification page
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
+                  CupertinoPageRoute(
                       builder: (context) => Notifications(
                             auth: widget.auth,
                             firestore: widget.firestore,
@@ -88,14 +88,14 @@ class _HomePageState extends State<HomePage> {
             IconButton(
               icon: const Icon(Icons.email_outlined),
               onPressed: () {
-                PersistentNavBarNavigator.pushNewScreen(
-                  context,
-                  screen: PatientMessageView(
-                    firestore: widget.firestore,
-                    auth: widget.auth,
-                  ),
-                  withNavBar: false,
-                );
+                Navigator.push(
+                    context,
+                    CupertinoPageRoute(
+                      builder: (context) => PatientMessageView(
+                        firestore: widget.firestore,
+                        auth: widget.auth,
+                      ),
+                    ));
               },
             ),
           ],
@@ -127,15 +127,30 @@ class _HomePageState extends State<HomePage> {
             ),
             addVerticalSpace(10),
             ListView.builder(
-                shrinkWrap: true,
-                itemCount: topicLength == 0 ? 0 : topicLength,
-                itemBuilder: (context, index) {
+              physics: const NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              itemCount: topicLength == 0 ? 0 : topicLength * 2 - 1,
+              itemBuilder: (context, index) {
+                if (index.isOdd) {
+                  // Add Padding and Container between TopicCards
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Container(
+                      height: 1,
+                      color: Colors.grey,
+                    ),
+                  );
+                } else {
+                  final topicIndex = index ~/ 2;
                   return TopicCard(
-                      widget.firestore,
-                      widget.auth,
-                      widget.storage,
-                      _topicsList[index] as QueryDocumentSnapshot<Object>);
-                }),
+                    widget.firestore,
+                    widget.auth,
+                    widget.storage,
+                    _topicsList[topicIndex] as QueryDocumentSnapshot<Object>,
+                  );
+                }
+              },
+            ),
             addVerticalSpace(10),
             const Text(
               "Explore",
@@ -168,6 +183,7 @@ class _HomePageState extends State<HomePage> {
                   )),
                   child: const Text(
                     'Patient Experience',
+                    textAlign: TextAlign.center,
                   ),
                 ),
                 ElevatedButton(
@@ -182,7 +198,10 @@ class _HomePageState extends State<HomePage> {
                       shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   )),
-                  child: const Text('Webinars'),
+                  child: const Text(
+                    'Webinars',
+                    textAlign: TextAlign.center,
+                  ),
                 ),
               ],
             ),
