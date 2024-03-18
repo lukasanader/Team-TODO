@@ -160,7 +160,7 @@ void main() {
     await tester.pumpWidget(MaterialApp(home: settingsViewWidget));
 
     // Tap on the ListTile to navigate to the SavedPage
-    await tester.tap(find.byIcon(Icons.bookmark_added_outlined));
+    await tester.tap(find.text('Saved Topics'));
     await tester.pumpAndSettle();
 
     // Verify that SavedPage is pushed onto the navigator's stack

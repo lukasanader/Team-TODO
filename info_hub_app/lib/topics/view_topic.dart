@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:info_hub_app/helpers/base.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:chewie/chewie.dart';

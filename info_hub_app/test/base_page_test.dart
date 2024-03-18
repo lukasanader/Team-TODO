@@ -50,7 +50,7 @@ void main() {
     )));
 
     await tester.pumpAndSettle();
-    await tester.tap(find.byIcon(Icons.home));
+    await tester.tap(find.byIcon(Icons.home_outlined));
     await tester.pump();
     await tester.pumpAndSettle();
 
@@ -75,7 +75,7 @@ void main() {
       themeManager: themeManager,
     )));
 
-    await tester.tap(find.byIcon(Icons.search));
+    await tester.tap(find.byIcon(Icons.search_outlined));
     await tester.pump();
 
     expect(find.byType(DiscoveryView), findsOneWidget);
@@ -99,7 +99,7 @@ void main() {
       themeManager: themeManager,
     )));
 
-    await tester.tap(find.byIcon(Icons.settings));
+    await tester.tap(find.byIcon(Icons.settings_outlined));
     await tester.pump();
 
     expect(find.byType(SettingsView), findsOneWidget);

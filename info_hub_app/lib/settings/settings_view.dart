@@ -118,7 +118,6 @@ class _SettingsViewState extends State<SettingsView> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.bookmark_added_outlined),
               title: const Text('Saved Topics'),
               onTap: () {
                 // Navigate to the saved topics page when tapped
@@ -135,8 +134,7 @@ class _SettingsViewState extends State<SettingsView> {
             ),
             if (isAdmin)
               ListTile(
-                key: Key("drafts_tile"),
-                leading: const Icon(Icons.difference_outlined),
+                key: const Key("drafts_tile"),
                 title: const Text('Topic Drafts'),
                 onTap: () {
                   // Navigate to the saved topics page when tapped
