@@ -9,24 +9,18 @@ import 'package:flutter/material.dart';
 
 // Light theme constant colors
 final COLOR_PRIMARY_LIGHT = Colors.red.shade700;
-final COLOR_SECONDARY_LIGHT = Colors.grey.shade600;
+final COLOR_SECONDARY_LIGHT = Colors.grey.shade300;
 
 // Dark theme constant colors
-final COLOR_PRIMARY_DARK = Colors.red.shade300;
-final COLOR_SECONDARY_DARK = Colors.grey.shade400;
-
-// Get primary color based on brightness
-Color getPrimaryColor(Brightness brightness) {
-  return brightness == Brightness.light
-      ? COLOR_PRIMARY_LIGHT
-      : COLOR_PRIMARY_DARK;
-}
+final COLOR_PRIMARY_DARK = Colors.red.shade500;
+final COLOR_SECONDARY_DARK = Colors.grey.shade700;
 
 // Light theme data
 ThemeData lightTheme = ThemeData(
   brightness: Brightness.light,
   primaryColor: COLOR_PRIMARY_LIGHT,
-  colorScheme: ColorScheme.light(primary: COLOR_PRIMARY_LIGHT),
+  colorScheme: ColorScheme.light(
+      primary: COLOR_PRIMARY_LIGHT, background: Colors.grey.shade100),
 
   // App bar theme
   appBarTheme: AppBarTheme(
@@ -134,7 +128,7 @@ ThemeData lightTheme = ThemeData(
 
   // Card theme
   cardTheme: const CardTheme(
-    color: Color.fromARGB(220, 255, 255, 255),
+    color: Colors.transparent,
     surfaceTintColor: Colors.transparent,
     shadowColor: Colors.transparent,
     shape: RoundedRectangleBorder(

@@ -50,10 +50,8 @@ class _SavedPageState extends State<SavedPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Your Saved Topics',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          'Saved Topics',
         ),
-        backgroundColor: Colors.red,
       ),
       body: SingleChildScrollView(
         child: _buildTopicsList(),
@@ -69,14 +67,26 @@ class _SavedPageState extends State<SavedPage> {
     } else {
       return ListView.builder(
         shrinkWrap: true,
-        itemCount: _topicsList.length,
+        itemCount: _topicsList.isEmpty ? 0 : _topicsList.length * 2 - 1,
         itemBuilder: (context, index) {
-          return TopicCard(
-            widget.firestore,
-            widget.auth,
-            widget.storage,
-            _topicsList[index] as QueryDocumentSnapshot<Object>,
-          );
+          if (index.isOdd) {
+            // Add Padding and Container between TopicCards
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Container(
+                height: 1,
+                color: Colors.grey,
+              ),
+            );
+          } else {
+            final topicIndex = index ~/ 2;
+            return TopicCard(
+              widget.firestore,
+              widget.auth,
+              widget.storage,
+              _topicsList[topicIndex] as QueryDocumentSnapshot<Object>,
+            );
+          }
         },
       );
     }

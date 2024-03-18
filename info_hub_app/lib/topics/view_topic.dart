@@ -340,23 +340,6 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
               fontWeight: FontWeight.bold,
             ),
           ),
-          leading: IconButton(
-            icon: const Icon(
-              Icons.arrow_back,
-              color: Colors.white,
-            ),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => Base(
-                        auth: widget.auth,
-                        storage: widget.storage,
-                        firestore: widget.firestore,
-                        themeManager: widget.themeManager)),
-              );
-            },
-          ),
           actions: <Widget>[
             if (userIsAdmin)
               IconButton(

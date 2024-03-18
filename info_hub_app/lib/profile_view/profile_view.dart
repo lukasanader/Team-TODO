@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:info_hub_app/change_profile/change_profile.dart';
 import 'package:info_hub_app/threads/name_generator.dart';
+import 'package:info_hub_app/theme/theme_constants.dart';
 
 class ProfileView extends StatefulWidget {
   final FirebaseFirestore firestore;
@@ -131,9 +132,7 @@ class _ProfileViewState extends State<ProfileView> {
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
       margin: const EdgeInsets.symmetric(vertical: 6),
       decoration: BoxDecoration(
-        color: Theme.of(context).brightness == Brightness.light
-            ? Colors.grey[200]
-            : Colors.grey[800],
+        color: COLOR_SECONDARY_LIGHT,
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(

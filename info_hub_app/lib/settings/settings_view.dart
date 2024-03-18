@@ -8,7 +8,6 @@ import 'package:info_hub_app/registration/user_model.dart';
 import 'package:info_hub_app/notifications/manage_notifications.dart';
 import 'package:info_hub_app/services/database.dart';
 import 'package:info_hub_app/settings/general_settings.dart';
-import 'package:info_hub_app/settings/help_page/help_page.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:info_hub_app/settings/saved/saved_page.dart';
 import 'package:info_hub_app/settings/drafts/drafts_page.dart';
@@ -123,7 +122,7 @@ class _SettingsViewState extends State<SettingsView> {
                 // Navigate to the saved topics page when tapped
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
+                  CupertinoPageRoute(
                       builder: (context) => SavedPage(
                             auth: widget.auth,
                             firestore: widget.firestore,
@@ -140,7 +139,7 @@ class _SettingsViewState extends State<SettingsView> {
                   // Navigate to the saved topics page when tapped
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
+                    CupertinoPageRoute(
                         builder: (context) => DraftsPage(
                               auth: widget.auth,
                               firestore: widget.firestore,
@@ -150,13 +149,12 @@ class _SettingsViewState extends State<SettingsView> {
                 },
               ),
             ListTile(
-              leading: const Icon(Icons.help),
               title: const Text('Help'),
               onTap: () {
                 // Navigate to the HelpPage when tapped
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const HelpPage()),
+                  CupertinoPageRoute(builder: (context) => const HelpPage()),
                 );
               },
             ),

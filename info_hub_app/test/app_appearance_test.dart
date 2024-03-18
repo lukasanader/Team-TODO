@@ -81,7 +81,30 @@ void main() {
     await widgetTester.tap(find.text('Match System'));
     await widgetTester.pumpAndSettle();
 
-    // Verify if the theme manager has been updated correctly
     expect(themeManager.themeMode, equals(ThemeMode.system));
+  });
+
+  testWidgets("App Appearance has light mode enabled by defaults",
+      (widgetTester) async {
+    themeManager.changeTheme('light');
+    await widgetTester.pumpWidget(
+      MaterialApp(
+        home: AppAppearance(themeManager: themeManager),
+      ),
+    );
+
+    expect(themeManager.themeMode, equals(ThemeMode.light));
+  });
+
+  testWidgets("App Appearance has dark mode enabled by defaults",
+      (widgetTester) async {
+    themeManager.changeTheme('dark');
+    await widgetTester.pumpWidget(
+      MaterialApp(
+        home: AppAppearance(themeManager: themeManager),
+      ),
+    );
+
+    expect(themeManager.themeMode, equals(ThemeMode.dark));
   });
 }

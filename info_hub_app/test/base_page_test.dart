@@ -18,7 +18,6 @@ import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:provider/provider.dart';
 import 'mock.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
-import 'package:info_hub_app/profile_view/profile_view.dart';
 
 void main() {
   late FirebaseFirestore firestore = FakeFirebaseFirestore();

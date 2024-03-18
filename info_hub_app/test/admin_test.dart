@@ -14,7 +14,6 @@ import 'package:info_hub_app/patient_experience/admin_experience_view.dart';
 import 'package:info_hub_app/topics/create_topic.dart';
 import 'package:info_hub_app/ask_question/question_view.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
-import 'package:mockito/mockito.dart';
 
 void main() {
   late FirebaseFirestore firestore = FakeFirebaseFirestore();

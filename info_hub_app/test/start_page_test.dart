@@ -5,7 +5,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:info_hub_app/registration/start_page.dart';
 import 'package:info_hub_app/registration/registration_screen.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
-import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
 
 void main() {
