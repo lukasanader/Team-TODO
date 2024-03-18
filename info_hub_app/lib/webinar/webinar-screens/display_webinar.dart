@@ -16,6 +16,7 @@ class WebinarScreen extends StatefulWidget {
   final FirebaseFirestore firestore;
   final String title;
   final WebinarService webinarService;
+  final String status;
 
   const WebinarScreen({
     super.key,
@@ -25,6 +26,7 @@ class WebinarScreen extends StatefulWidget {
     required this.firestore,
     required this.title,
     required this.webinarService,
+    required this.status,
   });
 
   @override
@@ -50,11 +52,11 @@ class _WebinarScreenState extends State<WebinarScreen> {
     modifiedURL = YoutubePlayer.convertUrlToId(widget.youtubeURL);
     _controller = YoutubePlayerController(
       initialVideoId: modifiedURL ?? '',
-      flags: const YoutubePlayerFlags(
+      flags: YoutubePlayerFlags(
         mute: false,
         autoPlay: true,
         disableDragSeek: false,
-        isLive: true,
+        isLive: widget.status == "Live" ? true : false,
         forceHD: true,
         enableCaption: false,
         showLiveFullscreenButton: false,

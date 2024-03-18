@@ -73,6 +73,7 @@ class _CreateWebinarScreenState extends State<CreateWebinarScreen> {
                 firestore: widget.firestore,
                 title: _titleController.text,
                 webinarService: widget.webinarService,
+                status: statusText
               ),
             ),
           );

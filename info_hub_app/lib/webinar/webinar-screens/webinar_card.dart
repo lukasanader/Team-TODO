@@ -40,6 +40,7 @@ class WebinarCard extends StatelessWidget {
                 firestore: firestore,
                 title: post.title,
                 webinarService: webinarService,
+                status: post.status,
               ),
             ),
           );
