@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:info_hub_app/main.dart';
 import 'package:info_hub_app/topics/create_topic.dart';
-import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:integration_test/integration_test.dart';
 import 'package:chewie/chewie.dart';
@@ -23,9 +22,8 @@ void main() async {
   late FakeFirebaseFirestore firestore;
   late PlatformFile imageFile;
   late PlatformFile videoFile;
-  late List<PlatformFile> fileListOneVideo;
-  late List<PlatformFile> fileListOneImage;
-  late List<PlatformFile> fileListImageAndVideo;
+
+  late List<PlatformFile> mediaFileList;
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -36,18 +34,17 @@ void main() async {
     String imagePath = 'assets/blank_pfp.png';
 
     videoFile = PlatformFile(
-      name: 'sample-5s.mp4', // Replace with the actual file name
+      name: 'sample-5s.mp4',
       path: videoPath,
-      size: 0, // If the size is unknown or not needed, you can set it to 0
+      size: 0,
     );
     imageFile = PlatformFile(
-      name: 'blank_pfp.png', // Replace with the actual file name
+      name: 'blank_pfp.png',
       path: imagePath,
-      size: 0, // If the size is unknown or not needed, you can set it to 0
+      size: 0,
     );
-    fileListOneVideo = [videoFile];
-    fileListOneImage = [imageFile];
-    fileListImageAndVideo = [videoFile, imageFile];
+
+    mediaFileList = [videoFile, imageFile];
 
     firestore = FakeFirebaseFirestore();
 
@@ -314,8 +311,8 @@ void main() async {
         firestore: firestore,
         storage: mockStorage,
         auth: auth,
-        selectedFiles: fileListOneVideo,
         themeManager: themeManager,
+        selectedFiles: mediaFileList,
       ),
     ));
 
@@ -1138,8 +1135,8 @@ void main() async {
         auth: auth,
         firestore: firestore,
         storage: mockStorage,
-        selectedFiles: fileListOneVideo,
         themeManager: themeManager,
+        selectedFiles: mediaFileList,
       ),
     ));
 
@@ -1201,70 +1198,6 @@ void main() async {
     expect(find.byType(CreateTopicScreen), findsNothing);
   });
 
-  testWidgets('Orientation adjusts correctly', (WidgetTester tester) async {
-    MockFirebaseStorage mockStorage = MockFirebaseStorage();
-    auth =
-        MockFirebaseAuth(signedIn: true, mockUser: MockUser(uid: 'adminUser'));
-
-    firestore.collection('Users').doc('adminUser').set({
-      'name': 'John Doe',
-      'email': 'john@example.com',
-      'roleType': 'admin',
-      'likedTopics': [],
-      'dislikedTopics': [],
-    });
-    final logs = [];
-
-    tester.binding.defaultBinaryMessenger
-        .setMockMethodCallHandler(SystemChannels.platform, (methodCall) async {
-      if (methodCall.method == 'SystemChrome.setPreferredOrientations') {
-        logs.add((methodCall.arguments as List)[0]);
-      }
-      return null;
-    });
-
-    expect(logs.length, 0);
-
-    await tester.pumpWidget(MaterialApp(
-      home: CreateTopicScreen(
-        auth: auth,
-        firestore: firestore,
-        storage: mockStorage,
-        selectedFiles: fileListOneVideo,
-        themeManager: themeManager,
-      ),
-    ));
-
-    await tester.ensureVisible(find.byKey(const Key('uploadMediaButton')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('uploadMediaButton')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Upload Video'));
-    await tester.pumpAndSettle();
-
-    expect(find.byType(Chewie), findsOneWidget);
-
-    final Chewie chewieWidget = tester.widget<Chewie>(find.byType(Chewie));
-
-    await tester.pumpAndSettle();
-
-    chewieWidget.controller.enterFullScreen();
-
-    expect(logs.length, 1,
-        reason:
-            'It should have added an orientation log after the fullscreen entry');
-
-    chewieWidget.controller.exitFullScreen();
-
-    expect(logs.length, 2,
-        reason:
-            'It should have added an orientation log after the fullscreen exit');
-
-    expect(logs.last, 'DeviceOrientation.portraitUp',
-        reason:
-            'It should be in the portrait view after the fullscreen actions done');
-  });
-
   testWidgets('edited topic with valid fields updates',
       (WidgetTester tester) async {
     CollectionReference topicCollectionRef;
@@ -1287,7 +1220,11 @@ void main() async {
       'description': 'Test Description',
       'articleLink': '',
       'media': [
-        {'url': 'http://via.placeholder.com/350x150', 'mediaType': 'image'}
+        {
+          'url':
+              'https://fastly.picsum.photos/id/629/200/300.jpg?hmac=YTSnJIQbXgJTOWUeXAqVeQYHZDodXXFFJxd5RTKs7yU',
+          'mediaType': 'image'
+        }
       ],
       'tags': ['Patient'],
       'likes': 0,
@@ -1306,8 +1243,8 @@ void main() async {
         auth: auth,
         firestore: firestore,
         storage: mockStorage,
-        selectedFiles: fileListImageAndVideo,
         themeManager: themeManager,
+        selectedFiles: mediaFileList,
       ),
     ));
 
@@ -1536,8 +1473,8 @@ void main() async {
         auth: auth,
         firestore: firestore,
         storage: mockStorage,
-        selectedFiles: fileListImageAndVideo,
         themeManager: themeManager,
+        selectedFiles: mediaFileList,
       ),
     ));
 
@@ -1628,8 +1565,8 @@ void main() async {
         topic: data.docs[0] as QueryDocumentSnapshot<Object>,
         firestore: firestore,
         storage: mockStorage,
-        selectedFiles: fileListOneVideo,
         themeManager: themeManager,
+        selectedFiles: mediaFileList,
       ),
     ));
 
@@ -1667,9 +1604,11 @@ void main() async {
       'likedTopics': [],
       'dislikedTopics': [],
     });
+    DocumentSnapshot adminUserDoc =
+        await firestore.collection('Users').doc('adminUser').get();
 
-    await draftCollectionRef.add({
-      'title': 'Test Topic',
+    DocumentReference draftDocRef = await draftCollectionRef.add({
+      'title': 'Test Draft',
       'description': 'Test Description',
       'articleLink': '',
       'media': [
@@ -1680,7 +1619,11 @@ void main() async {
       'views': 0,
       'dislikes': 0,
       'categories': ['Sports'],
-      'date': DateTime.now()
+      'date': DateTime.now(),
+      'userID': adminUserDoc.id
+    });
+    await firestore.collection('Users').doc('adminUser').update({
+      'draftedTopics': FieldValue.arrayUnion([draftDocRef.id])
     });
 
     data = await draftCollectionRef.orderBy('title').get();
@@ -1764,8 +1707,10 @@ void main() async {
       'likedTopics': [],
       'dislikedTopics': [],
     });
+    DocumentSnapshot adminUserDoc =
+        await firestore.collection('Users').doc('adminUser').get();
 
-    await draftCollectionRef.add({
+    DocumentReference draftDocRef = await draftCollectionRef.add({
       'title': 'Test Topic',
       'description': 'Test Description',
       'articleLink': '',
@@ -1781,7 +1726,11 @@ void main() async {
       'views': 0,
       'dislikes': 0,
       'categories': ['Sports'],
-      'date': DateTime.now()
+      'date': DateTime.now(),
+      'userID': adminUserDoc.id
+    });
+    await firestore.collection('Users').doc('adminUser').update({
+      'draftedTopics': FieldValue.arrayUnion([draftDocRef.id])
     });
 
     data = await draftCollectionRef.orderBy('title').get();

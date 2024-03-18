@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
-
 import 'package:flutter/services.dart';
 import 'dart:async';
 import 'package:video_player_platform_interface/video_player_platform_interface.dart';
@@ -9,9 +7,7 @@ import 'package:url_launcher_platform_interface/link.dart';
 import 'package:url_launcher_platform_interface/url_launcher_platform_interface.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'package:path_provider/path_provider.dart';
-
 import 'package:firebase_storage/firebase_storage.dart';
-
 import 'dart:io';
 
 class FakeVideoPlayerPlatform extends VideoPlayerPlatform {

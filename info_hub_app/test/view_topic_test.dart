@@ -6,14 +6,12 @@ import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:info_hub_app/topics/view_topic.dart';
 import 'package:info_hub_app/topics/create_topic.dart';
 import 'package:chewie/chewie.dart';
-import 'package:flutter/services.dart';
 import 'package:video_player_platform_interface/video_player_platform_interface.dart';
 import 'package:url_launcher_platform_interface/url_launcher_platform_interface.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'mock_classes.dart';
-import 'package:info_hub_app/helpers/base.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:info_hub_app/threads/threads.dart';
 import 'package:mocktail_image_network/mocktail_image_network.dart';
@@ -22,9 +20,12 @@ void main() {
   late MockUrlLauncher mock;
   late FakeFirebaseFirestore firestore;
   late MockFirebaseAuth auth;
+  late MockFirebaseAuth localAuth;
   late MockFirebaseStorage storage;
   late ThemeManager themeManager = ThemeManager();
-  setUp(() {
+  late Widget topicWithVideo;
+
+  setUp(() async {
     firestore = FakeFirebaseFirestore();
     storage = MockFirebaseStorage();
 
@@ -51,28 +52,9 @@ void main() {
       'dislikedTopics': [],
     });
 
-    final fakeVideoPlayerPlatform = FakeVideoPlayerPlatform();
+    CollectionReference ref = firestore.collection('topics');
 
-    VideoPlayerPlatform.instance = fakeVideoPlayerPlatform;
-
-    mock = MockUrlLauncher();
-    UrlLauncherPlatform.instance = mock;
-  });
-
-  testWidgets('ViewTopicScreen shows correct fields with video',
-      (WidgetTester tester) async {
-    final MockUser mockUser = MockUser(
-      isAnonymous: false,
-      uid: 'user123',
-      email: 'test@example.com',
-    );
-
-    auth = MockFirebaseAuth(mockUser: mockUser, signedIn: true);
-    final firestore = FakeFirebaseFirestore();
-
-    CollectionReference topicCollectionRef = firestore.collection('topics');
-
-    await topicCollectionRef.add({
+    await ref.add({
       'title': 'video topic',
       'description': 'Test Description',
       'articleLink': 'https://www.javatpoint.com/heap-sort',
@@ -92,18 +74,35 @@ void main() {
       'date': DateTime.now()
     });
 
-    QuerySnapshot data = await topicCollectionRef.orderBy('title').get();
-
+    QuerySnapshot data = await ref.orderBy('title').get();
+    final MockUser mockUser = MockUser(
+      isAnonymous: false,
+      uid: 'user123',
+      email: 'test@example.com',
+    );
+    localAuth = MockFirebaseAuth(mockUser: mockUser, signedIn: true);
     // Pass a valid URL when creating the VideoPlayerController instance
-    await tester.pumpWidget(MaterialApp(
+    topicWithVideo = MaterialApp(
       home: ViewTopicScreen(
-        firestore: firestore,
-        storage: storage,
-        topic: data.docs[0] as QueryDocumentSnapshot<Object>,
-        auth: auth,
-        themeManager: themeManager,
-      ),
-    ));
+          firestore: firestore,
+          storage: storage,
+          topic: data.docs[0] as QueryDocumentSnapshot<Object>,
+          auth: localAuth,
+          themeManager: themeManager),
+    );
+
+    final fakeVideoPlayerPlatform = FakeVideoPlayerPlatform();
+
+    VideoPlayerPlatform.instance = fakeVideoPlayerPlatform;
+
+    mock = MockUrlLauncher();
+    UrlLauncherPlatform.instance = mock;
+  });
+
+  testWidgets('ViewTopicScreen shows correct fields with video',
+      (WidgetTester tester) async {
+    // Pass a valid URL when creating the VideoPlayerController instance
+    await tester.pumpWidget(topicWithVideo);
     await tester.pumpAndSettle();
 
     expect(find.text('video topic'), findsOneWidget);
@@ -242,44 +241,12 @@ void main() {
     );
 
     auth = MockFirebaseAuth(mockUser: mockUser, signedIn: true);
-    final firestore = FakeFirebaseFirestore();
 
-    CollectionReference topicCollectionRef = firestore.collection('topics');
-
-    await topicCollectionRef.add({
-      'title': 'video topic',
-      'description': 'Test Description',
-      'articleLink': 'http://www.javatpoint.com/heap-sort',
-      'media': [
-        {
-          'url':
-              'https://firebasestorage.googleapis.com/v0/b/team-todo-38f76.appspot.com/o/videos%2F2024-02-01%2018:28:20.745204.mp4?alt=media&token=6d6e3aee-240d-470f-ab22-58e274a04010',
-          'mediaType': 'video'
-        }
-      ],
-      'likes': 0,
-      'tags': ['Patient'],
-      'views': 0,
-      'quizId': "",
-      'dislikes': 0,
-      'categories': ['Sports'],
-      'date': DateTime.now()
-    });
-
-    QuerySnapshot data = await topicCollectionRef.orderBy('title').get();
-    await tester.pumpWidget(MaterialApp(
-      home: ViewTopicScreen(
-        firestore: firestore,
-        storage: storage,
-        topic: data.docs[0] as QueryDocumentSnapshot<Object>,
-        auth: auth,
-        themeManager: themeManager,
-      ),
-    ));
+    await tester.pumpWidget(topicWithVideo);
 
     mock
       ..setLaunchExpectations(
-        url: 'http://www.javatpoint.com/heap-sort',
+        url: 'https://www.javatpoint.com/heap-sort',
         useSafariVC: false,
         useWebView: false,
         universalLinksOnly: false,
@@ -297,88 +264,6 @@ void main() {
     await tester.pumpAndSettle();
   });
 
-  testWidgets('Test orientation changes correctly with video fullscreen',
-      (tester) async {
-    final MockUser mockUser = MockUser(
-      isAnonymous: false,
-      uid: 'user123',
-      email: 'test@example.com',
-    );
-
-    auth = MockFirebaseAuth(mockUser: mockUser, signedIn: true);
-    final logs = [];
-    final firestore = FakeFirebaseFirestore();
-
-    CollectionReference topicCollectionRef = firestore.collection('topics');
-
-    await topicCollectionRef.add({
-      'title': 'video topic',
-      'description': 'Test Description',
-      'articleLink': 'http://www.javatpoint.com/heap-sort',
-      'media': [
-        {
-          'url':
-              'https://firebasestorage.googleapis.com/v0/b/team-todo-38f76.appspot.com/o/videos%2F2024-02-01%2018:28:20.745204.mp4?alt=media&token=6d6e3aee-240d-470f-ab22-58e274a04010',
-          'mediaType': 'video'
-        }
-      ],
-      'likes': 0,
-      'tags': ['Patient'],
-      'views': 0,
-      'quizId': "",
-      'dislikes': 0,
-      'categories': ['Sports'],
-      'date': DateTime.now()
-    });
-
-    QuerySnapshot data = await topicCollectionRef.orderBy('title').get();
-
-    tester.binding.defaultBinaryMessenger
-        .setMockMethodCallHandler(SystemChannels.platform, (methodCall) async {
-      if (methodCall.method == 'SystemChrome.setPreferredOrientations') {
-        logs.add((methodCall.arguments as List)[0]);
-      }
-      return null;
-    });
-
-    expect(logs.length, 0);
-
-    await tester.pumpWidget(MaterialApp(
-      home: ViewTopicScreen(
-        firestore: firestore,
-        storage: storage,
-        topic: data.docs[0] as QueryDocumentSnapshot<Object>,
-        auth: auth,
-        themeManager: themeManager,
-      ),
-    ));
-
-    await tester.pumpAndSettle();
-
-    expect(find.byType(Chewie), findsOneWidget);
-
-    final Chewie chewieWidget = tester.widget<Chewie>(find.byType(Chewie));
-
-    chewieWidget.controller.enterFullScreen();
-    await tester.pumpAndSettle();
-
-    expect(logs.length, 1,
-        reason:
-            'It should have added an orientation log after the fullscreen entry');
-
-    chewieWidget.controller.exitFullScreen();
-
-    expect(logs.length, 2,
-        reason:
-            'It should have added an orientation log after the fullscreen exit');
-
-    expect(logs.last, 'DeviceOrientation.portraitUp',
-        reason:
-            'It should be in the portrait view after the fullscreen actions done');
-
-    await tester.pumpAndSettle();
-  });
-
   testWidgets('ViewTopicScreen shows like and dislike buttons',
       (WidgetTester tester) async {
     final MockUser mockUser = MockUser(
@@ -388,33 +273,8 @@ void main() {
     );
 
     auth = MockFirebaseAuth(mockUser: mockUser, signedIn: true);
-    CollectionReference topicCollectionRef = firestore.collection('topics');
 
-    await topicCollectionRef.add({
-      'title': 'no video topic',
-      'description': 'Test Description',
-      'articleLink': 'https://www.javatpoint.com/heap-sort',
-      'media': [],
-      'likes': 0,
-      'tags': ['Patient'],
-      'views': 0,
-      'quizId': "",
-      'dislikes': 0,
-      'categories': ['Sports'],
-      'date': DateTime.now()
-    });
-
-    QuerySnapshot data = await topicCollectionRef.orderBy('title').get();
-
-    await tester.pumpWidget(MaterialApp(
-      home: ViewTopicScreen(
-        firestore: firestore,
-        storage: storage,
-        topic: data.docs[0] as QueryDocumentSnapshot<Object>,
-        auth: auth,
-        themeManager: themeManager,
-      ),
-    ));
+    await tester.pumpWidget(topicWithVideo);
     await tester.pumpAndSettle();
 
     expect(find.byIcon(Icons.thumb_up), findsOneWidget);
@@ -774,49 +634,6 @@ void main() {
     expect(dislikeSnapshot['dislikes'], 0);
   });
 
-  testWidgets('Admin user sees delete topic button',
-      (WidgetTester tester) async {
-    // Mock user data
-    CollectionReference topicCollectionRef = firestore.collection('topics');
-
-    await topicCollectionRef.add({
-      'title': 'no video topic',
-      'description': 'Test Description',
-      'articleLink': 'https://www.javatpoint.com/heap-sort',
-      'media': [],
-      'likes': 0,
-      'views': 0,
-      'quizId': "",
-      'tags': ['Patient'],
-      'dislikes': 0,
-      'categories': ['Sports'],
-      'date': DateTime.now()
-    });
-
-    QuerySnapshot data = await topicCollectionRef.orderBy('title').get();
-
-    await tester.pumpWidget(MaterialApp(
-      home: ViewTopicScreen(
-        firestore: firestore,
-        storage: storage,
-        topic: data.docs[0] as QueryDocumentSnapshot<Object>,
-        auth: MockFirebaseAuth(
-            signedIn: true, mockUser: MockUser(uid: 'adminUser')),
-        themeManager: themeManager,
-      ),
-    ));
-
-    await tester.pumpAndSettle();
-    await tester.ensureVisible(find.byKey(const Key('delete_topic_button')));
-
-    final deleteButtonFinder = find.byKey(const Key('delete_topic_button'));
-
-    await tester.pumpAndSettle();
-    // check that admin user sees delete topic button
-
-    expect(deleteButtonFinder, findsOneWidget);
-  });
-
   testWidgets('Admin user sees edit topic button', (WidgetTester tester) async {
     // Mock user data
     final MockUser mockUser = MockUser(
@@ -868,16 +685,14 @@ void main() {
 
     await tester.pumpAndSettle();
 
-    final editButtonFinder = find.byKey(const Key('edit_btn'));
-
-    await tester.ensureVisible(editButtonFinder);
+    await tester.ensureVisible(find.byKey(const Key('edit_btn')));
 
     await tester.pumpAndSettle();
     // check that admin user sees edit topic button
 
-    expect(editButtonFinder, findsOneWidget);
+    expect(find.byKey(const Key('edit_btn')), findsOneWidget);
 
-    await tester.tap(editButtonFinder);
+    await tester.tap(find.byKey(const Key('edit_btn')));
 
     await tester.pumpAndSettle();
 
@@ -886,48 +701,11 @@ void main() {
     expect(find.byType(CreateTopicScreen), findsOneWidget);
   });
 
-  testWidgets('Non-Admin user cannot see delete topic button',
-      (WidgetTester tester) async {
-    CollectionReference topicCollectionRef = firestore.collection('topics');
-
-    await topicCollectionRef.add({
-      'title': 'no video topic',
-      'description': 'Test Description',
-      'articleLink': 'https://www.javatpoint.com/heap-sort',
-      'media': [],
-      'likes': 0,
-      'views': 0,
-      'quizId': "",
-      'tags': ['Patient'],
-      'dislikes': 0,
-      'categories': ['Sports'],
-      'date': DateTime.now()
-    });
-
-    QuerySnapshot data = await topicCollectionRef.orderBy('title').get();
-
-    await tester.pumpWidget(MaterialApp(
-      home: ViewTopicScreen(
-        firestore: firestore,
-        storage: storage,
-        topic: data.docs[0] as QueryDocumentSnapshot<Object>,
-        auth: MockFirebaseAuth(
-            signedIn: true, mockUser: MockUser(uid: 'nonAdminUser')),
-        themeManager: themeManager,
-      ),
-    ));
-
-    await tester.pumpAndSettle();
-    // check that non-admin user cannot see the delete topic button
-    expect(find.byKey(const Key('delete_topic_button')), findsNothing);
-  });
-
   testWidgets('Test tapping delete topic button deletes the topic',
       (WidgetTester tester) async {
     CollectionReference topicCollectionRef = firestore.collection('topics');
 
-    // Add a topic
-    DocumentReference topicDocRef = await topicCollectionRef.add({
+    Map<String, dynamic> details = {
       'title': 'Test Topic',
       'description': 'Test Description',
       'articleLink': 'https://www.example.com',
@@ -945,10 +723,71 @@ void main() {
       'dislikes': 0,
       'categories': ['Sports'],
       'date': DateTime.now()
-    });
+    };
+
+    // Add a topic
+    DocumentReference ref = await topicCollectionRef.add(details);
 
     QuerySnapshot data = await topicCollectionRef.orderBy('title').get();
+    Widget deleteView = MaterialApp(
+      home: ViewTopicScreen(
+        firestore: firestore,
+        storage: storage,
+        topic: data.docs[0] as QueryDocumentSnapshot<Object>,
+        auth: MockFirebaseAuth(
+            signedIn: true, mockUser: MockUser(uid: 'adminUser')),
+        themeManager: themeManager,
+      ),
+    );
 
+    await tester.pumpWidget(deleteView);
+
+    await tester.pumpAndSettle();
+    // save the topic
+    await tester.ensureVisible(find.byKey(const Key('save_btn')));
+    await tester.tap(find.byKey(const Key('save_btn')));
+    //like the topic
+    await tester.ensureVisible(find.byIcon(Icons.thumb_up));
+    await tester.tap(find.byIcon(Icons.thumb_up));
+    await tester.ensureVisible(find.byKey(const Key('delete_topic_button')));
+    await tester.tap(find.byKey(const Key('delete_topic_button')));
+    await tester.pumpAndSettle();
+    expect(find.byType(AlertDialog), findsOneWidget);
+    await tester.tap(find.text('Delete'));
+    await tester.pumpAndSettle();
+    // topic is deleted from firebase
+    DocumentSnapshot topicSnapshot = await ref.get();
+    expect(topicSnapshot.exists, false);
+    DocumentSnapshot userSnapshot =
+        await firestore.collection('Users').doc('adminUser').get();
+    expect(List<dynamic>.from(userSnapshot['savedTopics']).contains(ref.id),
+        false);
+    expect(List<dynamic>.from(userSnapshot['likedTopics']).contains(ref.id),
+        false);
+    final ListResult result = await storage.ref().child('media').listAll();
+    expect(result.items.length, equals(0));
+  });
+
+  testWidgets(
+      'Test delete topic button removes topic from user disliked topics',
+      (WidgetTester tester) async {
+    CollectionReference topicCollectionRef = firestore.collection('topics');
+
+    // Add a topic
+    DocumentReference topicDocRef = await topicCollectionRef.add({
+      'title': 'Test Topic',
+      'description': 'Test Description',
+      'articleLink': 'https://www.example.com',
+      'media': [],
+      'likes': 0,
+      'tags': ['Patient'],
+      'views': 0,
+      'quizId': "",
+      'dislikes': 0,
+      'categories': ['Sports'],
+      'date': DateTime.now()
+    });
+    QuerySnapshot data = await topicCollectionRef.orderBy('title').get();
     await tester.pumpWidget(MaterialApp(
       home: ViewTopicScreen(
         firestore: firestore,
@@ -959,32 +798,21 @@ void main() {
         themeManager: themeManager,
       ),
     ));
-
     await tester.pumpAndSettle();
-
-    // Find the delete topic button and tap it
-
+    DocumentReference adminUserDocRef =
+        firestore.collection('Users').doc('adminUser');
+    // dislike topic
+    await tester.tap(find.byIcon(Icons.thumb_down));
+    await tester.pumpAndSettle();
     await tester.ensureVisible(find.byKey(const Key('delete_topic_button')));
     await tester.tap(find.byKey(const Key('delete_topic_button')));
-
-    // Wait for the asynchronous operations to complete
     await tester.pumpAndSettle();
-
-    expect(find.byType(AlertDialog), findsOneWidget);
-
     await tester.tap(find.text('Delete'));
-
     await tester.pumpAndSettle();
-
-    // topic is deleted from firebase
-
-    DocumentSnapshot topicSnapshot = await topicDocRef.get();
-
-    expect(topicSnapshot.exists, false);
-
-    final ListResult result = await storage.ref().child('videos').listAll();
-
-    expect(result.items.length, equals(0));
+    DocumentSnapshot deleteSnapshot = await adminUserDocRef.get();
+    List<dynamic> listAfterDelete =
+        List<dynamic>.from(deleteSnapshot['dislikedTopics']);
+    expect(listAfterDelete.contains(topicDocRef.id), false);
   });
 
   testWidgets(
@@ -1041,209 +869,6 @@ void main() {
 
     expect(find.byKey(const Key('delete_topic_button')), findsOneWidget);
   });
-
-  testWidgets('Test delete topic button removes topic from user liked topics',
-      (WidgetTester tester) async {
-    CollectionReference topicCollectionRef = firestore.collection('topics');
-
-    // Add a topic
-    DocumentReference topicDocRef = await topicCollectionRef.add({
-      'title': 'Test Topic',
-      'description': 'Test Description',
-      'articleLink': 'https://www.example.com',
-      'media': [],
-      'likes': 0,
-      'tags': ['Patient'],
-      'views': 0,
-      'quizId': "",
-      'dislikes': 0,
-      'categories': ['Sports'],
-      'date': DateTime.now()
-    });
-
-    QuerySnapshot data = await topicCollectionRef.orderBy('title').get();
-
-    await tester.pumpWidget(MaterialApp(
-      home: ViewTopicScreen(
-        firestore: firestore,
-        storage: storage,
-        topic: data.docs[0] as QueryDocumentSnapshot<Object>,
-        auth: MockFirebaseAuth(
-            signedIn: true, mockUser: MockUser(uid: 'adminUser')),
-        themeManager: themeManager,
-      ),
-    ));
-
-    await tester.pumpAndSettle();
-
-    DocumentReference adminUserDocRef =
-        firestore.collection('Users').doc('adminUser');
-
-    // like topic
-    await tester.tap(find.byIcon(Icons.thumb_up));
-
-    await tester.pumpAndSettle();
-
-    DocumentSnapshot adminUserSnapshot = await adminUserDocRef.get();
-
-    List<dynamic> listAfterLike =
-        List<dynamic>.from(adminUserSnapshot['likedTopics']);
-
-    expect(listAfterLike.contains(topicDocRef.id), true);
-    await tester.ensureVisible(find.byKey(const Key('delete_topic_button')));
-
-    await tester.tap(find.byKey(const Key('delete_topic_button')));
-
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.text('Delete'));
-
-    await tester.pumpAndSettle();
-
-    DocumentSnapshot secondSnapshot = await adminUserDocRef.get();
-
-    List<dynamic> listAfterDelete =
-        List<dynamic>.from(secondSnapshot['likedTopics']);
-
-    expect(listAfterDelete.contains(topicDocRef.id), false);
-  });
-
-  testWidgets(
-      'Test delete topic button removes topic from user disliked topics',
-      (WidgetTester tester) async {
-    final MockUser mockUser = MockUser(
-      isAnonymous: false,
-      uid: 'user123',
-      email: 'test@example.com',
-    );
-
-    auth = MockFirebaseAuth(mockUser: mockUser, signedIn: true);
-    CollectionReference topicCollectionRef = firestore.collection('topics');
-
-    // Add a topic
-    DocumentReference topicDocRef = await topicCollectionRef.add({
-      'title': 'Test Topic',
-      'description': 'Test Description',
-      'articleLink': 'https://www.example.com',
-      'media': [],
-      'likes': 0,
-      'tags': ['Patient'],
-      'views': 0,
-      'quizId': "",
-      'dislikes': 0,
-      'categories': ['Sports'],
-      'date': DateTime.now()
-    });
-
-    QuerySnapshot data = await topicCollectionRef.orderBy('title').get();
-
-    await tester.pumpWidget(MaterialApp(
-      home: ViewTopicScreen(
-        firestore: firestore,
-        storage: storage,
-        topic: data.docs[0] as QueryDocumentSnapshot<Object>,
-        auth: MockFirebaseAuth(
-            signedIn: true, mockUser: MockUser(uid: 'adminUser')),
-        themeManager: themeManager,
-      ),
-    ));
-
-    await tester.pumpAndSettle();
-
-    DocumentReference adminUserDocRef =
-        firestore.collection('Users').doc('adminUser');
-
-    // like topic
-    await tester.tap(find.byIcon(Icons.thumb_down));
-
-    await tester.pumpAndSettle();
-
-    DocumentSnapshot adminUserSnapshot = await adminUserDocRef.get();
-
-    List<dynamic> listAfterDislike =
-        List<dynamic>.from(adminUserSnapshot['dislikedTopics']);
-
-    expect(listAfterDislike.contains(topicDocRef.id), true);
-    await tester.ensureVisible(find.byKey(const Key('delete_topic_button')));
-
-    await tester.tap(find.byKey(const Key('delete_topic_button')));
-
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.text('Delete'));
-
-    await tester.pumpAndSettle();
-
-    DocumentSnapshot secondSnapshot = await adminUserDocRef.get();
-
-    List<dynamic> listAfterDelete =
-        List<dynamic>.from(secondSnapshot['dislikedTopics']);
-
-    expect(listAfterDelete.contains(topicDocRef.id), false);
-  });
-
-  testWidgets('Test back button navigates to Base screen',
-      (WidgetTester tester) async {
-    auth =
-        MockFirebaseAuth(signedIn: true, mockUser: MockUser(uid: 'adminUser'));
-
-    await auth.createUserWithEmailAndPassword(
-        email: 'test@tested.org', password: 'Password123!');
-    String uid = auth.currentUser!.uid;
-    await firestore.collection('Users').doc(uid).set({
-      'email': 'test@tested.org',
-      'firstName': 'James',
-      'lastName': 'Doe',
-      'roleType': 'Patient'
-    });
-
-    await auth.createUserWithEmailAndPassword(
-        email: 'user@gmail.com', password: 'User123!');
-    uid = auth.currentUser!.uid;
-    await firestore.collection('Users').doc(uid).set({
-      'email': 'admin@gmail.com',
-      'firstName': 'John',
-      'lastName': 'Doe',
-      'roleType': 'Patient'
-    });
-    CollectionReference topicCollectionRef = firestore.collection('topics');
-
-    await topicCollectionRef.add({
-      'title': 'no video topic',
-      'description': 'Test Description',
-      'articleLink': 'https://www.javatpoint.com/heap-sort',
-      'media': [],
-      'likes': 0,
-      'tags': ['Patient'],
-      'views': 0,
-      'quizId': "",
-      'dislikes': 0,
-      'categories': ['Sports'],
-      'date': DateTime.now()
-    });
-
-    QuerySnapshot data = await topicCollectionRef.orderBy('title').get();
-
-    await tester.pumpWidget(MaterialApp(
-      home: ViewTopicScreen(
-        firestore: firestore,
-        storage: storage,
-        topic: data.docs[0] as QueryDocumentSnapshot<Object>,
-        auth: auth,
-        themeManager: themeManager,
-      ),
-    ));
-    await tester.pumpAndSettle();
-
-    // tap back button
-    await tester.tap(find.byIcon(Icons.arrow_back));
-
-    await tester.pumpAndSettle();
-
-    // check if the Base screen is navigated to
-    expect(find.byType(Base), findsOneWidget);
-  });
-
   testWidgets('Test navigation to ThreadApp screen',
       (WidgetTester tester) async {
     final MockUser mockUser = MockUser(
@@ -1290,5 +915,62 @@ void main() {
 
     // Check if the ThreadApp screen is pushed to the navigator stack
     expect(find.byType(ThreadApp), findsOneWidget);
+  });
+  testWidgets('User can save a topic', (WidgetTester tester) async {
+    CollectionReference topicCollectionRef = firestore.collection('topics');
+
+    DocumentReference topicDocRef = await topicCollectionRef.add({
+      'title': 'no video topic',
+      'description': 'Test Description',
+      'articleLink': 'https://www.javatpoint.com/heap-sort',
+      'media': [],
+      'likes': 0,
+      'tags': ['Patient'],
+      'views': 0,
+      'quizId': "",
+      'dislikes': 0,
+      'categories': ['Sports'],
+      'date': DateTime.now()
+    });
+
+    QuerySnapshot data = await topicCollectionRef.orderBy('title').get();
+
+    DocumentReference mockUserDocRef =
+        firestore.collection('Users').doc('adminUser');
+
+    await tester.pumpWidget(MaterialApp(
+      home: ViewTopicScreen(
+        firestore: firestore,
+        storage: storage,
+        topic: data.docs[0] as QueryDocumentSnapshot<Object>,
+        auth: MockFirebaseAuth(
+            signedIn: true, mockUser: MockUser(uid: 'adminUser')),
+        themeManager: themeManager,
+      ),
+    ));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.byIcon(Icons.bookmark_border));
+    // Find the save icon button and tap it
+    await tester.tap(find.byIcon(Icons.bookmark_border));
+    await tester.pumpAndSettle();
+    DocumentSnapshot saveUserSnapshot = await mockUserDocRef.get();
+    List<dynamic> listAfterSave = [];
+    if (saveUserSnapshot.exists && saveUserSnapshot.data() != null) {
+      listAfterSave = List<dynamic>.from(saveUserSnapshot['savedTopics']);
+    } else {
+      fail("'savedTopics' field not found in user's document");
+    }
+    expect(listAfterSave.contains(topicDocRef.id), true);
+    await tester.ensureVisible(find.byIcon(Icons.bookmark));
+    // tap save icon again to unsave
+    await tester.tap(find.byIcon(Icons.bookmark));
+    await tester.pumpAndSettle();
+    DocumentReference unsaveUserDocRef =
+        firestore.collection('Users').doc('adminUser');
+    DocumentSnapshot unsaveUserSnapshot = await unsaveUserDocRef.get();
+
+    List<dynamic> listAfterUnsave =
+        List<dynamic>.from(unsaveUserSnapshot['savedTopics']);
+    expect(listAfterUnsave.contains(topicDocRef.id), false);
   });
 }

@@ -3,7 +3,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:info_hub_app/profile_view/profile_view.dart';
 import 'package:info_hub_app/registration/user_model.dart';
 import 'package:info_hub_app/notifications/manage_notifications.dart';
@@ -11,6 +10,8 @@ import 'package:info_hub_app/services/database.dart';
 import 'package:info_hub_app/settings/general_settings.dart';
 import 'package:info_hub_app/settings/help_page/help_page.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
+import 'package:info_hub_app/settings/saved/saved_page.dart';
+import 'package:info_hub_app/settings/drafts/drafts_page.dart';
 import 'package:provider/provider.dart';
 import 'package:info_hub_app/settings/privacy_base.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
@@ -34,6 +35,18 @@ class SettingsView extends StatefulWidget {
 }
 
 class _SettingsViewState extends State<SettingsView> {
+  bool isAdmin = false;
+
+  @override
+  void initState() {
+    super.initState();
+    initializeAdminStatus();
+  }
+
+  Future<void> initializeAdminStatus() async {
+    await isAdminUser();
+  }
+
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
@@ -105,6 +118,41 @@ class _SettingsViewState extends State<SettingsView> {
               },
             ),
             ListTile(
+              leading: const Icon(Icons.bookmark_added_outlined),
+              title: const Text('Saved Topics'),
+              onTap: () {
+                // Navigate to the saved topics page when tapped
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => SavedPage(
+                            auth: widget.auth,
+                            firestore: widget.firestore,
+                            storage: widget.storage,
+                          )),
+                );
+              },
+            ),
+            if (isAdmin)
+              ListTile(
+                key: Key("drafts_tile"),
+                leading: const Icon(Icons.difference_outlined),
+                title: const Text('Topic Drafts'),
+                onTap: () {
+                  // Navigate to the saved topics page when tapped
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => DraftsPage(
+                              auth: widget.auth,
+                              firestore: widget.firestore,
+                              storage: widget.storage,
+                            )),
+                  );
+                },
+              ),
+            ListTile(
+              leading: const Icon(Icons.help),
               title: const Text('Help'),
               onTap: () {
                 // Navigate to the HelpPage when tapped
@@ -142,5 +190,16 @@ class _SettingsViewState extends State<SettingsView> {
         ),
       ),
     );
+  }
+
+  Future<void> isAdminUser() async {
+    User? user = widget.auth.currentUser;
+    if (user != null) {
+      DocumentSnapshot snapshot =
+          await widget.firestore.collection('Users').doc(user.uid).get();
+      setState(() {
+        isAdmin = snapshot['roleType'] == 'admin';
+      });
+    }
   }
 }

@@ -78,7 +78,6 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
     super.dispose();
     _videoController?.dispose();
     _chewieController?.dispose();
-    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   }
 
   @override
@@ -516,6 +515,35 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
     );
   }
 
+  void deleteDraft() async {
+    final user = widget.auth.currentUser;
+    if (user != null) {
+      final userDocRef = widget.firestore.collection('Users').doc(user.uid);
+
+      DocumentSnapshot userDoc = await userDocRef.get();
+
+      if (userDoc.exists) {
+        // Get the current list of drafted topics
+        List<String> draftedTopics =
+            List<String>.from(userDoc['draftedTopics']);
+
+        // Remove the current draft ID from the list
+        draftedTopics.remove(widget.draft!.id);
+
+        // Update the user document with the modified draftedTopics list
+        await userDocRef.update({
+          'draftedTopics': draftedTopics,
+        });
+
+        // Delete the draft from the topicDrafts collection
+        await widget.firestore
+            .collection('topicDrafts')
+            .doc(widget.draft!.id)
+            .delete();
+      }
+    }
+  }
+
   Future<void> _uploadTopic(context, bool saveAsDraft) async {
     List<Map<String, String>> mediaList = [];
 
@@ -613,7 +641,8 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
         }
       } else if (drafting) {
         await topicCollectionRef.add(topicDetails);
-        Navigator.pop(context);
+        deleteDraft();
+        Navigator.of(context).popUntil((route) => route.isFirst);
       }
       if (editing) {
         Navigator.pushReplacement(
@@ -858,17 +887,9 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
         autoInitialize: true,
         looping: false,
         aspectRatio: 16 / 9,
-        deviceOrientationsAfterFullScreen: [
-          DeviceOrientation.portraitUp,
-          DeviceOrientation.portraitDown
-        ],
+        deviceOrientationsAfterFullScreen: [DeviceOrientation.portraitUp],
         allowedScreenSleep: false,
       );
-      _chewieController!.addListener(() {
-        if (!_chewieController!.isFullScreen) {
-          SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-        }
-      });
       setState(() {});
     }
   }
