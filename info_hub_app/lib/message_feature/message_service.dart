@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:info_hub_app/message_feature/message_model.dart';
+import 'package:info_hub_app/message_feature/message_room/message_room_controller.dart';
 
 class MessageService extends ChangeNotifier {
   final FirebaseAuth _firebaseAuth;
@@ -31,17 +32,9 @@ class MessageService extends ChangeNotifier {
 
     String chatRoomId = ids.join('_');
 
-    DocumentSnapshot chatRoomDocument = await _firestore.collection('message_rooms_members').doc(chatRoomId).get();
-  
-
-    if (!chatRoomDocument.exists) {
-      await _firestore.collection('message_rooms_members').doc(chatRoomId).set({
-        'adminId': currentUserId,
-        'patientId': receiverId,
-      });
-    }
-
-
+    MessageRoomController messageRoomController = MessageRoomController(_firebaseAuth, _firestore);
+    messageRoomController.addMessageRoom(chatRoomId, currentUserId, receiverId);
+      
     await _firestore
       .collection('message_rooms')
       .doc(chatRoomId)

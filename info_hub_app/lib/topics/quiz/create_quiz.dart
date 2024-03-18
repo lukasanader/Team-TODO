@@ -4,25 +4,22 @@ import 'package:uuid/uuid.dart';
 
 import 'quiz_question_card.dart';
 
-
 class CreateQuiz extends StatefulWidget {
-
-final FirebaseFirestore firestore;
-void Function(String) addQuiz;
-CreateQuiz({super.key, required this.firestore, required this.addQuiz});
-
+  final FirebaseFirestore firestore;
+  void Function(String) addQuiz;
+  CreateQuiz({super.key, required this.firestore, required this.addQuiz});
 
   @override
   State<CreateQuiz> createState() => _CreateQuizState();
 }
 
 class _CreateQuizState extends State<CreateQuiz> {
-final TextEditingController _questionController = TextEditingController();
-List<String> questions = [];
-bool invalid = false;
-String quizID = const Uuid().v4();
+  final TextEditingController _questionController = TextEditingController();
+  List<String> questions = [];
+  bool invalid = false;
+  String quizID = const Uuid().v4();
 
-   @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -38,7 +35,11 @@ String quizID = const Uuid().v4();
               child: ListView.builder(
                 itemCount: questions.length,
                 itemBuilder: (context, index) {
-                  return QuizQuestionCard(question: questions[index],questionNo: index+1,quizID: quizID,firestore: widget.firestore);
+                  return QuizQuestionCard(
+                      question: questions[index],
+                      questionNo: index + 1,
+                      quizID: quizID,
+                      firestore: widget.firestore);
                 },
               ),
             ),
@@ -52,31 +53,35 @@ String quizID = const Uuid().v4();
             ),
             Row(
               children: [
-            const SizedBox(width: 125,),
-            ElevatedButton(
-              onPressed: () {
-                if(_questionController.text.isEmpty){
-                  setState(() {
-                    invalid =true;
-                  });
-                }else{
-                setState(() {
-                  invalid =false;
-                  questions.add(_questionController.text);
-                  _questionController.clear();
-                });
-                }
-              },
-              child: const Text('Add Question'),
-            ),
-            const SizedBox(width: 10,),
-             SizedBox(
+                const SizedBox(
+                  width: 125,
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    if (_questionController.text.isEmpty) {
+                      setState(() {
+                        invalid = true;
+                      });
+                    } else {
+                      setState(() {
+                        invalid = false;
+                        questions.add(_questionController.text);
+                        _questionController.clear();
+                      });
+                    }
+                  },
+                  child: const Text('Add Question'),
+                ),
+                const SizedBox(
+                  width: 10,
+                ),
+                SizedBox(
                   child: ElevatedButton(
                     onPressed: () {
-                      if(questions.isNotEmpty){
-                      setState(() {
-                        widget.addQuiz(quizID);
-                      });
+                      if (questions.isNotEmpty) {
+                        setState(() {
+                          widget.addQuiz(quizID);
+                        });
                       }
                       Navigator.pop(context);
                     },
@@ -84,13 +89,13 @@ String quizID = const Uuid().v4();
                   ),
                 )
               ],
-              
             ),
-            if(invalid)
-            const Text('Please enter a question', style: TextStyle(color: Colors.red),)
-            
+            if (invalid)
+              const Text(
+                'Please enter a question',
+                style: TextStyle(color: Colors.red),
+              )
           ],
-            
         ),
       ),
     );

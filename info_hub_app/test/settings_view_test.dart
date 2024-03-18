@@ -6,7 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:info_hub_app/notifications/manage_notifications.dart';
 import 'package:info_hub_app/registration/start_page.dart';
-import 'package:info_hub_app/settings/settings_view.dart';
+import 'package:info_hub_app/settings/help_page/help_page.dart';
+import 'package:info_hub_app/settings/saved/saved_page.dart';
+import 'package:info_hub_app/settings/drafts/drafts_page.dart';
 import 'package:info_hub_app/settings/privacy_base.dart';
 import 'package:info_hub_app/settings/settings_view.dart';
 import 'package:info_hub_app/settings/help_page.dart';
@@ -18,9 +20,18 @@ void main() {
   late FakeFirebaseFirestore firestore;
 
   setUp(() {
-    firebaseAuth = MockFirebaseAuth();
     firebaseStorage = MockFirebaseStorage();
     firestore = FakeFirebaseFirestore();
+    firestore.collection('Users').doc('adminUser').set({
+      'name': 'John Doe',
+      'email': 'john@example.com',
+      'roleType': 'admin',
+      'likedTopics': [],
+      'dislikedTopics': [],
+    });
+    firebaseAuth =
+        MockFirebaseAuth(signedIn: true, mockUser: MockUser(uid: 'adminUser'));
+
     settingsViewWidget = MaterialApp(
         home: SettingsView(
       auth: firebaseAuth,
@@ -110,15 +121,43 @@ void main() {
     expect(firebaseAuth.currentUser, null);
   });
 
-testWidgets('Test tapping on Help navigates to HelpPage', (WidgetTester tester) async {
-  await tester.pumpWidget(MaterialApp(home: settingsViewWidget)); // Replace YourParentWidget with the widget containing the ListTile
+  testWidgets('Test tapping on Help navigates to HelpPage',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(MaterialApp(
+        home:
+            settingsViewWidget)); // Replace YourParentWidget with the widget containing the ListTile
 
-  // Tap on the ListTile to navigate to the HelpPage
-  await tester.tap(find.byIcon(Icons.help));
-  await tester.pumpAndSettle();
+    // Tap on the ListTile to navigate to the HelpPage
+    await tester.tap(find.byIcon(Icons.help));
+    await tester.pumpAndSettle();
 
-  // Verify that HelpPage is pushed onto the navigator's stack
-  expect(find.byType(HelpPage), findsOneWidget);
-});
+    // Verify that HelpPage is pushed onto the navigator's stack
+    expect(find.byType(HelpPage), findsOneWidget);
+  });
 
+  testWidgets('Test tapping on Saved topics navigates to SavedPage',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(MaterialApp(home: settingsViewWidget));
+
+    // Tap on the ListTile to navigate to the SavedPage
+    await tester.tap(find.byIcon(Icons.bookmark_added_outlined));
+    await tester.pumpAndSettle();
+
+    // Verify that SavedPage is pushed onto the navigator's stack
+    expect(find.byType(SavedPage), findsOneWidget);
+  });
+
+  testWidgets('Test tapping on Topic Drafts navigates to DraftsPage',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(MaterialApp(home: settingsViewWidget));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.byKey(const Key('drafts_tile')));
+
+    // Tap on the ListTile to navigate to the DraftsPage
+    await tester.tap(find.byKey(const Key('drafts_tile')));
+    await tester.pumpAndSettle();
+
+    // Verify that DraftsPage is pushed onto the navigator's stack
+    expect(find.byType(DraftsPage), findsOneWidget);
+  });
 }
