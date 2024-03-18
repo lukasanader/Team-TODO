@@ -10,6 +10,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:info_hub_app/notifications/notification.dart' as custom;
 import 'package:info_hub_app/notifications/notifications.dart';
+import 'package:info_hub_app/notifications/preferences.dart';
 import 'package:info_hub_app/push_notifications/push_notifications.dart';
 import 'package:info_hub_app/services/database.dart';
 import 'package:mockito/mockito.dart';
@@ -20,12 +21,12 @@ import 'mock.dart';
 const UsersCollection = 'Users';
 
 class MockClient extends Mock implements http.Client {
-  bool isCalled = false;
+  bool postCalled = false;
 
   @override
   Future<http.Response> post(Uri url,
       {Map<String, String>? headers, Object? body, Encoding? encoding}) async {
-    isCalled = true;
+    postCalled = true;
     return http.Response('Success', 200);
   }
 }
@@ -40,7 +41,6 @@ class MockFlutterLocalNotificationsPlugin extends Fake
       onDidReceiveBackgroundNotificationResponse}) async {
     initializeCalled = true;
     return initializeCalled;
-    // Add additional behavior if needed
   }
 
   bool showCalled = false;
@@ -54,7 +54,6 @@ class MockFlutterLocalNotificationsPlugin extends Fake
     String? payload,
   }) async {
     showCalled = true;
-    // You can add additional behavior here if needed
   }
 }
 
@@ -157,7 +156,6 @@ Future<void> main() async {
 
     test('initialize Firebase Messaging', () async {
       await pushNotifications.init();
-      // Verify that permission is granted
       final settings = await firebaseMessaging.requestPermission(
         alert: true,
         announcement: true,
@@ -197,25 +195,19 @@ Future<void> main() async {
                   firestore: firestore,
                 ),
           },
-          // home: HomePage(auth: auth, firestore: firestore, storage: storage)
-          // home: AdminHomepage(firestore: firestore, storage: storage),
         ),
       ));
 
-      // Pump the widget again to ensure the tree is built with the MaterialApp
       await tester.pumpAndSettle();
 
       const mockNotificationResponse = NotificationResponse(
         notificationResponseType: NotificationResponseType.selectedNotification,
       );
 
-      // Call the function to be tested
       pushNotifications.onNotificationTap(mockNotificationResponse);
 
-      // Pump again to ensure the navigation is performed
       await tester.pumpAndSettle();
 
-      // Verify the navigation occurred correctly
       expect(find.byType(Notifications), findsOneWidget);
     });
 
@@ -245,7 +237,7 @@ Future<void> main() async {
         body,
       );
 
-      expect(mockClient.isCalled, isTrue);
+      expect(mockClient.postCalled, isTrue);
     });
 
     test('get device token', () async {
@@ -277,29 +269,45 @@ Future<void> main() async {
                   firestore: firestore,
                 ),
           },
-          // home: HomePage(auth: auth, firestore: firestore, storage: storage)
-          // home: AdminHomepage(firestore: firestore, storage: storage),
         ),
       ));
 
-      // Pump the widget again to ensure the tree is built with the MaterialApp
       await tester.pumpAndSettle();
 
-      // Simulate handling a data message
       const message = RemoteMessage(
-        data: {'key': 'value'}, // Set any required data
+        data: {'key': 'value'},
       );
       fakeFirebaseMessaging.onMessageOpenedAppHandler = (message) {
-        // Simulate the navigation to /notifications
         mockNavigatorKey.currentState!.pushNamed('/notifications');
       };
       fakeFirebaseMessaging.simulateMessageOpenedApp(message);
 
-      // Pump again to ensure the navigation is performed
       await tester.pumpAndSettle();
 
-      // Verify the navigation occurred correctly
       expect(find.byType(Notifications), findsOneWidget);
+    });
+
+    test('sendNotificationsToDevices sends notifications to all devices',
+        () async {
+      firestore.collection(UsersCollection).doc(auth.currentUser!.uid).set({
+        'firstName': 'Test',
+        'lastName': 'User',
+        'email': 'test@example.org',
+        'roleType': 'Patient',
+        'likedTopics': [],
+        'dislikedTopics': [],
+      });
+
+      await pushNotifications.storeDeviceToken();
+      DatabaseService databaseService = DatabaseService(
+          auth: auth, firestore: firestore, uid: auth.currentUser!.uid);
+      const title = 'Test Title';
+      const body = 'Test Body';
+
+      await databaseService.sendNotificationToDevices(
+          title, body, mockClient, mockFlutterLocalNotificationsPlugin);
+
+      expect(mockClient.postCalled, isTrue);
     });
   });
 }

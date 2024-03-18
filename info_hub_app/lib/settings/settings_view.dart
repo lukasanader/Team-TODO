@@ -18,107 +18,95 @@ class SettingsView extends StatefulWidget {
 class _SettingsViewState extends State<SettingsView> {
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        StreamProvider<List<UserModel>>(
-          create: (_) => DatabaseService(
-            auth: FirebaseAuth.instance,
-            firestore: FirebaseFirestore.instance,
-            uid: FirebaseAuth.instance.currentUser!.uid,
-          ).users,
-          initialData: [], // Initial data while waiting for Firebase data
+    return Scaffold(
+        appBar: AppBar(
+          title: const Text("Settings"),
         ),
-      ],
-      child: Scaffold(
-          appBar: AppBar(
-            title: const Text("Settings"),
-          ),
-          body: ListView(
-            children: [
-              Container(
-                // decoration: BoxDecoration(
-                //   border: Border.all(color: Colors.black)
-                // ),
-                child: const ListTile(
-                  leading: CircleAvatar(
-                    radius: 30,
-                    foregroundColor: Color.fromRGBO(226, 4, 4, 0.612),
-                    backgroundImage: AssetImage('assets/blank_pfp.png'),
+        body: ListView(
+          children: [
+            Container(
+              // decoration: BoxDecoration(
+              //   border: Border.all(color: Colors.black)
+              // ),
+              child: const ListTile(
+                leading: CircleAvatar(
+                  radius: 30,
+                  foregroundColor: Color.fromRGBO(226, 4, 4, 0.612),
+                  backgroundImage: AssetImage('assets/blank_pfp.png'),
+                ),
+                title: Text("Username"),
+                subtitle: Text("Role"),
+              ),
+            ),
+            GestureDetector(
+              onTap: () {
+                PersistentNavBarNavigator.pushNewScreen(
+                  context,
+                  screen: ManageNotifications(
+                    firestore: FirebaseFirestore.instance,
+                    auth: FirebaseAuth.instance,
                   ),
-                  title: Text("Username"),
-                  subtitle: Text("Role"),
-                ),
-              ),
-              GestureDetector(
-                onTap: () {
-                  PersistentNavBarNavigator.pushNewScreen(
-                    context,
-                    screen: ManageNotifications(
-                      firestore: FirebaseFirestore.instance,
-                      auth: FirebaseAuth.instance,
-                    ),
-                    withNavBar: false,
-                  );
-                },
-                child: Container(
-                  // decoration: BoxDecoration(
-                  //   border: Border.all(color: Colors.black)
-                  // ),
-                  child: const ListTile(
-                    leading: Icon(Icons.notifications),
-                    title: Text('Manage Notifications'),
-                  ),
-                ),
-              ),
-              Container(
-                  // decoration: BoxDecoration(
-                  //   border: Border.all(color: Colors.black)
-                  // ),
-                  child: ListTile(
-                leading: Icon(Icons.privacy_tip),
-                title: Text('Manage Privacy Settings'),
-                onTap: () {
-                  PersistentNavBarNavigator.pushNewScreen(
-                    context,
-                    screen: PrivacyPage(),
-                    withNavBar: false,
-                  );
-                },
-              )),
-              Container(
+                  withNavBar: false,
+                );
+              },
+              child: Container(
                 // decoration: BoxDecoration(
                 //   border: Border.all(color: Colors.black)
                 // ),
                 child: const ListTile(
-                  leading: Icon(Icons.history_outlined),
-                  title: Text('History'),
+                  leading: Icon(Icons.notifications),
+                  title: Text('Manage Notifications'),
                 ),
               ),
-              Container(
+            ),
+            Container(
                 // decoration: BoxDecoration(
                 //   border: Border.all(color: Colors.black)
                 // ),
-                child: const ListTile(
-                  leading: Icon(Icons.help),
-                  title: Text('Help'),
-                ),
+                child: ListTile(
+              leading: Icon(Icons.privacy_tip),
+              title: Text('Manage Privacy Settings'),
+              onTap: () {
+                PersistentNavBarNavigator.pushNewScreen(
+                  context,
+                  screen: PrivacyPage(),
+                  withNavBar: false,
+                );
+              },
+            )),
+            Container(
+              // decoration: BoxDecoration(
+              //   border: Border.all(color: Colors.black)
+              // ),
+              child: const ListTile(
+                leading: Icon(Icons.history_outlined),
+                title: Text('History'),
               ),
-              Container(
-                // decoration: BoxDecoration(
-                //   border: Border.all(color: Colors.black)
-                // ),
-                child: const AboutListTile(
-                  icon: Icon(Icons.info),
-                  applicationLegalese: 'Legalese',
-                  applicationName: 'TEAM TODO',
-                  applicationVersion: '1.0.0',
-                  aboutBoxChildren: [
-                    Text('Liver information hub for young people')
-                  ],
-                ),
+            ),
+            Container(
+              // decoration: BoxDecoration(
+              //   border: Border.all(color: Colors.black)
+              // ),
+              child: const ListTile(
+                leading: Icon(Icons.help),
+                title: Text('Help'),
               ),
-            ],
-          )),
-    );
+            ),
+            Container(
+              // decoration: BoxDecoration(
+              //   border: Border.all(color: Colors.black)
+              // ),
+              child: const AboutListTile(
+                icon: Icon(Icons.info),
+                applicationLegalese: 'Legalese',
+                applicationName: 'TEAM TODO',
+                applicationVersion: '1.0.0',
+                aboutBoxChildren: [
+                  Text('Liver information hub for young people')
+                ],
+              ),
+            ),
+          ],
+        ));
   }
 }

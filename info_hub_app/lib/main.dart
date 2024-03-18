@@ -14,6 +14,7 @@ import 'package:provider/provider.dart';
 import 'package:info_hub_app/services/database.dart';
 import 'package:info_hub_app/notifications/notifications.dart';
 import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 final navigatorKey = GlobalKey<NavigatorState>();
 
@@ -25,6 +26,7 @@ Future<void> main() async {
       firestore: FirebaseFirestore.instance,
       messaging: FirebaseMessaging.instance,
       navigatorKey: navigatorKey,
+      http: http.Client(),
       localnotificationsplugin: FlutterLocalNotificationsPlugin());
 
   FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {

@@ -1,3 +1,6 @@
+import 'dart:math';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -21,9 +24,15 @@ Future<void> main() async {
   group('Manage Notifications Tests', () {
     late FakeFirebaseFirestore firestore;
     late MockFirebaseAuth auth;
+    late ManageNotifications manageNotifications;
+    late DatabaseService databaseService;
     setUp(() {
       firestore = FakeFirebaseFirestore();
       auth = MockFirebaseAuth(signedIn: true);
+      manageNotifications =
+          ManageNotifications(auth: auth, firestore: firestore);
+      databaseService = DatabaseService(
+          auth: auth, uid: auth.currentUser!.uid, firestore: firestore);
     });
 
     tearDown(() async {
@@ -31,13 +40,11 @@ Future<void> main() async {
     });
 
     testWidgets('shows preferences', (WidgetTester tester) async {
-      // Add a document to Firestore with the user's preferences
       await firestore.collection(PreferenceCollection).add({
         'uid': auth.currentUser!.uid,
         'push_notifications': true,
       });
 
-      // Build the widget tree
       await tester.pumpWidget(
         MaterialApp(
           home: StreamProvider<List<Preferences>>(
@@ -54,24 +61,20 @@ Future<void> main() async {
         ),
       );
 
-      // Wait for the widget to render
       await tester.pumpAndSettle();
 
-      // Verify that the switch is toggled on
       expect(find.byType(Switch), findsOneWidget);
       expect(tester.widget<Switch>(find.byType(Switch)).value, true);
     });
 
     testWidgets('updates notification preferences',
         (WidgetTester tester) async {
-      // Add a document to Firestore with the user's preferences
       final preferenceDocRef =
           await firestore.collection(PreferenceCollection).add({
         'uid': auth.currentUser!.uid,
         'push_notifications': true,
       });
 
-      // Build the widget tree
       await tester.pumpWidget(
         MaterialApp(
           home: StreamProvider<List<Preferences>>(
@@ -97,6 +100,44 @@ Future<void> main() async {
 
       final preferenceDocSnapshot = await preferenceDocRef.get();
       expect(preferenceDocSnapshot.get('push_notifications'), false);
+    });
+
+    test('createPreferences adds preferences to Firestore', () async {
+      await databaseService.createPreferences();
+      QuerySnapshot querySnapshot =
+          await firestore.collection(PreferenceCollection).get();
+
+      expect(querySnapshot.docs.length, 1);
+    });
+
+    test('prefListFromSnapshot returns list of preferences from QuerySnapshot',
+        () async {
+      firestore.collection(PreferenceCollection).add({
+        'uid': auth.currentUser!.uid,
+        'push_notifications': true,
+      });
+
+      QuerySnapshot querySnapshot =
+          await firestore.collection(PreferenceCollection).get();
+
+      List<Preferences> preferences =
+          databaseService.prefListFromSnapshot(querySnapshot);
+
+      expect(preferences.length, 1);
+    });
+
+    test('getPreferences returns list of preferences from Firestore', () async {
+      await databaseService.createPreferences();
+      List<Preferences> preferences = await databaseService.getPreferences();
+
+      expect(preferences.length, 1);
+    });
+
+    test('get preferences stream returns list of preferences', () async {
+      await databaseService.createPreferences();
+      Stream<List<Preferences>> preferencesStream = databaseService.preferences;
+
+      expect(preferencesStream, isA<Stream<List<Preferences>>>());
     });
   });
 }

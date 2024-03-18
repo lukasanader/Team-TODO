@@ -4,10 +4,12 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:info_hub_app/main.dart';
 import 'package:info_hub_app/notifications/notification.dart' as custom;
 import 'package:info_hub_app/push_notifications/push_notifications.dart';
 import 'package:info_hub_app/registration/user_model.dart';
 import 'package:info_hub_app/notifications/preferences.dart';
+import 'package:http/http.dart' as http;
 
 class DatabaseService {
   final FirebaseAuth auth;
@@ -32,13 +34,14 @@ class DatabaseService {
     // Send push notification only if push notifications preference is enabled
     final preferences = await getPreferences();
     if (preferences.isNotEmpty && preferences.first.push_notifications) {
-      await sendNotificationToDevices(title, body);
+      await sendNotificationToDevices(
+          title, body, http.Client(), FlutterLocalNotificationsPlugin());
     }
     return docRef.id;
   }
 
-  Future<void> sendNotificationToDevices(String title, String body) async {
-    // Get the device tokens for the user
+  Future<void> sendNotificationToDevices(String title, String body,
+      http.Client client, FlutterLocalNotificationsPlugin plugin) async {
     final tokens = await getUserDeviceTokens();
 
     // Send the notification to each device token
@@ -47,7 +50,9 @@ class DatabaseService {
               uid: uid,
               firestore: firestore,
               messaging: FirebaseMessaging.instance,
-              localnotificationsplugin: FlutterLocalNotificationsPlugin())
+              navigatorKey: navigatorKey,
+              http: client,
+              localnotificationsplugin: plugin)
           .sendNotificationToDevice(token, title, body);
     }
   }
@@ -113,25 +118,6 @@ class DatabaseService {
       'likedTopics': likedTopics,
       'dislikedTopics': dislikedTopics
     });
-  }
-
-  List<UserModel> userListFromSnapshot(QuerySnapshot snapshot) {
-    return snapshot.docs.map((doc) {
-      return UserModel(
-        uid: doc.id,
-        firstName: doc.get('firstName') ?? '',
-        lastName: doc.get('lastName') ?? '',
-        email: doc.get('email') ?? '',
-        roleType: doc.get('roleType') ?? '',
-        likedTopics: doc.get('likedTopics') ?? [],
-        dislikedTopics: doc.get('dislikedTopics') ?? [],
-      );
-    }).toList();
-  }
-
-  Stream<List<UserModel>> get users {
-    CollectionReference usersCollectionRef = firestore.collection('Users');
-    return usersCollectionRef.snapshots().map(userListFromSnapshot);
   }
 
   Future<void> createPreferences() async {
