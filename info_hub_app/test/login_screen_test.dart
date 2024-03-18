@@ -159,4 +159,35 @@ void main() {
     
     expect(find.byType(ResetPassword), findsOne);
   });
+
+  testWidgets('test if show/hide password switches between both options', (WidgetTester test) async {
+    await test.pumpWidget(MaterialApp(home: LoginScreen(firestore: firestore, auth: auth,storage: storage,)));
+    await test.pumpAndSettle();
+
+    final showHideButton = find.text('Show');
+    await test.tap(showHideButton);
+    await test.pumpAndSettle();
+    expect(find.text('Hide'), findsOneWidget);
+  });
+
+  testWidgets('test if show/hide password works', (WidgetTester test) async{
+    await test.pumpWidget(MaterialApp(home: LoginScreen(firestore: firestore, auth: auth,storage: storage,)));
+    await test.pumpAndSettle();
+
+    final showHideButton = find.ancestor(
+      of: find.text('Show'),
+      matching: find.byType(ElevatedButton),
+    );
+
+    final passwordfield = find.ancestor(
+      of: find.text('Password'),
+      matching: find.byType(TextFormField),
+    );
+
+    await test.enterText(passwordfield, 'test');
+    await test.tap(showHideButton);
+    await test.pumpAndSettle();
+    expect(find.text('test'), findsOneWidget);
+    
+  });
 }

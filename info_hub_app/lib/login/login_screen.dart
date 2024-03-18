@@ -25,6 +25,7 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   late AuthService _auth;
+  bool _obscureText = true;
 
   @override
   void initState() {
@@ -33,6 +34,12 @@ class _LoginScreenState extends State<LoginScreen> {
       firestore: widget.firestore,
       auth: widget.auth,
     );
+  }
+
+  void toggle () {
+    setState(() {
+      _obscureText = !_obscureText;
+    });
   }
 
   final _formKey = GlobalKey<FormState>();
@@ -75,13 +82,18 @@ class _LoginScreenState extends State<LoginScreen> {
                 controller: passwordController,
                 hintText: 'Password',
                 labelText: 'Password',
-                obscureText: true,
+                obscureText: _obscureText,
                 validator: (value) {
                   if (value!.isEmpty) {
                     return 'Please enter your password';
                   }
                   return null;
                 },
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: toggle,
+                child: new Text(_obscureText ? "Show" : "Hide"),
               ),
               const SizedBox(height: 16),
               ElevatedButton(
