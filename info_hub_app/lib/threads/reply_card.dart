@@ -138,6 +138,7 @@ class _ReplyCardState extends State<ReplyCard> {
     );
   }
 
+/*
   void _showDialog(BuildContext context, String docId) async {
     //bool showErrorAuthor = false;
     bool showErrorContent = false;
@@ -151,7 +152,92 @@ class _ReplyCardState extends State<ReplyCard> {
     //authorController.text = docData['author'] ?? '';
     contentController.text = docData['content'] ?? '';
 
-    await showDialog(
+    void _showDialog(BuildContext context, String docId) async {
+      bool showErrorContent = false;
+
+      var docSnapshot =
+          await widget.firestore.collection('replies').doc(docId).get();
+      var docData = docSnapshot.data() as Map<String, dynamic>;
+
+      if (!mounted) return;
+
+      contentController.text = docData['content'] ?? '';
+
+      await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            contentPadding: const EdgeInsets.all(12.0),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Text("Edit your reply"),
+                  TextField(
+                    key: const Key('Content'),
+                    autofocus: true,
+                    autocorrect: true,
+                    decoration: InputDecoration(
+                      labelText: "Content",
+                      errorText:
+                          showErrorContent ? "Please enter content" : null,
+                    ),
+                    controller: contentController,
+                  ),
+                ],
+              ),
+            ),
+            actions: <Widget>[
+              TextButton(
+                key: Key('cancelButton'),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () async {
+                  if (contentController.text.isNotEmpty) {
+                    String updatedContent = contentController.text;
+                    if (!updatedContent.endsWith("(edited)")) {
+                      updatedContent += " (edited)";
+                    }
+                    await widget.firestore
+                        .collection('replies')
+                        .doc(docId)
+                        .update({
+                      'content': updatedContent,
+                      'timestamp': FieldValue.serverTimestamp(),
+                    });
+                    Navigator.pop(context);
+                  } else {
+                    showErrorContent = contentController.text.isEmpty;
+                    setState(() {});
+                  }
+                },
+                child: Text('Save'),
+              ),
+            ],
+          );
+          
+        },
+      );
+    }
+  }
+  */
+
+  void _showDialog(BuildContext context, String docId) async {
+    bool showErrorContent = false;
+
+    var docSnapshot =
+        await widget.firestore.collection('replies').doc(docId).get();
+    var docData = docSnapshot.data() as Map<String, dynamic>;
+
+    if (!mounted) return;
+
+    contentController.text = docData['content'] ?? '';
+
+    showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
@@ -160,17 +246,7 @@ class _ReplyCardState extends State<ReplyCard> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
-                Text("Edit your reply"),
-                /*TextField(
-                  autofocus: true,
-                  autocorrect: true,
-                  decoration: InputDecoration(
-                    labelText: "Author",
-                    errorText:
-                        showErrorAuthor ? "Please enter your name" : null,
-                  ),
-                  controller: authorController,
-                ),*/
+                const Text("Edit your reply"),
                 TextField(
                   key: const Key('Content'),
                   autofocus: true,
@@ -186,31 +262,33 @@ class _ReplyCardState extends State<ReplyCard> {
           ),
           actions: <Widget>[
             TextButton(
-              key: Key('cancelButton'),
+              key: const Key('cancelButton'),
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
             ),
             TextButton(
               onPressed: () async {
                 if (contentController.text.isNotEmpty) {
+                  String updatedContent = contentController.text;
+                  if (!updatedContent.endsWith("(edited)")) {
+                    updatedContent += " (edited)";
+                  }
                   await widget.firestore
                       .collection('replies')
                       .doc(docId)
                       .update({
-                    //'author': authorController.text,
-                    'content': contentController.text,
+                    'content': updatedContent,
                     'timestamp': FieldValue.serverTimestamp(),
                   });
                   Navigator.pop(context);
                 } else {
-                  //showErrorAuthor = authorController.text.isEmpty;
-                  showErrorContent = contentController.text.isEmpty;
+                  showErrorContent = true;
                   setState(() {});
                 }
               },
-              child: Text('Save'),
+              child: const Text('Save'),
             ),
           ],
         );

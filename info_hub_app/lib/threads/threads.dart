@@ -144,11 +144,6 @@ class _ThreadAppState extends State<ThreadApp> {
                     firestore: widget.firestore,
                     auth: widget.auth,
                     userProfilePhoto: profilePhoto,
-                    onEditCompleted: () {
-                      setState(() {
-                        // This empty setState will just trigger a rebuild
-                      });
-                    },
                   );
                 },
               );
