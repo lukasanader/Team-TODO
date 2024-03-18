@@ -16,7 +16,7 @@ import 'package:info_hub_app/message_feature/patient_message_view.dart';
 import 'package:info_hub_app/patient_experience/patient_experience_view.dart';
 import 'package:info_hub_app/topics/topics_card.dart';
 import 'package:info_hub_app/topics/view_topic.dart';
-import 'package:info_hub_app/webinar/webinar_view.dart';
+import 'package:info_hub_app/webinar/webinar-screens/webinar_view.dart';
 
 void main() {
   late MockFirebaseAuth auth;

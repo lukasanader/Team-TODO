@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:info_hub_app/registration/user_model.dart';
 import 'package:info_hub_app/webinar/models/livestream.dart';
 import 'package:info_hub_app/webinar/service/webinar_service.dart';
-import 'package:info_hub_app/webinar/webinar-screens/webinar_details_screen.dart';
+import 'package:info_hub_app/webinar/webinar-screens/display_webinar.dart';
 
 class WebinarCard extends StatelessWidget {
   final FirebaseFirestore firestore;
@@ -33,7 +33,7 @@ class WebinarCard extends StatelessWidget {
           await webinarService.updateViewCount(post.webinarID, true);
           Navigator.of(context).push(
             MaterialPageRoute(
-              builder: (context) => BroadcastScreen(
+              builder: (context) => WebinarScreen(
                 webinarID: post.webinarID,
                 youtubeURL: post.youtubeURL,
                 currentUser: user,

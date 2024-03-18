@@ -70,10 +70,10 @@ class _ChatState extends State<Chat> {
             document['message'],
           ),
           Text(
-            timeAgo, // Display time ago string
+            timeAgo,
             style: const TextStyle(
-              fontSize: 12, // Adjust font size if needed
-              color: Colors.grey, // Adjust color if needed
+              fontSize: 12, 
+              color: Colors.grey,
             ),
           ),
         ],

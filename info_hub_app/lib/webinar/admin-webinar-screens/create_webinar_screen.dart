@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:info_hub_app/webinar/helpers/create_webinar_helper.dart';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
@@ -7,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:info_hub_app/registration/user_model.dart';
 import 'package:info_hub_app/webinar/service/webinar_service.dart';
-import '../webinar-screens/webinar_details_screen.dart';
+import '../webinar-screens/display_webinar.dart';
 
 class CreateWebinarScreen extends StatefulWidget {
   final UserModel user;
@@ -24,6 +25,7 @@ class _CreateWebinarScreenState extends State<CreateWebinarScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _urlController = TextEditingController();
+  final CreateWebinarHelper helper = CreateWebinarHelper();
   Uint8List? image;
 
   @override
@@ -64,7 +66,7 @@ class _CreateWebinarScreenState extends State<CreateWebinarScreen> {
         if (!isScheduled) {
           Navigator.of(context).push(
             MaterialPageRoute(
-              builder: (context) => BroadcastScreen(
+              builder: (context) => WebinarScreen(
                 webinarID: webinarID,
                 youtubeURL: _urlController.text,
                 currentUser: widget.user,
@@ -75,7 +77,6 @@ class _CreateWebinarScreenState extends State<CreateWebinarScreen> {
             ),
           );
         } else {
-
           Navigator.of(context).pop();
         }
       } else {
@@ -145,282 +146,168 @@ class _CreateWebinarScreenState extends State<CreateWebinarScreen> {
     return null;
   }
 
-
-void _showWebinarStartingHelpDialogue() {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: const Text('How to Start a Livestream on YouTube'),
-        content: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildStep(
-                stepNumber: 1,
-                stepDescription: 'Sign in to your YouTube account on a web browser.',
-              ),
-              _buildStep(
-                stepNumber: 2,
-                stepDescription: 'Click on the Create button at the top right corner of the page.',
-              ),
-              _buildStep(
-                stepNumber: 3,
-                stepDescription: 'Select "Go live" from the dropdown menu.',
-              ),
-              _buildStep(
-                stepNumber: 4,
-                stepDescription: 'Enter the title and description for your livestream.',
-              ),
-              _buildStep(
-                stepNumber: 5,
-                stepDescription: 'Set the privacy settings for your livestream (Public, Unlisted, or Private).',
-              ),
-              _buildStep(
-                stepNumber: 6,
-                stepDescription: 'Click on "More options" to customize your livestream settings further (optional).',
-              ),
-              _buildStep(
-                stepNumber: 7,
-                stepDescription: 'Disable the stream chat in the YouTube Studio settings to prevent distractions.',
-              ),
-              _buildStep(
-                stepNumber: 8,
-                stepDescription: 'Click on "Next" to proceed to the next step.',
-              ),
-              _buildStep(
-                stepNumber: 9,
-                stepDescription: 'Wait for YouTube to set up your livestream. This may take a few moments.',
-              ),
-              _buildStep(
-                stepNumber: 10,
-                stepDescription: 'Once your livestream is set up, copy the link for the YouTube stream.',
-              ),
-              _buildStep(
-                stepNumber: 11,
-                stepDescription: 'Paste the copied link into the app to start streaming.',
-              ),
-              _buildStep(
-                stepNumber: 12,
-                stepDescription: 'Click on "Go live" to start streaming from the app.',
-              ),
-            ],
-          ),
-        ),
-        actions: <Widget>[
-          TextButton(
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Setup Webinar'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.help_outline),
             onPressed: () {
-              Navigator.of(context).pop();
+            helper.showWebinarStartingHelpDialogue(context);
             },
-            child: const Text('Close'),
           ),
         ],
-      );
-    },
-  );
-}
-
-Widget _buildStep({required int stepNumber, required String stepDescription}) {
-  return Padding(
-    padding: const EdgeInsets.symmetric(vertical: 8.0),
-    child: Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          '$stepNumber. ',
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-        Expanded(
-          child: Text(stepDescription),
-        ),
-      ],
-    ),
-  );
-}
-
-  @override
-Widget build(BuildContext context) {
-  return Scaffold(
-    appBar: AppBar(
-      title: const Text('Setup Webinar'),
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.help_outline),
-          onPressed: () {
-            _showWebinarStartingHelpDialogue();
-          },
-        ),
-      ],
-    ),
-    body: SingleChildScrollView( // Wrap your Column with SingleChildScrollView
-      child: Center(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 18.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              children: [
-                Container(
-                  padding: const EdgeInsets.only(top: 15),
-                  child: GestureDetector(
-                    onTap: () async {
-                      Uint8List? pickedImage = await _pickImage();
-                      if (pickedImage != null) {
-                        setState(() {
-                          image = pickedImage;
-                        });
-                      }
-                    },
-                    child: SizedBox(
-                      height: 200,
-                      width: double.infinity,
-                      child: image != null
-                          ? Image.memory(image!)
-                          : DottedBorder(
-                        borderType: BorderType.RRect,
-                        radius: const Radius.circular(10),
-                        dashPattern: const [10, 4],
-                        strokeCap: StrokeCap.round,
-                        color: Colors.red,
-                        child: Container(
-                          height: 200,
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            color: Colors.red.withOpacity(0.05),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(
-                                Icons.folder_open,
-                                color: Colors.red,
-                                size: 40.0,
-                              ),
-                              const SizedBox(height: 15),
-                              Text(
-                                'Select a thumbnail',
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  color: Colors.grey.shade800,
+      ),
+      body: SingleChildScrollView(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 18.0),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.only(top: 15),
+                    child: GestureDetector(
+                      onTap: () async {
+                        Uint8List? pickedImage = await _pickImage();
+                        if (pickedImage != null) {
+                          setState(() {
+                            image = pickedImage;
+                          });
+                        }
+                      },
+                      child: SizedBox(
+                        height: 200,
+                        width: double.infinity,
+                        child: image != null
+                            ? Image.memory(image!)
+                            : DottedBorder(
+                          borderType: BorderType.RRect,
+                          radius: const Radius.circular(10),
+                          dashPattern: const [10, 4],
+                          strokeCap: StrokeCap.round,
+                          color: Colors.red,
+                          child: Container(
+                            height: 200,
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              color: Colors.red.withOpacity(0.05),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(
+                                  Icons.folder_open,
+                                  color: Colors.red,
+                                  size: 40.0,
                                 ),
+                                const SizedBox(height: 15),
+                                Text(
+                                  'Select a thumbnail',
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    color: Colors.grey.shade800,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Title',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: TextFormField(
+                          controller: _titleController,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.black,
+                          ),
+                          decoration: InputDecoration(
+                            hintText: 'Enter your title',
+                            hintStyle: const TextStyle(
+                              color: Colors.grey,
+                            ),
+                            filled: true,
+                            fillColor: Colors.white,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                              borderSide: const BorderSide(
+                                color: Colors.red,
                               ),
-                            ],
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: const BorderSide(
+                                color: Colors.red,
+                              ),
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
                           ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Title is required';
+                            }
+                            return null;
+                          },
                         ),
                       ),
-                    ),
+                      const Text(
+                        'YouTube URL',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: TextFormField(
+                          controller: _urlController,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.black,
+                          ),
+                          decoration: InputDecoration(
+                            hintText: 'Enter your YouTube video URL here',
+                            hintStyle: const TextStyle(
+                              color: Colors.grey,
+                            ),
+                            filled: true,
+                            fillColor: Colors.white,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                              borderSide: const BorderSide(
+                                color: Colors.red,
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: const BorderSide(
+                                color: Colors.red,
+                              ),
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                          ),
+                          validator: _validateUrl,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-                const SizedBox(height: 20),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Title',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      child: TextFormField(
-                        controller: _titleController,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          color: Colors.black,
-                        ),
-                        decoration: InputDecoration(
-                          hintText: 'Enter your title',
-                          hintStyle: const TextStyle(
-                            color: Colors.grey,
-                          ),
-                          filled: true,
-                          fillColor: Colors.white,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                            borderSide: const BorderSide(
-                              color: Colors.red,
-                            ),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(
-                              color: Colors.red,
-                            ),
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Title is required';
-                          }
-                          return null;
-                        },
-                      ),
-                    ),
-                    const Text(
-                      'YouTube URL',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      child: TextFormField(
-                        controller: _urlController,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          color: Colors.black,
-                        ),
-                        decoration: InputDecoration(
-                          hintText: 'Enter your YouTube video URL here',
-                          hintStyle: const TextStyle(
-                            color: Colors.grey,
-                          ),
-                          filled: true,
-                          fillColor: Colors.white,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                            borderSide: const BorderSide(
-                              color: Colors.red,
-                            ),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(
-                              color: Colors.red,
-                            ),
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                        ),
-                        validator: _validateUrl,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: _selectDateTime,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                  ),
-                  child: const Padding(
-                    padding: EdgeInsets.all(10.0),
-                    child: Text(
-                      'Schedule Webinar',
-                      style: TextStyle(fontSize: 16, color: Colors.white),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      await _goLiveWebinar(null);
-                    },
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: _selectDateTime,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red,
                       shape: RoundedRectangleBorder(
@@ -430,19 +317,40 @@ Widget build(BuildContext context) {
                     child: const Padding(
                       padding: EdgeInsets.all(10.0),
                       child: Text(
-                        'Start Webinar',
+                        'Schedule Webinar',
                         style: TextStyle(fontSize: 16, color: Colors.white),
                       ),
                     ),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 20),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        await _goLiveWebinar(null);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                      ),
+                      child: const Padding(
+                        padding: EdgeInsets.all(10.0),
+                        child: Text(
+                          'Start Webinar',
+                          style: TextStyle(fontSize: 16, color: Colors.white),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
       ),
-    ),
-  );
- }
+    );
+  }
 }
 

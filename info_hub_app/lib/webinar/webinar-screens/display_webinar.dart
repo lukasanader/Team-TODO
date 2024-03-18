@@ -9,7 +9,7 @@ import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import 'package:flutter/services.dart';
 
 // Displays base broadcasting screen
-class BroadcastScreen extends StatefulWidget {
+class WebinarScreen extends StatefulWidget {
   final String webinarID;
   final String youtubeURL;
   final UserModel currentUser;
@@ -17,7 +17,7 @@ class BroadcastScreen extends StatefulWidget {
   final String title;
   final WebinarService webinarService;
 
-  const BroadcastScreen({
+  const WebinarScreen({
     super.key,
     required this.webinarID,
     required this.youtubeURL,
@@ -28,10 +28,10 @@ class BroadcastScreen extends StatefulWidget {
   });
 
   @override
-  State<BroadcastScreen> createState() => _BroadcastScreenState();
+  State<WebinarScreen> createState() => _WebinarScreenState();
 }
 
-class _BroadcastScreenState extends State<BroadcastScreen> {
+class _WebinarScreenState extends State<WebinarScreen> {
   late YoutubePlayerController _controller;
   late PlayerState _playerState;
   late YoutubeMetaData _videoMetaData;
@@ -41,7 +41,6 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
 
   @override
   void initState() {
-    super.initState();
     super.initState();
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
@@ -81,7 +80,6 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
     }
   }
   
-
 
   /* initates leaving sequence. If user is webinar lead, the stream is ended and everybody is removed
   If they are merely a member watching, they will exit the screen
