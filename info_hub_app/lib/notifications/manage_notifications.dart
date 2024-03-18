@@ -59,15 +59,26 @@ class _ManageNotificationsState extends State<ManageNotifications> {
           ? Center(child: CircularProgressIndicator())
           : ListView(
               children: [
-                SwitchListTile(
+                ListTile(
                   title: Text('Push Notifications'),
-                  value: _pushNotificationsEnabled,
-                  onChanged: (value) {
-                    setState(() {
-                      _pushNotificationsEnabled = value;
-                    });
-                    _updateNotificationPreferences('push_notifications', value);
-                  },
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Transform.scale(
+                        scale: 0.8, // Adjust scale factor as needed
+                        child: Switch(
+                          value: _pushNotificationsEnabled,
+                          onChanged: (value) {
+                            setState(() {
+                              _pushNotificationsEnabled = value;
+                            });
+                            _updateNotificationPreferences(
+                                'push_notifications', value);
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
