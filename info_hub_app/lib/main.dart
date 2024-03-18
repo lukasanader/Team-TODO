@@ -47,12 +47,12 @@ class MyApp extends StatelessWidget {
         ),
       ],
       child: MaterialApp(
-        home: AdminHomepage(firestore: firestore, auth: auth, storage: storage),
-        // home: HomePage(auth: auth, firestore: firestore, storage: storage)
-        //home: StartPage(auth: auth, firestore: firestore, storage: storage)
-        // home: AdminHomepage(firestore: firestore, auth: auth, storage: storage),
-        //
-      ),
+          home: StartPage(auth: auth, firestore: firestore, storage: storage)
+          // home: HomePage(auth: auth, firestore: firestore, storage: storage)
+          //home: StartPage(auth: auth, firestore: firestore, storage: storage)
+          // home: AdminHomepage(firestore: firestore, auth: auth, storage: storage),
+          //
+          ),
     );
   }
 }

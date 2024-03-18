@@ -9,7 +9,6 @@ import 'package:video_player/video_player.dart';
 import 'package:info_hub_app/topics/quiz/complete_quiz.dart';
 import 'package:flutter/services.dart';
 import 'package:info_hub_app/topics/create_topic.dart';
-import 'package:info_hub_app/helpers/base.dart';
 import 'dart:async';
 import 'package:info_hub_app/threads/threads.dart';
 
@@ -45,6 +44,7 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
 
   int likes = 0;
   int dislikes = 0;
+  bool saved = false;
 
   @override
   void initState() {
@@ -67,6 +67,21 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
         _imageUrl = updatedTopic['media'][currentIndex]['url'];
         _videoURL = null;
         await _initializeImage();
+      }
+    }
+    final user = widget.auth.currentUser;
+    if (user != null) {
+      final userDocSnapshot =
+          await widget.firestore.collection('Users').doc(user.uid).get();
+
+      if (userDocSnapshot.exists) {
+        Map<String, dynamic> userData = userDocSnapshot.data()!;
+
+        setState(() {
+          if (userData['savedTopics'] != null) {
+            saved = userData['savedTopics'].contains(widget.topic.id);
+          }
+        });
       }
     }
   }
@@ -163,7 +178,21 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
   }
 
   Future<void> _initializeVideoPlayer() async {
+    bool isLoading = true; // Initialize isLoading to true
+
+    // Show loading indicator
+    setState(() {
+      isLoading = true;
+    });
+
+    if (isLoading) {
+      const Center(
+        child: CircularProgressIndicator(), // Show loading indicator
+      );
+    }
+
     _disposeVideoPlayer();
+
     if (_videoURL != null && _videoURL!.isNotEmpty) {
       _videoController =
           VideoPlayerController.networkUrl(Uri.parse(_videoURL!));
@@ -175,18 +204,21 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
         autoInitialize: true,
         looping: false,
         aspectRatio: 16 / 9,
-        deviceOrientationsAfterFullScreen: [
-          DeviceOrientation.portraitUp,
-          DeviceOrientation.portraitDown
-        ],
+        deviceOrientationsAfterFullScreen: [DeviceOrientation.portraitUp],
         allowedScreenSleep: false,
       );
-      _chewieController!.addListener(() {
-        if (!_chewieController!.isFullScreen) {
-          SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-        }
+
+      // Hide loading indicator after initialization
+      setState(() {
+        isLoading = false;
       });
-      setState(() {});
+    }
+
+    // Return loading indicator if isLoading is true
+    if (isLoading) {
+      const Center(
+        child: CircularProgressIndicator(), // Show loading indicator
+      );
     }
   }
 
@@ -205,7 +237,6 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
     super.dispose();
     _videoController?.dispose();
     _chewieController?.dispose();
-    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   }
 
   bool hasLiked = false;
@@ -296,6 +327,7 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+          iconTheme: const IconThemeData(color: Colors.white),
           backgroundColor: const Color.fromRGBO(200, 0, 0, 1.0),
           title: Text(
             updatedTopic['title'],
@@ -304,22 +336,6 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
               fontWeight: FontWeight.bold,
             ),
           ),
-          leading: IconButton(
-            icon: const Icon(
-              Icons.arrow_back,
-              color: Colors.white,
-            ),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => Base(
-                        auth: widget.auth,
-                        storage: widget.storage,
-                        firestore: widget.firestore)),
-              );
-            },
-          ),
           actions: <Widget>[
             if (userIsAdmin)
               IconButton(
@@ -327,8 +343,7 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
                 icon: const Icon(Icons.edit, color: Colors.white),
                 onPressed: () {
                   // Navigate to edit screen
-
-                  Navigator.pushReplacement(
+                  Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => CreateTopicScreen(
@@ -338,9 +353,24 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
                         auth: widget.auth,
                       ),
                     ),
-                  );
+                  ).then((updatedTopic) {
+                    if (updatedTopic != null) {
+                      setState(() {
+                        this.updatedTopic = updatedTopic;
+                      });
+                    }
+                  });
                 },
-              )
+              ),
+            IconButton(
+              key: const Key('save_btn'),
+              icon: saved
+                  ? const Icon(Icons.bookmark, color: Colors.white)
+                  : const Icon(Icons.bookmark_border, color: Colors.white),
+              onPressed: () {
+                saveTopic();
+              },
+            ),
           ]),
       body: SingleChildScrollView(
         child: Column(
@@ -590,6 +620,25 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
     await ref.delete();
   }
 
+  Future<void> saveTopic() async {
+    final user = widget.auth.currentUser;
+    if (user != null) {
+      final userDocRef = widget.firestore.collection('Users').doc(user.uid);
+      if (!saved) {
+        await userDocRef.update({
+          'savedTopics': FieldValue.arrayUnion([widget.topic.id])
+        });
+        saved = true;
+      } else {
+        await userDocRef.update({
+          'savedTopics': FieldValue.arrayRemove([widget.topic.id])
+        });
+        saved = false;
+      }
+      setState(() {});
+    }
+  }
+
   Future<void> removeTopicFromUsers() async {
     // get all users
     QuerySnapshot<Map<String, dynamic>> usersSnapshot =
@@ -614,6 +663,12 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
         userData['dislikedTopics'].remove(widget.topic.id);
       }
 
+      if (userData.containsKey('savedTopics') &&
+          userData['savedTopics'].contains(widget.topic.id)) {
+        // Remove the topic from saved topics list
+        userData['savedTopics'].remove(widget.topic.id);
+      }
+
       await userSnapshot.reference.update(userData);
     }
   }
@@ -631,7 +686,7 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
             userSnapshot.data() as Map<String, dynamic>?;
 
         if (userData != null) {
-          userIsAdmin = userData['roleType'] == 'admin';
+          userIsAdmin = userData['roleType'] == 'Patient';
         }
       }
     }
