@@ -10,9 +10,10 @@ import 'package:info_hub_app/webinar/service/webinar_service.dart';
 import 'package:info_hub_app/webinar/webinar-screens/display_webinar.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:mockito/mockito.dart';
 import 'dart:io';
-
 import 'package:path_provider/path_provider.dart';
+
 
 void main() {
   late FakeFirebaseFirestore firestore;
@@ -241,6 +242,8 @@ void main() {
     expect(find.byType(Image), findsOneWidget);
   });
 
+
+  // CURRENTLY TWEAKING
   testWidgets('Test Admin input all valid information and does not choose to schedule webinar redirects to webinar screen', (WidgetTester tester) async {
     mockFilePicker();
     await tester.pumpWidget(createWebinarScreen);
@@ -266,22 +269,19 @@ void main() {
       }
     }
 
-    // Mock form validation to return true
-    final formKeyFinder = find.byKey(Key('form_key')); // assuming you have a key for your form
-    Form formWidget = tester.widget(formKeyFinder) as Form;
-    formWidget.onChanged!(); // This triggers form validation
-
     await tester.ensureVisible(find.text('Start Webinar'));
     final urlField = find.ancestor(
       of: find.text('Enter your YouTube video URL here'),
       matching: find.byType(TextFormField),
     );
     await tester.enterText(urlField, 'https://www.youtube.com/watch?v=tSXZ8hervgY');
+    await tester.pumpAndSettle();
     final titleField = find.ancestor(
       of: find.text('Enter your title'),
       matching: find.byType(TextFormField),
     );
     await tester.enterText(titleField, 'test');
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Start Webinar'));
     await tester.pumpAndSettle();
 
