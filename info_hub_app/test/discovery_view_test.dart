@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -19,20 +17,21 @@ void main() {
     auth = MockFirebaseAuth();
     storage = MockFirebaseStorage();
     topicsCollectionRef = firestore.collection('topics');
-    await auth.createUserWithEmailAndPassword(email: 'test@tested.org', password: 'Password123!');
+    await auth.createUserWithEmailAndPassword(
+        email: 'test@tested.org', password: 'Password123!');
     String uid = auth.currentUser!.uid;
     await firestore.collection('Users').doc(uid).set({
-        'email': 'test@tested.org',
-        'firstName' : 'James',
-        'lastName' : 'Doe',
-        'roleType' : 'Patient'
-        });
+      'email': 'test@tested.org',
+      'firstName': 'James',
+      'lastName': 'Doe',
+      'roleType': 'Patient'
+    });
     topicsCollectionRef.add({
       'title': 'B test',
       'description': 'this is a test',
       'articleLink': '',
       'videoUrl': '',
-      'views':1,
+      'views': 1,
       'date': DateTime.now(),
       'likes': 0,
       'dislikes': 0,
@@ -43,7 +42,7 @@ void main() {
       'description': 'this is a test',
       'articleLink': '',
       'videoUrl': '',
-      'views':1,
+      'views': 1,
       'date': DateTime.now(),
       'likes': 0,
       'dislikes': 0,
@@ -54,7 +53,7 @@ void main() {
       'description': 'this is a test',
       'articleLink': '',
       'videoUrl': '',
-      'views':1,
+      'views': 1,
       'date': DateTime.now(),
       'likes': 0,
       'dislikes': 0,
@@ -65,14 +64,12 @@ void main() {
       'description': 'this is a test',
       'articleLink': '',
       'videoUrl': '',
-      'views':1,
+      'views': 1,
       'date': DateTime.now(),
       'likes': 0,
       'dislikes': 0,
       'tags': ['Patient']
     });
-
-
 
     discoveryViewWidget = MaterialApp(
       home: DiscoveryView(storage: storage, auth: auth, firestore: firestore),
@@ -81,21 +78,16 @@ void main() {
 
   testWidgets('DiscoveryView has appbar, search bar and search icon',
       (WidgetTester tester) async {
-
-    
     await tester.pumpWidget(discoveryViewWidget);
 
     expect(find.byType(TextField), findsOneWidget);
-    expect(find.widgetWithIcon(IconButton, Icons.search), findsOneWidget);
   });
-
 
   testWidgets('DiscoveryView search button does nothing (is null)',
       (WidgetTester tester) async {
-
     await tester.pumpWidget(discoveryViewWidget);
 
-    final searchButton = find.widgetWithIcon(IconButton, Icons.search);
+    final searchButton = find.byType(TextField);
 
     await tester.tap(searchButton);
     await tester.pump();
@@ -105,13 +97,12 @@ void main() {
 
   testWidgets('DiscoveryView will display topics based on search accurately',
       (WidgetTester tester) async {
-
     topicsCollectionRef.add({
       'title': 'Multiple will show',
       'description': 'this is a test',
       'articleLink': '',
       'videoUrl': '',
-      'views':1,
+      'views': 1,
       'date': DateTime.now(),
       'likes': 0,
       'dislikes': 0,
@@ -122,7 +113,7 @@ void main() {
       'description': 'this is a test',
       'articleLink': '',
       'videoUrl': '',
-      'views':1,
+      'views': 1,
       'date': DateTime.now(),
       'likes': 0,
       'dislikes': 0,
@@ -133,7 +124,7 @@ void main() {
       'description': 'this is a test',
       'articleLink': '',
       'videoUrl': '',
-      'views':1,
+      'views': 1,
       'date': DateTime.now(),
       'likes': 0,
       'dislikes': 0,
@@ -168,7 +159,6 @@ void main() {
   testWidgets(
       'DiscoveryView will display "Sorry there are no topics for this!" if no existing topic exists',
       (WidgetTester tester) async {
-
     await tester.pumpWidget(discoveryViewWidget);
 
     final searchTextField = find.byType(TextField);
@@ -181,8 +171,6 @@ void main() {
 
   testWidgets('DiscoveryView topics are in alphabetical order',
       (WidgetTester tester) async {
-
-
     await tester.pumpWidget(discoveryViewWidget);
     await tester.pumpAndSettle();
 
@@ -202,25 +190,11 @@ void main() {
     expect((textFinders.at(3).evaluate().single.widget as Text).data, 'D test');
   });
 
-
-
-  testWidgets(
-      'DiscoveryView will display categories as toggle buttons',
+  testWidgets('DiscoveryView will display categories as toggle buttons',
       (WidgetTester tester) async {
-
-    await firestore
-      .collection('categories')
-      .add({
-        'name' : 'Gym'});
-    await firestore
-      .collection('categories')
-      .add({
-        'name' : 'School'});
-    await firestore
-      .collection('categories')
-      .add({
-        'name' : 'Smoking'});
-
+    await firestore.collection('categories').add({'name': 'Gym'});
+    await firestore.collection('categories').add({'name': 'School'});
+    await firestore.collection('categories').add({'name': 'Smoking'});
 
     await tester.pumpWidget(discoveryViewWidget);
     await tester.pumpAndSettle();
@@ -238,29 +212,19 @@ void main() {
     expect(find.text('Smoking'), findsOneWidget);
   });
 
-  testWidgets(
-      'DiscoveryView will display topics specific to one category',
+  testWidgets('DiscoveryView will display topics specific to one category',
       (WidgetTester tester) async {
-    await firestore
-      .collection('categories')
-      .add({
-        'name' : 'Gym'});
-    await firestore
-      .collection('categories')
-      .add({
-        'name' : 'School'});
-    await firestore
-      .collection('categories')
-      .add({
-        'name' : 'Smoking'});
+    await firestore.collection('categories').add({'name': 'Gym'});
+    await firestore.collection('categories').add({'name': 'School'});
+    await firestore.collection('categories').add({'name': 'Smoking'});
 
     topicsCollectionRef.add({
       'title': 'Gym topic should only show',
       'description': 'this is a test',
       'articleLink': '',
       'videoUrl': '',
-      'categories' : ['Gym'],
-      'tags' : ['Patient']
+      'categories': ['Gym'],
+      'tags': ['Patient']
     });
 
     topicsCollectionRef.add({
@@ -268,8 +232,8 @@ void main() {
       'description': 'this is a test',
       'articleLink': '',
       'videoUrl': '',
-      'categories' : ['Gym'],
-      'tags' : ['Patient']
+      'categories': ['Gym'],
+      'tags': ['Patient']
     });
 
     await tester.pumpWidget(discoveryViewWidget);
@@ -284,36 +248,23 @@ void main() {
     Finder cardFinder = find.byType(Card);
     expect(cardFinder, findsNWidgets(2));
 
-    
     expect(find.text('Gym topic should only show'), findsOneWidget);
     expect(find.text('Gym topic should only show 2'), findsOneWidget);
-
   });
 
-  testWidgets(
-      'Tapping the filters twice will turn it off',
+  testWidgets('Tapping the filters twice will turn it off',
       (WidgetTester tester) async {
-
-    await firestore
-      .collection('categories')
-      .add({
-        'name' : 'Gym'});
-    await firestore
-      .collection('categories')
-      .add({
-        'name' : 'School'});
-    await firestore
-      .collection('categories')
-      .add({
-        'name' : 'Smoking'});
+    await firestore.collection('categories').add({'name': 'Gym'});
+    await firestore.collection('categories').add({'name': 'School'});
+    await firestore.collection('categories').add({'name': 'Smoking'});
 
     topicsCollectionRef.add({
       'title': 'Gym topic should only show',
       'description': 'this is a test',
       'articleLink': '',
       'videoUrl': '',
-      'categories' : ['Gym'],
-      'tags' : ['Patient']
+      'categories': ['Gym'],
+      'tags': ['Patient']
     });
 
     topicsCollectionRef.add({
@@ -321,8 +272,8 @@ void main() {
       'description': 'this is a test',
       'articleLink': '',
       'videoUrl': '',
-      'categories' : ['Gym'],
-      'tags' : ['Patient']
+      'categories': ['Gym'],
+      'tags': ['Patient']
     });
 
     await tester.pumpWidget(discoveryViewWidget);
@@ -344,33 +295,21 @@ void main() {
 
     //all topics are now visible as filter is off
     expect(cardFinder, findsNWidgets(6));
-
   });
 
-  testWidgets(
-      'DiscoveryView will display topics based on multiple filters',
+  testWidgets('DiscoveryView will display topics based on multiple filters',
       (WidgetTester tester) async {
-
-    await firestore
-      .collection('categories')
-      .add({
-        'name' : 'Gym'});
-    await firestore
-      .collection('categories')
-      .add({
-        'name' : 'School'});
-    await firestore
-      .collection('categories')
-      .add({
-        'name' : 'Smoking'});
+    await firestore.collection('categories').add({'name': 'Gym'});
+    await firestore.collection('categories').add({'name': 'School'});
+    await firestore.collection('categories').add({'name': 'Smoking'});
 
     topicsCollectionRef.add({
       'title': 'Gym topic should only show',
       'description': 'this is a test',
       'articleLink': '',
       'videoUrl': '',
-      'categories' : ['Gym'],
-      'tags' : ['Patient']
+      'categories': ['Gym'],
+      'tags': ['Patient']
     });
 
     topicsCollectionRef.add({
@@ -378,8 +317,8 @@ void main() {
       'description': 'this is a test',
       'articleLink': '',
       'videoUrl': '',
-      'categories' : ['Gym', 'Smoking'],
-      'tags' : ['Patient']
+      'categories': ['Gym', 'Smoking'],
+      'tags': ['Patient']
     });
 
     await tester.pumpWidget(discoveryViewWidget);
@@ -398,34 +337,22 @@ void main() {
     Finder cardFinder = find.byType(Card);
     expect(cardFinder, findsNWidgets(1));
 
-    
     expect(find.text('Gym and smoking'), findsOneWidget);
   });
 
-  testWidgets(
-      'DiscoveryView will display topics based on filter and search',
+  testWidgets('DiscoveryView will display topics based on filter and search',
       (WidgetTester tester) async {
-
-    await firestore
-      .collection('categories')
-      .add({
-        'name' : 'Gym'});
-    await firestore
-      .collection('categories')
-      .add({
-        'name' : 'School'});
-    await firestore
-      .collection('categories')
-      .add({
-        'name' : 'Smoking'});
+    await firestore.collection('categories').add({'name': 'Gym'});
+    await firestore.collection('categories').add({'name': 'School'});
+    await firestore.collection('categories').add({'name': 'Smoking'});
 
     topicsCollectionRef.add({
       'title': 'Smoking topic',
       'description': 'this is a test',
       'articleLink': '',
       'videoUrl': '',
-      'categories' : ['Smoking'],
-      'tags' : ['Patient']
+      'categories': ['Smoking'],
+      'tags': ['Patient']
     });
 
     topicsCollectionRef.add({
@@ -433,8 +360,8 @@ void main() {
       'description': 'this is a test',
       'articleLink': '',
       'videoUrl': '',
-      'categories' : ['Smoking'],
-      'tags' : ['Patient']
+      'categories': ['Smoking'],
+      'tags': ['Patient']
     });
 
     await tester.pumpWidget(discoveryViewWidget);
@@ -457,58 +384,58 @@ void main() {
     //smoking topic should be gone
     expect(cardFinder, findsNWidgets(1));
 
-    expect(find.text('Smoking topic'), findsNothing);    
+    expect(find.text('Smoking topic'), findsNothing);
     expect(find.text('Smoking topic with specific title'), findsOneWidget);
   });
 
   testWidgets('Show Post Dialog Test', (WidgetTester tester) async {
-  // Build our app and trigger a frame.
-
-  await tester.pumpWidget(discoveryViewWidget);
-  await tester.pumpAndSettle();
-
-  // Trigger the _showPostDialog method
-  await tester.tap(find.text('Ask a question!'));
-  await tester.pumpAndSettle();
-
-  // Verify that the first AlertDialog is displayed
-  expect(find.byType(AlertDialog), findsOneWidget);
-
-  // Enter text into the TextField
-  await tester.enterText(find.byType(TextField).last, 'Test question');
-
-  // Tap the Submit button
-  await tester.tap(find.text('Submit'));
-  await tester.pumpAndSettle();
-
-  // Verify that the second AlertDialog is displayed
-  expect(find.text('Message'), findsOneWidget);
-
-  // Tap the OK button to close the second AlertDialog
-  await tester.tap(find.text('OK'));
-  await tester.pumpAndSettle();
-
-  // Verify that both AlertDialogs are closed
-  expect(find.byType(AlertDialog), findsNothing);
-
-  // Verify that the question is added to the Firestore collection
-  final QuerySnapshot<Map<String, dynamic>> querySnapshot =
-      await firestore.collection("questions").get();
-  final List<DocumentSnapshot<Map<String, dynamic>>> documents =
-      querySnapshot.docs;
-
-  // Check if the collection contains a document with the expected question
-  expect(
-    documents.any(
-      (doc) => doc.data()?['question'] == 'Test question',
-    ),
-    isTrue,
-  );
-});
-  
-    testWidgets('test that shown topics are only of the same role as user', (WidgetTester tester) async {
     // Build our app and trigger a frame.
 
+    await tester.pumpWidget(discoveryViewWidget);
+    await tester.pumpAndSettle();
+
+    // Trigger the _showPostDialog method
+    await tester.tap(find.text('Ask a question!'));
+    await tester.pumpAndSettle();
+
+    // Verify that the first AlertDialog is displayed
+    expect(find.byType(AlertDialog), findsOneWidget);
+
+    // Enter text into the TextField
+    await tester.enterText(find.byType(TextField).last, 'Test question');
+
+    // Tap the Submit button
+    await tester.tap(find.text('Submit'));
+    await tester.pumpAndSettle();
+
+    // Verify that the second AlertDialog is displayed
+    expect(find.text('Message'), findsOneWidget);
+
+    // Tap the OK button to close the second AlertDialog
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+
+    // Verify that both AlertDialogs are closed
+    expect(find.byType(AlertDialog), findsNothing);
+
+    // Verify that the question is added to the Firestore collection
+    final QuerySnapshot<Map<String, dynamic>> querySnapshot =
+        await firestore.collection("questions").get();
+    final List<DocumentSnapshot<Map<String, dynamic>>> documents =
+        querySnapshot.docs;
+
+    // Check if the collection contains a document with the expected question
+    expect(
+      documents.any(
+        (doc) => doc.data()?['question'] == 'Test question',
+      ),
+      isTrue,
+    );
+  });
+
+  testWidgets('test that shown topics are only of the same role as user',
+      (WidgetTester tester) async {
+    // Build our app and trigger a frame.
 
     CollectionReference topicCollectionRef = firestore.collection('topics');
     topicCollectionRef.add({
@@ -516,18 +443,18 @@ void main() {
       'description': 'this is a test',
       'articleLink': '',
       'videoUrl': '',
-      'views':1,
+      'views': 1,
       'date': DateTime.now(),
       'likes': 0,
       'dislikes': 0,
       'tags': ['Patient']
     });
-        topicCollectionRef.add({
+    topicCollectionRef.add({
       'title': 'test 2',
       'description': 'this is a test again',
       'articleLink': '',
       'videoUrl': '',
-      'views':1,
+      'views': 1,
       'date': DateTime.now(),
       'likes': 0,
       'dislikes': 0,
@@ -538,18 +465,20 @@ void main() {
 
     expect(find.text('test 1'), findsOneWidget);
     expect(find.text('test 2'), findsNothing);
-});
+  });
 
-  testWidgets('test that admin can see all topics', (WidgetTester tester) async {
+  testWidgets('test that admin can see all topics',
+      (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await auth.createUserWithEmailAndPassword(email: 'admin@tested.org', password: 'Password123!');
+    await auth.createUserWithEmailAndPassword(
+        email: 'admin@tested.org', password: 'Password123!');
     String uid = auth.currentUser!.uid;
     await firestore.collection('Users').doc(uid).set({
-        'email': 'admin@tested.org',
-        'firstName' : 'James',
-        'lastName' : 'Doe',
-        'roleType' : 'admin'
-        });
+      'email': 'admin@tested.org',
+      'firstName': 'James',
+      'lastName': 'Doe',
+      'roleType': 'admin'
+    });
 
     CollectionReference topicCollectionRef = firestore.collection('topics');
     topicCollectionRef.add({
@@ -557,7 +486,7 @@ void main() {
       'description': 'this is a test',
       'articleLink': '',
       'videoUrl': '',
-      'views':1,
+      'views': 1,
       'date': DateTime.now(),
       'likes': 0,
       'dislikes': 0,
@@ -568,7 +497,7 @@ void main() {
       'description': 'this is a test again',
       'articleLink': '',
       'videoUrl': '',
-      'views':1,
+      'views': 1,
       'date': DateTime.now(),
       'likes': 0,
       'dislikes': 0,
@@ -579,7 +508,7 @@ void main() {
       'description': 'this is a test again',
       'articleLink': '',
       'videoUrl': '',
-      'views':1,
+      'views': 1,
       'date': DateTime.now(),
       'likes': 0,
       'dislikes': 0,

@@ -3,6 +3,7 @@ import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
+import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:info_hub_app/topics/create_topic.dart';
 import 'package:info_hub_app/topics/quiz/create_quiz.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
@@ -12,6 +13,7 @@ void main() {
   late MockFirebaseStorage mockStorage = MockFirebaseStorage();
   late Widget quizWidget;
   late MockFirebaseAuth auth;
+  late ThemeManager themeManager = ThemeManager();
 
   setUp(() {
     firestore.collection('Users').doc('adminUser').set({
@@ -25,7 +27,11 @@ void main() {
         MockFirebaseAuth(signedIn: true, mockUser: MockUser(uid: 'adminUser'));
     quizWidget = MaterialApp(
         home: CreateTopicScreen(
-            firestore: firestore, storage: mockStorage, auth: auth));
+      firestore: firestore,
+      storage: mockStorage,
+      auth: auth,
+      themeManager: themeManager,
+    ));
   });
 
   testWidgets('Test Create Quiz Screen', (WidgetTester tester) async {

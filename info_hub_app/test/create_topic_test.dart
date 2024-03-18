@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:info_hub_app/main.dart';
 import 'package:info_hub_app/topics/create_topic.dart';
 import 'package:http/http.dart' as http;
 import 'package:integration_test/integration_test.dart';
@@ -72,6 +73,7 @@ void main() async {
         auth: auth,
         firestore: firestore,
         storage: mockStorage,
+        themeManager: themeManager,
       ),
     ));
 
@@ -163,7 +165,11 @@ void main() async {
 
     await tester.pumpWidget(MaterialApp(
       home: CreateTopicScreen(
-          firestore: firestore, storage: mockStorage, auth: auth),
+        firestore: firestore,
+        storage: mockStorage,
+        auth: auth,
+        themeManager: themeManager,
+      ),
     ));
 
     await tester.enterText(find.byKey(const Key('titleField')), 'Test title');
@@ -271,6 +277,7 @@ void main() async {
         firestore: firestore,
         storage: mockStorage,
         auth: auth,
+        themeManager: themeManager,
       ),
     ));
 
@@ -304,6 +311,7 @@ void main() async {
         firestore: firestore,
         storage: mockStorage,
         auth: auth,
+        themeManager: themeManager,
         selectedFiles: mediaFileList,
       ),
     ));
@@ -386,7 +394,11 @@ void main() async {
 
     await tester.pumpWidget(MaterialApp(
       home: CreateTopicScreen(
-          firestore: firestore, storage: mockStorage, auth: auth),
+        firestore: firestore,
+        storage: mockStorage,
+        auth: auth,
+        themeManager: themeManager,
+      ),
     ));
 
     await tester.tap(find.byIcon(Icons.add));
@@ -419,7 +431,11 @@ void main() async {
 
     await tester.pumpWidget(MaterialApp(
       home: CreateTopicScreen(
-          firestore: firestore, storage: mockStorage, auth: auth),
+        firestore: firestore,
+        storage: mockStorage,
+        auth: auth,
+        themeManager: themeManager,
+      ),
     ));
 
     await tester.tap(find.byIcon(Icons.add));
@@ -451,7 +467,11 @@ void main() async {
 
     await tester.pumpWidget(MaterialApp(
       home: CreateTopicScreen(
-          firestore: firestore, storage: mockStorage, auth: auth),
+        firestore: firestore,
+        storage: mockStorage,
+        auth: auth,
+        themeManager: themeManager,
+      ),
     ));
 
     await tester.enterText(find.byKey(const Key('titleField')), 'Test title');
@@ -497,6 +517,7 @@ void main() async {
         auth: auth,
         firestore: firestore,
         storage: mockStorage,
+        themeManager: themeManager,
       ),
     ));
 
@@ -543,6 +564,7 @@ void main() async {
         auth: auth,
         firestore: firestore,
         storage: mockStorage,
+        themeManager: themeManager,
       ),
     ));
 
@@ -579,6 +601,7 @@ void main() async {
         auth: auth,
         firestore: firestore,
         storage: mockStorage,
+        themeManager: themeManager,
       ),
     ));
 
@@ -618,6 +641,7 @@ void main() async {
         auth: auth,
         firestore: firestore,
         storage: mockStorage,
+        themeManager: themeManager,
       ),
     ));
 
@@ -664,6 +688,7 @@ void main() async {
         auth: auth,
         firestore: firestore,
         storage: mockStorage,
+        themeManager: themeManager,
       ),
     ));
 
@@ -731,6 +756,7 @@ void main() async {
         auth: auth,
         firestore: firestore,
         storage: mockStorage,
+        themeManager: themeManager,
       ),
     ));
 
@@ -773,6 +799,7 @@ void main() async {
         auth: auth,
         firestore: firestore,
         storage: mockStorage,
+        themeManager: themeManager,
       ),
     ));
 
@@ -819,6 +846,7 @@ void main() async {
         auth: auth,
         firestore: firestore,
         storage: mockStorage,
+        themeManager: themeManager,
       ),
     ));
 
@@ -854,6 +882,7 @@ void main() async {
         auth: auth,
         firestore: firestore,
         storage: mockStorage,
+        themeManager: themeManager,
       ),
     ));
 
@@ -914,6 +943,7 @@ void main() async {
         auth: auth,
         firestore: firestore,
         storage: mockStorage,
+        themeManager: themeManager,
       ),
     ));
 
@@ -968,6 +998,7 @@ void main() async {
         firestore: firestore,
         storage: mockStorage,
         selectedFiles: media,
+        themeManager: themeManager,
       ),
     ));
 
@@ -1036,6 +1067,7 @@ void main() async {
         firestore: firestore,
         storage: mockStorage,
         selectedFiles: media,
+        themeManager: themeManager,
       ),
     ));
 
@@ -1103,6 +1135,7 @@ void main() async {
         auth: auth,
         firestore: firestore,
         storage: mockStorage,
+        themeManager: themeManager,
         selectedFiles: mediaFileList,
       ),
     ));
@@ -1150,6 +1183,7 @@ void main() async {
         auth: auth,
         firestore: firestore,
         storage: mockStorage,
+        themeManager: themeManager,
       ),
     ));
 
@@ -1209,6 +1243,7 @@ void main() async {
         auth: auth,
         firestore: firestore,
         storage: mockStorage,
+        themeManager: themeManager,
         selectedFiles: mediaFileList,
       ),
     ));
@@ -1317,6 +1352,7 @@ void main() async {
         topic: data.docs[0] as QueryDocumentSnapshot<Object>,
         firestore: firestore,
         storage: mockStorage,
+        themeManager: themeManager,
       ),
     ));
 
@@ -1392,6 +1428,7 @@ void main() async {
             firestore: firestore,
             storage: mockStorage,
             topic: data.docs[0],
+            themeManager: themeManager,
           ),
         )));
 
@@ -1436,6 +1473,7 @@ void main() async {
         auth: auth,
         firestore: firestore,
         storage: mockStorage,
+        themeManager: themeManager,
         selectedFiles: mediaFileList,
       ),
     ));
@@ -1527,6 +1565,7 @@ void main() async {
         topic: data.docs[0] as QueryDocumentSnapshot<Object>,
         firestore: firestore,
         storage: mockStorage,
+        themeManager: themeManager,
         selectedFiles: mediaFileList,
       ),
     ));
@@ -1596,6 +1635,7 @@ void main() async {
         auth: auth,
         firestore: firestore,
         storage: mockStorage,
+        themeManager: themeManager,
       ),
     ));
 
@@ -1702,6 +1742,7 @@ void main() async {
         auth: auth,
         firestore: firestore,
         storage: mockStorage,
+        themeManager: themeManager,
       ),
     ));
 
@@ -1766,6 +1807,7 @@ void main() async {
         firestore: firestore,
         storage: mockStorage,
         auth: auth,
+        themeManager: themeManager,
       ),
     ));
     await firestore.collection('questions').add({

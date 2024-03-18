@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
+import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:info_hub_app/topics/view_topic.dart';
 import 'package:info_hub_app/topics/create_topic.dart';
 import 'package:chewie/chewie.dart';
@@ -21,6 +22,7 @@ void main() {
   late MockFirebaseAuth auth;
   late MockFirebaseAuth localAuth;
   late MockFirebaseStorage storage;
+  late ThemeManager themeManager = ThemeManager();
   late Widget topicWithVideo;
 
   setUp(() async {
@@ -85,7 +87,8 @@ void main() {
           firestore: firestore,
           storage: storage,
           topic: data.docs[0] as QueryDocumentSnapshot<Object>,
-          auth: localAuth),
+          auth: localAuth,
+          themeManager: themeManager),
     );
 
     final fakeVideoPlayerPlatform = FakeVideoPlayerPlatform();
@@ -144,10 +147,12 @@ void main() {
     // Pass a valid URL when creating the VideoPlayerController instance
     await mockNetworkImages(() async => await tester.pumpWidget(MaterialApp(
           home: ViewTopicScreen(
-              firestore: firestore,
-              storage: storage,
-              topic: data.docs[0] as QueryDocumentSnapshot<Object>,
-              auth: auth),
+            firestore: firestore,
+            storage: storage,
+            topic: data.docs[0] as QueryDocumentSnapshot<Object>,
+            auth: auth,
+            themeManager: themeManager,
+          ),
         )));
     await tester.pumpAndSettle();
 
@@ -197,10 +202,12 @@ void main() {
     // Pass a valid URL when creating the VideoPlayerController instance
     await mockNetworkImages(() async => await tester.pumpWidget(MaterialApp(
           home: ViewTopicScreen(
-              firestore: firestore,
-              storage: storage,
-              topic: data.docs[0] as QueryDocumentSnapshot<Object>,
-              auth: auth),
+            firestore: firestore,
+            storage: storage,
+            topic: data.docs[0] as QueryDocumentSnapshot<Object>,
+            auth: auth,
+            themeManager: themeManager,
+          ),
         )));
     await tester.pumpAndSettle();
 
@@ -305,10 +312,12 @@ void main() {
     // Create the ViewTopicScreen widget with the test topic
     await tester.pumpWidget(MaterialApp(
       home: ViewTopicScreen(
-          firestore: firestore,
-          storage: storage,
-          topic: data.docs[0] as QueryDocumentSnapshot<Object>,
-          auth: auth),
+        firestore: firestore,
+        storage: storage,
+        topic: data.docs[0] as QueryDocumentSnapshot<Object>,
+        auth: auth,
+        themeManager: themeManager,
+      ),
     ));
     await tester.pumpAndSettle();
 
@@ -353,10 +362,12 @@ void main() {
 
     await tester.pumpWidget(MaterialApp(
       home: ViewTopicScreen(
-          firestore: firestore,
-          storage: storage,
-          topic: data.docs[0] as QueryDocumentSnapshot<Object>,
-          auth: auth),
+        firestore: firestore,
+        storage: storage,
+        topic: data.docs[0] as QueryDocumentSnapshot<Object>,
+        auth: auth,
+        themeManager: themeManager,
+      ),
     ));
     await tester.pumpAndSettle();
 
@@ -402,10 +413,12 @@ void main() {
     // Create the ViewTopicScreen widget with the test topic
     await tester.pumpWidget(MaterialApp(
       home: ViewTopicScreen(
-          firestore: firestore,
-          storage: storage,
-          topic: data.docs[0] as QueryDocumentSnapshot<Object>,
-          auth: auth),
+        firestore: firestore,
+        storage: storage,
+        topic: data.docs[0] as QueryDocumentSnapshot<Object>,
+        auth: auth,
+        themeManager: themeManager,
+      ),
     ));
     await tester.pumpAndSettle();
 
@@ -467,10 +480,12 @@ void main() {
 
     await tester.pumpWidget(MaterialApp(
       home: ViewTopicScreen(
-          firestore: firestore,
-          storage: storage,
-          topic: data.docs[0] as QueryDocumentSnapshot<Object>,
-          auth: auth),
+        firestore: firestore,
+        storage: storage,
+        topic: data.docs[0] as QueryDocumentSnapshot<Object>,
+        auth: auth,
+        themeManager: themeManager,
+      ),
     ));
     await tester.pumpAndSettle();
 
@@ -528,10 +543,12 @@ void main() {
 
     await tester.pumpWidget(MaterialApp(
       home: ViewTopicScreen(
-          firestore: firestore,
-          storage: storage,
-          topic: data.docs[0] as QueryDocumentSnapshot<Object>,
-          auth: auth),
+        firestore: firestore,
+        storage: storage,
+        topic: data.docs[0] as QueryDocumentSnapshot<Object>,
+        auth: auth,
+        themeManager: themeManager,
+      ),
     ));
     await tester.pumpAndSettle();
 
@@ -586,10 +603,12 @@ void main() {
 
     await tester.pumpWidget(MaterialApp(
       home: ViewTopicScreen(
-          firestore: firestore,
-          storage: storage,
-          topic: data.docs[0] as QueryDocumentSnapshot<Object>,
-          auth: auth),
+        firestore: firestore,
+        storage: storage,
+        topic: data.docs[0] as QueryDocumentSnapshot<Object>,
+        auth: auth,
+        themeManager: themeManager,
+      ),
     ));
     await tester.pumpAndSettle();
 
@@ -660,6 +679,7 @@ void main() {
         topic: data.docs[0] as QueryDocumentSnapshot<Object>,
         auth: MockFirebaseAuth(
             signedIn: true, mockUser: MockUser(uid: 'adminUser')),
+        themeManager: themeManager,
       ),
     ));
 
@@ -716,6 +736,7 @@ void main() {
         topic: data.docs[0] as QueryDocumentSnapshot<Object>,
         auth: MockFirebaseAuth(
             signedIn: true, mockUser: MockUser(uid: 'adminUser')),
+        themeManager: themeManager,
       ),
     );
 
@@ -774,6 +795,7 @@ void main() {
         topic: data.docs[0] as QueryDocumentSnapshot<Object>,
         auth: MockFirebaseAuth(
             signedIn: true, mockUser: MockUser(uid: 'adminUser')),
+        themeManager: themeManager,
       ),
     ));
     await tester.pumpAndSettle();
@@ -822,6 +844,7 @@ void main() {
         topic: data.docs[0] as QueryDocumentSnapshot<Object>,
         auth: MockFirebaseAuth(
             signedIn: true, mockUser: MockUser(uid: 'adminUser')),
+        themeManager: themeManager,
       ),
     ));
 
@@ -875,10 +898,12 @@ void main() {
 
     await tester.pumpWidget(MaterialApp(
       home: ViewTopicScreen(
-          firestore: firestore,
-          storage: storage,
-          topic: data.docs[0] as QueryDocumentSnapshot<Object>,
-          auth: auth),
+        firestore: firestore,
+        storage: storage,
+        topic: data.docs[0] as QueryDocumentSnapshot<Object>,
+        auth: auth,
+        themeManager: themeManager,
+      ),
     ));
     await tester.pumpAndSettle();
 
@@ -915,11 +940,13 @@ void main() {
 
     await tester.pumpWidget(MaterialApp(
       home: ViewTopicScreen(
-          firestore: firestore,
-          storage: storage,
-          topic: data.docs[0] as QueryDocumentSnapshot<Object>,
-          auth: MockFirebaseAuth(
-              signedIn: true, mockUser: MockUser(uid: 'adminUser'))),
+        firestore: firestore,
+        storage: storage,
+        topic: data.docs[0] as QueryDocumentSnapshot<Object>,
+        auth: MockFirebaseAuth(
+            signedIn: true, mockUser: MockUser(uid: 'adminUser')),
+        themeManager: themeManager,
+      ),
     ));
     await tester.pumpAndSettle();
     await tester.ensureVisible(find.byIcon(Icons.bookmark_border));

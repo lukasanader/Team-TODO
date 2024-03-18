@@ -23,7 +23,7 @@ void main() {
         home: SavedPage(auth: auth, firestore: firestore, storage: storage));
   });
 
-  testWidgets('App bar title should be "Your Saved Topics" ',
+  testWidgets('App bar title should be "Saved Topics" ',
       (WidgetTester tester) async {
     await auth.createUserWithEmailAndPassword(
         email: 'test@tested.org', password: 'Password123!');
@@ -34,7 +34,7 @@ void main() {
     ));
 
     // Verify if the app bar title is 'Your Saved Topics'
-    expect(find.text('Your Saved Topics'), findsOneWidget);
+    expect(find.text('Saved Topics'), findsOneWidget);
   });
 
   testWidgets('test user with no saved topics shows no saved topics on screen',
@@ -89,5 +89,56 @@ void main() {
     await tester.tap(find.byType(Card).first);
     await tester.pumpAndSettle();
     expect(find.byType(ViewTopicScreen), findsOne);
+  });
+
+  testWidgets(
+      'ensure padding is visible if there are at least two saved topics',
+      (WidgetTester tester) async {
+    await auth.createUserWithEmailAndPassword(
+        email: 'test@tested.org', password: 'Password123!');
+    String uid = auth.currentUser!.uid;
+
+    topicCollectionRef = firestore.collection('topics');
+    DocumentReference topicDocRef = await topicCollectionRef.add({
+      'title': 'test 1',
+      'description': 'this is a test',
+      'articleLink': '',
+      'media': [],
+      'views': 10,
+      'date': DateTime.now(),
+      'likes': 0,
+      'dislikes': 0,
+      'tags': ['Patient'],
+      'categories': ['Gym']
+    });
+
+    DocumentReference topicDocRef2 = await topicCollectionRef.add({
+      'title': 'test 2',
+      'description': 'this is a test 2',
+      'articleLink': '',
+      'media': [],
+      'views': 10,
+      'date': DateTime.now(),
+      'likes': 0,
+      'dislikes': 0,
+      'tags': ['Patient'],
+      'categories': ['Gym']
+    });
+
+    await firestore.collection('Users').doc(uid).set({
+      'email': 'test@tested.org',
+      'firstName': 'James',
+      'lastName': 'Doe',
+      'roleType': 'Patient',
+      'savedTopics': [
+        topicDocRef.id,
+        topicDocRef2.id,
+      ],
+    });
+
+    await tester.pumpWidget(savedTopicsWidget);
+    await tester.pumpAndSettle();
+
+    expect(find.byType(Padding), findsWidgets);
   });
 }
