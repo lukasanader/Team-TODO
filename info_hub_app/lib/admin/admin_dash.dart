@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:info_hub_app/analytics/analytics_base.dart';
+import 'package:info_hub_app/helpers/helper_widgets.dart';
 
 import 'package:info_hub_app/message_feature/admin_message_view.dart';
 
@@ -54,13 +55,14 @@ class _AdminHomepageState extends State<AdminHomepage> {
               onPressed: () {
                 selectUserDialog();
               },
-              child: const Column(
+              child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.add),
-                  Text(
+                  const Icon(Icons.add),
+                  addVerticalSpace(5),
+                  const Text(
                     'Add Admin',
-                    style: TextStyle(color: Colors.black),
+                    textAlign: TextAlign.center,
                   ),
                 ],
               ),
@@ -78,22 +80,26 @@ class _AdminHomepageState extends State<AdminHomepage> {
                         },
                       ),
                     ),
-                child: const Column(mainAxisSize: MainAxisSize.min, children: [
-                  Icon(Icons.note_add_sharp),
-                  Text('Create Topic',
-                      style: TextStyle(color: Color.fromARGB(255, 0, 0, 0))),
+                child: Column(mainAxisSize: MainAxisSize.min, children: [
+                  const Icon(Icons.note_add_sharp),
+                  addVerticalSpace(5),
+                  const Text(
+                    'Create Topic',
+                    textAlign: TextAlign.center,
+                  ),
                 ])),
             ElevatedButton(
               onPressed: () {
                 //PLACE VIEW THREAD METHOD HERE
               },
-              child: const Column(
+              child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.question_answer),
-                  Text(
+                  const Icon(Icons.question_answer),
+                  addVerticalSpace(5),
+                  const Text(
                     'View Thread',
-                    style: TextStyle(color: Colors.black),
+                    textAlign: TextAlign.center,
                   ),
                 ],
               ),
@@ -108,13 +114,14 @@ class _AdminHomepageState extends State<AdminHomepage> {
                   },
                 ),
               ),
-              child: const Column(
+              child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.question_mark),
-                  Text(
+                  const Icon(Icons.question_mark),
+                  addVerticalSpace(5),
+                  const Text(
                     'View Questions',
-                    style: TextStyle(color: Colors.black),
+                    textAlign: TextAlign.center,
                   ),
                 ],
               ),
@@ -130,13 +137,14 @@ class _AdminHomepageState extends State<AdminHomepage> {
                   },
                 ),
               ),
-              child: const Column(
+              child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.book),
-                  Text(
+                  const Icon(Icons.book),
+                  addVerticalSpace(5),
+                  const Text(
                     'View Experiences',
-                    style: TextStyle(color: Colors.black),
+                    textAlign: TextAlign.center,
                   ),
                 ],
               ),
@@ -152,13 +160,14 @@ class _AdminHomepageState extends State<AdminHomepage> {
                   },
                 ),
               ),
-              child: const Column(
+              child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.analytics),
-                  Text(
+                  const Icon(Icons.analytics),
+                  addVerticalSpace(5),
+                  const Text(
                     'View Analytics',
-                    style: TextStyle(color: Colors.black),
+                    textAlign: TextAlign.center,
                   ),
                 ],
               ),
@@ -174,13 +183,14 @@ class _AdminHomepageState extends State<AdminHomepage> {
                   },
                 ),
               ),
-              child: const Column(
+              child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.message),
-                  Text(
+                  const Icon(Icons.message),
+                  addVerticalSpace(5),
+                  const Text(
                     'Message feature',
-                    style: TextStyle(color: Colors.black),
+                    textAlign: TextAlign.center,
                   ),
                 ],
               ),
