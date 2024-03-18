@@ -12,6 +12,7 @@ class QuizQuestionCard extends StatefulWidget {
   final FirebaseFirestore firestore;
   final FirebaseAuth auth;
   final QuizQuestion? editQuestion;
+  final Function(int)? onDelete;
 
   QuizQuestionCard({
     required this.question,
@@ -20,6 +21,7 @@ class QuizQuestionCard extends StatefulWidget {
     required this.firestore,
     required this.auth,
     this.editQuestion,
+    this.onDelete,
     Key? key,
   }) : super(key: key);
 
@@ -106,6 +108,19 @@ class _QuizQuestionCardState extends State<QuizQuestionCard> {
                         onPressed: saveQuestion,
                         child: const Text('Save'),
                       ),
+                     ElevatedButton(
+                        onPressed: () {
+                          if (widget.onDelete != null) {
+                            QuizController controller = QuizController(
+                                firestore: widget.firestore,
+                                auth: widget.auth,
+                            );
+                            if(widget.editQuestion !=null){controller.deleteQuestion(widget.editQuestion!);}
+                            widget.onDelete!(widget.questionNo - 1); // Trigger onDelete callback
+                          }
+                        },
+                        child: const Text('Delete'),
+                      ),
                     ],
                   ),
                 ),
@@ -160,12 +175,21 @@ class _QuizQuestionCardState extends State<QuizQuestionCard> {
     if (!selected.contains(true)) {
       showSnackBar(context, 'Select at least one correct answer');
     } else {
-      controller.addQuestion(
-        widget.question,
-        controller.getAnswers(true, selected, answers),
-        controller.getAnswers(false, selected, answers),
-        widget.quizID,
-      );
+      if (widget.editQuestion !=null) {
+        controller.updateQuestion(
+          widget.editQuestion!,
+          controller.getAnswers(true, selected, answers),
+          controller.getAnswers(false, selected, answers),
+          widget.quizID
+          );
+      }else{
+        controller.addQuestion(
+          widget.question,
+          controller.getAnswers(true, selected, answers),
+          controller.getAnswers(false, selected, answers),
+          widget.quizID,
+        );
+      }
       showSnackBar(context, 'Question has been saved!');
       setState(() {
         _answerController.clear();

@@ -43,7 +43,11 @@ class _CreateQuizState extends State<CreateQuiz> {
             child: const Text('No'),
           ),
           TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
+            onPressed: () {
+              if(widget.topic!=null){quizID=widget.topic!['quizID'];}
+              QuizController(firestore: widget.firestore, auth: widget.auth).deleteQuiz(quizID);
+              Navigator.of(context).pop(true);
+              },
             child: const Text('Yes'),
           ),
         ],
@@ -82,6 +86,7 @@ class _CreateQuizState extends State<CreateQuiz> {
                     firestore: widget.firestore,
                     auth: widget.auth,
                     editQuestion: widget.isEdit ? editQuestions[index] : null,
+                    onDelete: onDeleteQuestion
                   );
                 },
               ),
@@ -147,11 +152,18 @@ class _CreateQuizState extends State<CreateQuiz> {
   Future getQuestionsList() async {
     if (widget.topic != null) {
     List<QuizQuestion> tempList = await QuizController(firestore: widget.firestore, auth: widget.auth).getQuizQuestions(widget.topic!);
-    print(tempList);
     setState(() {
       editQuestions = tempList;
     });
   }
   }
-
+  void onDeleteQuestion(int index) {
+    setState(() {
+      if (widget.isEdit) {
+        editQuestions.removeAt(index);
+      } else {
+        questions.removeAt(index);
+      }
+    });
+  }
 }

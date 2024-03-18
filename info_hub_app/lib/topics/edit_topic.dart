@@ -373,7 +373,12 @@ class _EditTopicScreenState extends State<EditTopicScreen> {
   }
 
   Future<void> _uploadTopic() async {
-    String oldVideoUrl = widget.topic['videoUrl'];
+    String oldVideoUrl;
+    if(widget.topic['videoUrl']==null){
+      oldVideoUrl = '';
+    }else{
+      oldVideoUrl = widget.topic['videoUrl'];
+    }
     if (_videoURL == widget.topic['videoUrl'] &&
         titleController.text == widget.topic['title'] &&
         descriptionController.text == widget.topic['description'] &&
