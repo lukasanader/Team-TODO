@@ -107,19 +107,19 @@ class _BaseState extends State<Base> {
     List<PersistentBottomNavBarItem> navBarsItems() {
       return [
         PersistentBottomNavBarItem(
-          icon: const Icon(Icons.home),
-          activeColorPrimary: Colors.blue,
-          inactiveColorPrimary: Colors.grey,
+          icon: const Icon(Icons.home_outlined),
+          activeColorPrimary: Colors.red.shade700,
+          inactiveColorPrimary: Colors.black,
         ),
         PersistentBottomNavBarItem(
-          icon: const Icon(Icons.search),
-          activeColorPrimary: Colors.blue,
-          inactiveColorPrimary: Colors.grey,
+          icon: const Icon(Icons.search_outlined),
+          activeColorPrimary: Colors.red.shade700,
+          inactiveColorPrimary: Colors.black,
         ),
         PersistentBottomNavBarItem(
-          icon: const Icon(Icons.settings),
-          activeColorPrimary: Colors.blue,
-          inactiveColorPrimary: Colors.grey,
+          icon: const Icon(Icons.settings_outlined),
+          activeColorPrimary: Colors.red.shade700,
+          inactiveColorPrimary: Colors.black,
         ),
       ];
     }
@@ -134,7 +134,7 @@ class _BaseState extends State<Base> {
       screens: buildScreens(),
       items: navBarsItems(),
       confineInSafeArea: true,
-      backgroundColor: Colors.white, // Default is Colors.white.
+      backgroundColor: Colors.grey.shade200, // Default is Colors.white.
       handleAndroidBackButtonPress: true, // Default is true.
       resizeToAvoidBottomInset:
           true, // This needs to be true if you want to move up the screen when keyboard appears. Default is true.
@@ -159,7 +159,7 @@ class _BaseState extends State<Base> {
         duration: Duration(milliseconds: 200),
       ),
       navBarStyle:
-          NavBarStyle.style5, // Choose the nav bar style with this property.
+          NavBarStyle.style6, // Choose the nav bar style with this property.
     );
   }
 }
