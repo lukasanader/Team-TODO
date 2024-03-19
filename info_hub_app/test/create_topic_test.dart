@@ -1,10 +1,12 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
+import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:info_hub_app/ask_question/question_card.dart';
+import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:info_hub_app/topics/create_topic.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/services.dart';
@@ -14,11 +16,13 @@ import 'dart:async';
 import 'package:video_player_platform_interface/video_player_platform_interface.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
-import 'package:info_hub_app/helpers/mock_classes.dart';
 
 import 'mock_classes.dart';
 
+
 void main() async {
+  late MockFirebaseAuth auth;
+  late ThemeManager themeManager;
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   mockFilePicker() {
@@ -46,6 +50,8 @@ void main() async {
   }
 
   setUp(() {
+    auth = MockFirebaseAuth();
+    themeManager = ThemeManager();
     mockFilePicker();
 
     final fakeVideoPlayerPlatform = FakeVideoPlayerPlatform();
@@ -61,6 +67,8 @@ void main() async {
       home: CreateTopicScreen(
         firestore: firestore,
         storage: mockStorage,
+        auth: auth,
+        themeManager: themeManager,
       ),
     ));
 
@@ -121,6 +129,8 @@ void main() async {
       home: CreateTopicScreen(
         firestore: firestore,
         storage: mockStorage,
+        auth: auth,
+        themeManager: themeManager,
       ),
     ));
 
@@ -201,6 +211,8 @@ void main() async {
       home: CreateTopicScreen(
         firestore: firestore,
         storage: mockStorage,
+        auth: auth,
+        themeManager: themeManager,
       ),
     ));
 
@@ -280,6 +292,8 @@ void main() async {
       home: CreateTopicScreen(
         firestore: firestore,
         storage: mockStorage,
+        auth: auth,
+        themeManager: themeManager,
       ),
     ));
 
@@ -303,6 +317,8 @@ void main() async {
       home: CreateTopicScreen(
         firestore: firestore,
         storage: mockStorage,
+        auth: auth,
+        themeManager: themeManager,
       ),
     ));
 
@@ -330,6 +346,8 @@ void main() async {
       home: CreateTopicScreen(
         firestore: firestore,
         storage: mockStorage,
+        auth: auth,
+        themeManager: themeManager,
       ),
     ));
 
@@ -357,6 +375,8 @@ void main() async {
       home: CreateTopicScreen(
         firestore: firestore,
         storage: mockStorage,
+        auth: auth,
+        themeManager: themeManager,
       ),
     ));
 
@@ -397,6 +417,8 @@ void main() async {
       home: CreateTopicScreen(
         firestore: firestore,
         storage: mockStorage,
+        auth: auth,
+        themeManager: themeManager,
       ),
     ));
 
@@ -429,6 +451,8 @@ void main() async {
       home: CreateTopicScreen(
         firestore: firestore,
         storage: mockStorage,
+        auth: auth,
+        themeManager: themeManager,
       ),
     ));
 
@@ -455,6 +479,8 @@ void main() async {
       home: CreateTopicScreen(
         firestore: firestore,
         storage: mockStorage,
+        auth: auth,
+        themeManager: themeManager,
       ),
     ));
 
@@ -484,6 +510,8 @@ void main() async {
       home: CreateTopicScreen(
         firestore: firestore,
         storage: mockStorage,
+        auth: auth,
+        themeManager: themeManager,
       ),
     ));
 
@@ -521,6 +549,8 @@ void main() async {
       home: CreateTopicScreen(
         firestore: firestore,
         storage: mockStorage,
+        auth: auth,
+        themeManager: themeManager,
       ),
     ));
 
@@ -578,6 +608,8 @@ void main() async {
       home: CreateTopicScreen(
         firestore: firestore,
         storage: mockStorage,
+        auth: auth,
+        themeManager: themeManager,
       ),
     ));
 
@@ -605,6 +637,8 @@ void main() async {
       home: CreateTopicScreen(
         firestore: firestore,
         storage: mockStorage,
+        auth: auth,
+        themeManager: themeManager,
       ),
     ));
 
@@ -629,6 +663,8 @@ void main() async {
       home: CreateTopicScreen(
         firestore: firestore,
         storage: mockStorage,
+        auth: auth,
+        themeManager: themeManager,
       ),
     ));
 
@@ -655,6 +691,8 @@ void main() async {
       home: CreateTopicScreen(
         firestore: firestore,
         storage: mockStorage,
+        auth: auth,
+        themeManager: themeManager,
       ),
     ));
     expect(find.text('Upload a video'), findsOneWidget);
@@ -711,6 +749,8 @@ void main() async {
       home: CreateTopicScreen(
         firestore: firestore,
         storage: mockStorage,
+        auth: auth,
+        themeManager: themeManager,
       ),
     ));
     expect(find.text('Upload a video'), findsOneWidget);
@@ -766,6 +806,8 @@ void main() async {
       home: CreateTopicScreen(
         firestore: firestore,
         storage: mockStorage,
+        auth: auth,
+        themeManager: themeManager,
       ),
     ));
 
@@ -828,6 +870,8 @@ void main() async {
       home: CreateTopicScreen(
         firestore: firestore,
         storage: mockStorage,
+        auth: auth,
+        themeManager: themeManager,
       ),
     ));
 
@@ -885,6 +929,8 @@ void main() async {
       home: CreateTopicScreen(
         firestore: firestore,
         storage: mockStorage,
+        auth: auth,
+        themeManager: themeManager,
       ),
     ));
     await firestore.collection('questions').add({
