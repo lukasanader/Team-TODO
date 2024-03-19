@@ -47,7 +47,7 @@ class DatabaseService {
     // Send the notification to each device token
     for (final token in tokens) {
       await PushNotifications(
-              uid: uid,
+              auth: auth,
               firestore: firestore,
               messaging: FirebaseMessaging.instance,
               navigatorKey: navigatorKey,

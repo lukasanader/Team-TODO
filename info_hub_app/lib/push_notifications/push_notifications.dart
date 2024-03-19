@@ -1,10 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'dart:convert';
 
 class PushNotifications {
-  final String uid;
+  final FirebaseAuth auth;
   final FirebaseFirestore firestore;
   final FirebaseMessaging messaging;
   final FlutterLocalNotificationsPlugin localnotificationsplugin;
@@ -12,7 +13,7 @@ class PushNotifications {
   final http;
 
   PushNotifications(
-      {required this.uid,
+      {required this.auth,
       required this.firestore,
       required this.messaging,
       required this.localnotificationsplugin,
@@ -38,15 +39,12 @@ class PushNotifications {
         AndroidInitializationSettings('@mipmap/ic_launcher');
     final DarwinInitializationSettings initializationSettingsDarwin =
         DarwinInitializationSettings(
-      onDidReceiveLocalNotification: (id, title, body, payload) {},
+      onDidReceiveLocalNotification: (id, title, body, payload) => null,
     );
-    final LinuxInitializationSettings initializationSettingsLinux =
-        LinuxInitializationSettings(defaultActionName: 'Open notification');
     final InitializationSettings initializationSettings =
         InitializationSettings(
             android: initializationSettingsAndroid,
-            iOS: initializationSettingsDarwin,
-            linux: initializationSettingsLinux);
+            iOS: initializationSettingsDarwin);
     localnotificationsplugin.initialize(initializationSettings,
         onDidReceiveNotificationResponse: onNotificationTap,
         onDidReceiveBackgroundNotificationResponse: onNotificationTap);
@@ -69,6 +67,7 @@ class PushNotifications {
             channelDescription: 'your channel description',
             importance: Importance.max,
             priority: Priority.high,
+            icon: '@mipmap/ic_launcher',
             ticker: 'ticker');
     const NotificationDetails notificationDetails =
         NotificationDetails(android: androidNotificationDetails);
@@ -106,7 +105,7 @@ class PushNotifications {
     if (deviceToken != null) {
       final tokenSnapshot = await firestore
           .collection('Users')
-          .doc(uid)
+          .doc(auth.currentUser!.uid)
           .collection('deviceTokens')
           .where('token', isEqualTo: deviceToken)
           .get();
@@ -114,7 +113,7 @@ class PushNotifications {
       if (tokenSnapshot.docs.isEmpty) {
         await firestore
             .collection('Users')
-            .doc(uid)
+            .doc(auth.currentUser!.uid)
             .collection('deviceTokens')
             .add({
           'token': deviceToken,

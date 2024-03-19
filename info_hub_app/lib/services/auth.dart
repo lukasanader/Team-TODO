@@ -71,7 +71,7 @@ class AuthService {
             .createPreferences();
 
         await PushNotifications(
-                uid: auth.currentUser!.uid,
+                auth: auth,
                 firestore: firestore,
                 messaging: FirebaseMessaging.instance,
                 localnotificationsplugin: FlutterLocalNotificationsPlugin())

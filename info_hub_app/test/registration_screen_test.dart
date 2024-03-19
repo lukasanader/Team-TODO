@@ -236,7 +236,7 @@ void main() {
   testWidgets('Test successful registration redirects to Welcome Page',
       (WidgetTester tester) async {
     final firestore = FakeFirebaseFirestore();
-    final auth = MockFirebaseAuth(signedIn: true);
+    final auth = MockFirebaseAuth();
     final storage = MockFirebaseStorage();
     await tester.pumpWidget(MaterialApp(
         home: RegistrationScreen(

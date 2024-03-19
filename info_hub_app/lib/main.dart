@@ -28,7 +28,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   PushNotifications pushNotifications = PushNotifications(
-      uid: FirebaseAuth.instance.currentUser!.uid,
+      auth: FirebaseAuth.instance,
       firestore: FirebaseFirestore.instance,
       messaging: FirebaseMessaging.instance,
       navigatorKey: navigatorKey,

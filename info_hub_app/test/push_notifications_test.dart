@@ -122,7 +122,7 @@ Future<void> main() async {
       mockFlutterLocalNotificationsPlugin =
           MockFlutterLocalNotificationsPlugin();
       pushNotifications = PushNotifications(
-          uid: auth.currentUser!.uid,
+          auth: auth,
           firestore: firestore,
           messaging: firebaseMessaging,
           navigatorKey: mockNavigatorKey,
