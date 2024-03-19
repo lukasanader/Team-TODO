@@ -15,6 +15,7 @@ import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import 'package:info_hub_app/message_feature/patient_message_view.dart';
 import 'package:info_hub_app/patient_experience/patient_experience_view.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
+import 'package:info_hub_app/threads/name_generator.dart';
 import 'package:info_hub_app/topics/view_topic.dart';
 import 'package:info_hub_app/webinar/webinar_view.dart';
 
@@ -231,7 +232,12 @@ void main() {
     CollectionReference chatRoomMembersCollectionReference =
         firestore.collection('message_rooms');
 
-    chatRoomMembersCollectionReference.add({'adminId': '1', 'patientId': uid});
+    chatRoomMembersCollectionReference.add({
+      'adminId': '1',
+      'patientId': uid,
+      'patientDisplayName': generateUniqueName(uid),
+      'adminDisplayName': 'patient@gmail.com'
+      });
 
     await tester.pumpWidget(trendingTopicWidget);
     await tester.pumpAndSettle();
