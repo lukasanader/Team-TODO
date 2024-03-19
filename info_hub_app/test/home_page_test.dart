@@ -17,7 +17,7 @@ import 'package:info_hub_app/patient_experience/patient_experience_view.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:info_hub_app/threads/name_generator.dart';
 import 'package:info_hub_app/topics/view_topic.dart';
-import 'package:info_hub_app/webinar/webinar_view.dart';
+import 'package:info_hub_app/webinar/webinar-screens/webinar_view.dart';
 
 void main() {
   late MockFirebaseAuth auth;
@@ -279,7 +279,9 @@ void main() {
       'email': 'test@tested.org',
       'firstName': 'James',
       'lastName': 'Doe',
-      'roleType': 'Patient'
+      'roleType': 'Patient',
+      'likedTopics' : [],
+      'dislikedTopics' : [],
     });
     await tester.pumpWidget(trendingTopicWidget);
     await tester.pumpAndSettle();

@@ -9,10 +9,14 @@ import 'package:info_hub_app/helpers/helper_widgets.dart';
 import 'package:info_hub_app/message_feature/admin_message_view.dart';
 
 import 'package:info_hub_app/patient_experience/admin_experience_view.dart';
+import 'package:info_hub_app/registration/user_model.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:info_hub_app/topics/create_topic.dart';
 import 'package:info_hub_app/ask_question/question_view.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:info_hub_app/webinar/admin-webinar-screens/admin_webinar_dashboard.dart';
+import 'package:info_hub_app/webinar/admin-webinar-screens/create_webinar_screen.dart';
+import 'package:info_hub_app/webinar/service/webinar_service.dart';
 
 class AdminHomepage extends StatefulWidget {
   final FirebaseFirestore firestore;
@@ -196,6 +200,36 @@ class _AdminHomepageState extends State<AdminHomepage> {
                 ],
               ),
             ),
+            ElevatedButton(
+              onPressed: () async {
+                UserModel currentAdmin = await generateCurrentUser();
+                WebinarService webService = WebinarService(
+                  firestore: widget.firestore,
+                  storage: widget.storage);
+                Navigator.of(context).push(
+                  CupertinoPageRoute(
+                    builder: (BuildContext context) {
+                      return WebinarDashboard(
+                        firestore: widget.firestore,
+                        user: currentAdmin,
+                        webinarService: webService,
+                      );
+                    },
+                  ),
+                );
+              },
+              child: const Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.camera),
+                  Text(
+                    'Add/View Webinar',
+                    style: TextStyle(color: Colors.black),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
           ])),
     );
   }
@@ -254,6 +288,23 @@ class _AdminHomepageState extends State<AdminHomepage> {
             );
           });
         });
+  }
+
+    Future<UserModel> generateCurrentUser() async {
+    String uid = widget.auth.currentUser!.uid;
+    DocumentSnapshot userDoc = await widget.firestore.collection('Users').doc(uid).get();
+    List<String> likedTopics = List<String>.from(userDoc['likedTopics']);
+    List<String> dislikedTopics = List<String>.from(userDoc['dislikedTopics']);
+    UserModel user = UserModel(
+      uid: uid,
+      firstName: userDoc['firstName'],
+      lastName: userDoc['lastName'],
+      email: userDoc['email'],
+      roleType: userDoc['roleType'],
+      likedTopics: likedTopics,
+      dislikedTopics: dislikedTopics,
+    );
+    return user;
   }
 
   Future getUserList() async {
