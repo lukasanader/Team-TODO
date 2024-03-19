@@ -19,7 +19,6 @@ void main() async {
     await tester.ensureVisible(find.text('Patient'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Patient'));
-
     await tester.enterText(find.byKey(const Key('titleField')), 'Test title');
     await tester.enterText(
         find.byKey(const Key('descField')), 'Test description');
@@ -57,6 +56,15 @@ void main() async {
     await tester.pumpWidget(basicWidget!);
 
     await fillRequiredFields(tester);
+    expect(tester.testTextInput.isVisible, true);
+    final outsideGestureDetectorFinder = find.descendant(
+      of: find.byType(
+          CreateTopicScreen), // Change this to the appropriate type of your widget
+      matching: find.byType(GestureDetector),
+    );
+    await tester.tap(outsideGestureDetectorFinder.first);
+    await tester.pump();
+    expect(tester.testTextInput.isVisible, false);
     int maxScrollAttempts = 5;
 
     for (int i = 0; i < maxScrollAttempts; i++) {

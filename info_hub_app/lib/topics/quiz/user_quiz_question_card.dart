@@ -1,12 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:info_hub_app/topics/quiz/quiz_service.dart';
+import 'package:info_hub_app/model/model.dart';
+
 
 import 'quiz_answer_card.dart';
 
 
 class UserQuizQuestionCard extends StatefulWidget {
-  QueryDocumentSnapshot question;
+  QuizQuestion question;
   int questionNo = -1;
   bool completed;
   final FirebaseFirestore firestore;
@@ -43,7 +44,7 @@ class _UserQuizQuestionCardState extends State<UserQuizQuestionCard> {
           children: [
             Row(children: [
             Text(
-              "${widget.questionNo}. ${widget.question['question']}",
+              "${widget.questionNo}. ${widget.question.question}",
               style: const TextStyle(fontSize: 18),
             ),
             if (correct)
@@ -52,7 +53,7 @@ class _UserQuizQuestionCardState extends State<UserQuizQuestionCard> {
             const Icon(Icons.cancel, color: Colors.red),
             ]),
             if(!correct && widget.completed)
-            Text('Correct answer(s) was: '+widget.question['correctAnswers'].toString().replaceAll('[', '').replaceAll(']', '')),
+            Text('Correct answer(s) was: ${widget.question.correctAnswers.toString().replaceAll('[', '').replaceAll(']', '')}'),
             SizedBox(
               height: 300,
               child: 
@@ -62,7 +63,7 @@ class _UserQuizQuestionCardState extends State<UserQuizQuestionCard> {
                   return AnswerCard(
                     key: Key('answerCard_$index'),
                     answer: answers[index],
-                    anserNo: index + 1,
+                    answerNo: index + 1,
                     onSelected: onSelected,
                   );
                 },
@@ -88,7 +89,7 @@ bool onSelected(int index, bool isSelected) {
     return true;
   }
   Future getAnswerList() async {
-    List<dynamic> tempList = widget.question['correctAnswers'] + widget.question['wrongAnswers'];
+    List<dynamic> tempList = widget.question.correctAnswers+ widget.question.wrongAnswers;
     setState(() {
       answers = tempList;
       answers.shuffle();
@@ -108,7 +109,7 @@ void checkQuestion(){
   for(int i=0; i<indexOfAnswers.length; i++){
     chosenAnswers.add(answers[indexOfAnswers[i]]);
   }
-  if(const ListEquality().equals(chosenAnswers,widget.question['correctAnswers']) && !correct){
+  if(const ListEquality().equals(chosenAnswers,widget.question.correctAnswers) && !correct){
     Future.delayed(Duration.zero, () {
       setState(() {
         correct = true;

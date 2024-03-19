@@ -104,6 +104,7 @@ class _AdminHomepageState extends State<AdminHomepage> {
                   builder: (BuildContext context) {
                     return ViewQuestionPage(
                       firestore: widget.firestore,
+                      auth: widget.auth,
                     );
                   },
                 ),

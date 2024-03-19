@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:chips_choice/chips_choice.dart';
 import 'package:flutter/material.dart';
+import 'package:info_hub_app/controller/topic_question_controller.dart';
+import 'package:info_hub_app/model/model.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:video_player/video_player.dart';
 import 'package:file_picker/file_picker.dart';
@@ -13,7 +15,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:path/path.dart';
 import 'package:path/path.dart' as path;
 import 'package:info_hub_app/ask_question/question_card.dart';
-import 'package:info_hub_app/ask_question/question_service.dart';
 import 'transitions/checkmark_transition.dart';
 
 class CreateTopicScreen extends StatefulWidget {
@@ -159,332 +160,348 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-          backgroundColor: Colors.red,
-          title: Text(
-            appBarTitle,
-            style: const TextStyle(
-                color: Colors.white, fontWeight: FontWeight.bold),
-          ),
-          actions: <Widget>[
-            if (!editing && !drafting)
-              TextButton(
-                key: const Key('draft_btn'),
-                onPressed: () async {
-                  await _uploadTopic(context, true);
-                },
-                child: const Text(
-                  'Save Draft',
-                  style: TextStyle(color: Colors.white),
-                ),
-              )
-          ]),
-      body: Form(
-        key: _topicFormKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: ChipsChoice<dynamic>.multiple(
-                        value: _tags,
-                        onChanged: (val) => setState(() => _tags = val),
-                        choiceItems: C2Choice.listFrom<String, String>(
-                          source: options,
-                          value: (i, v) => v,
-                          label: (i, v) => v,
-                        ),
-                        choiceCheckmark: true,
-                        choiceStyle: C2ChipStyle.outlined(),
-                      ),
-                    ),
-                    if (_tags.isEmpty)
-                      const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 8.0),
-                        child: Text(
-                          'Please select at least one tag.',
-                          style: TextStyle(color: Colors.red),
+    return GestureDetector(
+      onTap: () {
+        FocusScope.of(context).unfocus();
+      },
+      child: Scaffold(
+        appBar: AppBar(
+            backgroundColor: Colors.red,
+            title: Text(
+              appBarTitle,
+              style: const TextStyle(
+                  color: Colors.white, fontWeight: FontWeight.bold),
+            ),
+            actions: <Widget>[
+              if (!editing && !drafting)
+                TextButton(
+                  key: const Key('draft_btn'),
+                  onPressed: () async {
+                    await _uploadTopic(context, true);
+                  },
+                  child: const Text(
+                    'Save Draft',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                )
+            ]),
+        body: Form(
+          key: _topicFormKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(20.0),
+                        child: ChipsChoice<dynamic>.multiple(
+                          value: _tags,
+                          onChanged: (val) => setState(() => _tags = val),
+                          choiceItems: C2Choice.listFrom<String, String>(
+                            source: options,
+                            value: (i, v) => v,
+                            label: (i, v) => v,
+                          ),
+                          choiceCheckmark: true,
+                          choiceStyle: C2ChipStyle.outlined(),
                         ),
                       ),
-                    TextFormField(
-                      key: const Key('titleField'),
-                      controller: titleController,
-                      maxLength: 70,
-                      decoration: const InputDecoration(
-                        labelText: 'Title *',
-                        prefixIcon:
-                            Icon(Icons.drive_file_rename_outline_outlined),
-                        border: OutlineInputBorder(),
-                      ),
-                      validator: validateTitle,
-                    ),
-                    SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: [
-                          IconButton(
-                              onPressed: () {
-                                createNewCategoryDialog(context);
-                              },
-                              icon: const Icon(Icons.add)),
-                          IconButton(
-                              onPressed: () {
-                                deleteCategoryDialog(context);
-                              },
-                              icon: const Icon(Icons.close)),
-                          if (_categoriesOptions.isEmpty)
-                            const Text('Add a category'),
-                          if (_categoriesOptions.isNotEmpty)
-                            Padding(
-                              padding: const EdgeInsets.all(20.0),
-                              child: ChipsChoice<dynamic>.multiple(
-                                value: _categories,
-                                onChanged: (val) =>
-                                    setState(() => _categories = val),
-                                choiceItems: C2Choice.listFrom<String, String>(
-                                  source: _categoriesOptions,
-                                  value: (i, v) => v,
-                                  label: (i, v) => v,
-                                ),
-                                choiceCheckmark: true,
-                                choiceStyle: C2ChipStyle.outlined(),
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 10.0),
-                    TextFormField(
-                      key: const Key('descField'),
-                      controller: descriptionController,
-                      maxLines: 5, // Reduced maxLines
-                      maxLength: 500,
-                      decoration: const InputDecoration(
-                        labelText: 'Description *',
-                        prefixIcon: Icon(Icons.description_outlined),
-                        border: OutlineInputBorder(),
-                      ),
-                      validator: validateDescription,
-                    ),
-                    const SizedBox(height: 10.0),
-                    TextFormField(
-                      key: const Key('linkField'),
-                      controller: articleLinkController,
-                      decoration: const InputDecoration(
-                        labelText: 'Link article',
-                        prefixIcon: Icon(Icons.link_outlined),
-                        border: OutlineInputBorder(),
-                      ),
-                      validator: validateArticleLink,
-                    ),
-                    const SizedBox(height: 10.0),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 10.0),
-                      child: OutlinedButton(
-                          style: OutlinedButton.styleFrom(
-                            minimumSize: const Size(double.infinity, 50),
+                      if (_tags.isEmpty)
+                        const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 8.0),
+                          child: Text(
+                            'Please select at least one tag.',
+                            style: TextStyle(color: Colors.red),
                           ),
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => CreateQuiz(
-                                    firestore: widget.firestore,
-                                    addQuiz: addQuiz),
-                              ),
-                            );
-                          },
-                          child: Row(children: [
-                            const SizedBox(
-                              width: 150,
-                            ),
-                            const Text(
-                              "ADD QUIZ",
-                              style: TextStyle(
-                                color: Colors.red,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            if (quizAdded)
-                              const Icon(
-                                Icons.check,
-                                color: Colors.green,
-                              )
-                          ])),
-                    ),
-                    const SizedBox(height: 10.0),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        ElevatedButton.icon(
-                          key: const Key('uploadMediaButton'),
-                          onPressed: () {
-                            if (_videoURL != null || _imageURL != null) {
-                              changingMedia = true;
-                            }
-                            if (_videoURL == null && _imageURL == null) {
-                              changingMedia = false;
-                            }
-                            _showMediaUploadOptions(context);
-                          },
-                          icon: const Icon(
-                            Icons.cloud_upload_outlined,
-                          ),
-                          label: _videoURL != null || _imageURL != null
-                              ? const Text(
-                                  'Change Media',
-                                  style: TextStyle(
-                                    color: Colors.red,
-                                    fontWeight: FontWeight.bold,
+                        ),
+                      TextFormField(
+                        key: const Key('titleField'),
+                        controller: titleController,
+                        maxLength: 70,
+                        decoration: const InputDecoration(
+                          labelText: 'Title *',
+                          prefixIcon:
+                              Icon(Icons.drive_file_rename_outline_outlined),
+                          border: OutlineInputBorder(),
+                        ),
+                        validator: validateTitle,
+                      ),
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            IconButton(
+                                onPressed: () {
+                                  createNewCategoryDialog(context);
+                                },
+                                icon: const Icon(Icons.add)),
+                            IconButton(
+                                onPressed: () {
+                                  deleteCategoryDialog(context);
+                                },
+                                icon: const Icon(Icons.close)),
+                            if (_categoriesOptions.isEmpty)
+                              const Text('Add a category'),
+                            if (_categoriesOptions.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.all(20.0),
+                                child: ChipsChoice<dynamic>.multiple(
+                                  value: _categories,
+                                  onChanged: (val) =>
+                                      setState(() => _categories = val),
+                                  choiceItems:
+                                      C2Choice.listFrom<String, String>(
+                                    source: _categoriesOptions,
+                                    value: (i, v) => v,
+                                    label: (i, v) => v,
                                   ),
-                                )
-                              : const Text(
-                                  'Upload Media',
-                                  style: TextStyle(
-                                    color: Colors.red,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                  choiceCheckmark: true,
+                                  choiceStyle: C2ChipStyle.outlined(),
                                 ),
-                          style: ElevatedButton.styleFrom(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10.0),
-                            ),
-                          ),
+                              ),
+                          ],
                         ),
-                        const SizedBox(width: 10),
-                        if (_videoURL != null || _imageURL != null)
-                          ElevatedButton.icon(
-                            key: const Key('moreMediaButton'),
+                      ),
+                      const SizedBox(height: 10.0),
+                      TextFormField(
+                        key: const Key('descField'),
+                        controller: descriptionController,
+                        maxLines: 5, // Reduced maxLines
+                        maxLength: 500,
+                        decoration: const InputDecoration(
+                          labelText: 'Description *',
+                          prefixIcon: Icon(Icons.description_outlined),
+                          border: OutlineInputBorder(),
+                        ),
+                        validator: validateDescription,
+                      ),
+                      const SizedBox(height: 10.0),
+                      TextFormField(
+                        key: const Key('linkField'),
+                        controller: articleLinkController,
+                        decoration: const InputDecoration(
+                          labelText: 'Link article',
+                          prefixIcon: Icon(Icons.link_outlined),
+                          border: OutlineInputBorder(),
+                        ),
+                        validator: validateArticleLink,
+                      ),
+                      const SizedBox(height: 10.0),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 10.0),
+                        child: OutlinedButton(
+                            style: OutlinedButton.styleFrom(
+                              minimumSize: const Size(double.infinity, 50),
+                            ),
                             onPressed: () {
-                              changingMedia = false;
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => CreateQuiz(
+                                    firestore: widget.firestore,
+                                    auth: widget.auth,
+                                    addQuiz: addQuiz,
+                                    isEdit: editing,
+                                    topic: widget.topic,
+                                  ),
+                                ),
+                              );
+                            },
+                            child: Row(children: [
+                              const SizedBox(
+                                width: 150,
+                              ),
+                              const Text(
+                                "ADD QUIZ",
+                                style: TextStyle(
+                                  color: Colors.red,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              if (quizAdded)
+                                const Icon(
+                                  Icons.check,
+                                  color: Colors.green,
+                                )
+                            ])),
+                      ),
+                      const SizedBox(height: 10.0),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          ElevatedButton.icon(
+                            key: const Key('uploadMediaButton'),
+                            onPressed: () {
+                              if (_videoURL != null || _imageURL != null) {
+                                changingMedia = true;
+                              }
+                              if (_videoURL == null && _imageURL == null) {
+                                changingMedia = false;
+                              }
                               _showMediaUploadOptions(context);
                             },
                             icon: const Icon(
-                              Icons.add,
+                              Icons.cloud_upload_outlined,
                             ),
-                            label: const Text(
-                              'Add More Media',
-                              style: TextStyle(
-                                color: Colors.red,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
+                            label: _videoURL != null || _imageURL != null
+                                ? const Text(
+                                    'Change Media',
+                                    style: TextStyle(
+                                      color: Colors.red,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  )
+                                : const Text(
+                                    'Upload Media',
+                                    style: TextStyle(
+                                      color: Colors.red,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
                             style: ElevatedButton.styleFrom(
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10.0),
                               ),
                             ),
                           ),
-                      ],
-                    ),
-                    const SizedBox(height: 10.0),
-                    if (_videoURL != null && _chewieController != null)
-                      _videoPreviewWidget(),
-                    if (_imageURL != null) _imagePreviewWidget(),
-                    if (_videoURL != null || _imageURL != null)
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          if (mediaUrls.length > 1)
-                            IconButton(
-                              key: const Key('previousMediaButton'),
-                              icon: const Icon(Icons.arrow_circle_left_rounded,
-                                  color: Color.fromRGBO(150, 100, 200, 1.0)),
-                              onPressed: () async {
-                                if (currentIndex - 1 >= 0) {
-                                  currentIndex -= 1;
-                                  if (mediaUrls[currentIndex]['mediaType'] ==
-                                      'video') {
-                                    _videoURL = mediaUrls[currentIndex]['url'];
-                                    _imageURL = null;
-                                    setState(() {});
-                                    await _initializeVideoPlayer();
-
-                                    setState(() {});
-                                  } else if (mediaUrls[currentIndex]
-                                          ['mediaType'] ==
-                                      'image') {
-                                    _imageURL = mediaUrls[currentIndex]['url'];
-                                    _videoURL = null;
-
-                                    setState(() {});
-                                    await _initializeImage();
-                                  }
-                                }
+                          const SizedBox(width: 10),
+                          if (_videoURL != null || _imageURL != null)
+                            ElevatedButton.icon(
+                              key: const Key('moreMediaButton'),
+                              onPressed: () {
+                                changingMedia = false;
+                                _showMediaUploadOptions(context);
                               },
-                              tooltip: 'Previous Video',
-                            ),
-                          if (mediaUrls.length > 1)
-                            IconButton(
-                              key: const Key('nextMediaButton'),
-                              icon: const Icon(Icons.arrow_circle_right_rounded,
-                                  color: Color.fromRGBO(150, 100, 200, 1.0)),
-                              onPressed: () async {
-                                if (currentIndex + 1 < mediaUrls.length) {
-                                  currentIndex += 1;
-                                  if (mediaUrls[currentIndex]['mediaType'] ==
-                                      'video') {
-                                    _videoURL = mediaUrls[currentIndex]['url'];
-                                    _imageURL = null;
-                                    setState(() {});
-                                    await _initializeVideoPlayer();
-                                    setState(() {});
-                                  } else if (mediaUrls[currentIndex]
-                                          ['mediaType'] ==
-                                      'image') {
-                                    _imageURL = mediaUrls[currentIndex]['url'];
-                                    _videoURL = null;
-                                    setState(() {});
-                                    await _initializeImage();
-                                  }
-                                }
-                              },
-                              tooltip: 'Next Video',
+                              icon: const Icon(
+                                Icons.add,
+                              ),
+                              label: const Text(
+                                'Add More Media',
+                                style: TextStyle(
+                                  color: Colors.red,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                ),
+                              ),
                             ),
                         ],
                       ),
-                  ],
+                      const SizedBox(height: 10.0),
+                      if (_videoURL != null && _chewieController != null)
+                        _videoPreviewWidget(),
+                      if (_imageURL != null) _imagePreviewWidget(),
+                      if (_videoURL != null || _imageURL != null)
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            if (mediaUrls.length > 1)
+                              IconButton(
+                                key: const Key('previousMediaButton'),
+                                icon: const Icon(
+                                    Icons.arrow_circle_left_rounded,
+                                    color: Color.fromRGBO(150, 100, 200, 1.0)),
+                                onPressed: () async {
+                                  if (currentIndex - 1 >= 0) {
+                                    currentIndex -= 1;
+                                    if (mediaUrls[currentIndex]['mediaType'] ==
+                                        'video') {
+                                      _videoURL =
+                                          mediaUrls[currentIndex]['url'];
+                                      _imageURL = null;
+                                      setState(() {});
+                                      await _initializeVideoPlayer();
+
+                                      setState(() {});
+                                    } else if (mediaUrls[currentIndex]
+                                            ['mediaType'] ==
+                                        'image') {
+                                      _imageURL =
+                                          mediaUrls[currentIndex]['url'];
+                                      _videoURL = null;
+                                      setState(() {});
+                                      await _initializeImage();
+                                    }
+                                  }
+                                },
+                                tooltip: 'Previous Video',
+                              ),
+                            if (mediaUrls.length > 1)
+                              IconButton(
+                                key: const Key('nextMediaButton'),
+                                icon: const Icon(
+                                    Icons.arrow_circle_right_rounded,
+                                    color: Color.fromRGBO(150, 100, 200, 1.0)),
+                                onPressed: () async {
+                                  if (currentIndex + 1 < mediaUrls.length) {
+                                    currentIndex += 1;
+                                    if (mediaUrls[currentIndex]['mediaType'] ==
+                                        'video') {
+                                      _videoURL =
+                                          mediaUrls[currentIndex]['url'];
+                                      _imageURL = null;
+                                      setState(() {});
+                                      await _initializeVideoPlayer();
+                                      setState(() {});
+                                    } else if (mediaUrls[currentIndex]
+                                            ['mediaType'] ==
+                                        'image') {
+                                      _imageURL =
+                                          mediaUrls[currentIndex]['url'];
+                                      _videoURL = null;
+                                      setState(() {});
+                                      await _initializeImage();
+                                    }
+                                  }
+                                },
+                                tooltip: 'Next Video',
+                              ),
+                          ],
+                        ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 15.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    width: 200, // Adjust the width as needed
-                    child: OutlinedButton(
-                      style: OutlinedButton.styleFrom(
-                        backgroundColor: Colors.red,
-                      ),
-                      onPressed: () async {
-                        if (_topicFormKey.currentState!.validate() &&
-                            _tags.isNotEmpty) {
-                          await _uploadTopic(context, false);
-                          await _showDeleteQuestionDialog(context);
-                        }
-                      },
-                      child: Text(
-                        editing ? "UPDATE TOPIC" : "PUBLISH TOPIC",
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 15.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: 200, // Adjust the width as needed
+                      child: OutlinedButton(
+                        style: OutlinedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                        ),
+                        onPressed: () async {
+                          if (_topicFormKey.currentState!.validate() &&
+                              _tags.isNotEmpty) {
+                            await _uploadTopic(context, false);
+                            await _showDeleteQuestionDialog(
+                                context, titleController.text);
+                          }
+                        },
+                        child: Text(
+                          editing ? "UPDATE TOPIC" : "PUBLISH TOPIC",
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -626,9 +643,12 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
     }
   }
 
-  Future<void> _showDeleteQuestionDialog(context) async {
-    questions = await QuestionService(firestore: widget.firestore)
-        .getRelevantQuestions(titleController.text);
+  Future<void> _showDeleteQuestionDialog(
+      BuildContext context, String title) async {
+    final controller =
+        TopicQuestionController(firestore: widget.firestore, auth: widget.auth);
+    List<TopicQuestion> questions =
+        await controller.getRelevantQuestions(title);
 
     // ignore: use_build_context_synchronously
     await showDialog(
@@ -655,19 +675,13 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                           );
                         } else {
                           return QuestionCard(
-                            questions[index] as QueryDocumentSnapshot,
-                            widget.firestore,
-                            () async {
-                              List<dynamic> updatedQuestions =
-                                  await QuestionService(
-                                          firestore: widget.firestore)
-                                      .getRelevantQuestions(
-                                          titleController.text);
-                              setState(() {
-                                questions = updatedQuestions;
-                              });
-                            },
-                          );
+                              questions[index], widget.firestore, () async {
+                            List<TopicQuestion> updatedQuestions =
+                                await controller.getRelevantQuestions(title);
+                            setState(() {
+                              questions = updatedQuestions;
+                            });
+                          }, widget.auth);
                         }
                       },
                     ),
@@ -692,9 +706,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                                   TextButton(
                                     onPressed: () async {
                                       // Delete the question from the database
-                                      QuestionService(
-                                              firestore: widget.firestore)
-                                          .deleteQuestions(questions);
+                                      controller.deleteAllQuestions(questions);
                                       setState(
                                         () {
                                           questions = [];
