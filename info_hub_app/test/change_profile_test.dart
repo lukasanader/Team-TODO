@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:info_hub_app/change_profile/change_profile.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
+import 'package:info_hub_app/profile_view/profile_view.dart';
 
 void main() {
   testWidgets('Test if first name TextField is present',
@@ -176,6 +177,54 @@ void main() {
     // Ensure that the updated user document refers to the same user as the one with the old last name
     expect(updatedUserDoc['firstName'], 'NewFirstName');
     expect(updatedUserDoc['lastName'], 'NewLastName');
+  });
+
+  testWidgets('Test that profile view is updated after changes are saved',
+      (WidgetTester tester) async {
+    final firestore = FakeFirebaseFirestore();
+    final auth = MockFirebaseAuth();
+    auth.createUserWithEmailAndPassword(
+        email: 'testcaseemail@example.org', password: 'Password123!');
+
+    // Create a fake user document with old first name
+    final fakeUserId = auth.currentUser?.uid;
+    final fakeUser = {
+      'email': 'testcaseemail@example.org',
+      'roleType': 'Patient',
+      'firstName': 'OldFirstName',
+      'lastName': 'OldLastName',
+    };
+    await firestore.collection('Users').doc(fakeUserId).set(fakeUser);
+
+    // Mock FirebaseAuth to return the expected current user
+
+    await tester.pumpWidget(
+        MaterialApp(home: ProfileView(firestore: firestore, auth: auth)));
+    await tester.pumpAndSettle();
+    expect(find.text('Change Profile'), findsOneWidget);
+
+    await tester.ensureVisible(find.text('Change Profile'));
+    await tester.tap(find.text('Change Profile'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(ChangeProfile), findsOneWidget);
+
+    // Enter new first name and last name and passwords
+    final firstNameField = find.widgetWithText(TextField, 'First Name');
+    await tester.enterText(firstNameField, 'NewFirstName');
+    final lastNameField = find.widgetWithText(TextField, 'Last Name');
+    await tester.enterText(lastNameField, 'NewLastName');
+    final newPasswordField = find.widgetWithText(TextField, 'New Password');
+    await tester.enterText(newPasswordField, 'Password@123');
+    final confirmPasswordField =
+        find.widgetWithText(TextField, 'Confirm Password');
+    await tester.enterText(confirmPasswordField, 'Password@123');
+
+    // Trigger the save changes button
+    await tester.tap(find.text('Save Changes'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(ProfileView), findsOneWidget);
   });
 
   testWidgets('test if show/hide password switches between both options',

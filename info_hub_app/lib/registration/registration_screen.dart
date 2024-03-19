@@ -2,7 +2,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:info_hub_app/helpers/base.dart';
 import 'package:info_hub_app/main.dart';
 import 'package:info_hub_app/services/auth.dart';
 import 'package:info_hub_app/registration/user_model.dart';
