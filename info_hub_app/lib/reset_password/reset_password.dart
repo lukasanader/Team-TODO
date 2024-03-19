@@ -44,18 +44,23 @@ class _ResetPasswordState extends State<ResetPassword> {
                 labelText: 'Email',
               ),
             ),
-            const SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: () async {
-                if (!_isEmailValid(_emailController.text)) {
-                  setState(() {
-                    _errorText = 'Invalid email address';
-                  });
-                  return;
-                }
-                await _sendPasswordResetEmail(_emailController.text);
-              },
-              child: const Text('Send Email'),
+            const SizedBox(height: 15),
+            Center(
+              child: ElevatedButton(
+                onPressed: () async {
+                  if (!_isEmailValid(_emailController.text)) {
+                    setState(() {
+                      _errorText = 'Invalid email address';
+                    });
+                    return;
+                  }
+                  await _sendPasswordResetEmail(_emailController.text);
+                },
+                child: const Text(
+                  'Send Email',
+                  textAlign: TextAlign.center,
+                ),
+              ),
             ),
             const SizedBox(height: 10),
             Text(
