@@ -21,40 +21,42 @@ class Base extends StatefulWidget {
   FirebaseFirestore firestore;
   FirebaseStorage storage;
   ThemeManager themeManager;
+  String roleType;
   Base(
       {super.key,
       required this.auth,
       required this.storage,
       required this.firestore,
-      required this.themeManager});
+      required this.themeManager,
+      required this.roleType});
 
   @override
   State<Base> createState() => _BaseState();
 }
 
 class _BaseState extends State<Base> {
-  String currentUserRoleType = '';
+  // String currentUserRoleType = '';
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    getCurrentUserRoleType();
-  }
+  // @override
+  // void didChangeDependencies() {
+  //   super.didChangeDependencies();
+  //   getCurrentUserRoleType();
+  // }
 
-  Future<void> getCurrentUserRoleType() async {
-    User? user = widget.auth.currentUser;
-    if (user != null) {
-      DocumentSnapshot snapshot =
-          await widget.firestore.collection('Users').doc(user.uid).get();
+  // Future<void> getCurrentUserRoleType() async {
+  //   User? user = widget.auth.currentUser;
+  //   if (user != null) {
+  //     DocumentSnapshot snapshot =
+  //         await widget.firestore.collection('Users').doc(user.uid).get();
 
-      setState(() {
-        currentUserRoleType = snapshot['roleType'];
-      });
-    }
-  }
+  //     setState(() {
+  //       currentUserRoleType = snapshot['roleType'];
+  //     });
+  //   }
+  // }
 
   List<Widget> getScreenBasedOnUser() {
-    if (currentUserRoleType == 'admin') {
+    if (widget.roleType == 'admin') {
       return [
         AdminHomepage(
           auth: widget.auth,

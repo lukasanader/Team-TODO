@@ -105,11 +105,15 @@ class _LoginScreenState extends State<LoginScreen> {
                     User? user = await _auth.signInUser(
                         emailController.text, passwordController.text);
                     if (user != null) {
+                      DocumentSnapshot data =
+                          await widget.firestore.collection('Users').doc(user.uid).get();
+                      String roleType = data['roleType'];
                       Widget nextPage = Base(
                         firestore: widget.firestore,
                         auth: widget.auth,
                         storage: widget.storage,
                         themeManager: widget.themeManager,
+                        roleType: roleType,
                       );
                       Navigator.pushAndRemoveUntil(
                         context,

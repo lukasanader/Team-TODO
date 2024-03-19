@@ -73,7 +73,8 @@ void main() {
           storage: storage,
           auth: auth,
           firestore: firestore,
-          themeManager: themeManager),
+          themeManager: themeManager,
+          roleType: 'Patient',),
     );
   });
 
