@@ -571,6 +571,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
         'tags': _tags,
         'categories': _categories,
         'date': DateTime.now(),
+        'quizID': quizID,
       };
       if (saveAsDraft) {
         details['userID'] = widget.auth.currentUser?.uid as Object;
@@ -597,7 +598,9 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
       );
 
       await Future.delayed(const Duration(seconds: 2));
-
+      if (widget.topic!['quizID']!=''){
+        quizID=widget.topic!['quizID'];
+      }
       final topicDetails = {
         'title': titleController.text,
         'description': descriptionController.text,
@@ -610,6 +613,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
             editing ? widget.topic!['dislikes'] : widget.draft!['dislikes'],
         'date': editing ? widget.topic!['date'] : widget.draft!['date'],
         'tags': _tags,
+        'quizID': quizID
       };
 
       for (var item in originalUrls) {
