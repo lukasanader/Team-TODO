@@ -9,20 +9,24 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/discovery_view/discovery_view.dart';
 import 'package:info_hub_app/settings/settings_view.dart';
+import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:info_hub_app/home_page/home_page.dart';
 import 'package:info_hub_app/admin/admin_dash.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:info_hub_app/theme/theme_constants.dart';
 
 class Base extends StatefulWidget {
   FirebaseAuth auth;
   FirebaseFirestore firestore;
   FirebaseStorage storage;
+  ThemeManager themeManager;
   Base(
       {super.key,
       required this.auth,
       required this.storage,
-      required this.firestore});
+      required this.firestore,
+      required this.themeManager});
 
   @override
   State<Base> createState() => _BaseState();
@@ -37,14 +41,12 @@ class _BaseState extends State<Base> {
     getCurrentUserRoleType();
   }
 
-  Future<void> getCurrentUserRoleType() async{
+  Future<void> getCurrentUserRoleType() async {
     User? user = widget.auth.currentUser;
     if (user != null) {
-      DocumentSnapshot snapshot = await widget.firestore
-          .collection('Users')
-          .doc(user.uid)
-          .get();
-      
+      DocumentSnapshot snapshot =
+          await widget.firestore.collection('Users').doc(user.uid).get();
+
       setState(() {
         currentUserRoleType = snapshot['roleType'];
       });
@@ -58,20 +60,21 @@ class _BaseState extends State<Base> {
           auth: widget.auth,
           storage: widget.storage,
           firestore: widget.firestore,
+          themeManager: widget.themeManager,
         ),
         DiscoveryView(
           auth: widget.auth,
           storage: widget.storage,
           firestore: widget.firestore,
-        ), 
+        ),
         SettingsView(
           auth: widget.auth,
           firestore: widget.firestore,
           storage: widget.storage,
-        ), 
+          themeManager: widget.themeManager,
+        ),
       ];
-    }
-    else {
+    } else {
       return [
         HomePage(
           auth: widget.auth,
@@ -82,17 +85,16 @@ class _BaseState extends State<Base> {
           auth: widget.auth,
           storage: widget.storage,
           firestore: widget.firestore,
-        ), 
+        ),
         SettingsView(
           auth: widget.auth,
           firestore: widget.firestore,
           storage: widget.storage,
-        ), 
+          themeManager: widget.themeManager,
+        ),
       ];
     }
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -106,19 +108,25 @@ class _BaseState extends State<Base> {
     List<PersistentBottomNavBarItem> navBarsItems() {
       return [
         PersistentBottomNavBarItem(
-          icon: const Icon(Icons.home),
-          activeColorPrimary: Colors.blue,
-          inactiveColorPrimary: Colors.grey,
+          icon: const Icon(Icons.home_outlined),
+          activeColorPrimary: COLOR_PRIMARY_LIGHT,
+          inactiveColorPrimary: Theme.of(context).brightness == Brightness.light
+              ? Colors.black
+              : Colors.white,
         ),
         PersistentBottomNavBarItem(
-          icon: const Icon(Icons.search),
-          activeColorPrimary: Colors.blue,
-          inactiveColorPrimary: Colors.grey,
+          icon: const Icon(Icons.search_outlined),
+          activeColorPrimary: COLOR_PRIMARY_LIGHT,
+          inactiveColorPrimary: Theme.of(context).brightness == Brightness.light
+              ? Colors.black
+              : Colors.white,
         ),
         PersistentBottomNavBarItem(
-          icon: const Icon(Icons.settings),
-          activeColorPrimary: Colors.blue,
-          inactiveColorPrimary: Colors.grey,
+          icon: const Icon(Icons.settings_outlined),
+          activeColorPrimary: COLOR_PRIMARY_LIGHT,
+          inactiveColorPrimary: Theme.of(context).brightness == Brightness.light
+              ? Colors.black
+              : Colors.white,
         ),
       ];
     }
@@ -133,7 +141,9 @@ class _BaseState extends State<Base> {
       screens: buildScreens(),
       items: navBarsItems(),
       confineInSafeArea: true,
-      backgroundColor: Colors.white, // Default is Colors.white.
+      backgroundColor: Theme.of(context).brightness == Brightness.light
+          ? Colors.white
+          : Colors.black,
       handleAndroidBackButtonPress: true, // Default is true.
       resizeToAvoidBottomInset:
           true, // This needs to be true if you want to move up the screen when keyboard appears. Default is true.
@@ -142,7 +152,9 @@ class _BaseState extends State<Base> {
           true, // Recommended to set 'resizeToAvoidBottomInset' as true while using this argument. Default is true.
       decoration: NavBarDecoration(
         borderRadius: BorderRadius.circular(10.0),
-        colorBehindNavBar: Colors.white,
+        colorBehindNavBar: Theme.of(context).brightness == Brightness.light
+            ? Colors.white
+            : Colors.black,
       ),
       popAllScreensOnTapOfSelectedTab: true,
       popActionScreens: PopActionScreensType.all,
@@ -158,7 +170,7 @@ class _BaseState extends State<Base> {
         duration: Duration(milliseconds: 200),
       ),
       navBarStyle:
-          NavBarStyle.style5, // Choose the nav bar style with this property.
+          NavBarStyle.style6, // Choose the nav bar style with this property.
     );
   }
 }

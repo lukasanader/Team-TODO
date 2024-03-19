@@ -1,75 +1,74 @@
 import 'dart:io';
 import 'package:chips_choice/chips_choice.dart';
 import 'package:flutter/material.dart';
-
-import 'package:info_hub_app/ask_question/question_card.dart';
-import 'package:info_hub_app/ask_question/question_service.dart';
-import 'package:info_hub_app/topics/quiz/create_quiz.dart';
-import 'package:info_hub_app/topics/quiz/quiz_service.dart';
-
-
-import 'package:get/get.dart';
-import 'package:info_hub_app/topics/quiz/create_quiz.dart';
-
+import 'package:info_hub_app/controller/topic_question_controller.dart';
+import 'package:info_hub_app/model/model.dart';
+import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:video_player/video_player.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:chewie/chewie.dart';
 import 'package:flutter/services.dart';
+import 'package:info_hub_app/topics/quiz/create_quiz.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:path/path.dart';
+import 'package:path/path.dart' as path;
+import 'package:info_hub_app/ask_question/question_card.dart';
+import 'transitions/checkmark_transition.dart';
 
 class CreateTopicScreen extends StatefulWidget {
   final FirebaseFirestore firestore;
   final FirebaseStorage storage;
-  const CreateTopicScreen(
-      {super.key, required this.firestore, required this.storage});
+  QueryDocumentSnapshot? topic;
+  QueryDocumentSnapshot? draft;
+  final FirebaseAuth auth;
+  List<PlatformFile>? selectedFiles;
+  final ThemeManager themeManager;
+
+  CreateTopicScreen({
+    Key? key,
+    required this.firestore,
+    required this.storage,
+    this.topic,
+    this.draft,
+    this.selectedFiles,
+    required this.auth,
+    required this.themeManager,
+  }) : super(key: key);
 
   @override
   State<CreateTopicScreen> createState() => _CreateTopicScreenState();
 }
 
 class _CreateTopicScreenState extends State<CreateTopicScreen> {
-  final titleController = TextEditingController();
-  final descriptionController = TextEditingController();
-  final articleLinkController = TextEditingController();
-  final _topicFormKey = GlobalKey<FormState>();
-
-  List<dynamic> questions=[];
-
-  List<String> _tags = [];
+  late TextEditingController titleController = TextEditingController();
+  late TextEditingController descriptionController = TextEditingController();
+  late TextEditingController articleLinkController = TextEditingController();
+  late GlobalKey<FormState> _topicFormKey = GlobalKey<FormState>();
+  late List<Map<String, dynamic>> mediaUrls;
+  late List<Map<String, dynamic>> originalUrls;
+  late List<dynamic> networkUrls;
+  late int currentIndex;
+  late String prevTitle;
+  late String prevDescription;
+  late String prevArticleLink;
+  late String appBarTitle;
+  List<dynamic> questions = [];
+  late QueryDocumentSnapshot<Object?>? updatedTopicDoc;
+  List<dynamic> _tags = [];
   List<String> options = ['Patient', 'Parent', 'Healthcare Professional'];
-  List<String> _categories = [];
-  List<String> _categoriesOptions = [];
-  final TextEditingController _newCategoryNameController = TextEditingController();
-
   String quizID = '';
   bool quizAdded = false;
-
-  String? validateTitle(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Please enter a Title.';
-    }
-    return null;
-  }
-
-  String? validateArticleLink(String? value) {
-    if (value != null && value.isNotEmpty) {
-      final url = Uri.tryParse(value);
-      if (url == null || !url.hasAbsolutePath || !url.isAbsolute) {
-        return 'Link is not valid, please enter a valid link';
-      }
-    }
-    return null;
-  }
-
-  String? validateDescription(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Please enter a Description';
-    }
-    return null;
-  }
-
+  List<dynamic> _categories = [];
+  List<String> _categoriesOptions = [];
+  final TextEditingController _newCategoryNameController =
+      TextEditingController();
   String? _videoURL;
+  String? _imageURL;
+  bool changingMedia = false;
+  bool editing = false;
+  bool drafting = false;
   String? _downloadURL;
   VideoPlayerController? _videoController;
   ChewieController? _chewieController;
@@ -79,7 +78,6 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
     super.dispose();
     _videoController?.dispose();
     _chewieController?.dispose();
-    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   }
 
   @override
@@ -88,17 +86,101 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
     getCategoryList();
   }
 
+  @override
+  void initState() {
+    super.initState();
+
+    currentIndex = 0;
+    editing = widget.topic != null;
+    drafting = widget.draft != null;
+    mediaUrls = [];
+    originalUrls = [];
+    networkUrls = [];
+    appBarTitle = "Create a Topic";
+    updatedTopicDoc = null;
+    if (editing) {
+      mediaUrls = [...widget.topic!['media']];
+      originalUrls = [...mediaUrls];
+      List<dynamic> tempUrls = [];
+      for (var item in mediaUrls) {
+        tempUrls.add(item['url']);
+      }
+      networkUrls = [...tempUrls];
+      appBarTitle = "Edit Topic";
+      prevTitle = widget.topic!['title'];
+      prevDescription = widget.topic!['description'];
+      prevArticleLink = widget.topic!['articleLink'];
+
+      titleController = TextEditingController(text: prevTitle);
+      descriptionController = TextEditingController(text: prevDescription);
+      articleLinkController = TextEditingController(text: prevArticleLink);
+      _tags = widget.topic!['tags'];
+      _categories = widget.topic!['categories'];
+      initData();
+      updatedTopicDoc = widget.topic!;
+    } else if (drafting) {
+      mediaUrls = [...widget.draft!['media']];
+      originalUrls = [...mediaUrls];
+      List<dynamic> tempUrls = [];
+      for (var item in mediaUrls) {
+        tempUrls.add(item['url']);
+      }
+      networkUrls = [...tempUrls];
+      appBarTitle = "Draft";
+      prevTitle = widget.draft!['title'];
+      prevDescription = widget.draft!['description'];
+      prevArticleLink = widget.draft!['articleLink'];
+
+      titleController = TextEditingController(text: prevTitle);
+      descriptionController = TextEditingController(text: prevDescription);
+      articleLinkController = TextEditingController(text: prevArticleLink);
+      _tags = widget.draft!['tags'];
+      _categories = widget.draft!['categories'];
+      initData();
+    }
+  }
+
+  Future<void> initData() async {
+    List<dynamic> mediaData = widget.topic != null
+        ? widget.topic!['media']!
+        : widget.draft!['media']!;
+    if (mediaData.isNotEmpty) {
+      if (mediaData[currentIndex]['mediaType']! == 'video') {
+        _videoURL = mediaData[currentIndex]['url']!;
+        _imageURL = null;
+
+        await _initializeVideoPlayer();
+      } else {
+        _imageURL = mediaData[currentIndex]['url']!;
+        _videoURL = null;
+        await _initializeImage();
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.red,
-        title: const Text(
-          'Create a Topic',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
-      ),
+          backgroundColor: Colors.red,
+          title: Text(
+            appBarTitle,
+            style: const TextStyle(
+                color: Colors.white, fontWeight: FontWeight.bold),
+          ),
+          actions: <Widget>[
+            if (!editing && !drafting)
+              TextButton(
+                key: const Key('draft_btn'),
+                onPressed: () async {
+                  await _uploadTopic(context, true);
+                },
+                child: const Text(
+                  'Save Draft',
+                  style: TextStyle(color: Colors.white),
+                ),
+              )
+          ]),
       body: Form(
         key: _topicFormKey,
         child: Column(
@@ -112,7 +194,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                   children: [
                     Padding(
                       padding: const EdgeInsets.all(20.0),
-                      child: ChipsChoice<String>.multiple(
+                      child: ChipsChoice<dynamic>.multiple(
                         value: _tags,
                         onChanged: (val) => setState(() => _tags = val),
                         choiceItems: C2Choice.listFrom<String, String>(
@@ -122,9 +204,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                         ),
                         choiceCheckmark: true,
                         choiceStyle: C2ChipStyle.outlined(),
-
-                            ),
-
+                      ),
                     ),
                     if (_tags.isEmpty)
                       const Padding(
@@ -148,29 +228,27 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                     ),
                     SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
-                      child: Row (
+                      child: Row(
                         children: [
                           IconButton(
-                            onPressed: () {
-                              createNewCategoryDialog();
-                            }, 
-                            icon: const Icon(Icons.add)
-                          ),
+                              onPressed: () {
+                                createNewCategoryDialog(context);
+                              },
+                              icon: const Icon(Icons.add)),
                           IconButton(
-                            onPressed: () {
-                              deleteCategoryDialog();
-                            }, 
-                            icon: const Icon(Icons.close)
-                          ),
-                          if (_categoriesOptions.isEmpty) 
+                              onPressed: () {
+                                deleteCategoryDialog(context);
+                              },
+                              icon: const Icon(Icons.close)),
+                          if (_categoriesOptions.isEmpty)
                             const Text('Add a category'),
-                          
                           if (_categoriesOptions.isNotEmpty)
                             Padding(
                               padding: const EdgeInsets.all(20.0),
-                              child: ChipsChoice<String>.multiple(
+                              child: ChipsChoice<dynamic>.multiple(
                                 value: _categories,
-                                onChanged: (val) => setState(() => _categories = val),
+                                onChanged: (val) =>
+                                    setState(() => _categories = val),
                                 choiceItems: C2Choice.listFrom<String, String>(
                                   source: _categoriesOptions,
                                   value: (i, v) => v,
@@ -178,7 +256,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                                 ),
                                 choiceCheckmark: true,
                                 choiceStyle: C2ChipStyle.outlined(),
-                                    ),
+                              ),
                             ),
                         ],
                       ),
@@ -188,7 +266,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                       key: const Key('descField'),
                       controller: descriptionController,
                       maxLines: 5, // Reduced maxLines
-                      maxLength: 350,
+                      maxLength: 500,
                       decoration: const InputDecoration(
                         labelText: 'Description *',
                         prefixIcon: Icon(Icons.description_outlined),
@@ -208,102 +286,206 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                       validator: validateArticleLink,
                     ),
                     const SizedBox(height: 10.0),
-                    ElevatedButton.icon(
-                      key: const Key('uploadVideoButton'),
-                      onPressed: () async {
-                        _videoController?.pause();
-                        String? videoURL = await pickVideoFromDevice();
-
-                        if (videoURL != null) {
-                          setState(() {
-                            _videoURL = videoURL;
-                          });
-                          await _initializeVideoPlayer();
-                        }
-                      },
-                      icon: const Icon(
-                        Icons.cloud_upload_outlined,
-                      ),
-                      label: _videoURL == null
-                          ? const Text(
-                              'Upload a video',
-                              style: TextStyle(
-                                  color: Colors.red,
-                                  fontWeight: FontWeight.bold),
-                            )
-                          : const Text(
-                              'Change video',
-                              style: TextStyle(
-                                  color: Colors.red,
-                                  fontWeight: FontWeight.bold),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 10.0),
+                      child: OutlinedButton(
+                          style: OutlinedButton.styleFrom(
+                            minimumSize: const Size(double.infinity, 50),
+                          ),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => CreateQuiz(
+                                    firestore: widget.firestore,
+                                    auth: widget.auth,
+                                    addQuiz: addQuiz,
+                                    isEdit: editing,
+                                    topic: widget.topic,),
+                              ),
+                            );
+                          },
+                          child: Row(children: [
+                            const SizedBox(
+                              width: 150,
                             ),
-                      style: ElevatedButton.styleFrom(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                        ),
-                      ),
+                            const Text(
+                              "ADD QUIZ",
+                              style: TextStyle(
+                                color: Colors.red,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            if (quizAdded)
+                              const Icon(
+                                Icons.check,
+                                color: Colors.green,
+                              )
+                          ])),
                     ),
+                    const SizedBox(height: 10.0),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ElevatedButton.icon(
+                          key: const Key('uploadMediaButton'),
+                          onPressed: () {
+                            if (_videoURL != null || _imageURL != null) {
+                              changingMedia = true;
+                            }
+                            if (_videoURL == null && _imageURL == null) {
+                              changingMedia = false;
+                            }
+                            _showMediaUploadOptions(context);
+                          },
+                          icon: const Icon(
+                            Icons.cloud_upload_outlined,
+                          ),
+                          label: _videoURL != null || _imageURL != null
+                              ? const Text(
+                                  'Change Media',
+                                  style: TextStyle(
+                                    color: Colors.red,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                )
+                              : const Text(
+                                  'Upload Media',
+                                  style: TextStyle(
+                                    color: Colors.red,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                          style: ElevatedButton.styleFrom(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        if (_videoURL != null || _imageURL != null)
+                          ElevatedButton.icon(
+                            key: const Key('moreMediaButton'),
+                            onPressed: () {
+                              changingMedia = false;
+                              _showMediaUploadOptions(context);
+                            },
+                            icon: const Icon(
+                              Icons.add,
+                            ),
+                            label: const Text(
+                              'Add More Media',
+                              style: TextStyle(
+                                color: Colors.red,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10.0),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 10.0),
                     if (_videoURL != null && _chewieController != null)
                       _videoPreviewWidget(),
+                    if (_imageURL != null) _imagePreviewWidget(),
+                    if (_videoURL != null || _imageURL != null)
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          if (mediaUrls.length > 1)
+                            IconButton(
+                              key: const Key('previousMediaButton'),
+                              icon: const Icon(Icons.arrow_circle_left_rounded,
+                                  color: Color.fromRGBO(150, 100, 200, 1.0)),
+                              onPressed: () async {
+                                if (currentIndex - 1 >= 0) {
+                                  currentIndex -= 1;
+                                  if (mediaUrls[currentIndex]['mediaType'] ==
+                                      'video') {
+                                    _videoURL = mediaUrls[currentIndex]['url'];
+                                    _imageURL = null;
+                                    setState(() {});
+                                    await _initializeVideoPlayer();
+
+                                    setState(() {});
+                                  } else if (mediaUrls[currentIndex]
+                                          ['mediaType'] ==
+                                      'image') {
+                                    _imageURL = mediaUrls[currentIndex]['url'];
+                                    _videoURL = null;
+
+                                    setState(() {});
+                                    await _initializeImage();
+                                  }
+                                }
+                              },
+                              tooltip: 'Previous Video',
+                            ),
+                          if (mediaUrls.length > 1)
+                            IconButton(
+                              key: const Key('nextMediaButton'),
+                              icon: const Icon(Icons.arrow_circle_right_rounded,
+                                  color: Color.fromRGBO(150, 100, 200, 1.0)),
+                              onPressed: () async {
+                                if (currentIndex + 1 < mediaUrls.length) {
+                                  currentIndex += 1;
+                                  if (mediaUrls[currentIndex]['mediaType'] ==
+                                      'video') {
+                                    _videoURL = mediaUrls[currentIndex]['url'];
+                                    _imageURL = null;
+                                    setState(() {});
+                                    await _initializeVideoPlayer();
+                                    setState(() {});
+                                  } else if (mediaUrls[currentIndex]
+                                          ['mediaType'] ==
+                                      'image') {
+                                    _imageURL = mediaUrls[currentIndex]['url'];
+                                    _videoURL = null;
+                                    setState(() {});
+                                    await _initializeImage();
+                                  }
+                                }
+                              },
+                              tooltip: 'Next Video',
+                            ),
+                        ],
+                      ),
                   ],
                 ),
               ),
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10.0),
-              child: OutlinedButton(
-                  style: OutlinedButton.styleFrom(
-                    minimumSize: const Size(double.infinity, 50),
-                  ),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => CreateQuiz(
-                            firestore: widget.firestore, addQuiz: addQuiz),
+              padding: const EdgeInsets.symmetric(vertical: 15.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 200, // Adjust the width as needed
+                    child: OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        backgroundColor: Colors.red,
                       ),
-                    );
-                  },
-                  child: Row(children: [
-                    const SizedBox(
-                      width: 150,
-                    ),
-                    const Text(
-                      "ADD QUIZ",
-                      style: TextStyle(
-                        color: Colors.red,
-                        fontWeight: FontWeight.bold,
+                      onPressed: () async {
+                        if (_topicFormKey.currentState!.validate() &&
+                            _tags.isNotEmpty) {
+                          await _uploadTopic(context, false);
+                          await _showDeleteQuestionDialog(context, titleController.text);
+                        }
+                      },
+                      child: Text(
+                        editing ? "UPDATE TOPIC" : "PUBLISH TOPIC",
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
-                    if (quizAdded)
-                      const Icon(
-                        Icons.check,
-                        color: Colors.green,
-                      )
-                  ])),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10.0),
-              child: OutlinedButton(
-                style: OutlinedButton.styleFrom(
-                  minimumSize: const Size(double.infinity, 50),
-                ),
-
-                onPressed: () async{
-                  if (_topicFormKey.currentState!.validate()) {
-                    _uploadTopic();
-                    _showDeleteQuestionDialog();
-
-                    Navigator.pop(context);
-                  }
-                },
-                child: const Text(
-                  "PUBLISH TOPIC",
-                  style: TextStyle(
-                    color: Colors.red,
-                    fontWeight: FontWeight.bold,
                   ),
-                ),
+                ],
               ),
             ),
           ],
@@ -312,9 +494,145 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
     );
   }
 
- Future<void> _showDeleteQuestionDialog() async {
-  
-  questions =await QuestionService(firestore: widget.firestore).getRelevantQuestions(titleController.text);
+  void deleteDraft() async {
+    final user = widget.auth.currentUser;
+    if (user != null) {
+      final userDocRef = widget.firestore.collection('Users').doc(user.uid);
+
+      DocumentSnapshot userDoc = await userDocRef.get();
+
+      if (userDoc.exists) {
+        // Get the current list of drafted topics
+        List<String> draftedTopics =
+            List<String>.from(userDoc['draftedTopics']);
+
+        // Remove the current draft ID from the list
+        draftedTopics.remove(widget.draft!.id);
+
+        // Update the user document with the modified draftedTopics list
+        await userDocRef.update({
+          'draftedTopics': draftedTopics,
+        });
+
+        // Delete the draft from the topicDrafts collection
+        await widget.firestore
+            .collection('topicDrafts')
+            .doc(widget.draft!.id)
+            .delete();
+      }
+    }
+  }
+
+  Future<void> _uploadTopic(context, bool saveAsDraft) async {
+    List<Map<String, String>> mediaList = [];
+
+    for (var item in mediaUrls) {
+      String url = item['url']!;
+      String mediaType = item['mediaType']!;
+
+      if (networkUrls.contains(url)) {
+        _downloadURL = url;
+      } else {
+        _downloadURL = await uploadMediaToStorage(url);
+      }
+
+      Map<String, String> uploadData = {
+        'url': _downloadURL!,
+        'mediaType': mediaType,
+      };
+
+      mediaList.add(uploadData);
+    }
+    CollectionReference topicCollectionRef =
+        widget.firestore.collection('topics');
+
+    if (!editing && !drafting) {
+      Map<String, Object> details = {
+        'title': titleController.text,
+        'description': descriptionController.text,
+        'articleLink': articleLinkController.text,
+        'media': mediaList,
+        'views': 0,
+        'likes': 0,
+        'dislikes': 0,
+        'tags': _tags,
+        'categories': _categories,
+        'date': DateTime.now(),
+      };
+      if (saveAsDraft) {
+        details['userID'] = widget.auth.currentUser?.uid as Object;
+        CollectionReference topicDraftsCollectionRef =
+            widget.firestore.collection('topicDrafts');
+        final topicDraftRef = await topicDraftsCollectionRef.add(details);
+        final user = widget.auth.currentUser;
+        if (user != null) {
+          final userDocRef = widget.firestore.collection('Users').doc(user.uid);
+          await userDocRef.update({
+            'draftedTopics': FieldValue.arrayUnion([topicDraftRef.id])
+          });
+        }
+      } else {
+        await topicCollectionRef.add(details);
+      }
+      Navigator.pop(context);
+    } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const CheckmarkAnimationScreen(),
+        ),
+      );
+
+      await Future.delayed(const Duration(seconds: 2));
+
+      final topicDetails = {
+        'title': titleController.text,
+        'description': descriptionController.text,
+        'articleLink': articleLinkController.text,
+        'media': mediaList,
+        'views': editing ? widget.topic!['views'] : widget.draft!['views'],
+        'likes': editing ? widget.topic!['likes'] : widget.draft!['likes'],
+        'categories': _categories,
+        'dislikes':
+            editing ? widget.topic!['dislikes'] : widget.draft!['dislikes'],
+        'date': editing ? widget.topic!['date'] : widget.draft!['date'],
+        'tags': _tags,
+      };
+
+      for (var item in originalUrls) {
+        if (!mediaList
+            .map((map) => map['url'])
+            .toList()
+            .contains(item['url'])) {
+          deleteMediaFromStorage(item['url']);
+        }
+      }
+
+      if (editing) {
+        await topicCollectionRef.doc(widget.topic!.id).update(topicDetails);
+        QuerySnapshot? data = await topicCollectionRef.orderBy('title').get();
+        for (QueryDocumentSnapshot doc in data.docs) {
+          // Check if the document ID matches the ID of the topic
+          if (doc.id == widget.topic!.id) {
+            updatedTopicDoc = doc as QueryDocumentSnapshot<Object>;
+            break;
+          }
+        }
+      } else if (drafting) {
+        await topicCollectionRef.add(topicDetails);
+        deleteDraft();
+        Navigator.of(context).popUntil((route) => route.isFirst);
+      }
+      if (editing) {
+        Navigator.pop(context);
+        Navigator.pop(context, updatedTopicDoc);
+      }
+    }
+  }
+
+  Future<void> _showDeleteQuestionDialog(BuildContext context, String title) async {
+  final controller = TopicQuestionController(firestore: widget.firestore, auth: widget.auth);
+  List<TopicQuestion> questions =await controller.getRelevantQuestions(title);
   
   // ignore: use_build_context_synchronously
   await showDialog(
@@ -341,14 +659,15 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                       );
                     } else {
                       return QuestionCard(
-                          questions[index] as QueryDocumentSnapshot,
+                          questions[index],
                           widget.firestore,
                           () async {
-                              List<dynamic> updatedQuestions = await QuestionService(firestore: widget.firestore).getRelevantQuestions(titleController.text);
+                              List<TopicQuestion> updatedQuestions =  await controller.getRelevantQuestions(title);
                               setState(() {
                                 questions = updatedQuestions;
                               });
-                            },);
+                            },
+                            widget.auth);
                     }
                   },
                 ),
@@ -374,7 +693,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                           TextButton(
                             onPressed: () async{
                               // Delete the question from the database
-                              QuestionService(firestore: widget.firestore).deleteQuestions(questions);
+                              controller.deleteAllQuestions(questions);
                               setState(() {questions =[];},);
                               Navigator.of(context).pop();
                             },
@@ -407,24 +726,122 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
 
  }
 
-  
+  Future<void> _showMediaUploadOptions(BuildContext context) async {
+    await showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            ListTile(
+              leading: const Icon(Icons.image_outlined),
+              title: const Text('Upload Image'),
+              onTap: () {
+                Navigator.pop(context);
+                _pickFromDevice("image");
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.videocam_outlined),
+              title: const Text('Upload Video'),
+              onTap: () {
+                Navigator.pop(context);
+                _pickFromDevice("video");
+              },
+            ),
+          ],
+        );
+      },
+    );
+    return;
+  }
 
+  Future<void> _pickFromDevice(String type) async {
+    List<String> extensions = type == "image"
+        ? ['jpg', 'jpeg', 'png']
+        : ['mp4', 'mov', 'avi', 'mkv', 'wmv'];
 
-  Future<String?> pickVideoFromDevice() async {
-    try {
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['mp4', 'mov', 'avi', 'mkv', 'wmv'],
-      );
-      return result!.files.first.path;
-    } catch (e) {
-      return null;
+    FilePickerResult? result = widget.selectedFiles == null
+        ? await FilePicker.platform.pickFiles(
+            type: FileType.custom,
+            allowedExtensions: extensions,
+            allowMultiple: !changingMedia,
+          )
+        : null;
+
+    if (result != null) {
+      handleNavigation(result, null, type);
+    } else {
+      handleNavigation(null, widget.selectedFiles, type);
     }
   }
 
+  Future<void> handleNavigation(FilePickerResult? result,
+      List<PlatformFile>? selection, String type) async {
+    List<PlatformFile>? data =
+        result != null && result.files.isNotEmpty ? result.files : selection;
+
+    for (PlatformFile file in filterFiles(data!, type)) {
+      String mediaPath = file.path!;
+      setState(() {
+        _imageURL = type == 'image' ? mediaPath : null;
+        _videoURL = type == 'video' ? mediaPath : null;
+        Map<String, String> fileInfo = {
+          'url': mediaPath,
+          'mediaType': type,
+        };
+        if (!changingMedia) {
+          mediaUrls.add(fileInfo);
+          currentIndex = mediaUrls.length - 1;
+        } else {
+          mediaUrls[currentIndex] = fileInfo;
+        }
+        if (type == "image") {
+          _videoURL = null;
+        } else {
+          _imageURL = null;
+        }
+      });
+    }
+    if (data.isNotEmpty) {
+      if (type == 'image') {
+        await _initializeImage();
+      } else {
+        await _initializeVideoPlayer();
+      }
+    }
+  }
+
+  List<PlatformFile> filterFiles(List<PlatformFile> files, String type) {
+    return files.where((file) {
+      // Get the file extension
+      String extension = path.extension(file.path!).toLowerCase();
+
+      // Check if the extension is for an image file
+      if (type == "image") {
+        return extension == '.jpg' ||
+            extension == '.jpeg' ||
+            extension == '.png';
+      } else {
+        return extension == '.mp4' ||
+            extension == '.mov' ||
+            extension == '.avi' ||
+            extension == '.mkv' ||
+            extension == '.wmv' ||
+            extension == '.flv';
+      }
+    }).toList();
+  }
+
   Future<void> _initializeVideoPlayer() async {
+    _disposeVideoPlayer();
     if (_videoURL != null && _videoURL!.isNotEmpty) {
-      _videoController = VideoPlayerController.file(File(_videoURL!));
+      if (!networkUrls.contains(_videoURL)) {
+        _videoController = VideoPlayerController.file(File(_videoURL!));
+      } else {
+        _videoController =
+            VideoPlayerController.networkUrl(Uri.parse(_videoURL!));
+      }
 
       await _videoController!.initialize();
 
@@ -433,17 +850,25 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
         autoInitialize: true,
         looping: false,
         aspectRatio: 16 / 9,
-        deviceOrientationsAfterFullScreen: [
-          DeviceOrientation.portraitUp,
-          DeviceOrientation.portraitDown
-        ],
+        deviceOrientationsAfterFullScreen: [DeviceOrientation.portraitUp],
         allowedScreenSleep: false,
       );
-      _chewieController!.addListener(() {
-        if (!_chewieController!.isFullScreen) {
-          SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-        }
-      });
+      setState(() {});
+    }
+  }
+
+  void _disposeVideoPlayer() {
+    _videoController?.pause();
+    _videoController?.dispose();
+    _videoController = null;
+
+    _chewieController?.pause();
+    _chewieController?.dispose();
+    _chewieController = null;
+  }
+
+  Future<void> _initializeImage() async {
+    if (_imageURL != null && _imageURL!.isNotEmpty) {
       setState(() {});
     }
   }
@@ -457,75 +882,122 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
             aspectRatio: _videoController!.value.aspectRatio,
             child: Chewie(controller: _chewieController!),
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                IconButton(
-                  key: const Key('deleteButton'),
-                  icon: const Icon(Icons.delete, color: Colors.red),
-                  onPressed: _clearVideoSelection,
-                  tooltip: 'Remove Video',
-                ),
-              ],
+          if (!editing || networkUrls.contains(_videoURL))
+            Text(
+              'The above is a preview of your video.                         ${currentIndex + 1} / ${mediaUrls.length}',
+              key: const Key('upload_text_video'),
+              style: const TextStyle(color: Colors.grey),
             ),
-          ),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 8.0),
-            child: Text(
-              'the above is a preview of your video.',
-              style: TextStyle(color: Colors.grey),
+          if (editing && !networkUrls.contains(_videoURL))
+            Text(
+              'The above is a preview of your new video.                    ${currentIndex + 1} / ${mediaUrls.length}',
+              key: const Key('edit_text_video'),
+              style: const TextStyle(color: Colors.grey),
             ),
+          Row(
+            mainAxisAlignment:
+                MainAxisAlignment.center, // Aligns the button to the right
+            children: [
+              IconButton(
+                key: const Key('deleteVideoButton'),
+                icon: const Icon(Icons.delete_forever_outlined,
+                    color: Colors.red),
+                onPressed: _clearSelection,
+                tooltip: 'Remove Video',
+              ),
+            ],
           ),
         ],
       ),
     );
   }
 
-  void _uploadTopic() async {
-    if (_videoController != null) {
-      _downloadURL = await StoreData(widget.storage).uploadVideo(_videoURL!);
-    }
-
-    final topicDetails = {
-      'title': titleController.text,
-      'description': descriptionController.text,
-      'articleLink': articleLinkController.text,
-      'videoUrl': _downloadURL,
-      'views': 0,
-      'likes': 0,
-      'dislikes': 0,
-      'date': DateTime.now(),
-      'tags': _tags,
-      'categories': _categories,
-      'quizID': quizID
-    };
-
-    CollectionReference topicCollectionRef =
-        widget.firestore.collection('topics');
-
-    await topicCollectionRef.add(topicDetails);
+  Widget _imagePreviewWidget() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (!networkUrls.contains(_imageURL)) Image.file(File(_imageURL!)),
+        if (networkUrls.contains(_imageURL)) Image.network((_imageURL!)),
+        if (!editing || networkUrls.contains(_imageURL))
+          Text(
+            'The above is a preview of your image.                    ${currentIndex + 1} / ${mediaUrls.length}',
+            key: const Key('upload_text_image'),
+            style: const TextStyle(color: Colors.grey),
+          ),
+        if (editing && !networkUrls.contains(_imageURL))
+          Text(
+            'The above is a preview of your new image.                    ${currentIndex + 1} / ${mediaUrls.length}',
+            key: const Key('edit_text_image'),
+            style: const TextStyle(color: Colors.grey),
+          ),
+        Row(
+          mainAxisAlignment:
+              MainAxisAlignment.center, // Aligns the button to the right
+          children: [
+            IconButton(
+              key: const Key('deleteImageButton'),
+              icon:
+                  const Icon(Icons.delete_forever_outlined, color: Colors.red),
+              onPressed: _clearSelection,
+              tooltip: 'Remove Image',
+            ),
+          ],
+        ),
+      ],
+    );
   }
 
-  void _clearVideoSelection() {
+  Future<void> deleteMediaFromStorage(String url) async {
+    // get reference to the file
+    Reference ref = widget.storage.refFromURL(url);
+
+    // Delete the file
+    await ref.delete();
+  }
+
+  void _clearSelection() {
+    List<Map<String, dynamic>> oldMediaUrls = [...mediaUrls];
     setState(() {
-      _videoURL = null;
-      _downloadURL = null;
-      if (_videoController != null) {
-        _videoController!.pause();
-        _videoController!.dispose();
-        _videoController = null;
+      if (mediaUrls[currentIndex]['mediaType'] == 'video') {
+        _disposeVideoPlayer();
       }
-      if (_chewieController != null) {
-        _chewieController!.pause();
-        _chewieController!.dispose();
-        _chewieController = null;
+      if (mediaUrls.length == 1) {
+        currentIndex = 0;
+      }
+      mediaUrls.removeAt(currentIndex);
+      if (mediaUrls.isNotEmpty) {
+        if (currentIndex - 1 >= 0) {
+          currentIndex -= 1;
+        } else {
+          currentIndex += 1;
+        }
+        if (oldMediaUrls[currentIndex]['mediaType'] == 'video') {
+          _videoURL = oldMediaUrls[currentIndex]['url'];
+
+          _imageURL = null;
+          setState(() {});
+          _initializeVideoPlayer();
+          setState(() {});
+        } else if (oldMediaUrls[currentIndex]['mediaType'] == 'image') {
+          _imageURL = oldMediaUrls[currentIndex]['url'];
+          _videoURL = null;
+          setState(() {});
+          _initializeImage();
+
+          setState(() {});
+        }
+        if (mediaUrls.length == 1) {
+          currentIndex = 0;
+        }
+      } else {
+        if (oldMediaUrls[currentIndex]['mediaType'] == 'video') {
+          _videoURL = null;
+        } else {
+          _imageURL = null;
+        }
+        setState(() {});
       }
     });
-
-    // SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-
   }
 
   void addQuiz(String qid) {
@@ -535,55 +1007,79 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
     });
   }
 
-  void createNewCategoryDialog() {
+  // Validation functions
+  String? validateTitle(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter a Title.';
+    }
+    return null;
+  }
+
+  String? validateArticleLink(String? value) {
+    if (value != null && value.isNotEmpty) {
+      final url = Uri.tryParse(value);
+      if (url == null || !url.hasAbsolutePath || !url.isAbsolute) {
+        return 'Link is not valid, please enter a valid link';
+      }
+    }
+    return null;
+  }
+
+  String? validateDescription(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter a Description';
+    }
+    return null;
+  }
+
+  void createNewCategoryDialog(context) {
     _newCategoryNameController.clear();
     showDialog(
-      context: context, 
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Create a new category"),
-          content: TextField(
-            controller: _newCategoryNameController,
-          ),
-          actions: [
-            ElevatedButton(
-              onPressed: () async {
-                if (!_categoriesOptions.contains(_newCategoryNameController.text)
-                    && _newCategoryNameController.text.isNotEmpty) {
-                      addCategory(_newCategoryNameController.text);
-                      getCategoryList();
-                      Navigator.of(context).pop();
-                    }
-                else {
-                  return showDialog<void>(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return const AlertDialog(
-                        title: Text('Warning!'),
-                        content: Text("Make sure category names are different/not blank!"),
-                      );
-                    },
-                  );
-                }
-              },
-              child: const Text("OK"),
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text("Create a new category"),
+            content: TextField(
+              controller: _newCategoryNameController,
             ),
-          ],
-        );
-      });
+            actions: [
+              ElevatedButton(
+                onPressed: () async {
+                  if (!_categoriesOptions
+                          .contains(_newCategoryNameController.text) &&
+                      _newCategoryNameController.text.isNotEmpty) {
+                    addCategory(_newCategoryNameController.text);
+                    getCategoryList();
+                    Navigator.of(context).pop();
+                  } else {
+                    return showDialog<void>(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return const AlertDialog(
+                          title: Text('Warning!'),
+                          content: Text(
+                              "Make sure category names are different/not blank!"),
+                        );
+                      },
+                    );
+                  }
+                },
+                child: const Text("OK"),
+              ),
+            ],
+          );
+        });
   }
 
   Future getCategoryList() async {
-    QuerySnapshot data = await widget.firestore
-        .collection('categories')
-        .orderBy('name')
-        .get();
+    QuerySnapshot data =
+        await widget.firestore.collection('categories').orderBy('name').get();
 
     List<Object> dataList = List.from(data.docs);
     List<String> tempList = [];
 
     for (dynamic category in dataList) {
-      tempList.add(category['name']); 
+      tempList.add(category['name']);
     }
 
     setState(() {
@@ -591,13 +1087,12 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
     });
   }
 
-  void deleteCategoryDialog() {
+  void deleteCategoryDialog(context) {
     showDialog(
-      context: context, 
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (BuildContext context,
-          StateSetter setState) {
+        context: context,
+        builder: (BuildContext context) {
+          return StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
             return AlertDialog(
               title: const Text("Delete a category"),
               content: SizedBox(
@@ -609,20 +1104,19 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                     return ListTile(
                       title: Text(_categoriesOptions[index]),
                       onTap: () {
-                        deleteCategoryConfirmation(_categoriesOptions[index]);
+                        deleteCategoryConfirmation(
+                            _categoriesOptions[index], context);
                       },
                     );
                   },
                 ),
               ),
             );
-          }
-        
-        );
-      });
+          });
+        });
   }
 
-  Future<void> deleteCategoryConfirmation(String categoryName) async {
+  Future<void> deleteCategoryConfirmation(String categoryName, context) async {
     return showDialog<void>(
       context: context,
       builder: (BuildContext context) {
@@ -646,12 +1140,11 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
     );
   }
 
-
   Future<void> deleteCategory(String categoryName) async {
     QuerySnapshot categoryToDelete = await widget.firestore
-      .collection('categories')
-      .where('name', isEqualTo: categoryName)
-      .get();
+        .collection('categories')
+        .where('name', isEqualTo: categoryName)
+        .get();
 
     QueryDocumentSnapshot category = categoryToDelete.docs[0];
     await widget.firestore.collection('categories').doc(category.id).delete();
@@ -659,31 +1152,15 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
     setState(() {
       _categoriesOptions.remove(categoryName);
     });
-
   }
 
   Future<void> addCategory(String categoryName) async {
-    await widget.firestore
-      .collection('categories')
-      .add({'name' : categoryName});
+    await widget.firestore.collection('categories').add({'name': categoryName});
   }
 
-}
-
-
-
-
-class StoreData {
-  final FirebaseStorage _storage;
-
-  StoreData(this._storage);
-
-  Future<String> uploadVideo(String videoUrl) async {
-    Reference ref = _storage.ref().child('videos/${DateTime.now()}.mp4');
-    await ref.putFile(File(videoUrl));
-    String downloadURL = await ref.getDownloadURL();
-    return downloadURL;
+  Future<String> uploadMediaToStorage(String url) async {
+    Reference ref = widget.storage.ref().child('media/${basename(url)}');
+    await ref.putFile(File(url));
+    return await ref.getDownloadURL();
   }
 }
-
-
