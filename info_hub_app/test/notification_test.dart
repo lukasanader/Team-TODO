@@ -97,6 +97,7 @@ Future<void> main() async {
             StreamProvider<List<custom.Notification>>(
               create: (_) => DatabaseService(
                 uid: auth.currentUser!.uid,
+                auth: auth,
                 firestore: firestore,
               ).notifications,
               initialData: [],
