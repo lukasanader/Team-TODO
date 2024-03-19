@@ -5,9 +5,6 @@ import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 
 
-
-//to do : change profile test 
-
 void main() {
   testWidgets('Test if first name TextField is present', (WidgetTester tester) async {
     final firestore = FakeFirebaseFirestore();
@@ -153,8 +150,6 @@ testWidgets('Test if first name and last name are updated in Firestore', (Widget
   // Ensure that the updated user document refers to the same user as the one with the old last name
   expect(updatedUserDoc['firstName'], 'NewFirstName');
   expect(updatedUserDoc['lastName'], 'NewLastName');
-  
-  print(updatedUserDoc);
   
 });
 

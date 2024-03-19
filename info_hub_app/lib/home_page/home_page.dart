@@ -7,13 +7,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:info_hub_app/helpers/helper_widgets.dart';
 import 'package:info_hub_app/helpers/test_page.dart';
+import 'package:info_hub_app/message_feature/patient_message_view.dart';
 import 'package:info_hub_app/patient_experience/admin_experience_view.dart';
 import 'package:info_hub_app/patient_experience/patient_experience_view.dart';
 import 'package:info_hub_app/topics/topics_card.dart';
 import 'package:info_hub_app/notifications/notifications.dart';
 import 'package:info_hub_app/threads/threads.dart';
 import 'package:info_hub_app/services/database.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:info_hub_app/main.dart';
 import 'package:info_hub_app/change_profile/change_profile.dart';
 
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -21,6 +25,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:info_hub_app/webinar/webinar_view.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
+
+import 'package:info_hub_app/profile_view/profile_view.dart';
+
+import 'package:info_hub_app/helpers/helper.dart' show getTrending;
 
 class HomePage extends StatefulWidget {
   FirebaseFirestore firestore;
@@ -39,6 +47,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   List<Object> _topicsList = [];
+  List<Object> _FiltList = [];
   int topicLength = 0;
 
   @override
@@ -62,13 +71,13 @@ class _HomePageState extends State<HomePage> {
           title: const Text('Team TODO'),
           actions: <Widget>[
             IconButton(
-              icon: const Icon(Icons.notifications),
+              icon: const Icon(Icons.notifications_none_outlined),
               onPressed: () {
                 // Placeholder method for notification icon
                 // Navigate to notification page
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
+                  CupertinoPageRoute(
                       builder: (context) => Notifications(
                             auth: widget.auth,
                             firestore: widget.firestore,
@@ -77,20 +86,16 @@ class _HomePageState extends State<HomePage> {
               },
             ),
             IconButton(
-              icon: const Icon(Icons.account_circle),
+              icon: const Icon(Icons.email_outlined),
               onPressed: () {
-                // Placeholder method for profile picture icon
-                // Navigate to profile page
-                Navigator.of(context).push(
-                  CupertinoPageRoute(
-                    builder: (BuildContext context) {
-                      return ChangeProfile(
+                Navigator.push(
+                    context,
+                    CupertinoPageRoute(
+                      builder: (context) => PatientMessageView(
                         firestore: widget.firestore,
                         auth: widget.auth,
-                      );
-                    },
-                  ),
-                );
+                      ),
+                    ));
               },
             ),
           ],
@@ -112,6 +117,7 @@ class _HomePageState extends State<HomePage> {
         //above is the floating action button
         body: SingleChildScrollView(
           child: Column(children: [
+            addVerticalSpace(10),
             const Text(
               "Trending topics",
               textAlign: TextAlign.left,
@@ -119,25 +125,40 @@ class _HomePageState extends State<HomePage> {
                 fontSize: 18,
               ),
             ),
+            addVerticalSpace(10),
             ListView.builder(
-                shrinkWrap: true,
-                itemCount: topicLength == 0 ? 0 : topicLength,
-                itemBuilder: (context, index) {
+              physics: const NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              itemCount: topicLength == 0 ? 0 : topicLength * 2 - 1,
+              itemBuilder: (context, index) {
+                if (index.isOdd) {
+                  // Add Padding and Container between TopicCards
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Container(
+                      height: 1,
+                      color: Colors.grey,
+                    ),
+                  );
+                } else {
+                  final topicIndex = index ~/ 2;
                   return TopicCard(
-                      widget.firestore,
-                      widget.auth,
-                      widget.storage,
-                      _topicsList[index] as QueryDocumentSnapshot<Object>);
-                }),
-            const SizedBox(
-              height: 10,
+                    widget.firestore,
+                    widget.auth,
+                    widget.storage,
+                    _topicsList[topicIndex] as QueryDocumentSnapshot<Object>,
+                  );
+                }
+              },
             ),
+            addVerticalSpace(10),
             const Text(
               "Explore",
               style: TextStyle(
                 fontSize: 18,
               ),
             ),
+            addVerticalSpace(10),
             GridView.extent(
               shrinkWrap: true,
               maxCrossAxisExtent: 150,
@@ -151,6 +172,7 @@ class _HomePageState extends State<HomePage> {
                       context,
                       screen: ExperienceView(
                         firestore: widget.firestore,
+                        auth: widget.auth,
                       ),
                       withNavBar: false,
                     );
@@ -161,6 +183,7 @@ class _HomePageState extends State<HomePage> {
                   )),
                   child: const Text(
                     'Patient Experience',
+                    textAlign: TextAlign.center,
                   ),
                 ),
                 ElevatedButton(
@@ -175,7 +198,10 @@ class _HomePageState extends State<HomePage> {
                       shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   )),
-                  child: const Text('Webinars'),
+                  child: const Text(
+                    'Webinars',
+                    textAlign: TextAlign.center,
+                  ),
                 ),
               ],
             ),
@@ -184,17 +210,14 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future getTopicsList() async {
-    QuerySnapshot data = await widget.firestore.collection('topics').get();
-
-    double getTrending(QueryDocumentSnapshot topic) {
-      Timestamp timestamp = topic['date'];
-      DateTime date = timestamp.toDate();
-      int difference = DateTime.now().difference(date).inDays;
-      if (difference == 0) {
-        difference = 1;
-      }
-      return topic['views'] / difference;
-    }
+    String uid = widget.auth.currentUser!.uid;
+    DocumentSnapshot user =
+        await widget.firestore.collection('Users').doc(uid).get();
+    String role = user['roleType'];
+    QuerySnapshot data = await widget.firestore
+        .collection('topics')
+        .where('tags', arrayContains: role)
+        .get();
 
     setState(() {
       _topicsList = List.from(data.docs);

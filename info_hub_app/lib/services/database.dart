@@ -108,16 +108,51 @@ class DatabaseService {
       String email,
       String roleType,
       List<String> likedTopics,
-      List<String> dislikedTopics) async {
+      List<String> dislikedTopics,
+      bool hasOptedOutOfExperienceExpectations) async {
     CollectionReference usersCollectionRef = firestore.collection('Users');
-    return await usersCollectionRef.doc(auth.currentUser!.uid).set({
+    if (roleType == 'Patient') {
+      // If you are a patient, you have access to the story expectations
+      return await usersCollectionRef.doc(uid).set({
+        'firstName': firstName,
+        'lastName': lastName,
+        'email': email,
+        'roleType': roleType,
+        'likedTopics': likedTopics,
+        'dislikedTopics': dislikedTopics,
+        'hasOptedOutOfExperienceExpectations':
+            hasOptedOutOfExperienceExpectations,
+      });
+    }
+    return await usersCollectionRef.doc(uid).set({
       'firstName': firstName,
       'lastName': lastName,
       'email': email,
       'roleType': roleType,
       'likedTopics': likedTopics,
-      'dislikedTopics': dislikedTopics
+      'dislikedTopics': dislikedTopics,
     });
+  }
+
+  List<UserModel> userListFromSnapshot(QuerySnapshot snapshot) {
+    return snapshot.docs.map((doc) {
+      return UserModel(
+        uid: doc.id,
+        firstName: doc.get('firstName') ?? '',
+        lastName: doc.get('lastName') ?? '',
+        email: doc.get('email') ?? '',
+        roleType: doc.get('roleType') ?? '',
+        likedTopics: doc.get('likedTopics') ?? [],
+        dislikedTopics: doc.get('dislikedTopics') ?? [],
+        hasOptedOutOfExperienceExpectations:
+            doc.get('hasOptedOutOfExperienceExpectations') ?? false,
+      );
+    }).toList();
+  }
+
+  Stream<List<UserModel>> get users {
+    CollectionReference usersCollectionRef = firestore.collection('Users');
+    return usersCollectionRef.snapshots().map(userListFromSnapshot);
   }
 
   Future<void> createPreferences() async {

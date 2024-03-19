@@ -8,6 +8,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:info_hub_app/push_notifications/push_notifications.dart';
 import 'package:info_hub_app/registration/user_model.dart';
 import 'package:info_hub_app/services/database.dart';
+import 'package:info_hub_app/notifications/manage_notifications.dart';
 
 class AuthService {
   final FirebaseAuth auth;
@@ -23,7 +24,8 @@ class AuthService {
       String email,
       String roleType,
       List<String> likedTopics,
-      List<String> dislikedTopics) {
+      List<String> dislikedTopics,
+      bool hasOptedOutOfExperienceExpectations) {
     return UserModel(
         uid: user.uid,
         firstName: firstName,
@@ -31,7 +33,8 @@ class AuthService {
         lastName: lastName,
         roleType: roleType,
         likedTopics: likedTopics,
-        dislikedTopics: dislikedTopics);
+        dislikedTopics: dislikedTopics,
+        hasOptedOutOfExperienceExpectations: false);
   }
 
   Stream<User?> get user {
@@ -40,21 +43,30 @@ class AuthService {
 
   // register user
   Future registerUser(
-      String firstName,
-      String lastName,
-      String email,
-      String password,
-      String roleType,
-      List<String> likedTopics,
-      List<String> dislikedTopics) async {
+    String firstName,
+    String lastName,
+    String email,
+    String password,
+    String roleType,
+    List<String> likedTopics,
+    List<String> dislikedTopics,
+    bool hasOptedOutOfExperienceExpectations,
+  ) async {
     try {
       UserCredential result = await auth.createUserWithEmailAndPassword(
           email: email, password: password);
       User? user = result.user;
       if (user != null) {
         await DatabaseService(firestore: firestore, auth: auth, uid: user.uid)
-            .addUserData(firstName, lastName, email, roleType, likedTopics,
-                dislikedTopics);
+            .addUserData(
+          firstName,
+          lastName,
+          email,
+          roleType,
+          likedTopics,
+          dislikedTopics,
+          hasOptedOutOfExperienceExpectations,
+        );
         await DatabaseService(firestore: firestore, auth: auth, uid: user.uid)
             .createPreferences();
 
@@ -67,7 +79,7 @@ class AuthService {
 
         // create user model
         return _userFromFirebaseUser(user, firstName, lastName, email, roleType,
-            likedTopics, dislikedTopics);
+            likedTopics, dislikedTopics, hasOptedOutOfExperienceExpectations);
       }
     } catch (e) {
       if (kDebugMode) {

@@ -7,20 +7,20 @@ class ChangeProfile extends StatefulWidget {
   final FirebaseAuth auth;
 
   const ChangeProfile({
-    Key? key,
+    super.key,
     required this.firestore,
     required this.auth,
-  }) : super(key: key);
+  });
 
   @override
+  // ignore: library_private_types_in_public_api
   _ChangeProfileState createState() => _ChangeProfileState();
 }
 
 class _ChangeProfileState extends State<ChangeProfile> {
-
-
   final TextEditingController _newPasswordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
   String _firstNameErrorText = '';
@@ -41,15 +41,14 @@ class _ChangeProfileState extends State<ChangeProfile> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 10),
             TextField(
               controller: _firstNameController,
               decoration: InputDecoration(
                 labelText: 'First Name',
-                border: OutlineInputBorder(),
-                errorText: _firstNameErrorText.isNotEmpty ? _firstNameErrorText : null,
+                border: const UnderlineInputBorder(),
+                errorText:
+                    _firstNameErrorText.isNotEmpty ? _firstNameErrorText : null,
               ),
             ),
             const SizedBox(height: 10),
@@ -57,8 +56,9 @@ class _ChangeProfileState extends State<ChangeProfile> {
               controller: _lastNameController,
               decoration: InputDecoration(
                 labelText: 'Last Name',
-                border: OutlineInputBorder(),
-                errorText: _lastNameErrorText.isNotEmpty ? _lastNameErrorText : null,
+                border: const UnderlineInputBorder(),
+                errorText:
+                    _lastNameErrorText.isNotEmpty ? _lastNameErrorText : null,
               ),
             ),
             const SizedBox(height: 10),
@@ -67,7 +67,7 @@ class _ChangeProfileState extends State<ChangeProfile> {
               obscureText: true,
               decoration: const InputDecoration(
                 labelText: 'New Password',
-                border: OutlineInputBorder(),
+                border: UnderlineInputBorder(),
               ),
             ),
             const SizedBox(height: 10),
@@ -76,11 +76,12 @@ class _ChangeProfileState extends State<ChangeProfile> {
               obscureText: true,
               decoration: InputDecoration(
                 labelText: 'Confirm Password',
-                border: const OutlineInputBorder(),
-                errorText: _passwordErrorText.isNotEmpty ? _passwordErrorText : null,
+                border: const UnderlineInputBorder(),
+                errorText:
+                    _passwordErrorText.isNotEmpty ? _passwordErrorText : null,
               ),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () async {
                 setState(() {
@@ -99,16 +100,20 @@ class _ChangeProfileState extends State<ChangeProfile> {
                 await _updateProfile();
 
                 // Navigate and show success message
+                // ignore: use_build_context_synchronously
                 Navigator.pop(context);
+                // ignore: use_build_context_synchronously
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
+                  const SnackBar(
                     content: Text('Changes saved'),
                     duration: Duration(seconds: 5),
                     backgroundColor: Colors.green,
                   ),
                 );
               },
-              child: const Text('Save Changes'),
+              child: Text(
+                'Save Changes',
+              ),
             ),
           ],
         ),
@@ -147,10 +152,10 @@ class _ChangeProfileState extends State<ChangeProfile> {
     if (!_isPasswordValid(_newPasswordController.text)) {
       setState(() {
         _passwordErrorText = 'Password must contain:\n'
-                  '- At least one lowercase letter\n'
-                  '- One uppercase letter\n'
-                  '- One number\n'
-                  '- One special character';
+            '- At least one lowercase letter\n'
+            '- One uppercase letter\n'
+            '- One number\n'
+            '- One special character';
       });
       isValid = false;
     }
@@ -164,27 +169,29 @@ class _ChangeProfileState extends State<ChangeProfile> {
   }
 
   bool _isPasswordValid(String password) {
-    final passwordRegExp = RegExp(r'^(?=.*?[a-z])(?=.*?[A-Z])(?=.*?[0-9])(?=.*?[!@#$%^&*])');
+    final passwordRegExp =
+        RegExp(r'^(?=.*?[a-z])(?=.*?[A-Z])(?=.*?[0-9])(?=.*?[!@#$%^&*])');
     return passwordRegExp.hasMatch(password);
   }
 
-Future<void> _updateProfile() async {
-  final user = widget.auth.currentUser;
+  Future<void> _updateProfile() async {
+    final user = widget.auth.currentUser;
 
-  if (user != null) {
-    // Update first name and last name in Firestore
-    final docRef = widget.firestore.collection('Users');
+    if (user != null) {
+      // Update first name and last name in Firestore
+      final docRef = widget.firestore.collection('Users');
 
-    final querySnapshot = await docRef.get();
-    final userDoc = querySnapshot.docs.firstWhere((doc) => doc.id == user.uid);
-    
-    await docRef.doc(userDoc.id).update({
-      'firstName': _firstNameController.text,
-      'lastName': _lastNameController.text,
-    });
+      final querySnapshot = await docRef.get();
+      final userDoc =
+          querySnapshot.docs.firstWhere((doc) => doc.id == user.uid);
 
-    // Update password
-    await user.updatePassword(_newPasswordController.text);
+      await docRef.doc(userDoc.id).update({
+        'firstName': _firstNameController.text,
+        'lastName': _lastNameController.text,
+      });
+
+      // Update password
+      await user.updatePassword(_newPasswordController.text);
+    }
   }
-}
 }

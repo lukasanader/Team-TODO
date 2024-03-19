@@ -8,16 +8,19 @@ import 'package:info_hub_app/reset_password/reset_password.dart';
 import 'package:info_hub_app/services/auth.dart';
 import 'package:info_hub_app/helpers/base.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:info_hub_app/theme/theme_manager.dart';
 
 class LoginScreen extends StatefulWidget {
   final FirebaseFirestore firestore;
   final FirebaseAuth auth;
   final FirebaseStorage storage;
+  final ThemeManager themeManager;
   const LoginScreen(
       {super.key,
       required this.firestore,
       required this.auth,
-      required this.storage});
+      required this.storage,
+      required this.themeManager});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -25,6 +28,7 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   late AuthService _auth;
+  bool _obscureText = true;
 
   @override
   void initState() {
@@ -33,6 +37,12 @@ class _LoginScreenState extends State<LoginScreen> {
       firestore: widget.firestore,
       auth: widget.auth,
     );
+  }
+
+  void toggle () {
+    setState(() {
+      _obscureText = !_obscureText;
+    });
   }
 
   final _formKey = GlobalKey<FormState>();
@@ -75,7 +85,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 controller: passwordController,
                 hintText: 'Password',
                 labelText: 'Password',
-                obscureText: true,
+                obscureText: _obscureText,
                 validator: (value) {
                   if (value!.isEmpty) {
                     return 'Please enter your password';
@@ -85,31 +95,26 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 16),
               ElevatedButton(
+                onPressed: toggle,
+                child: new Text(_obscureText ? "Show" : "Hide"),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
                 onPressed: () async {
                   if (_formKey.currentState!.validate()) {
                     User? user = await _auth.signInUser(
                         emailController.text, passwordController.text);
                     if (user != null) {
-                      DocumentSnapshot snapshot = await widget.firestore
-                          .collection('Users')
-                          .doc(user.uid)
-                          .get();
-                      Widget nextPage;
-                      if (snapshot['roleType'] == 'admin') {
-                        nextPage = AdminHomepage(
-                          firestore: widget.firestore,
-                          storage: widget.storage,
-                        );
-                      } else {
-                        nextPage = Base(
-                          firestore: widget.firestore,
-                          auth: widget.auth,
-                          storage: widget.storage,
-                        );
-                      }
-                      Navigator.pushReplacement(
+                      Widget nextPage = Base(
+                        firestore: widget.firestore,
+                        auth: widget.auth,
+                        storage: widget.storage,
+                        themeManager: widget.themeManager,
+                      );
+                      Navigator.pushAndRemoveUntil(
                         context,
                         MaterialPageRoute(builder: (context) => nextPage),
+                        (Route<dynamic> route) => false,
                       );
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
