@@ -10,7 +10,6 @@ import 'package:info_hub_app/webinar/service/webinar_service.dart';
 import 'package:info_hub_app/webinar/webinar-screens/display_webinar.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:mockito/mockito.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 

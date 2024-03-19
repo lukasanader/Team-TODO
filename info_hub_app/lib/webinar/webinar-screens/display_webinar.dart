@@ -1,7 +1,9 @@
 // ignore_for_file: unused_field
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:info_hub_app/registration/user_model.dart';
 import 'package:info_hub_app/webinar/webinar-screens/chat.dart';
 import 'package:info_hub_app/webinar/service/webinar_service.dart';
@@ -150,50 +152,49 @@ class _WebinarScreenState extends State<WebinarScreen> {
     );
   }
 
-
 @override
 Widget build(BuildContext context) {
-  // Removes the entirety of the screen from the scope
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.help_outline),
-            onPressed: () {
-              _showGuideDialog();
-            },
-          ),
-        ],
-      ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
+  return Scaffold(
+    appBar: AppBar(
+      title: Text(widget.title),
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.help_outline),
+          onPressed: () {
+            _showGuideDialog();
+          },
+        ),
+      ],
+    ),
+    body: Stack(
         children: [
-          Center(
-            child: SizedBox(
-              width: double.infinity,
-              height:250,
-              child: Column(
-                children: [
-                  YoutubePlayer(
-                    controller: _controller,
-                    showVideoProgressIndicator: true,
-                    progressIndicatorColor: Colors.redAccent,
-                  ),
-                ],
+          Positioned.fill(
+            child: YoutubePlayer(
+              controller: _controller,
+              showVideoProgressIndicator: true,
+              progressIndicatorColor: Colors.redAccent,
+            ),
+          ),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 8.0),
+              child: Text(
+              "${participants.length} watching",
+              style: const TextStyle(
+                fontSize: 12,
+                fontFamily: 'Roboto',
+                color: Colors.grey,
+                fontStyle: FontStyle.italic,
               ),
             ),
           ),
-          Text(
-            "${participants.length} watching",
-            style: const TextStyle(
-              fontSize: 12,
-              fontFamily: 'Roboto', 
-              color: Colors.grey,
-              fontStyle: FontStyle.italic,
-            ),
           ),
-          Expanded(
+          Positioned(
+            top: 0,
+            bottom: MediaQuery.of(context).padding.bottom + 8.0,
+            left: 0,
+            right: 0,
             child: Chat(
               webinarID: widget.webinarID,
               user: widget.currentUser,
@@ -204,6 +205,9 @@ Widget build(BuildContext context) {
         ],
       ),
     );
-  }
+}
+
+
+
 
 }
