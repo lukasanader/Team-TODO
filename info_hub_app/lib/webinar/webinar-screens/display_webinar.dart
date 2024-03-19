@@ -153,49 +153,51 @@ class _WebinarScreenState extends State<WebinarScreen> {
     );
   }
 
-@override
-Widget build(BuildContext context) {
-  return Scaffold(
-    appBar: AppBar(
-      title: Text(widget.title),
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.help_outline),
-          onPressed: () {
-            _showGuideDialog();
-          },
-        ),
-      ],
-    ),
-    body: Stack(
-        children: [
-          Positioned.fill(
-            child: YoutubePlayer(
-              controller: _controller,
-              showVideoProgressIndicator: true,
-              progressIndicatorColor: Colors.redAccent,
-            ),
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.title),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.help_outline),
+            onPressed: () {
+              _showGuideDialog();
+            },
           ),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 8.0),
-              child: Text(
-              "${participants.length} watching",
-              style: const TextStyle(
-                fontSize: 12,
-                fontFamily: 'Roboto',
-                color: Colors.grey,
-                fontStyle: FontStyle.italic,
+        ],
+      ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 5.0), // Adjust top padding as needed
+            child: Container(
+              width: double.infinity,
+              height: 210, // Adjust height as needed
+              child: YoutubePlayer(
+                controller: _controller,
+                showVideoProgressIndicator: true,
+                progressIndicatorColor: Colors.redAccent,
               ),
             ),
           ),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: Align(
+              alignment: Alignment.center,
+              child: Text(
+                "${participants.length} watching",
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontFamily: 'Roboto',
+                  color: Colors.grey,
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+            ),
           ),
-          Positioned(
-            top: 0,
-            bottom: MediaQuery.of(context).padding.bottom + 8.0,
-            left: 0,
-            right: 0,
+          Expanded(
             child: Chat(
               webinarID: widget.webinarID,
               user: widget.currentUser,
@@ -206,9 +208,8 @@ Widget build(BuildContext context) {
         ],
       ),
     );
+  }
+
+
 }
 
-
-
-
-}
