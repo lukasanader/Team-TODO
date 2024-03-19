@@ -39,7 +39,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  void toggle () {
+  void toggle() {
     setState(() {
       _obscureText = !_obscureText;
     });
@@ -92,11 +92,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   }
                   return null;
                 },
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: toggle,
-                child: new Text(_obscureText ? "Show" : "Hide"),
               ),
               const SizedBox(height: 16),
               ElevatedButton(
@@ -157,24 +152,46 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget buildTextFormField({
-    required TextEditingController controller,
-    required String hintText,
-    required String labelText,
-    bool obscureText = false,
-    String? Function(String?)? validator,
-  }) {
-    return TextFormField(
-      controller: controller,
-      obscureText: obscureText,
-      autofocus: true,
-      textInputAction: TextInputAction.next,
-      decoration: InputDecoration(
-        hintText: hintText,
-        labelText: labelText,
-      ),
-      style: const TextStyle(color: Colors.black),
-      validator: validator,
-    );
+  Widget buildTextFormField(
+      {required TextEditingController controller,
+      required String hintText,
+      required String labelText,
+      bool obscureText = false,
+      String? Function(String?)? validator}) {
+    if (labelText == 'Password') {
+      return TextFormField(
+        controller: controller,
+        obscureText: obscureText,
+        autofocus: true,
+        textInputAction: TextInputAction.next,
+        decoration: InputDecoration(
+            hintText: hintText,
+            labelText: labelText,
+            suffixIcon: IconButton(
+              style: ButtonStyle(
+                overlayColor: MaterialStateProperty.all(Colors.transparent),
+                splashFactory: NoSplash.splashFactory,
+              ),
+              padding: const EdgeInsets.only(top: 15.0),
+              onPressed: toggle,
+              icon: Icon(
+                _obscureText ? Icons.visibility : Icons.visibility_off,
+              ),
+            )),
+        validator: validator,
+      );
+    } else {
+      return TextFormField(
+        controller: controller,
+        obscureText: obscureText,
+        autofocus: true,
+        textInputAction: TextInputAction.next,
+        decoration: InputDecoration(
+          hintText: hintText,
+          labelText: labelText,
+        ),
+        validator: validator,
+      );
+    }
   }
 }

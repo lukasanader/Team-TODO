@@ -103,7 +103,8 @@ ThemeData lightTheme = ThemeData(
         width: 2,
       ),
     ),
-    prefixIconColor: COLOR_SECONDARY_LIGHT,
+    prefixIconColor: COLOR_SECONDARY_DARK,
+    suffixIconColor: COLOR_SECONDARY_DARK,
   ),
 
   // Dropdown menu theme

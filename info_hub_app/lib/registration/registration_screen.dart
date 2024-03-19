@@ -28,11 +28,25 @@ class RegistrationScreen extends StatefulWidget {
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
   late AuthService _auth;
+  bool _obscurePasswordText = true;
+  bool _obscureConfirmPasswordText = true;
 
   @override
   void initState() {
     super.initState();
     _auth = AuthService(firestore: widget.firestore, auth: widget.auth);
+  }
+
+  void passwordToggle() {
+    setState(() {
+      _obscurePasswordText = !_obscurePasswordText;
+    });
+  }
+
+  void confirmPasswordToggle() {
+    setState(() {
+      _obscureConfirmPasswordText = !_obscureConfirmPasswordText;
+    });
   }
 
   final _formKey = GlobalKey<FormState>();
@@ -285,24 +299,70 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     );
   }
 
-  Widget buildTextFormField({
-    required TextEditingController controller,
-    required String hintText,
-    required String labelText,
-    bool obscureText = false,
-    String? Function(String?)? validator,
-  }) {
-    return TextFormField(
-      controller: controller,
-      obscureText: obscureText,
-      autofocus: true,
-      textInputAction: TextInputAction.next,
-      decoration: InputDecoration(
-        hintText: hintText,
-        labelText: labelText,
-      ),
-      style: const TextStyle(color: Colors.black),
-      validator: validator,
-    );
+  Widget buildTextFormField(
+      {required TextEditingController controller,
+      required String hintText,
+      required String labelText,
+      bool obscureText = false,
+      String? Function(String?)? validator}) {
+    if (labelText == 'Password') {
+      return TextFormField(
+        controller: controller,
+        obscureText: _obscurePasswordText,
+        autofocus: true,
+        textInputAction: TextInputAction.next,
+        decoration: InputDecoration(
+            hintText: hintText,
+            labelText: labelText,
+            suffixIcon: IconButton(
+              style: ButtonStyle(
+                overlayColor: MaterialStateProperty.all(Colors.transparent),
+                splashFactory: NoSplash.splashFactory,
+              ),
+              padding: const EdgeInsets.only(top: 15.0),
+              onPressed: passwordToggle,
+              icon: Icon(
+                _obscurePasswordText ? Icons.visibility : Icons.visibility_off,
+              ),
+            )),
+        validator: validator,
+      );
+    } else if (labelText == 'Confirm Password') {
+      return TextFormField(
+        controller: controller,
+        obscureText: _obscureConfirmPasswordText,
+        autofocus: true,
+        textInputAction: TextInputAction.next,
+        decoration: InputDecoration(
+            hintText: hintText,
+            labelText: labelText,
+            suffixIcon: IconButton(
+              style: ButtonStyle(
+                overlayColor: MaterialStateProperty.all(Colors.transparent),
+                splashFactory: NoSplash.splashFactory,
+              ),
+              padding: const EdgeInsets.only(top: 15.0),
+              onPressed: confirmPasswordToggle,
+              icon: Icon(
+                _obscureConfirmPasswordText
+                    ? Icons.visibility
+                    : Icons.visibility_off,
+              ),
+            )),
+        validator: validator,
+      );
+    } else {
+      return TextFormField(
+        controller: controller,
+        obscureText: obscureText,
+        autofocus: true,
+        textInputAction: TextInputAction.next,
+        decoration: InputDecoration(
+          hintText: hintText,
+          labelText: labelText,
+        ),
+        validator: validator,
+      );
+    }
   }
 }
