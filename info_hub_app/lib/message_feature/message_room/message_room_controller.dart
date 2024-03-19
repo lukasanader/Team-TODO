@@ -14,11 +14,13 @@ class MessageRoomController {
     this._firestore
   );
 
-  void addMessageRoom(String chatRoomId, String adminId, String patientId) async {
+  void addMessageRoom(String chatRoomId, String adminId, String patientId, String adminDisplayName, String patientDisplayName) async {
     MessageRoom newMessageRoom = MessageRoom();
 
     newMessageRoom.adminId = adminId;
     newMessageRoom.patientId = patientId;
+    newMessageRoom.adminDisplayName = adminDisplayName;
+    newMessageRoom.patientDisplayName = patientDisplayName;
 
     CollectionReference db = _firestore.collection('message_rooms');
     await db.doc(chatRoomId).set(newMessageRoom.toJson());
