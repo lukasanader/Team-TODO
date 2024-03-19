@@ -170,8 +170,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 },
                 decoration: const InputDecoration(
                   labelText: 'I am a...',
-                  labelStyle: TextStyle(color: Colors.red),
-                  hintStyle: TextStyle(color: Colors.black),
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {

@@ -315,4 +315,43 @@ void main() {
 
     expect(find.byType(PrivacyPolicyPage), findsOneWidget);
   });
+
+  testWidgets('test if show/hide password switches between both options',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(registrationWidget);
+    await tester.pumpAndSettle();
+
+    final passwordField = find.ancestor(
+      of: find.text('Password'),
+      matching: find.byType(TextFormField),
+    );
+
+    final confirmPasswordField = find.ancestor(
+      of: find.text('Confirm Password'),
+      matching: find.byType(TextFormField),
+    );
+
+    // Tap on the show/hide password button for the first password field
+    await tester.tap(find.descendant(
+        of: passwordField, matching: find.byIcon(Icons.visibility)));
+    await tester.pumpAndSettle();
+
+    // Verify that the password visibility icon has changed for the first field
+    expect(
+        find.descendant(
+            of: passwordField, matching: find.byIcon(Icons.visibility_off)),
+        findsOneWidget);
+
+    // Tap on the show/hide password button for the second password field
+    await tester.tap(find.descendant(
+        of: confirmPasswordField, matching: find.byIcon(Icons.visibility)));
+    await tester.pumpAndSettle();
+
+    // Verify that the password visibility icon has changed for the second field
+    expect(
+        find.descendant(
+            of: confirmPasswordField,
+            matching: find.byIcon(Icons.visibility_off)),
+        findsOneWidget);
+  });
 }
