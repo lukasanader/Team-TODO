@@ -17,11 +17,14 @@ void main() {
   setUp(() async{
     auth.createUserWithEmailAndPassword(email: 'test@email.com', password: 'Password123!'); //Signs in automatically
     await firestore.collection('Users').doc(auth.currentUser!.uid).set({
-      'email': 'admin@gmail.com',
+      'email': 'test@email.com',
       'firstName': 'John',
       'lastName': 'Doe',
       'roleType': 'Patient',
-      'likedTopics': []
+      'likedTopics': [],
+      'dislikedTopics': [],
+      'savedTopics': [],
+      'hasOptedOutOfUserExpierence': false,
     });
     activityWidget = MaterialApp(
       home: ActivityView(firestore: firestore, auth: auth,),
@@ -32,23 +35,25 @@ void main() {
       'title': 'test 1',
       'description': 'Test Description',
       'articleLink': '',
-      'videoUrl': '',
+      'media': [],
       'likes': 0,
       'views': 0,
       'dislikes': 0,
       'tags': ['Patient'],
-      'date': DateTime.now()
+      'date': DateTime.now(),
+      'categories': []
     });
      topicCollectionRef.add({
       'title': 'test 2',
       'description': 'Test Description',
       'articleLink': '',
-      'videoUrl': '',
+      'media': [],
       'likes': 0,
       'views': 0,
       'dislikes': 0,
       'tags': ['Patient'],
-      'date': DateTime.now()
+      'date': DateTime.now(),
+      'categories': []
     });
   });
 
@@ -61,11 +66,11 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byIcon(Icons.thumb_up));
     await tester.pumpAndSettle();
-    await tester.tap(find.byIcon(Icons.arrow_back));
+    await tester.tap(find.byType(BackButton));
     await tester.pumpAndSettle();
     await tester.tap(find.text('test 2'));
     await tester.pumpAndSettle();
-    await tester.tap(find.byIcon(Icons.arrow_back));
+    await tester.tap(find.byType(BackButton));
     await tester.pumpAndSettle();
    
     //Check if activity is recorded
@@ -81,9 +86,7 @@ void main() {
       isTrue,
     );
     
-    await tester.tap(find.byIcon(Icons.settings));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('History'));
+    await tester.pumpWidget(MaterialApp(home: ActivityView(firestore: firestore, auth: auth)));
     await tester.pumpAndSettle();
     expect(find.text('test 1'), findsOneWidget);
   });
@@ -137,7 +140,6 @@ void main() {
 
       expect(find.textContaining('Thread 1'), findsOne);
       expect(find.textContaining('Thread 2'), findsOne);
-      
   });
   
 }

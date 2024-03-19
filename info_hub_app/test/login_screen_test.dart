@@ -7,18 +7,19 @@ import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import 'package:info_hub_app/reset_password/reset_password.dart';
+import 'package:info_hub_app/theme/theme_manager.dart';
 
 void main() {
   final firestore = FakeFirebaseFirestore();
   final auth = MockFirebaseAuth();
   final storage = MockFirebaseStorage();
   testWidgets('test if login text exists', (WidgetTester test) async{
-    await test.pumpWidget(MaterialApp(home: LoginScreen(firestore: firestore, auth: auth,storage: storage,)));
+    await test.pumpWidget(MaterialApp(home: LoginScreen(firestore: firestore, auth: auth,storage: storage,themeManager: ThemeManager())));
     expect(find.text('Please fill in the login details.'), findsOneWidget);
   });
 
   testWidgets('test if email textfield exists', (WidgetTester test) async {
-    await test.pumpWidget(MaterialApp(home: LoginScreen(firestore: firestore, auth: auth,storage: storage,)));
+    await test.pumpWidget(MaterialApp(home: LoginScreen(firestore: firestore, auth: auth,storage: storage,themeManager: ThemeManager())));
     final emailField = find.ancestor(
       of: find.text('Email'),
       matching: find.byType(TextFormField),
@@ -27,7 +28,7 @@ void main() {
     expect(find.text('test'), findsOneWidget);
   });
   testWidgets('test if password textfield exists', (WidgetTester test) async {
-    await test.pumpWidget(MaterialApp(home: LoginScreen(firestore: firestore, auth: auth,storage: storage,)));
+    await test.pumpWidget(MaterialApp(home: LoginScreen(firestore: firestore, auth: auth,storage: storage,themeManager: ThemeManager())));
     final passwordField = find.ancestor(
       of: find.text('Password'),
       matching: find.byType(TextFormField),
@@ -37,7 +38,7 @@ void main() {
   });
 
   testWidgets('test if log in validation works', (WidgetTester test) async {
-    await test.pumpWidget(MaterialApp(home: LoginScreen(firestore: firestore, auth: auth,storage: storage,)));
+    await test.pumpWidget(MaterialApp(home: LoginScreen(firestore: firestore, auth: auth,storage: storage,themeManager: ThemeManager())));
     final emailField = find.ancestor(
       of: find.text('Email'),
       matching: find.byType(TextFormField),
@@ -51,6 +52,7 @@ void main() {
     final loginButton = find.text('Login');
     await test.tap(loginButton);
     await test.pumpAndSettle();
+
     expect(find.text('Email or password is incorrect. Please try again'),
         findsNothing);
   });
@@ -64,7 +66,7 @@ void main() {
       'lastName': 'Doe',
       'roleType': 'Patient'
     });
-    await test.pumpWidget(MaterialApp(home: LoginScreen(firestore: firestore, auth: auth,storage: storage,)));
+    await test.pumpWidget(MaterialApp(home: LoginScreen(firestore: firestore, auth: auth,storage: storage,themeManager: ThemeManager())));
     final emailField = find.ancestor(
       of: find.text('Email'),
       matching: find.byType(TextFormField),
@@ -90,7 +92,7 @@ void main() {
       'lastName': 'Doe',
       'roleType': 'admin'
     });
-    await test.pumpWidget(MaterialApp(home: LoginScreen(firestore: firestore, auth: auth,storage: storage,)));
+    await test.pumpWidget(MaterialApp(home: LoginScreen(firestore: firestore, auth: auth,storage: storage,themeManager: ThemeManager())));
     final emailField = find.ancestor(
       of: find.text('Email'),
       matching: find.byType(TextFormField),
@@ -108,7 +110,7 @@ void main() {
   });
 
   testWidgets('test if stops when email is empty', (WidgetTester test) async{
-    await test.pumpWidget(MaterialApp(home: LoginScreen(firestore: firestore, auth: auth,storage: storage,)));
+    await test.pumpWidget(MaterialApp(home: LoginScreen(firestore: firestore, auth: auth,storage: storage,themeManager: ThemeManager())));
     final emailField = find.ancestor(
       of: find.text('Email'),
       matching: find.byType(TextFormField),
@@ -125,7 +127,7 @@ void main() {
   });
 
   testWidgets('test if stops when password is empty', (WidgetTester test) async{
-    await test.pumpWidget(MaterialApp(home: LoginScreen(firestore: firestore, auth: auth,storage: storage,)));
+    await test.pumpWidget(MaterialApp(home: LoginScreen(firestore: firestore, auth: auth,storage: storage,themeManager: ThemeManager())));
     final emailField = find.ancestor(
       of: find.text('Email'),
       matching: find.byType(TextFormField),
@@ -142,7 +144,7 @@ void main() {
   });
 
   testWidgets('test if stops when both are empty', (WidgetTester test)  async{
-    await test.pumpWidget(MaterialApp(home: LoginScreen(firestore: firestore, auth: auth,storage: storage,)));
+    await test.pumpWidget(MaterialApp(home: LoginScreen(firestore: firestore, auth: auth,storage: storage,themeManager: ThemeManager())));
     final loginButton = find.text('Login');
     await test.tap(loginButton);
     await test.pumpAndSettle();
@@ -151,12 +153,43 @@ void main() {
   });
 
   testWidgets('test if user forgets password', (WidgetTester test) async {
-    await test.pumpWidget(MaterialApp(home: LoginScreen(firestore: firestore, auth: auth,storage: storage,)));
+    await test.pumpWidget(MaterialApp(home: LoginScreen(firestore: firestore, auth: auth,storage: storage,themeManager: ThemeManager())));
     await test.pumpAndSettle();
 
     await test.tap(find.text('Forgot Password?'));
     await test.pumpAndSettle();
     
     expect(find.byType(ResetPassword), findsOne);
+  });
+
+  testWidgets('test if show/hide password switches between both options', (WidgetTester test) async {
+    await test.pumpWidget(MaterialApp(home: LoginScreen(firestore: firestore, auth: auth,storage: storage,themeManager: ThemeManager())));
+    await test.pumpAndSettle();
+
+    final showHideButton = find.text('Show');
+    await test.tap(showHideButton);
+    await test.pumpAndSettle();
+    expect(find.text('Hide'), findsOneWidget);
+  });
+
+  testWidgets('test if show/hide password works', (WidgetTester test) async{
+    await test.pumpWidget(MaterialApp(home: LoginScreen(firestore: firestore, auth: auth,storage: storage,themeManager: ThemeManager())));
+    await test.pumpAndSettle();
+
+    final showHideButton = find.ancestor(
+      of: find.text('Show'),
+      matching: find.byType(ElevatedButton),
+    );
+
+    final passwordfield = find.ancestor(
+      of: find.text('Password'),
+      matching: find.byType(TextFormField),
+    );
+
+    await test.enterText(passwordfield, 'test');
+    await test.tap(showHideButton);
+    await test.pumpAndSettle();
+    expect(find.text('test'), findsOneWidget);
+    
   });
 }

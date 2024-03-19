@@ -1,3 +1,4 @@
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -5,29 +6,39 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import 'package:get/get.dart';
 import 'package:info_hub_app/model/model.dart';
+import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:info_hub_app/topics/create_topic.dart';
-import 'package:info_hub_app/topics/edit_topic.dart';
 import 'package:info_hub_app/topics/quiz/create_quiz.dart';
 import 'package:info_hub_app/topics/quiz/quiz_question_card.dart';
-
-import 'threads_test.dart';
+import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 
 Future<void> main() async {
   late FirebaseFirestore firestore = FakeFirebaseFirestore();
   late MockFirebaseStorage mockStorage = MockFirebaseStorage();
   late MockFirebaseAuth auth = MockFirebaseAuth();
   late Widget quizWidget;
+  late ThemeManager themeManager = ThemeManager();
 
   setUp(() {
+    firestore.collection('Users').doc('adminUser').set({
+      'name': 'John Doe',
+      'email': 'john@example.com',
+      'roleType': 'admin',
+      'likedTopics': [],
+      'dislikedTopics': [],
+    });
+    auth =
+        MockFirebaseAuth(signedIn: true, mockUser: MockUser(uid: 'adminUser'));
+        
     quizWidget = MaterialApp(
-      home: CreateTopicScreen(firestore: firestore, storage: mockStorage,auth: auth,),
+      home: CreateTopicScreen(firestore: firestore, storage: mockStorage,auth: auth, themeManager: themeManager,),
     );
   });
 
   testWidgets('Test Create Quiz Screen', (WidgetTester tester) async {
     await tester.pumpWidget(quizWidget);
     await tester.pumpAndSettle();
-
+    await tester.ensureVisible(find.text('ADD QUIZ'));
     expect(find.text('ADD QUIZ'), findsOneWidget);
     await tester.tap(find.text('ADD QUIZ'));
     await tester.pumpAndSettle();
@@ -43,6 +54,7 @@ Future<void> main() async {
     await tester.pumpAndSettle(const Duration(seconds: 4));
 
     final addQuestionButton = find.text('Add Question');
+
     expect(addQuestionButton, findsOneWidget);
     await tester.ensureVisible(addQuestionButton);
     await tester.pumpAndSettle();
@@ -118,14 +130,16 @@ Future<void> main() async {
       (WidgetTester tester) async {
     await tester.pumpWidget(quizWidget);
     await tester.pumpAndSettle();
-
+    await tester.ensureVisible(find.text('ADD QUIZ'));
     await tester.tap(find.text('ADD QUIZ'));
     await tester.pumpAndSettle();
+
     final addQuestionButton = find.text('Add Question');
     await tester.ensureVisible(addQuestionButton);
     await tester.pumpAndSettle(const Duration(seconds: 4));
   
     await tester.enterText(find.byType(TextField), 'What is a liver?');
+    await tester.ensureVisible(addQuestionButton);
     await tester.tap(addQuestionButton);
     await tester.pumpAndSettle();
 
@@ -185,16 +199,18 @@ Future<void> main() async {
     QuerySnapshot data;
 
     topicCollectionRef = firestore.collection('topics');
-    await topicCollectionRef.add({
-      'title': 'Test Topic',
+    topicCollectionRef.add({
+      'title': 'test 1',
       'description': 'Test Description',
       'articleLink': '',
-      'videoUrl': '',
+      'media': [],
       'likes': 0,
       'views': 0,
       'dislikes': 0,
+      'tags': ['Patient'],
       'date': DateTime.now(),
-      'quizID':'1',
+      'categories': [],
+      'quizID': '1'
     });
     CollectionReference quizQuestionRef = firestore.collection('quizQuestions');
     quizQuestionRef.add({
@@ -205,15 +221,17 @@ Future<void> main() async {
     });
     data = await topicCollectionRef.get();
     await tester.pumpWidget(MaterialApp(
-      home: EditTopicScreen(
+      home: CreateTopicScreen(
         topic: data.docs[0] as QueryDocumentSnapshot<Object>,
         auth: auth,
         firestore: firestore,
         storage: mockStorage,
+        themeManager: themeManager,
       ),
     ));
     await tester.pumpAndSettle();
-
+    await tester.ensureVisible(find.text('ADD QUIZ'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('ADD QUIZ'));
     await tester.pumpAndSettle(const Duration(seconds: 4));
     //print(find.byType(Text));

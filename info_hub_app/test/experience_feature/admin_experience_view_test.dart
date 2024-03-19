@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
@@ -7,26 +8,30 @@ import 'package:info_hub_app/patient_experience/experience_model.dart';
 
 void main() {
   late FakeFirebaseFirestore firestore;
+  late MockFirebaseAuth auth;
   late CollectionReference topicsCollectionRef;
   late Widget experienceViewWidget;
 
   setUp(() {
     firestore = FakeFirebaseFirestore();
+    auth = MockFirebaseAuth();
     topicsCollectionRef = firestore.collection('experiences');
 
     topicsCollectionRef.add({
       'title': 'Example 1',
       'description': 'Example experience',
+      'userEmail' : 'test@example.org',
       'verified': true
     });
     topicsCollectionRef.add({
       'title': 'Example 2',
       'description': 'Example experience',
+      'userEmail' : 'test2@example.org',
       'verified': false
     });
 
     experienceViewWidget = MaterialApp(
-      home: AdminExperienceView(firestore: firestore),
+      home: AdminExperienceView(firestore: firestore, auth: auth,),
     );
   });
 
@@ -44,8 +49,6 @@ void main() {
     // Build our app and trigger a frame.
     await tester.pumpWidget(experienceViewWidget);
     await tester.pumpAndSettle();
-
-
 
     expect(find.text('Example 1'), findsOneWidget);
 
@@ -108,5 +111,44 @@ void main() {
     expect(experienceList[0].verified, isFalse);
   });
 
+  testWidgets('Delete button removes an experience from verified list',
+      (WidgetTester tester) async {
+    // Build our app and trigger a frame.
+    await tester.pumpWidget(experienceViewWidget);
+    await tester.pumpAndSettle();
+
+    Finder deleteButton = find.byIcon(Icons.delete).first;
+
+    await tester.ensureVisible(deleteButton);
+    await tester.tap(deleteButton);
+    await tester.pumpAndSettle();
+
+    expect(find.byType(AlertDialog), findsOneWidget);
+
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Example 1'), findsNothing);
+  });
+
+  testWidgets('Delete button removes an experience from unverified list',
+      (WidgetTester tester) async {
+    // Build our app and trigger a frame.
+    await tester.pumpWidget(experienceViewWidget);
+    await tester.pumpAndSettle();
+
+    Finder deleteButton = find.byIcon(Icons.delete).last;
+
+    await tester.ensureVisible(deleteButton);
+    await tester.tap(deleteButton);
+    await tester.pumpAndSettle();
+
+    expect(find.byType(AlertDialog), findsOneWidget);
+
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Example 2'), findsNothing);
+  });
 
 }
