@@ -1,9 +1,7 @@
 // ignore_for_file: unused_field
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:info_hub_app/registration/user_model.dart';
 import 'package:info_hub_app/webinar/webinar-screens/chat.dart';
 import 'package:info_hub_app/webinar/service/webinar_service.dart';
@@ -75,6 +73,9 @@ class _WebinarScreenState extends State<WebinarScreen> {
     super.dispose();
   }
 
+  // As you can see
+  // this is the
+  // Sacrificial Lamb
   void listener() {
     if (_isPlayerReady && mounted && !_controller.value.isFullScreen) {
       setState(() {

@@ -98,6 +98,7 @@ class WebinarService {
     try {
       await firestore.collection('Webinar').doc(id).update({
         'views': FieldValue.increment(isIncrease? 1: -1),
+        
       });
     } catch (e) {
       debugPrint(e.toString());
