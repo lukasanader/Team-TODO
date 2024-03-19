@@ -13,6 +13,7 @@ import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:info_hub_app/topics/create_topic.dart';
 import 'package:info_hub_app/ask_question/question_view.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 
 class AdminHomepage extends StatefulWidget {
   final FirebaseFirestore firestore;
@@ -68,18 +69,18 @@ class _AdminHomepageState extends State<AdminHomepage> {
               ),
             ),
             ElevatedButton(
-                onPressed: () => Navigator.of(context).push(
-                      CupertinoPageRoute(
-                        builder: (BuildContext context) {
-                          return CreateTopicScreen(
-                            storage: widget.storage,
-                            firestore: widget.firestore,
-                            auth: widget.auth,
-                            themeManager: widget.themeManager,
-                          );
-                        },
-                      ),
+                onPressed: () {
+                  PersistentNavBarNavigator.pushNewScreen(
+                    context,
+                    screen: CreateTopicScreen(
+                      firestore: widget.firestore,
+                      auth: widget.auth,
+                      storage: widget.storage,
+                      themeManager: widget.themeManager,
                     ),
+                    withNavBar: false,
+                  );
+                },
                 child: Column(mainAxisSize: MainAxisSize.min, children: [
                   const Icon(Icons.note_add_sharp),
                   addVerticalSpace(5),
@@ -105,16 +106,26 @@ class _AdminHomepageState extends State<AdminHomepage> {
               ),
             ),
             ElevatedButton(
-              onPressed: () => Navigator.of(context).push(
-                CupertinoPageRoute(
-                  builder: (BuildContext context) {
-                    return ViewQuestionPage(
-                      firestore: widget.firestore,
-                      auth: widget.auth,
-                    );
-                  },
-                ),
-              ),
+              // onPressed: () => Navigator.of(context).push(
+              //   CupertinoPageRoute(
+              //     builder: (BuildContext context) {
+              //       return ViewQuestionPage(
+              //         firestore: widget.firestore,
+              //         auth: widget.auth,
+              //       );
+              //     },
+              //   ),
+              // ),
+              onPressed: () {
+                PersistentNavBarNavigator.pushNewScreen(
+                  context,
+                  screen: ViewQuestionPage(
+                    firestore: widget.firestore,
+                    auth: widget.auth,
+                  ),
+                  withNavBar: false,
+                );
+              },
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -128,16 +139,26 @@ class _AdminHomepageState extends State<AdminHomepage> {
               ),
             ),
             ElevatedButton(
-              onPressed: () => Navigator.of(context).push(
-                CupertinoPageRoute(
-                  builder: (BuildContext context) {
-                    return AdminExperienceView(
-                      firestore: widget.firestore,
-                      auth: widget.auth,
-                    );
-                  },
-                ),
-              ),
+              // onPressed: () => Navigator.of(context).push(
+              //   CupertinoPageRoute(
+              //     builder: (BuildContext context) {
+              //       return AdminExperienceView(
+              //         firestore: widget.firestore,
+              //         auth: widget.auth,
+              //       );
+              //     },
+              //   ),
+              // ),
+              onPressed: () {
+                PersistentNavBarNavigator.pushNewScreen(
+                  context,
+                  screen: AdminExperienceView(
+                    firestore: widget.firestore,
+                    auth: widget.auth,
+                  ),
+                  withNavBar: false,
+                );
+              },
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -151,16 +172,26 @@ class _AdminHomepageState extends State<AdminHomepage> {
               ),
             ),
             ElevatedButton(
-              onPressed: () => Navigator.of(context).push(
-                CupertinoPageRoute(
-                  builder: (BuildContext context) {
-                    return AnalyticsBase(
-                      firestore: widget.firestore,
-                      storage: widget.storage,
-                    );
-                  },
-                ),
-              ),
+              // onPressed: () => Navigator.of(context).push(
+              //   CupertinoPageRoute(
+              //     builder: (BuildContext context) {
+              //       return AnalyticsBase(
+              //         firestore: widget.firestore,
+              //         storage: widget.storage,
+              //       );
+              //     },
+              //   ),
+              // ),
+              onPressed: () {
+                PersistentNavBarNavigator.pushNewScreen(
+                  context,
+                  screen: AnalyticsBase(
+                    firestore: widget.firestore,
+                    storage: widget.storage,
+                  ),
+                  withNavBar: false,
+                );
+              },
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -174,16 +205,26 @@ class _AdminHomepageState extends State<AdminHomepage> {
               ),
             ),
             ElevatedButton(
-              onPressed: () => Navigator.of(context).push(
-                CupertinoPageRoute(
-                  builder: (BuildContext context) {
-                    return MessageView(
-                      firestore: widget.firestore,
-                      auth: widget.auth,
-                    );
-                  },
-                ),
-              ),
+              // onPressed: () => Navigator.of(context).push(
+              //   CupertinoPageRoute(
+              //     builder: (BuildContext context) {
+              //       return MessageView(
+              //         firestore: widget.firestore,
+              //         auth: widget.auth,
+              //       );
+              //     },
+              //   ),
+              // ),
+              onPressed: () {
+                PersistentNavBarNavigator.pushNewScreen(
+                  context,
+                  screen: MessageView(
+                    firestore: widget.firestore,
+                    auth: widget.auth,
+                  ),
+                  withNavBar: false,
+                );
+              },
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
