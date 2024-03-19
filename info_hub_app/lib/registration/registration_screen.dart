@@ -300,8 +300,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       decoration: InputDecoration(
         hintText: hintText,
         labelText: labelText,
-        labelStyle: const TextStyle(color: Colors.red),
-        hintStyle: const TextStyle(color: Colors.black),
       ),
       style: const TextStyle(color: Colors.black),
       validator: validator,

@@ -117,7 +117,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 },
                 child: const Text('Login'),
               ),
-              const SizedBox(height: 20.0),
+              const SizedBox(height: 10.0),
               SizedBox(
                 width: 250.0,
                 child: TextButton(
@@ -132,9 +132,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     );
                   },
-                  child: const Text(
+                  child: Text(
                     'Forgot Password?',
-                    style: TextStyle(fontSize: 16, color: Colors.black),
+                    style: Theme.of(context).textTheme.bodyMedium,
                   ),
                 ),
               ),
@@ -160,8 +160,6 @@ class _LoginScreenState extends State<LoginScreen> {
       decoration: InputDecoration(
         hintText: hintText,
         labelText: labelText,
-        labelStyle: const TextStyle(color: Colors.red),
-        hintStyle: const TextStyle(color: Colors.black),
       ),
       style: const TextStyle(color: Colors.black),
       validator: validator,

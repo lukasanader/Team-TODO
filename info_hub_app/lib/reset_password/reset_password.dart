@@ -18,7 +18,6 @@ class ResetPassword extends StatefulWidget {
 }
 
 class _ResetPasswordState extends State<ResetPassword> {
-
   final TextEditingController _emailController = TextEditingController();
   String _errorText = '';
 
@@ -43,7 +42,6 @@ class _ResetPasswordState extends State<ResetPassword> {
               controller: _emailController,
               decoration: const InputDecoration(
                 labelText: 'Email',
-                border: OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 10),
