@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:info_hub_app/analytics/topics/analytics_view_topic.dart';
@@ -56,14 +57,16 @@ class AdminTopicCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
         onTap: () {
-          PersistentNavBarNavigator.pushNewScreen(
-            context,
-            screen: AdminTopicAnalytics(
-              firestore: firestore,
-              storage: storage,
-              topic: _topic,
+          Navigator.of(context).push(
+            CupertinoPageRoute(
+              builder: (BuildContext context) {
+                return AdminTopicAnalytics(
+                  firestore: firestore,
+                  storage: storage,
+                  topic: _topic,
+                );
+              },
             ),
-            withNavBar: false,
           );
         },
         child: Card(

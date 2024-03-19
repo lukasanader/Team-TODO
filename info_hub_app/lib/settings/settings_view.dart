@@ -104,16 +104,16 @@ class _SettingsViewState extends State<SettingsView> {
               },
             ),
             ListTile(
-              leading: Icon(Icons.history_outlined),
-              title: Text('History'),
-              onTap: () {
-                PersistentNavBarNavigator.pushNewScreen(
-                  context,
-                  screen: ActivityView(firestore: widget.firestore,auth: widget.auth,),
-                  withNavBar: false,
-                );
-              }
-            ),
+                title: const Text('History'),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    CupertinoPageRoute(
+                      builder: (context) => ActivityView(
+                          firestore: widget.firestore, auth: widget.auth),
+                    ),
+                  );
+                }),
             ListTile(
               title: const Text("Privacy"),
               onTap: () {

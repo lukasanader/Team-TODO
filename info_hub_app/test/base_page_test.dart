@@ -47,6 +47,7 @@ void main() {
       auth: auth,
       firestore: firestore,
       themeManager: themeManager,
+      roleType: 'Patient',
     )));
 
     await tester.pumpAndSettle();
@@ -73,6 +74,7 @@ void main() {
       auth: auth,
       firestore: firestore,
       themeManager: themeManager,
+      roleType: 'Patient',
     )));
 
     await tester.tap(find.byIcon(Icons.search_outlined));
@@ -97,6 +99,7 @@ void main() {
       auth: auth,
       firestore: firestore,
       themeManager: themeManager,
+      roleType: 'Patient',
     )));
 
     await tester.tap(find.byIcon(Icons.settings_outlined));
