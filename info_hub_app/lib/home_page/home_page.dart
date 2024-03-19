@@ -160,6 +160,7 @@ class _HomePageState extends State<HomePage> {
             ),
             addVerticalSpace(10),
             GridView.extent(
+              physics: const NeverScrollableScrollPhysics(),
               shrinkWrap: true,
               maxCrossAxisExtent: 150,
               crossAxisSpacing: 50,
@@ -168,13 +169,14 @@ class _HomePageState extends State<HomePage> {
               children: [
                 ElevatedButton(
                   onPressed: () {
-                    PersistentNavBarNavigator.pushNewScreen(
+                    Navigator.push(
                       context,
-                      screen: ExperienceView(
-                        firestore: widget.firestore,
-                        auth: widget.auth,
+                      CupertinoPageRoute(
+                        builder: (context) => ExperienceView(
+                          firestore: widget.firestore,
+                          auth: widget.auth,
+                        ),
                       ),
-                      withNavBar: false,
                     );
                   },
                   style: ElevatedButton.styleFrom(
@@ -191,7 +193,6 @@ class _HomePageState extends State<HomePage> {
                     PersistentNavBarNavigator.pushNewScreen(
                       context,
                       screen: const WebinarView(),
-                      withNavBar: false,
                     );
                   },
                   style: ElevatedButton.styleFrom(
