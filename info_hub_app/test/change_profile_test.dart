@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:info_hub_app/change_profile/change_profile.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
+import 'package:info_hub_app/change_profile/change_profile_controller.dart';
 
 
 void main() {
@@ -10,7 +11,7 @@ void main() {
     final firestore = FakeFirebaseFirestore();
     final auth = MockFirebaseAuth();
     await tester.runAsync(() async {
-      await tester.pumpWidget(MaterialApp(home: ChangeProfile(firestore: firestore, auth: auth)));
+      await tester.pumpWidget(MaterialApp(home: ChangeProfile(controller: ChangeProfileController(firestore: firestore, auth: auth))));
       final firstNameField = find.ancestor(
         of: find.text('First Name'),
         matching: find.byType(TextField),
@@ -24,7 +25,7 @@ void main() {
     final firestore = FakeFirebaseFirestore();
     final auth = MockFirebaseAuth();
     await tester.runAsync(() async {
-      await tester.pumpWidget(MaterialApp(home: ChangeProfile(firestore: firestore, auth: auth)));
+      await tester.pumpWidget(MaterialApp(home: ChangeProfile(controller: ChangeProfileController(firestore: firestore, auth: auth))));
       final lastNameField = find.ancestor(
         of: find.text('Last Name'),
         matching: find.byType(TextField),
@@ -38,7 +39,7 @@ void main() {
     final firestore = FakeFirebaseFirestore();
     final auth = MockFirebaseAuth();
     await tester.runAsync(() async {
-      await tester.pumpWidget(MaterialApp(home: ChangeProfile(firestore: firestore, auth: auth)));
+      await tester.pumpWidget(MaterialApp(home: ChangeProfile(controller: ChangeProfileController(firestore: firestore, auth: auth))));
       final newPasswordField = find.ancestor(
         of: find.text('New Password'),
         matching: find.byType(TextField),
@@ -52,7 +53,7 @@ void main() {
     final firestore = FakeFirebaseFirestore();
     final auth = MockFirebaseAuth();
     await tester.runAsync(() async {
-      await tester.pumpWidget(MaterialApp(home: ChangeProfile(firestore: firestore, auth: auth)));
+      await tester.pumpWidget(MaterialApp(home: ChangeProfile(controller: ChangeProfileController(firestore: firestore, auth: auth))));
       final confirmPasswordField = find.ancestor(
         of: find.text('Confirm Password'),
         matching: find.byType(TextField),
@@ -65,7 +66,7 @@ void main() {
 testWidgets('Test if first name contains only letters', (WidgetTester tester) async {
   final firestore = FakeFirebaseFirestore();
   final auth = MockFirebaseAuth();
-  await tester.pumpWidget(MaterialApp(home: ChangeProfile(firestore: firestore, auth: auth)));
+  await tester.pumpWidget(MaterialApp(home: ChangeProfile(controller: ChangeProfileController(firestore: firestore, auth: auth))));
   final firstNameField = find.widgetWithText(TextField, 'First Name');
   await tester.enterText(firstNameField, '123');
   await tester.tap(find.text('Save Changes')); 
@@ -77,7 +78,7 @@ testWidgets('Test if first name contains only letters', (WidgetTester tester) as
 testWidgets('Test if last name contains only letters', (WidgetTester tester) async {
   final firestore = FakeFirebaseFirestore();
   final auth = MockFirebaseAuth();
-  await tester.pumpWidget(MaterialApp(home: ChangeProfile(firestore: firestore, auth: auth)));
+  await tester.pumpWidget(MaterialApp(home: ChangeProfile(controller: ChangeProfileController(firestore: firestore, auth: auth))));
   final lastNameField = find.widgetWithText(TextField, 'Last Name');
   expect(lastNameField, findsOneWidget); 
   await tester.enterText(lastNameField, '1234'); 
@@ -90,7 +91,7 @@ testWidgets('Test if last name contains only letters', (WidgetTester tester) asy
 testWidgets('Test if password meets the criteria', (WidgetTester tester) async {
   final firestore = FakeFirebaseFirestore();
   final auth = MockFirebaseAuth();
-  await tester.pumpWidget(MaterialApp(home: ChangeProfile(firestore: firestore, auth: auth)));
+  await tester.pumpWidget(MaterialApp(home: ChangeProfile(controller: ChangeProfileController(firestore: firestore, auth: auth))));
   final newPasswordField = find.widgetWithText(TextField, 'New Password');
   await tester.enterText(newPasswordField, 'weakpassword');
   await tester.tap(find.text('Save Changes')); 
@@ -101,7 +102,7 @@ testWidgets('Test if password meets the criteria', (WidgetTester tester) async {
 testWidgets('Test if passwords match', (WidgetTester tester) async {
   final firestore = FakeFirebaseFirestore();
   final auth = MockFirebaseAuth();
-  await tester.pumpWidget(MaterialApp(home: ChangeProfile(firestore: firestore, auth: auth)));
+  await tester.pumpWidget(MaterialApp(home:ChangeProfile(controller: ChangeProfileController(firestore: firestore, auth: auth))));
   final newPasswordField = find.widgetWithText(TextField, 'New Password');
   final confirmPasswordField = find.widgetWithText(TextField, 'Confirm Password');
   await tester.enterText(newPasswordField, 'Password@123');
@@ -125,7 +126,7 @@ testWidgets('Test if first name is updated in Firestore', (WidgetTester tester) 
     'lastName': 'OldLastName',
   };
   await firestore.collection('Users').doc(fakeUserId).set(fakeUser);
-  await tester.pumpWidget(MaterialApp(home: ChangeProfile(firestore: firestore, auth: auth)));
+  await tester.pumpWidget(MaterialApp(home: ChangeProfile(controller: ChangeProfileController(firestore: firestore, auth: auth))));
   final firstNameField = find.widgetWithText(TextField, 'First Name');
   await tester.enterText(firstNameField, 'NewFirstName');
   final lastNameField = find.widgetWithText(TextField, 'Last Name');
@@ -153,7 +154,7 @@ testWidgets('Test if Last Name is updated in Firestore', (WidgetTester tester) a
     'lastName': 'OldLastName',
   };
   await firestore.collection('Users').doc(fakeUserId).set(fakeUser);
-  await tester.pumpWidget(MaterialApp(home: ChangeProfile(firestore: firestore, auth: auth)));
+  await tester.pumpWidget(MaterialApp(home: ChangeProfile(controller: ChangeProfileController(firestore: firestore, auth: auth))));
   final firstNameField = find.widgetWithText(TextField, 'First Name');
   await tester.enterText(firstNameField, 'NewFirstName');
   final lastNameField = find.widgetWithText(TextField, 'Last Name');
