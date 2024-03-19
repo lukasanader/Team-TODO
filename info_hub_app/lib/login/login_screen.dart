@@ -22,15 +22,15 @@ class LoginScreen extends StatefulWidget {
       required this.auth,
       required this.storage,
       required this.themeManager});
-
+ 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
-
+ 
 class _LoginScreenState extends State<LoginScreen> {
   late AuthService _auth;
   bool _obscureText = true;
-
+ 
   @override
   void initState() {
     super.initState();
@@ -39,24 +39,24 @@ class _LoginScreenState extends State<LoginScreen> {
       auth: widget.auth,
     );
   }
-
-  void toggle () {
+ 
+  void toggle() {
     setState(() {
       _obscureText = !_obscureText;
     });
   }
-
+ 
   final _formKey = GlobalKey<FormState>();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-
+ 
   @override
   void dispose() {
     emailController.dispose();
     passwordController.dispose();
     super.dispose();
   }
-
+ 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -77,6 +77,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   if (value!.isEmpty) {
                     return 'Please enter your email';
                   } else if (!value.contains('@')) {
+
                     return 'Please enter a valid email';
                   }
                   return null;
@@ -93,12 +94,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   }
                   return null;
                 },
+                isPassword: true,
               ),
               const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: toggle,
-                child: new Text(_obscureText ? "Show" : "Hide"),
-              ),
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () async {
@@ -161,12 +159,15 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+ 
+
   Widget buildTextFormField({
     required TextEditingController controller,
     required String hintText,
     required String labelText,
     bool obscureText = false,
     String? Function(String?)? validator,
+    bool isPassword = false,
   }) {
     return TextFormField(
       controller: controller,
@@ -178,6 +179,15 @@ class _LoginScreenState extends State<LoginScreen> {
         labelText: labelText,
         labelStyle: const TextStyle(color: Colors.red),
         hintStyle: const TextStyle(color: Colors.black),
+        suffixIcon: isPassword
+            ? IconButton(
+                icon:
+                    Icon(obscureText ? Icons.visibility : Icons.visibility_off),
+                onPressed: () {
+                  toggle();
+                },
+              )
+            : null,
       ),
       style: const TextStyle(color: Colors.black),
       validator: validator,
