@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:info_hub_app/profile_view/profile_view.dart';
 import 'package:info_hub_app/registration/user_model.dart';
 import 'package:info_hub_app/notifications/manage_notifications.dart';
+import 'package:info_hub_app/screens/activity_view.dart';
 import 'package:info_hub_app/services/database.dart';
 import 'package:info_hub_app/settings/general_settings.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
@@ -102,8 +103,16 @@ class _SettingsViewState extends State<SettingsView> {
                 );
               },
             ),
-            const ListTile(
+            ListTile(
+              leading: Icon(Icons.history_outlined),
               title: Text('History'),
+              onTap: () {
+                PersistentNavBarNavigator.pushNewScreen(
+                  context,
+                  screen: ActivityView(firestore: widget.firestore,auth: widget.auth,),
+                  withNavBar: false,
+                );
+              }
             ),
             ListTile(
               title: const Text("Privacy"),

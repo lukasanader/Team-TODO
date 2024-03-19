@@ -5,12 +5,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:info_hub_app/topics/topics_card.dart';
 
 class SavedPage extends StatefulWidget {
-  FirebaseFirestore firestore;
-  FirebaseAuth auth;
-  FirebaseStorage storage;
+  final FirebaseFirestore firestore;
+  final FirebaseAuth auth;
+  final FirebaseStorage storage;
 
   //User? user = FirebaseAuth.instance.currentUser;
-  SavedPage(
+  const SavedPage(
       {super.key,
       required this.auth,
       required this.firestore,
@@ -21,12 +21,6 @@ class SavedPage extends StatefulWidget {
 
 class _SavedPageState extends State<SavedPage> {
   List<Object> _topicsList = [];
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    getTopicsList();
-  }
 
   @override
   void initState() {
@@ -115,9 +109,11 @@ class _SavedPageState extends State<SavedPage> {
               .collection('topics')
               .where(FieldPath.documentId, whereIn: savedTopics)
               .get();
-          setState(() {
-            _topicsList = List.from(data.docs);
-          });
+          if (mounted) {
+            setState(() {
+              _topicsList = List.from(data.docs);
+            });
+          }
         } else {
           // If savedTopics is empty, set _topicsList to an empty list
           setState(() {
