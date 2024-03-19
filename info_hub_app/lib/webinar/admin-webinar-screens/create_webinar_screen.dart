@@ -64,6 +64,7 @@ class _CreateWebinarScreenState extends State<CreateWebinarScreen> {
           );
       if (webinarID.isNotEmpty) {
         if (!isScheduled) {
+          widget.webinarService.updateViewCount(webinarID, true);
           Navigator.of(context).push(
             MaterialPageRoute(
               builder: (context) => WebinarScreen(

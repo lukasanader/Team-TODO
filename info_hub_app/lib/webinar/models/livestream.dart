@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 class Livestream {
   final String webinarID;
   final String title;

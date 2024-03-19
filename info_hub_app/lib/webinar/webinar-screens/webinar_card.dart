@@ -79,7 +79,6 @@ class WebinarCard extends StatelessWidget {
                         fontStyle: FontStyle.italic,
                       ),
                     ),
-                    const SizedBox(height: 30),
                     Text(
                       post.startTime,
                       style: const TextStyle(color: Colors.grey),
@@ -91,12 +90,13 @@ class WebinarCard extends StatelessWidget {
               if (isAdmin)
                 PopupMenuButton(
                   itemBuilder: (context) => [
-                    PopupMenuItem(
-                      child: const Text('Move to Archive'),
-                      onTap: () {
-                        _showArchiveDialog(context);
-                      },
-                    ),
+                    if (post.status != "Archived")
+                      PopupMenuItem(
+                        child: const Text('Move to Archive'),
+                        onTap: () {
+                          _showArchiveDialog(context);
+                        },
+                      ),
                     if (post.status == "Upcoming")
                       PopupMenuItem(
                         child: const Text('Move to Live'),

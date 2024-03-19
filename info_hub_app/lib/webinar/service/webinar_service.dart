@@ -80,17 +80,17 @@ class WebinarService {
   }
 
   Future<String> uploadImageToStorage(String childName, Uint8List file, String uid) async {
-    final tempDir = await getTemporaryDirectory();
-    final tempFile = File('${tempDir.path}/temp_image.jpg');
+    // final tempDir = await getTemporaryDirectory();
+    // final tempFile = File('${tempDir.path}/temp_image.jpg');
 
-    await tempFile.writeAsBytes(file);
+    // await tempFile.writeAsBytes(file);
     
     Reference ref = storage.ref().child(childName).child(uid);
-    UploadTask uploadTask = ref.putFile(tempFile);
+    UploadTask uploadTask = ref.putData(file);
     
     TaskSnapshot snapshot = await uploadTask;
     String downloadUrl = await snapshot.ref.getDownloadURL();
-    await tempFile.delete();
+    // await tempFile.delete();
     return downloadUrl;
   }
 
@@ -98,7 +98,6 @@ class WebinarService {
     try {
       await firestore.collection('Webinar').doc(id).update({
         'views': FieldValue.increment(isIncrease? 1: -1),
-        
       });
     } catch (e) {
       debugPrint(e.toString());

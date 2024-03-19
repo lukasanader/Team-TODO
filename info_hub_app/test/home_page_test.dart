@@ -272,7 +272,9 @@ void main() {
       'email': 'test@tested.org',
       'firstName': 'James',
       'lastName': 'Doe',
-      'roleType': 'Patient'
+      'roleType': 'Patient',
+      'likedTopics' : [],
+      'dislikedTopics' : [],
     });
     await tester.pumpWidget(trendingTopicWidget);
     await tester.pumpAndSettle();
