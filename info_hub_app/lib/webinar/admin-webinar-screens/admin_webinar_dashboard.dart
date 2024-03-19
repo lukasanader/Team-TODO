@@ -12,20 +12,13 @@ class WebinarDashboard extends StatefulWidget {
   final FirebaseFirestore firestore;
   final WebinarService webinarService;
 
-  const WebinarDashboard({super.key, required this.user, required this.firestore, required this.webinarService});
+  const WebinarDashboard({Key? key, required this.user, required this.firestore, required this.webinarService}) : super(key: key);
 
   @override
-  // ignore: library_private_types_in_public_api
   _WebinarDashboardState createState() => _WebinarDashboardState();
 }
 
 class _WebinarDashboardState extends State<WebinarDashboard> {
-
-  @override
-  void initState() {
-    super.initState();
-
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,8 +48,8 @@ class _WebinarDashboardState extends State<WebinarDashboard> {
                 crossAxisSpacing: 10,
                 mainAxisSpacing: 10,
                 children: [
-                  FutureBuilder<String>(
-                    future: widget.webinarService.getNumberOfLiveWebinars(),
+                  StreamBuilder<String>(
+                    stream: Stream.fromFuture(widget.webinarService.getNumberOfLiveWebinars()),
                     builder: (context, snapshot) {
                       return StatisticCard(
                         label: 'Live Webinars',
@@ -66,8 +59,8 @@ class _WebinarDashboardState extends State<WebinarDashboard> {
                       );
                     },
                   ),
-                  FutureBuilder<String>(
-                    future: widget.webinarService.getNumberOfUpcomingWebinars(),
+                  StreamBuilder<String>(
+                    stream: Stream.fromFuture(widget.webinarService.getNumberOfUpcomingWebinars()),
                     builder: (context, snapshot) {
                       return StatisticCard(
                         label: 'Upcoming Webinars',
@@ -77,8 +70,8 @@ class _WebinarDashboardState extends State<WebinarDashboard> {
                       );
                     },
                   ),
-                  FutureBuilder<String>(
-                    future: widget.webinarService.getNumberOfLiveViewers(),
+                  StreamBuilder<String>(
+                    stream: Stream.fromFuture(widget.webinarService.getNumberOfLiveViewers()),
                     builder: (context, snapshot) {
                       return StatisticCard(
                         label: 'Live Viewers',
@@ -88,8 +81,8 @@ class _WebinarDashboardState extends State<WebinarDashboard> {
                       );
                     },
                   ),
-                  FutureBuilder<String>(
-                    future: widget.webinarService.getNumberOfArchivedWebinars(),
+                  StreamBuilder<String>(
+                    stream: Stream.fromFuture(widget.webinarService.getNumberOfArchivedWebinars()),
                     builder: (context, snapshot) {
                       return StatisticCard(
                         label: 'Archived Webinars',
