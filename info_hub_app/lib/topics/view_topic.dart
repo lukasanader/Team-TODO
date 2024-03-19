@@ -53,10 +53,10 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
   void initState() {
     super.initState();
     updatedTopic = widget.topic;
+    initData();
     _isAdmin();
     checkUserLikedAndDislikedTopics();
     updateLikesAndDislikesCount();
-    initData();
   }
 
   Future<void> initData() async {
@@ -361,6 +361,7 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
                     if (updatedTopic != null) {
                       setState(() {
                         this.updatedTopic = updatedTopic;
+                        initData();
                       });
                     }
                   });
