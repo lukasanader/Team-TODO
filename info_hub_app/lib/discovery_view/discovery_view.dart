@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/helpers/helper_widgets.dart';
+import 'package:info_hub_app/registration/user_controller.dart';
 import 'package:info_hub_app/topics/topics_card.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -160,10 +161,8 @@ class _DiscoveryViewState extends State<DiscoveryView> {
   }
 
   Future<List<Object>> getTopicsList() async {
-    String uid = widget.auth.currentUser!.uid;
-    DocumentSnapshot user =
-        await widget.firestore.collection('Users').doc(uid).get();
-    String role = user['roleType'];
+    String role = await UserController(widget.auth, widget.firestore)
+      .getUserRoleType();
     late QuerySnapshot data;
 
     if (role == 'admin') {

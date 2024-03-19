@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/admin/admin_dash.dart';
+import 'package:info_hub_app/registration/user_controller.dart';
 import 'package:info_hub_app/reset_password/reset_password.dart';
 import 'package:info_hub_app/services/auth.dart';
 import 'package:info_hub_app/helpers/base.dart';
@@ -105,9 +106,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     User? user = await _auth.signInUser(
                         emailController.text, passwordController.text);
                     if (user != null) {
-                      DocumentSnapshot data =
-                          await widget.firestore.collection('Users').doc(user.uid).get();
-                      String roleType = data['roleType'];
+                      String roleType = await UserController(widget.auth, widget.firestore)
+                        .getUserRoleType();
                       Widget nextPage = Base(
                         firestore: widget.firestore,
                         auth: widget.auth,

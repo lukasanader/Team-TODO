@@ -35,26 +35,6 @@ class Base extends StatefulWidget {
 }
 
 class _BaseState extends State<Base> {
-  // String currentUserRoleType = '';
-
-  // @override
-  // void didChangeDependencies() {
-  //   super.didChangeDependencies();
-  //   getCurrentUserRoleType();
-  // }
-
-  // Future<void> getCurrentUserRoleType() async {
-  //   User? user = widget.auth.currentUser;
-  //   if (user != null) {
-  //     DocumentSnapshot snapshot =
-  //         await widget.firestore.collection('Users').doc(user.uid).get();
-
-  //     setState(() {
-  //       currentUserRoleType = snapshot['roleType'];
-  //     });
-  //   }
-  // }
-
   List<Widget> getScreenBasedOnUser() {
     if (widget.roleType == 'admin') {
       return [
