@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:info_hub_app/theme/theme_constants.dart';
 
 class ChangeProfile extends StatefulWidget {
   final FirebaseFirestore firestore;
@@ -134,20 +135,22 @@ class _ChangeProfileState extends State<ChangeProfile> {
 
                 // Update profile
                 await _updateProfile();
-
-                // Navigate and show success message
-                // ignore: use_build_context_synchronously
-                Navigator.pop(context);
                 // ignore: use_build_context_synchronously
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                    content: Text('Changes saved'),
+                    content: Text(
+                      'Changes saved',
+                      textAlign: TextAlign.center,
+                    ),
                     duration: Duration(seconds: 5),
-                    backgroundColor: Colors.green,
                   ),
                 );
+
+                // Navigate and show success message
+                // ignore: use_build_context_synchronously
+                Navigator.pop(context, true);
               },
-              child: Text(
+              child: const Text(
                 'Save Changes',
               ),
             ),
