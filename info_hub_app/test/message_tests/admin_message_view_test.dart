@@ -65,7 +65,9 @@ void main() {
 
     chatRoomMembersCollectionReference.doc('1').set({
       'adminId' : uid,
-      'patientId' : '1'
+      'patientId' : '1',
+      'patientDisplayName': generateUniqueName(uid),
+      'adminDisplayName': 'user@gmail.com'
     });
 
     adminMessageViewWidget = MaterialApp(
@@ -81,11 +83,15 @@ void main() {
 
     chatRoomMembersCollectionReference.doc('2').set({
       'adminId' : auth.currentUser!.uid,
-      'patientId' : '2'
+      'patientId' : '2',
+      'patientDisplayName': generateUniqueName(auth.currentUser!.uid),
+      'adminDisplayName': 'user2@gmail.com'
     });
     chatRoomMembersCollectionReference.doc('3').set({
       'adminId' : auth.currentUser!.uid,
-      'patientId' : '3'
+      'patientId' : '3',
+      'patientDisplayName': generateUniqueName(auth.currentUser!.uid),
+      'adminDisplayName': 'user3@gmail.com'
     });
   
     // Build our app and trigger a frame.
