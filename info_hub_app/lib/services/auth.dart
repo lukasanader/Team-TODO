@@ -95,6 +95,12 @@ class AuthService {
           email: email, password: password);
       User? user = result.user;
       if (user != null) {
+        await PushNotifications(
+                auth: auth,
+                firestore: firestore,
+                messaging: FirebaseMessaging.instance,
+                localnotificationsplugin: FlutterLocalNotificationsPlugin())
+            .storeDeviceToken();
         return user;
       }
     } catch (e) {

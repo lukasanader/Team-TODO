@@ -102,6 +102,7 @@ class PushNotifications {
   // Store device token in Firestore if it doesn't exist already
   Future<void> storeDeviceToken() async {
     final String? deviceToken = await messaging.getToken();
+    print('Token: $deviceToken');
     if (deviceToken != null) {
       final tokenSnapshot = await firestore
           .collection('Users')
