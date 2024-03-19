@@ -22,15 +22,15 @@ class LoginScreen extends StatefulWidget {
       required this.auth,
       required this.storage,
       required this.themeManager});
- 
+
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
- 
+
 class _LoginScreenState extends State<LoginScreen> {
   late AuthService _auth;
   bool _obscureText = true;
- 
+
   @override
   void initState() {
     super.initState();
@@ -39,24 +39,24 @@ class _LoginScreenState extends State<LoginScreen> {
       auth: widget.auth,
     );
   }
- 
+
   void toggle() {
     setState(() {
       _obscureText = !_obscureText;
     });
   }
- 
+
   final _formKey = GlobalKey<FormState>();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
- 
+
   @override
   void dispose() {
     emailController.dispose();
     passwordController.dispose();
     super.dispose();
   }
- 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -77,7 +77,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   if (value!.isEmpty) {
                     return 'Please enter your email';
                   } else if (!value.contains('@')) {
-
                     return 'Please enter a valid email';
                   }
                   return null;
@@ -94,7 +93,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   }
                   return null;
                 },
-                isPassword: true,
               ),
               const SizedBox(height: 16),
               const SizedBox(height: 16),
@@ -104,8 +102,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     User? user = await _auth.signInUser(
                         emailController.text, passwordController.text);
                     if (user != null) {
-                      String roleType = await UserController(widget.auth, widget.firestore)
-                        .getUserRoleType();
+                      String roleType =
+                          await UserController(widget.auth, widget.firestore)
+                              .getUserRoleType();
                       Widget nextPage = Base(
                         firestore: widget.firestore,
                         auth: widget.auth,
@@ -131,7 +130,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 },
                 child: const Text('Login'),
               ),
-              const SizedBox(height: 20.0),
+              const SizedBox(height: 10.0),
               SizedBox(
                 width: 250.0,
                 child: TextButton(
@@ -146,9 +145,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     );
                   },
-                  child: const Text(
+                  child: Text(
                     'Forgot Password?',
-                    style: TextStyle(fontSize: 16, color: Colors.black),
+                    style: Theme.of(context).textTheme.bodyMedium,
                   ),
                 ),
               ),
@@ -159,38 +158,46 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
- 
-
-  Widget buildTextFormField({
-    required TextEditingController controller,
-    required String hintText,
-    required String labelText,
-    bool obscureText = false,
-    String? Function(String?)? validator,
-    bool isPassword = false,
-  }) {
-    return TextFormField(
-      controller: controller,
-      obscureText: obscureText,
-      autofocus: true,
-      textInputAction: TextInputAction.next,
-      decoration: InputDecoration(
-        hintText: hintText,
-        labelText: labelText,
-        labelStyle: const TextStyle(color: Colors.red),
-        hintStyle: const TextStyle(color: Colors.black),
-        suffixIcon: isPassword
-            ? IconButton(
-                icon:
-                    Icon(obscureText ? Icons.visibility : Icons.visibility_off),
-                onPressed: () {
-                  toggle();
-                },
-              )
-            : null,
-      ),
-      style: const TextStyle(color: Colors.black),
-      validator: validator,
-    );
+  Widget buildTextFormField(
+      {required TextEditingController controller,
+      required String hintText,
+      required String labelText,
+      bool obscureText = false,
+      String? Function(String?)? validator}) {
+    if (labelText == 'Password') {
+      return TextFormField(
+        controller: controller,
+        obscureText: obscureText,
+        autofocus: true,
+        textInputAction: TextInputAction.next,
+        decoration: InputDecoration(
+            hintText: hintText,
+            labelText: labelText,
+            suffixIcon: IconButton(
+              style: ButtonStyle(
+                overlayColor: MaterialStateProperty.all(Colors.transparent),
+                splashFactory: NoSplash.splashFactory,
+              ),
+              padding: const EdgeInsets.only(top: 15.0),
+              onPressed: toggle,
+              icon: Icon(
+                _obscureText ? Icons.visibility : Icons.visibility_off,
+              ),
+            )),
+        validator: validator,
+      );
+    } else {
+      return TextFormField(
+        controller: controller,
+        obscureText: obscureText,
+        autofocus: true,
+        textInputAction: TextInputAction.next,
+        decoration: InputDecoration(
+          hintText: hintText,
+          labelText: labelText,
+        ),
+        validator: validator,
+      );
+    }
   }
 }

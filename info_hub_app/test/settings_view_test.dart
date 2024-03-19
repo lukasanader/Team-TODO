@@ -123,9 +123,25 @@ void main() {
     await tester.tap(find.text("Help"));
     await tester.pumpAndSettle();
 
-  // Verify that HelpPage is pushed onto the navigator's stack
-  expect(find.byType(HelpPage), findsOneWidget);
-});
+    // Verify that HelpPage is pushed onto the navigator's stack
+    expect(find.byType(HelpPage), findsOneWidget);
+  });
+
+  testWidgets('Test entering general settings works',
+      (WidgetTester tester) async {
+    // Build our PrivacyPage widget and trigger a frame.
+    await tester.pumpWidget(settingsViewWidget);
+
+    // Tap on the ListTile to navigate to TermsOfServicesPage.
+    await tester.tap(find.text('History'));
+    await tester.pumpAndSettle();
+
+    // Verify that PrivacyPage is rendered after tapping on the ListTile.
+    expect(find.byType(ActivityView), findsOneWidget);
+
+    // Verify that TermsOfServicesPage renders an AppBar with the title "Terms of Services".
+    expect(find.text('History'), findsOneWidget);
+  });
 /*
   testWidgets('SettingsView history option goes to activity view', (WidgetTester tester) async {
     await tester.pumpWidget(settingsViewWidget);
@@ -191,4 +207,3 @@ void main() {
     expect(find.byType(DraftsPage), findsOneWidget);
   });
 }
-
