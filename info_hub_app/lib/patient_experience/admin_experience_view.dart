@@ -21,6 +21,7 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
   late ExperienceController _experienceController;
   List<Experience> _verifiedExperienceList = [];
   List<Experience> _unverifiedExperienceList = [];
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -39,32 +40,69 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: const Text("All Submitted Experiences"),
-        ),
-        body: SingleChildScrollView(
-          child: Column(
+      appBar: AppBar(
+        title: const Text("All Submitted Experiences"),
+      ),
+      body: SingleChildScrollView(
+        child: Column(
           children: [
             const Text("Verified experiences"),
-            ListView.builder(
-                physics: const NeverScrollableScrollPhysics(),
-                shrinkWrap: true,
-                itemCount: _verifiedExperienceList.length,
-                itemBuilder: (context, index) {
-                  return displayExperiencesForAdmin(_verifiedExperienceList[index]);
-                }),
+            FutureBuilder<List<Experience>>(
+              future: _experienceController.getVerifiedExperienceList(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  // Return a loading indicator while data is being fetched
+                  return CircularProgressIndicator();
+                } else if (snapshot.hasError) {
+                  // Handle error if data fetching fails
+                  return Text('Error: ${snapshot.error}');
+                } else {
+                  // Data fetching is successful, update the UI with the fetched data
+                  _verifiedExperienceList = snapshot.data ?? [];
+                  return _buildExperienceList(_verifiedExperienceList);
+                }
+              },
+            ),
             const SizedBox(height: 30),
             const Text("Unverified experiences"),
-            ListView.builder(
-                physics: const NeverScrollableScrollPhysics(),
-                shrinkWrap: true,
-                itemCount: _unverifiedExperienceList.length,
-                itemBuilder: (context, index) {
-                  return displayExperiencesForAdmin(_unverifiedExperienceList[index]);
-                }),
+            FutureBuilder<List<Experience>>(
+              future: _experienceController.getUnverifiedExperienceList(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  // Return a loading indicator while data is being fetched
+                  return CircularProgressIndicator();
+                } else if (snapshot.hasError) {
+                  // Handle error if data fetching fails
+                  return Text('Error: ${snapshot.error}');
+                } else {
+                  // Data fetching is successful, update the UI with the fetched data
+                  _unverifiedExperienceList = snapshot.data ?? [];
+                  return _buildExperienceList(_unverifiedExperienceList);
+                }
+              },
+            ),
           ],
-        )));
+        ),
+      ),
+    );
   }
+
+  Widget _buildExperienceList(List<Experience> experiences) {
+    return experiences.isEmpty
+        ? _isLoading
+            ? CircularProgressIndicator()
+            : const Text("No experiences available")
+        : ListView.builder(
+            physics: const NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            itemCount: experiences.length,
+            itemBuilder: (context, index) {
+              return displayExperiencesForAdmin(experiences[index]);
+            },
+          );
+  }
+
+
 
   Widget displayExperiencesForAdmin(Experience experience) {
     bool? experienceVerification = experience.verified;
