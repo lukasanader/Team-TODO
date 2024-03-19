@@ -13,6 +13,7 @@ import 'registration/start_page.dart';
 import 'package:provider/provider.dart';
 import 'package:info_hub_app/services/database.dart';
 import 'package:info_hub_app/topics/view_topic.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 ThemeManager themeManager = ThemeManager();
 
@@ -22,11 +23,13 @@ Future<void> main() async {
   FirebaseAuth auth = FirebaseAuth.instance;
   FirebaseFirestore firestore = FirebaseFirestore.instance;
   FirebaseStorage storage = FirebaseStorage.instance;
-  runApp(MyApp(
-    firestore: firestore,
-    auth: auth,
-    storage: storage,
-  ));
+    initializeDateFormatting('en_GB', null).then((_) { 
+    runApp(MyApp(
+      firestore: firestore,
+      auth: auth,
+      storage: storage,
+    ));
+  });
 }
 
 class MyApp extends StatefulWidget {

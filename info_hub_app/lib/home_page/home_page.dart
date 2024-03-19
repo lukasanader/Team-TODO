@@ -12,6 +12,7 @@ import 'package:info_hub_app/helpers/test_page.dart';
 import 'package:info_hub_app/message_feature/patient_message_view.dart';
 import 'package:info_hub_app/patient_experience/admin_experience_view.dart';
 import 'package:info_hub_app/patient_experience/patient_experience_view.dart';
+import 'package:info_hub_app/registration/user_model.dart';
 import 'package:info_hub_app/topics/topics_card.dart';
 import 'package:info_hub_app/notifications/notifications.dart';
 import 'package:info_hub_app/threads/threads.dart';
@@ -23,7 +24,8 @@ import 'package:info_hub_app/change_profile/change_profile.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:info_hub_app/webinar/webinar_view.dart';
+import 'package:info_hub_app/webinar/service/webinar_service.dart';
+import 'package:info_hub_app/webinar/webinar-screens/webinar_view.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 
 import 'package:info_hub_app/profile_view/profile_view.dart';
@@ -189,10 +191,18 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
                 ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
+                    UserModel user = await generateCurrentUser();
+                    WebinarService webinarService = WebinarService(firestore: widget.firestore, storage: widget.storage);
+                    // ignore: use_build_context_synchronously
                     PersistentNavBarNavigator.pushNewScreen(
                       context,
-                      screen: const WebinarView(),
+                      screen: WebinarView(
+                        firestore: widget.firestore,
+                        user: user,
+                        webinarService: webinarService,
+                      ),
+                      withNavBar: false,
                     );
                   },
                   style: ElevatedButton.styleFrom(
@@ -208,6 +218,23 @@ class _HomePageState extends State<HomePage> {
             ),
           ]),
         ));
+  }
+
+  Future<UserModel> generateCurrentUser() async {
+    String uid = widget.auth.currentUser!.uid;
+    DocumentSnapshot userDoc = await widget.firestore.collection('Users').doc(uid).get();
+    List<String> likedTopics = List<String>.from(userDoc['likedTopics']);
+    List<String> dislikedTopics = List<String>.from(userDoc['dislikedTopics']);
+    UserModel user = UserModel(
+      uid: uid,
+      firstName: userDoc['firstName'],
+      lastName: userDoc['lastName'],
+      email: userDoc['email'],
+      roleType: userDoc['roleType'],
+      likedTopics: likedTopics,
+      dislikedTopics: dislikedTopics,
+    );
+    return user;
   }
 
   Future getTopicsList() async {
