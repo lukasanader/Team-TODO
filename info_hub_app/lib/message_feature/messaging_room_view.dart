@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/message_feature/message_bubble.dart';
+import 'package:info_hub_app/message_feature/message_room/message_room_model.dart';
 import 'package:info_hub_app/message_feature/message_service.dart';
 import 'package:info_hub_app/registration/user_model.dart';
 import 'package:info_hub_app/notifications/manage_notifications.dart';
@@ -16,13 +17,16 @@ class MessageRoomView extends StatefulWidget {
   final FirebaseAuth auth;
   final String senderId;
   final String receiverId;
+  final Function() onNewMessageRoomCreated;
 
   const MessageRoomView(
       {super.key,
       required this.firestore,
       required this.auth,
       required this.senderId,
-      required this.receiverId});
+      required this.receiverId,
+      required this.onNewMessageRoomCreated
+      });
 
   @override
   State<MessageRoomView> createState() => _MessageRoomViewState();
@@ -46,6 +50,7 @@ class _MessageRoomViewState extends State<MessageRoomView> {
           .sendMessage(widget.receiverId, _messageController.text);
       _messageController.clear();
     }
+    widget.onNewMessageRoomCreated();
   }
 
   Future<void> getDisplayName() async {

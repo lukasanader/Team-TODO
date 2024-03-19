@@ -42,7 +42,8 @@ class MessageRoomCard extends StatelessWidget {
               auth: auth, 
               senderId: senderId, 
               receiverId: receiverId,
-              firestore: firestore,),
+              firestore: firestore,
+              onNewMessageRoomCreated: () {},),
             withNavBar: false,
           );
         },

@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/message_feature/message_room/message_room_controller.dart';
+import 'package:info_hub_app/message_feature/message_room/message_room_model.dart';
 import 'package:info_hub_app/message_feature/message_rooms_card.dart';
 import 'package:info_hub_app/message_feature/message_service.dart';
 import 'package:info_hub_app/message_feature/messaging_room_view.dart';
@@ -138,6 +139,7 @@ class _MessageViewState extends State<MessageView> {
                                       auth: widget.auth,
                                       senderId: widget.auth.currentUser!.uid,
                                       receiverId: receiverUser.id,
+                                      onNewMessageRoomCreated: updateChatList,
                                     );
                                   }
                                 )
@@ -202,6 +204,7 @@ class _MessageViewState extends State<MessageView> {
       _userList = tempList;
     });
   }
+
 
   Future updateChatList() async {
     List<Object> tempList = await messageRoomController.getMessageRoomsList();

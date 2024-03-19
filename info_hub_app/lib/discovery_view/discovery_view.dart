@@ -72,28 +72,32 @@ class _DiscoveryViewState extends State<DiscoveryView> {
           child: Column(
         children: [
           addVerticalSpace(10),
-          ToggleButtons(
-            isSelected: isSelected,
-            onPressed: (int index) {
-              setState(() {
-                isSelected[index] = !isSelected[index];
-                if (!categoriesSelected.contains(_categories[index])) {
-                  categoriesSelected.add(_categories[index]);
-                } else {
-                  categoriesSelected.remove(_categories[index]);
-                }
-                _searchData(_searchController.text);
-              });
-            },
-            children: List.generate(
-              _categoriesWidget.length,
-              (index) => Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 15.0), // Adjust the horizontal spacing here
-                child: _categoriesWidget[index],
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: ToggleButtons(
+              isSelected: isSelected,
+              onPressed: (int index) {
+                setState(() {
+                  isSelected[index] = !isSelected[index];
+                  if (!categoriesSelected.contains(_categories[index])) {
+                    categoriesSelected.add(_categories[index]);
+                  } else {
+                    categoriesSelected.remove(_categories[index]);
+                  }
+                  _searchData(_searchController.text);
+                });
+              },
+              children: List.generate(
+                _categoriesWidget.length,
+                (index) => Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 15.0), // Adjust the horizontal spacing here
+                  child: _categoriesWidget[index],
+                ),
               ),
             ),
           ),
+
           addVerticalSpace(10),
           ListView.builder(
             physics: const NeverScrollableScrollPhysics(),
