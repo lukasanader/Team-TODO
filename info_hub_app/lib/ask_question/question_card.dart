@@ -1,16 +1,20 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:info_hub_app/controller/topic_question_controller.dart';
+import 'package:info_hub_app/model/model.dart';
 
 
 class QuestionCard extends StatelessWidget {
-  final QueryDocumentSnapshot _question;
+  final TopicQuestion _question;
   final FirebaseFirestore firestore;
+  final FirebaseAuth auth;
   final Function() onDelete;
 
-  const QuestionCard(this._question,this.firestore,this.onDelete,{super.key});
+  QuestionCard(this._question,this.firestore,this.onDelete, this.auth,{super.key});
+
 
   @override
-   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       child: Card(
@@ -20,10 +24,7 @@ class QuestionCard extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  _question['question'] +
-                      " " +
-                      calculateDaysAgo(_question['date']) +
-                      " days ago",
+                  "${_question.question} ${TopicQuestionController(firestore: firestore,auth: auth).calculateDaysAgo(_question.date)} days ago",
                 ),
               ),
               IconButton(
@@ -46,7 +47,7 @@ class QuestionCard extends StatelessWidget {
                           TextButton(
                             onPressed: () {
                               // Delete the question from the database
-                              deleteQuestion();
+                              TopicQuestionController(firestore: firestore,auth: auth).deleteQuestion(_question);
                               onDelete();
                               Navigator.of(context).pop();
                             },
@@ -63,15 +64,5 @@ class QuestionCard extends StatelessWidget {
         ),
       ),
     );
-  }
-
-
-  String calculateDaysAgo(String questionDate){
-    DateTime date =DateTime.parse(questionDate);
-    return DateTime.now().difference(date).inDays.toString();
-  }
-  Future deleteQuestion() async {
-     CollectionReference questionCollectionRef = firestore.collection('questions');
-     await questionCollectionRef.doc(_question.id).delete();
   }
 }

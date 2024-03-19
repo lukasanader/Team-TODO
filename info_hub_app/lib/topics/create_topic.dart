@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:chips_choice/chips_choice.dart';
 import 'package:flutter/material.dart';
+import 'package:info_hub_app/controller/topic_question_controller.dart';
+import 'package:info_hub_app/model/model.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:video_player/video_player.dart';
 import 'package:file_picker/file_picker.dart';
@@ -13,7 +15,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:path/path.dart';
 import 'package:path/path.dart' as path;
 import 'package:info_hub_app/ask_question/question_card.dart';
-import 'package:info_hub_app/ask_question/question_service.dart';
 import 'transitions/checkmark_transition.dart';
 
 class CreateTopicScreen extends StatefulWidget {
@@ -297,7 +298,10 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                               MaterialPageRoute(
                                 builder: (context) => CreateQuiz(
                                     firestore: widget.firestore,
-                                    addQuiz: addQuiz),
+                                    auth: widget.auth,
+                                    addQuiz: addQuiz,
+                                    isEdit: editing,
+                                    topic: widget.topic,),
                               ),
                             );
                           },
@@ -469,7 +473,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                         if (_topicFormKey.currentState!.validate() &&
                             _tags.isNotEmpty) {
                           await _uploadTopic(context, false);
-                          await _showDeleteQuestionDialog(context);
+                          await _showDeleteQuestionDialog(context, titleController.text);
                         }
                       },
                       child: Text(
@@ -626,107 +630,101 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
     }
   }
 
-  Future<void> _showDeleteQuestionDialog(context) async {
-    questions = await QuestionService(firestore: widget.firestore)
-        .getRelevantQuestions(titleController.text);
-
-    // ignore: use_build_context_synchronously
-    await showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return StatefulBuilder(builder: (context, setState) {
-          return Dialog(
-            child: Container(
-              height: MediaQuery.of(context).size.height * 0.8,
-              padding: const EdgeInsets.all(20),
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: questions.isEmpty ? 1 : questions.length,
-                      itemBuilder: (context, index) {
-                        if (questions.isEmpty) {
-                          return const ListTile(
-                            title:
-                                Text('There are currently no more questions!'),
-                          );
-                        } else {
-                          return QuestionCard(
-                            questions[index] as QueryDocumentSnapshot,
-                            widget.firestore,
-                            () async {
-                              List<dynamic> updatedQuestions =
-                                  await QuestionService(
-                                          firestore: widget.firestore)
-                                      .getRelevantQuestions(
-                                          titleController.text);
+  Future<void> _showDeleteQuestionDialog(BuildContext context, String title) async {
+  final controller = TopicQuestionController(firestore: widget.firestore, auth: widget.auth);
+  List<TopicQuestion> questions =await controller.getRelevantQuestions(title);
+  
+  // ignore: use_build_context_synchronously
+  await showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return StatefulBuilder(
+        builder: (context, setState) {
+        return Dialog(
+        child: Container(
+          height: MediaQuery.of(context).size.height * 0.8,
+          padding: const EdgeInsets.all(20),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: questions.isEmpty ? 1 : questions.length,
+                  itemBuilder: (context, index) {
+                    if (questions.isEmpty) {
+                      return const ListTile(
+                        title: Text('There are currently no more questions!'),
+                      );
+                    } else {
+                      return QuestionCard(
+                          questions[index],
+                          widget.firestore,
+                          () async {
+                              List<TopicQuestion> updatedQuestions =  await controller.getRelevantQuestions(title);
                               setState(() {
                                 questions = updatedQuestions;
                               });
                             },
-                          );
-                        }
-                      },
-                    ),
-                    const SizedBox(height: 20),
-                    Row(children: [
-                      ElevatedButton(
-                        onPressed: () async {
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                title: const Text("Confirmation"),
-                                content: const Text(
-                                    "Are you sure you want to remove all these questions?"),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: const Text("Cancel"),
-                                  ),
-                                  TextButton(
-                                    onPressed: () async {
-                                      // Delete the question from the database
-                                      QuestionService(
-                                              firestore: widget.firestore)
-                                          .deleteQuestions(questions);
-                                      setState(
-                                        () {
-                                          questions = [];
-                                        },
-                                      );
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: const Text("Confirm"),
-                                  ),
-                                ],
-                              );
-                            },
-                          );
-                        },
-                        child: const Text('Delete all'),
-                      ),
-                      ElevatedButton(
-                        onPressed: () async {
-                          Navigator.of(context).pop();
-                        },
-                        child: const Text('Done'),
-                      ),
-                    ])
-                  ],
+                            widget.auth);
+                    }
+                  },
                 ),
-              ),
+                const SizedBox(height: 20),
+                Row(
+                  children:[
+                ElevatedButton(
+                  onPressed: () async {
+                    showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: const Text("Confirmation"),
+                        content: const Text(
+                            "Are you sure you want to remove all these questions?"),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: const Text("Cancel"),
+                          ),
+                          TextButton(
+                            onPressed: () async{
+                              // Delete the question from the database
+                              controller.deleteAllQuestions(questions);
+                              setState(() {questions =[];},);
+                              Navigator.of(context).pop();
+                            },
+                            child: const Text("Confirm"),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                    
+                  },
+                  child: const Text('Delete all'),
+                ), 
+                ElevatedButton(
+                  onPressed: () async {Navigator.of(context).pop();},
+                  child: const Text('Done'),
+                ),
+                ]
+                )
+              ],
             ),
-          );
-        });
-      },
-    );
-  }
+          ),
+        ),
+        );
+        }
+      );
+    },
+  );
+ 
+
+ }
 
   Future<void> _showMediaUploadOptions(BuildContext context) async {
     await showModalBottomSheet(

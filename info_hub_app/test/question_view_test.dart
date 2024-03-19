@@ -1,29 +1,33 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
+import 'package:firebase_core_platform_interface/firebase_core_platform_interface.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:info_hub_app/ask_question/question_view.dart';
 
+import 'threads_test.dart';
+
 void main() {
 late FirebaseFirestore firestore = FakeFirebaseFirestore();
+late MockFirebaseAuth auth =MockFirebaseAuth();
 late Widget questionWidget;
 
   setUp((){
       firestore = FakeFirebaseFirestore();
       questionWidget = MaterialApp(
-      home: ViewQuestionPage(firestore: firestore),
+      home: ViewQuestionPage(firestore: firestore,auth: auth,),
     );
     CollectionReference questionsCollectionRef =
         firestore.collection('questions');
   questionsCollectionRef.add({
     'question' : 'This is test question number 1',
-    'uid' : 1,
+    'uid' : '1',
     'date' : DateTime.now().toString()
   }
   );
   questionsCollectionRef.add({
     'question' : 'This is test question number 2',
-    'uid' : 1,
+    'uid' : '1',
     'date' : DateTime.now().toString()
   }
   );

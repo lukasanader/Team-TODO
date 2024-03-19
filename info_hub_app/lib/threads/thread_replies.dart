@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:info_hub_app/services/database.dart';
 import 'package:intl/intl.dart';
 import 'package:info_hub_app/threads/reply_card.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -204,6 +205,8 @@ class _ThreadRepliesState extends State<ThreadReplies> {
                       String docId = widget.auth.currentUser!
                           .uid; // Use the passed auth instance
                       String authorName = generateUniqueName(docId);
+
+                      DatabaseService(firestore: widget.firestore,uid: docId).addThreadActivity(widget.threadId);
 
                       widget.firestore.collection("replies").add({
                         // Use the passed firestore instance

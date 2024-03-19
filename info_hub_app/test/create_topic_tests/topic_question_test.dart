@@ -48,22 +48,22 @@ void main() async {
     await firestore.collection('questions').add({
       'question': 'Can i go to the gym with liver failure?',
       'date': DateTime.now().toString(),
-      'uid': 1,
+      'uid': '1',
     });
     await firestore.collection('questions').add({
       'question': 'Advice on going university',
       'date': DateTime.now().toString(),
-      'uid': 1,
+      'uid': '1',
     });
     await firestore.collection('questions').add({
       'question': 'Advice on going gym',
       'date': DateTime.now().toString(),
-      'uid': 1,
+      'uid': '1',
     });
     await firestore.collection('questions').add({
       'question': 'Tips on going gym',
       'date': DateTime.now().toString(),
-      'uid': 1,
+      'uid': '1',
     });
     await tester.enterText(
         find.byKey(const Key('titleField')), 'Tips on going to the gym');
