@@ -11,7 +11,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:path/path.dart';
-import 'package:info_hub_app/topics/view_topic.dart';
 import 'package:path/path.dart' as path;
 import 'package:info_hub_app/ask_question/question_card.dart';
 import 'package:info_hub_app/ask_question/question_service.dart';
@@ -167,30 +166,6 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
             appBarTitle,
             style: const TextStyle(
                 color: Colors.white, fontWeight: FontWeight.bold),
-          ),
-          leading: IconButton(
-            icon: const Icon(
-              Icons.arrow_back,
-              color: Colors.white,
-            ),
-            onPressed: () {
-              if (editing) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ViewTopicScreen(
-                      firestore: widget.firestore,
-                      topic: updatedTopicDoc!,
-                      storage: widget.storage,
-                      auth: widget.auth,
-                      themeManager: widget.themeManager,
-                    ),
-                  ),
-                );
-              } else {
-                Navigator.pop(context);
-              }
-            },
           ),
           actions: <Widget>[
             if (!editing && !drafting)
@@ -645,18 +620,8 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
         Navigator.of(context).popUntil((route) => route.isFirst);
       }
       if (editing) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ViewTopicScreen(
-              firestore: widget.firestore,
-              topic: updatedTopicDoc!,
-              storage: widget.storage,
-              auth: widget.auth,
-              themeManager: widget.themeManager,
-            ),
-          ),
-        );
+        Navigator.pop(context);
+        Navigator.pop(context, updatedTopicDoc);
       }
     }
   }
