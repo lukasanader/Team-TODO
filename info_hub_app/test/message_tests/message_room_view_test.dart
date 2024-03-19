@@ -57,7 +57,7 @@ void main() {
     });
 
     messageRoomViewWidget = MaterialApp(
-      home: MessageRoomView(firestore: firestore, auth: auth, senderId: uid, receiverId: '123456789'),
+      home: MessageRoomView(firestore: firestore, auth: auth, senderId: uid, receiverId: '123456789', onNewMessageRoomCreated: () {},),
     );
   });
 
