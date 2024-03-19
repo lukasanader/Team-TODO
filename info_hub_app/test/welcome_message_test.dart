@@ -364,7 +364,8 @@ void main() {
       home: WelcomePage(
         firestore: firestore,
         storage: storage,
-        auth: auth,
+        auth: auth, 
+        themeManager: themeManager,
       ),
     ));
     final generalExpansionTileFinder = find.byKey(const Key('faq_expansion_tile'));
@@ -387,6 +388,7 @@ void main() {
         firestore: firestore,
         storage: storage,
         auth: auth,
+        themeManager: themeManager,
       ),
     ));
     final generalExpansionTileFinder = find.byKey(const Key('faq_expansion_tile'));
@@ -408,6 +410,7 @@ void main() {
         firestore: firestore,
         storage: storage,
         auth: auth,
+        themeManager: themeManager,
       ),
     ));
     final generalExpansionTileFinder = find.byKey(const Key('faq_expansion_tile'));
@@ -430,6 +433,7 @@ void main() {
         firestore: firestore,
         storage: storage,
         auth: auth,
+        themeManager: themeManager,
       ),
     ));
     final generalExpansionTileFinder = find.byKey(const Key('faq_expansion_tile'));
@@ -451,6 +455,7 @@ void main() {
             firestore: firestore,
             storage: storage,
             auth: auth,
+            themeManager: themeManager,
           ),
         ));
 
@@ -473,6 +478,7 @@ void main() {
         firestore: firestore,
         storage: storage,
         auth: auth,
+        themeManager: themeManager,
       ),
     ));
     final generalExpansionTileFinder = find.byKey(const Key('faq_expansion_tile'));
@@ -492,6 +498,7 @@ void main() {
         auth: auth,
         firestore: firestore,
         storage: storage,
+        themeManager: themeManager,
       ),
     ));
     await tester.ensureVisible(find.textContaining('Get Started'));
@@ -510,6 +517,7 @@ void main() {
         auth: auth,
         firestore: firestore,
         storage: storage,
+        themeManager: themeManager,
       ),
     ));
 
