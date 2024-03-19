@@ -3,17 +3,20 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:info_hub_app/helpers/base.dart';
+import 'package:info_hub_app/theme/theme_manager.dart';
 
 class WelcomePage extends StatelessWidget {
   final FirebaseFirestore firestore;
   final FirebaseAuth auth;
   final FirebaseStorage storage;
+  final ThemeManager themeManager;
 
   const WelcomePage({
     super.key,
     required this.firestore,
     required this.auth,
     required this.storage,
+    required this.themeManager,
   });
 
   @override
@@ -72,7 +75,8 @@ class WelcomePage extends StatelessWidget {
                     ),
                     children: <Widget>[
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16.0, vertical: 8.0),
                         child: Text(
                           "This is a information hub app that allows you to view and share information on matters regarding living with liver issues.",
                           style: TextStyle(
@@ -265,11 +269,14 @@ class WelcomePage extends StatelessWidget {
                     onPressed: () {
                       Navigator.pushAndRemoveUntil(
                         context,
-                        MaterialPageRoute(builder: (context) => Base(
-                        auth: auth,
-                        storage: storage,
-                        firestore: firestore,
-                      ),),
+                        MaterialPageRoute(
+                          builder: (context) => Base(
+                            auth: auth,
+                            storage: storage,
+                            firestore: firestore,
+                            themeManager: themeManager,
+                          ),
+                        ),
                         (Route<dynamic> route) => false,
                       );
                     },

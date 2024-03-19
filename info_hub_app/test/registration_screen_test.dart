@@ -2,7 +2,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:info_hub_app/helpers/base.dart';
 import 'package:info_hub_app/legal_agreements/privacy_policy.dart';
 import 'package:info_hub_app/legal_agreements/terms_of_services.dart';
 import 'package:info_hub_app/registration/registration_screen.dart';
@@ -10,7 +9,6 @@ import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import 'package:info_hub_app/welcome_message/welcome_message.dart';
-
 
 void main() {
   late Widget registrationWidget;

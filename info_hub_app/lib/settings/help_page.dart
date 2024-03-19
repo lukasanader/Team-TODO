@@ -8,7 +8,6 @@ class HelpPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Help Page'),
-        backgroundColor: Colors.red, // Keep the app bar color red
       ),
       body: SingleChildScrollView(
         child: Padding(

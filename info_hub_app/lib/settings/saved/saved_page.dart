@@ -5,12 +5,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:info_hub_app/topics/topics_card.dart';
 
 class SavedPage extends StatefulWidget {
-  FirebaseFirestore firestore;
-  FirebaseAuth auth;
-  FirebaseStorage storage;
+  final FirebaseFirestore firestore;
+  final FirebaseAuth auth;
+  final FirebaseStorage storage;
 
   //User? user = FirebaseAuth.instance.currentUser;
-  SavedPage(
+  const SavedPage(
       {super.key,
       required this.auth,
       required this.firestore,
@@ -21,12 +21,6 @@ class SavedPage extends StatefulWidget {
 
 class _SavedPageState extends State<SavedPage> {
   List<Object> _topicsList = [];
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    getTopicsList();
-  }
 
   @override
   void initState() {
@@ -50,10 +44,8 @@ class _SavedPageState extends State<SavedPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Your Saved Topics',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          'Saved Topics',
         ),
-        backgroundColor: Colors.red,
       ),
       body: SingleChildScrollView(
         child: _buildTopicsList(),
@@ -69,14 +61,26 @@ class _SavedPageState extends State<SavedPage> {
     } else {
       return ListView.builder(
         shrinkWrap: true,
-        itemCount: _topicsList.length,
+        itemCount: _topicsList.isEmpty ? 0 : _topicsList.length * 2 - 1,
         itemBuilder: (context, index) {
-          return TopicCard(
-            widget.firestore,
-            widget.auth,
-            widget.storage,
-            _topicsList[index] as QueryDocumentSnapshot<Object>,
-          );
+          if (index.isOdd) {
+            // Add Padding and Container between TopicCards
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Container(
+                height: 1,
+                color: Colors.grey,
+              ),
+            );
+          } else {
+            final topicIndex = index ~/ 2;
+            return TopicCard(
+              widget.firestore,
+              widget.auth,
+              widget.storage,
+              _topicsList[topicIndex] as QueryDocumentSnapshot<Object>,
+            );
+          }
         },
       );
     }
@@ -105,9 +109,11 @@ class _SavedPageState extends State<SavedPage> {
               .collection('topics')
               .where(FieldPath.documentId, whereIn: savedTopics)
               .get();
-          setState(() {
-            _topicsList = List.from(data.docs);
-          });
+          if (mounted) {
+            setState(() {
+              _topicsList = List.from(data.docs);
+            });
+          }
         } else {
           // If savedTopics is empty, set _topicsList to an empty list
           setState(() {

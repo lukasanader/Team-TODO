@@ -74,6 +74,49 @@ Future<void> main() async {
       expect(find.text('body2'), findsNothing);
     });
 
+    testWidgets(
+        'ensure padding is visible if more than 2 notifications are present',
+        (WidgetTester tester) async {
+      await firestore.collection(NotificationCollection).add({
+        'uid': auth.currentUser!.uid,
+        'title': 'title1',
+        'body': 'body1',
+        'timestamp': DateTime.now(),
+      });
+      await firestore.collection(NotificationCollection).add({
+        'uid': auth.currentUser!.uid,
+        'title': 'title2',
+        'body': 'body2',
+        'timestamp': DateTime.now(),
+      });
+
+      await tester.pumpWidget(
+        MultiProvider(
+          providers: [
+            StreamProvider<List<custom.Notification>>(
+              create: (_) => DatabaseService(
+                uid: auth.currentUser!.uid,
+                firestore: firestore,
+              ).notifications,
+              initialData: [],
+            ),
+          ],
+          child: MaterialApp(
+            home: Notifications(
+              auth: auth,
+              firestore: firestore,
+            ),
+          ),
+        ),
+      );
+
+      await tester.idle();
+
+      await tester.pump();
+
+      expect(find.byType(Padding), findsWidgets);
+    });
+
     testWidgets('create and delete notification', (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(

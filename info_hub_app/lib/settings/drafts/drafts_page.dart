@@ -5,12 +5,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:info_hub_app/topics/topics_card.dart';
 
 class DraftsPage extends StatefulWidget {
-  FirebaseFirestore firestore;
-  FirebaseAuth auth;
-  FirebaseStorage storage;
+  final FirebaseFirestore firestore;
+  final FirebaseAuth auth;
+  final FirebaseStorage storage;
 
   //User? user = FirebaseAuth.instance.currentUser;
-  DraftsPage(
+  const DraftsPage(
       {super.key,
       required this.auth,
       required this.firestore,

@@ -7,6 +7,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:info_hub_app/helpers/helper_widgets.dart';
 import 'package:info_hub_app/helpers/test_page.dart';
 import 'package:info_hub_app/message_feature/patient_message_view.dart';
 import 'package:info_hub_app/patient_experience/admin_experience_view.dart';
@@ -70,13 +71,13 @@ class _HomePageState extends State<HomePage> {
           title: const Text('Team TODO'),
           actions: <Widget>[
             IconButton(
-              icon: const Icon(Icons.notifications),
+              icon: const Icon(Icons.notifications_none_outlined),
               onPressed: () {
                 // Placeholder method for notification icon
                 // Navigate to notification page
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
+                  CupertinoPageRoute(
                       builder: (context) => Notifications(
                             auth: widget.auth,
                             firestore: widget.firestore,
@@ -85,33 +86,16 @@ class _HomePageState extends State<HomePage> {
               },
             ),
             IconButton(
-              icon: const Icon(Icons.account_circle),
+              icon: const Icon(Icons.email_outlined),
               onPressed: () {
-                // Placeholder method for profile picture icon
-                // Navigate to profile page
-                Navigator.of(context).push(
-                  CupertinoPageRoute(
-                    builder: (BuildContext context) {
-                      return ProfileView(
+                Navigator.push(
+                    context,
+                    CupertinoPageRoute(
+                      builder: (context) => PatientMessageView(
                         firestore: widget.firestore,
                         auth: widget.auth,
-                      );
-                    },
-                  ),
-                );
-              },
-            ),
-            IconButton(
-              icon: const Icon(Icons.email),
-              onPressed: () {
-                PersistentNavBarNavigator.pushNewScreen(
-                  context,
-                  screen: PatientMessageView(
-                    firestore: widget.firestore,
-                    auth: widget.auth,
-                  ),
-                  withNavBar: false,
-                );
+                      ),
+                    ));
               },
             ),
           ],
@@ -133,6 +117,7 @@ class _HomePageState extends State<HomePage> {
         //above is the floating action button
         body: SingleChildScrollView(
           child: Column(children: [
+            addVerticalSpace(10),
             const Text(
               "Trending topics",
               textAlign: TextAlign.left,
@@ -140,25 +125,40 @@ class _HomePageState extends State<HomePage> {
                 fontSize: 18,
               ),
             ),
+            addVerticalSpace(10),
             ListView.builder(
-                shrinkWrap: true,
-                itemCount: topicLength == 0 ? 0 : topicLength,
-                itemBuilder: (context, index) {
+              physics: const NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              itemCount: topicLength == 0 ? 0 : topicLength * 2 - 1,
+              itemBuilder: (context, index) {
+                if (index.isOdd) {
+                  // Add Padding and Container between TopicCards
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Container(
+                      height: 1,
+                      color: Colors.grey,
+                    ),
+                  );
+                } else {
+                  final topicIndex = index ~/ 2;
                   return TopicCard(
-                      widget.firestore,
-                      widget.auth,
-                      widget.storage,
-                      _topicsList[index] as QueryDocumentSnapshot<Object>);
-                }),
-            const SizedBox(
-              height: 10,
+                    widget.firestore,
+                    widget.auth,
+                    widget.storage,
+                    _topicsList[topicIndex] as QueryDocumentSnapshot<Object>,
+                  );
+                }
+              },
             ),
+            addVerticalSpace(10),
             const Text(
               "Explore",
               style: TextStyle(
                 fontSize: 18,
               ),
             ),
+            addVerticalSpace(10),
             GridView.extent(
               shrinkWrap: true,
               maxCrossAxisExtent: 150,
@@ -183,6 +183,7 @@ class _HomePageState extends State<HomePage> {
                   )),
                   child: const Text(
                     'Patient Experience',
+                    textAlign: TextAlign.center,
                   ),
                 ),
                 ElevatedButton(
@@ -197,14 +198,16 @@ class _HomePageState extends State<HomePage> {
                       shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   )),
-                  child: const Text('Webinars'),
+                  child: const Text(
+                    'Webinars',
+                    textAlign: TextAlign.center,
+                  ),
                 ),
               ],
             ),
           ]),
         ));
   }
-
 
   Future getTopicsList() async {
 
@@ -214,11 +217,13 @@ class _HomePageState extends State<HomePage> {
     return;
   }
     String uid = widget.auth.currentUser!.uid;
-    DocumentSnapshot user = await widget.firestore.collection('Users').doc(uid).get();
+    DocumentSnapshot user =
+        await widget.firestore.collection('Users').doc(uid).get();
     String role = user['roleType'];
-    QuerySnapshot data = await widget.firestore.collection('topics').where('tags', arrayContains: role).get();
-    
-
+    QuerySnapshot data = await widget.firestore
+        .collection('topics')
+        .where('tags', arrayContains: role)
+        .get();
 
     setState(() {
       _topicsList = List.from(data.docs);
@@ -233,4 +238,3 @@ class _HomePageState extends State<HomePage> {
     });
   }
 }
-
