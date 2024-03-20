@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:info_hub_app/change_profile/change_profile.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
+import 'package:info_hub_app/change_profile/change_profile_controller.dart';
 import 'package:info_hub_app/profile_view/profile_view.dart';
 
 void main() {
@@ -12,7 +13,7 @@ void main() {
     final auth = MockFirebaseAuth();
     await tester.runAsync(() async {
       await tester.pumpWidget(
-          MaterialApp(home: ChangeProfile(firestore: firestore, auth: auth)));
+          (MaterialApp(home: ChangeProfile(controller: ChangeProfileController(firestore: firestore, auth: auth)))));
       final firstNameField = find.ancestor(
         of: find.text('First Name'),
         matching: find.byType(TextField),
@@ -28,7 +29,7 @@ void main() {
     final auth = MockFirebaseAuth();
     await tester.runAsync(() async {
       await tester.pumpWidget(
-          MaterialApp(home: ChangeProfile(firestore: firestore, auth: auth)));
+          (MaterialApp(home: ChangeProfile(controller: ChangeProfileController(firestore: firestore, auth: auth)))));
       final lastNameField = find.ancestor(
         of: find.text('Last Name'),
         matching: find.byType(TextField),
@@ -44,7 +45,7 @@ void main() {
     final auth = MockFirebaseAuth();
     await tester.runAsync(() async {
       await tester.pumpWidget(
-          MaterialApp(home: ChangeProfile(firestore: firestore, auth: auth)));
+          (MaterialApp(home: ChangeProfile(controller: ChangeProfileController(firestore: firestore, auth: auth)))));
       final newPasswordField = find.ancestor(
         of: find.text('New Password'),
         matching: find.byType(TextField),
@@ -60,7 +61,7 @@ void main() {
     final auth = MockFirebaseAuth();
     await tester.runAsync(() async {
       await tester.pumpWidget(
-          MaterialApp(home: ChangeProfile(firestore: firestore, auth: auth)));
+          (MaterialApp(home: ChangeProfile(controller: ChangeProfileController(firestore: firestore, auth: auth)))));
       final confirmPasswordField = find.ancestor(
         of: find.text('Confirm Password'),
         matching: find.byType(TextField),
@@ -75,7 +76,7 @@ void main() {
     final firestore = FakeFirebaseFirestore();
     final auth = MockFirebaseAuth();
     await tester.pumpWidget(
-        MaterialApp(home: ChangeProfile(firestore: firestore, auth: auth)));
+        (MaterialApp(home: ChangeProfile(controller: ChangeProfileController(firestore: firestore, auth: auth)))));
     final firstNameField = find.widgetWithText(TextField, 'First Name');
     await tester.enterText(firstNameField, '123');
     await tester
@@ -90,7 +91,7 @@ void main() {
     final firestore = FakeFirebaseFirestore();
     final auth = MockFirebaseAuth();
     await tester.pumpWidget(
-        MaterialApp(home: ChangeProfile(firestore: firestore, auth: auth)));
+        (MaterialApp(home: ChangeProfile(controller: ChangeProfileController(firestore: firestore, auth: auth)))));
     final lastNameField = find.widgetWithText(TextField, 'Last Name');
     expect(lastNameField, findsOneWidget); // Check if last name field is found
     await tester.enterText(
@@ -106,7 +107,7 @@ void main() {
     final firestore = FakeFirebaseFirestore();
     final auth = MockFirebaseAuth();
     await tester.pumpWidget(
-        MaterialApp(home: ChangeProfile(firestore: firestore, auth: auth)));
+       (MaterialApp(home: ChangeProfile(controller: ChangeProfileController(firestore: firestore, auth: auth)))));
     final newPasswordField = find.widgetWithText(TextField, 'New Password');
     await tester.enterText(newPasswordField, 'weakpassword');
     await tester
@@ -122,7 +123,7 @@ void main() {
     final firestore = FakeFirebaseFirestore();
     final auth = MockFirebaseAuth();
     await tester.pumpWidget(
-        MaterialApp(home: ChangeProfile(firestore: firestore, auth: auth)));
+        (MaterialApp(home: ChangeProfile(controller: ChangeProfileController(firestore: firestore, auth: auth)))));
     final newPasswordField = find.widgetWithText(TextField, 'New Password');
     final confirmPasswordField =
         find.widgetWithText(TextField, 'Confirm Password');
@@ -154,7 +155,7 @@ void main() {
     // Mock FirebaseAuth to return the expected current user
 
     await tester.pumpWidget(
-        MaterialApp(home: ChangeProfile(firestore: firestore, auth: auth)));
+        (MaterialApp(home: ChangeProfile(controller: ChangeProfileController(firestore: firestore, auth: auth)))));
 
     // Enter new first name and last name and passwords
     final firstNameField = find.widgetWithText(TextField, 'First Name');
@@ -179,6 +180,7 @@ void main() {
     expect(updatedUserDoc['lastName'], 'NewLastName');
   });
 
+// This test is currently failing
   testWidgets('Test that profile view is updated after changes are saved',
       (WidgetTester tester) async {
     final firestore = FakeFirebaseFirestore();
@@ -199,7 +201,7 @@ void main() {
     // Mock FirebaseAuth to return the expected current user
 
     await tester.pumpWidget(
-        MaterialApp(home: ProfileView(firestore: firestore, auth: auth)));
+        (MaterialApp(home: ChangeProfile(controller: ChangeProfileController(firestore: firestore, auth: auth)))));
     await tester.pumpAndSettle();
     expect(find.text('Change Profile'), findsOneWidget);
 
@@ -232,7 +234,7 @@ void main() {
     final firestore = FakeFirebaseFirestore();
     final auth = MockFirebaseAuth();
     await tester.pumpWidget(
-        MaterialApp(home: ChangeProfile(firestore: firestore, auth: auth)));
+        (MaterialApp(home: ChangeProfile(controller: ChangeProfileController(firestore: firestore, auth: auth)))));
     await tester.pumpAndSettle();
 
     final newPasswordField = find.ancestor(

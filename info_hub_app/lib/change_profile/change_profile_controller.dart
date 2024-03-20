@@ -30,6 +30,7 @@ class ChangeProfileController {
       await user.updatePassword(newPasswordController.text);
     }
   }
+  
   bool isAlpha(String text) {
     final alphaRegExp = RegExp(r'^[a-zA-Z]+$');
     return alphaRegExp.hasMatch(text);
@@ -76,3 +77,5 @@ class ChangeProfileController {
     return password == confirmPassword;
   }
 }
+
+

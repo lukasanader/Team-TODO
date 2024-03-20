@@ -489,24 +489,37 @@ void main() {
     expect(find.text( "Lifestyle changes that may help manage liver disease include maintaining a healthy diet low in fat and processed foods, avoiding alcohol and tobacco, exercising regularly, managing stress, and following prescribed treatment plans. It's essential to consult healthcare professionals."), findsOneWidget);
   });
 
-  testWidgets('WelcomePage "Get Started" button test if it brings you to the Home Page', (WidgetTester tester) async {
-    final firestore = FakeFirebaseFirestore();
-    final auth = MockFirebaseAuth();
-    final storage = MockFirebaseStorage();
-    await tester.pumpWidget(MaterialApp(
-      home: WelcomePage(
-        auth: auth,
-        firestore: firestore,
-        storage: storage,
-        themeManager: themeManager,
-      ),
-    ));
-    await tester.ensureVisible(find.textContaining('Get Started'));
-    expect(find.text('Get Started'), findsOneWidget);
-    await tester.tap(find.text('Get Started'));
-    await tester.pumpAndSettle();
-    expect(find.byType(Base), findsOneWidget);
-  });
+testWidgets('WelcomePage "Get Started" button test if it brings you to the Home Page', (WidgetTester tester) async {
+  final firestore = FakeFirebaseFirestore();
+  final auth = MockFirebaseAuth();
+  final storage = MockFirebaseStorage();
+   auth.createUserWithEmailAndPassword(
+        email: 'testcaseemail@example.org', password: 'Password123!');
+
+    // Create a fake user document with old first name
+    final fakeUserId = auth.currentUser?.uid;
+    final fakeUser = {
+      'email': 'testcaseemail@example.org',
+      'roleType': 'Patient',
+      'firstName': 'OldFirstName',
+      'lastName': 'OldLastName',
+    };
+    await firestore.collection('Users').doc(fakeUserId).set(fakeUser);
+  await tester.pumpWidget(MaterialApp(
+    home: WelcomePage(
+      auth: auth,
+      firestore: firestore,
+      storage: storage,
+      themeManager: themeManager,
+    ),
+  ));
+  await tester.ensureVisible(find.textContaining('Get Started'));
+  expect(find.text('Get Started'), findsOneWidget);
+  await tester.tap(find.text('Get Started'));
+  await tester.pumpAndSettle();
+  expect(find.byType(Base), findsOneWidget);
+});
+
 
     testWidgets('WelcomePage "Get Started" button is visible', (WidgetTester tester) async {
     final firestore = FakeFirebaseFirestore();
@@ -526,6 +539,13 @@ void main() {
     });
 
 }
+
+
+
+
+
+
+
 
 
 

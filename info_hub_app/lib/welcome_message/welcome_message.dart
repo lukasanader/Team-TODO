@@ -272,6 +272,7 @@ class WelcomePage extends StatelessWidget {
                           await firestore.collection('Users').doc(uid).get();
                       String roleType = user['roleType'];
                       Navigator.pushAndRemoveUntil(
+                        // ignore: use_build_context_synchronously
                         context,
                         MaterialPageRoute(
                           builder: (context) => Base(

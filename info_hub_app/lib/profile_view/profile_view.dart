@@ -133,9 +133,33 @@ class _ProfileViewState extends State<ProfileView> {
     );
   }
 
+  // Widget _buildChangeProfileButton() {
+  //   return ElevatedButton(
+  //     onPressed: _changeProfile,
+  //     child: const Text('Change Profile'),
+  //   );
+  // }
+
   Widget _buildChangeProfileButton() {
     return ElevatedButton(
-      onPressed: _changeProfile,
+      onPressed: () async {
+        final result = await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ChangeProfile(
+              controller: ChangeProfileController(
+                firestore: widget.controller.firestore,
+                auth: widget.controller.auth,
+            ),
+          ),
+        ));
+
+        // Check if changes were saved
+        if (result != null && result) {
+          // If changes were saved, update the profile view
+          _displayProfile();
+        }
+      },
       child: const Text('Change Profile'),
     );
   }

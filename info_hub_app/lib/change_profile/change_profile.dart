@@ -20,83 +20,29 @@ class _ChangeProfileState extends State<ChangeProfile> {
   String _firstNameErrorText = '';
   String _lastNameErrorText = '';
   String _passwordErrorText = '';
+  bool _obscureNewPasswordText = true;
+  bool _obscureConfirmPasswordText = true;
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Change Profile'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            TextField(
-              controller: _firstNameController,
-              decoration: InputDecoration(
-                labelText: 'First Name',
-                border: const UnderlineInputBorder(),
-                errorText: _firstNameErrorText.isNotEmpty ? _firstNameErrorText : null,
-              ),
-            ),
-            const SizedBox(height: 10),
-            TextField(
-              controller: _lastNameController,
-              decoration: InputDecoration(
-                labelText: 'Last Name',
-                border: const UnderlineInputBorder(),
-                errorText: _lastNameErrorText.isNotEmpty ? _lastNameErrorText : null,
-              ),
-            ),
-            const SizedBox(height: 10),
-            TextField(
-              controller: _newPasswordController,
-              obscureText: _obscureNewPasswordText,
-              decoration: InputDecoration(
-                labelText: 'New Password',
-                suffixIcon: IconButton(
-                  onPressed: newPasswordToggle,
-                  icon: Icon(
-                    _obscureNewPasswordText
-                        ? Icons.visibility
-                        : Icons.visibility_off,
-                  ),
-                  padding: const EdgeInsets.only(top: 15.0),
-                  style: ButtonStyle(
-                    overlayColor: MaterialStateProperty.all(Colors.transparent),
-                    splashFactory: NoSplash.splashFactory,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 10),
-            TextField(
-              controller: _confirmPasswordController,
-              obscureText: _obscureConfirmPasswordText,
-              decoration: InputDecoration(
-                labelText: 'Confirm Password',
-                border: const UnderlineInputBorder(),
-                errorText: _passwordErrorText.isNotEmpty ? _passwordErrorText : null,
-              ),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _saveChanges,
-              child: const Text('Save Changes'),
-            ),
-          ],
-        ),
-      ),
-    );
+  void newPasswordToggle() {
+    setState(() {
+      _obscureNewPasswordText = !_obscureNewPasswordText;
+    });
   }
 
-  void _saveChanges() async {
+  void confirmPasswordToggle() {
+    setState(() {
+      _obscureConfirmPasswordText = !_obscureConfirmPasswordText;
+    });
+  }
+
+void _saveChanges() async {
     setState(() {
       // Reset error text
       _firstNameErrorText = '';
       _lastNameErrorText = '';
       _passwordErrorText = '';
     });
+
 
     // Validation logic
     if (!widget.controller.validateInputs(
@@ -116,7 +62,8 @@ class _ChangeProfileState extends State<ChangeProfile> {
         });
       }
 
-      if (!widget.controller.passwordMatch(_newPasswordController.text, _confirmPasswordController.text)) {
+      if (!widget.controller.passwordMatch(
+          _newPasswordController.text, _confirmPasswordController.text)) {
         setState(() {
           _passwordErrorText = 'Passwords do not match';
         });
@@ -125,10 +72,10 @@ class _ChangeProfileState extends State<ChangeProfile> {
       if (!widget.controller.isPasswordValid(_newPasswordController.text)) {
         setState(() {
           _passwordErrorText = 'Password must contain:\n'
-            '- At least one lowercase letter\n'
-            '- One uppercase letter\n'
-            '- One number\n'
-            '- One special character';
+              '- At least one lowercase letter\n'
+              '- One uppercase letter\n'
+              '- One number\n'
+              '- One special character';
         });
       }
 
@@ -137,6 +84,7 @@ class _ChangeProfileState extends State<ChangeProfile> {
 
     await widget.controller.updateProfile(
         _firstNameController, _lastNameController, _newPasswordController);
+
 
     Navigator.pop(context);
     ScaffoldMessenger.of(context).showSnackBar(
@@ -147,6 +95,87 @@ class _ChangeProfileState extends State<ChangeProfile> {
       ),
     );
   }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Change Profile'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            TextField(
+              controller: _firstNameController,
+              decoration: InputDecoration(
+                labelText: 'First Name',
+                border: const UnderlineInputBorder(),
+                errorText:
+                    _firstNameErrorText.isNotEmpty ? _firstNameErrorText : null,
+              ),
+            ),
+            const SizedBox(height: 10),
+            TextField(
+              controller: _lastNameController,
+              decoration: InputDecoration(
+                labelText: 'Last Name',
+                border: const UnderlineInputBorder(),
+                errorText:
+                    _lastNameErrorText.isNotEmpty ? _lastNameErrorText : null,
+              ),
+            ),
+            const SizedBox(height: 10),
+            TextField(
+              controller: _newPasswordController,
+              obscureText: _obscureNewPasswordText,
+              decoration: InputDecoration(
+                labelText: 'New Password',
+                suffixIcon: IconButton(
+                  onPressed: newPasswordToggle,
+                  icon: Icon(
+                    _obscureNewPasswordText
+                        ? Icons.visibility
+                        : Icons.visibility_off,
+                  ),
+                  padding: const EdgeInsets.only(top: 15.0),
+                  splashRadius: 24,
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+            TextField(
+              controller: _confirmPasswordController,
+              obscureText: _obscureConfirmPasswordText,
+              decoration: InputDecoration(
+                labelText: 'Confirm Password',
+                errorText:
+                    _passwordErrorText.isNotEmpty ? _passwordErrorText : null,
+                suffixIcon: IconButton(
+                  onPressed: confirmPasswordToggle,
+                  icon: Icon(
+                    _obscureConfirmPasswordText
+                        ? Icons.visibility
+                        : Icons.visibility_off,
+                  ),
+                  padding: const EdgeInsets.only(top: 15.0),
+                  splashRadius: 24,
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _saveChanges,
+              child: const Text('Save Changes'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
+
+
+
 
 
