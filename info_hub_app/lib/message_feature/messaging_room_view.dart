@@ -129,8 +129,7 @@ class _MessageRoomViewState extends State<MessageRoomView> {
             padding: const EdgeInsets.only(
                 right: 8.0), // Adjust left padding as needed
             child: IconButton(
-                onPressed: sendMessage,
-                icon: const Icon(Icons.arrow_upward_rounded)),
+                onPressed: sendMessage, icon: const Icon(Icons.arrow_upward)),
           ),
         ],
       ),

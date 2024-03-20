@@ -104,20 +104,26 @@ void main() {
     Finder cardFinder = find.byType(Card);
     expect(cardFinder, findsNWidgets(6));
 
-    // Check the order of card titles
-    final textFinders = find.byType(Text);
-    expect((textFinders.at(1).evaluate().single.widget as Text).data,
-        'alphabetically first topic');
-    expect((textFinders.at(2).evaluate().single.widget as Text).data,
-        'topic with least views');
-    expect((textFinders.at(3).evaluate().single.widget as Text).data,
-        'topic with most dislikes');
-    expect((textFinders.at(4).evaluate().single.widget as Text).data,
-        'topic with most likes');
-    expect((textFinders.at(5).evaluate().single.widget as Text).data,
-        'topic with most views');
-    expect(
-        (textFinders.at(6).evaluate().single.widget as Text).data, 'z topic');
+    final cardTexts = <String>[
+      'alphabetically first topic',
+      'topic with least views',
+      'topic with most dislikes',
+      'topic with most likes',
+      'topic with most views',
+      'z topic',
+    ];
+
+    for (var i = 0; i < 6; i++) {
+      final cardTextFinder = find.descendant(
+        of: cardFinder.at(i),
+        matching: find.byType(Text),
+      );
+
+      expect(
+        (cardTextFinder.first.evaluate().single.widget as Text).data,
+        cardTexts[i],
+      );
+    }
   });
 
   testWidgets('DropdownButton changes value correctly for Name (Z - A)',
@@ -148,20 +154,26 @@ void main() {
     Finder cardFinder = find.byType(Card);
     expect(cardFinder, findsNWidgets(6));
 
-    // Check the order of card titles
-    final textFinders = find.byType(Text);
-    expect(
-        (textFinders.at(1).evaluate().single.widget as Text).data, 'z topic');
-    expect((textFinders.at(2).evaluate().single.widget as Text).data,
-        'topic with most views');
-    expect((textFinders.at(3).evaluate().single.widget as Text).data,
-        'topic with most likes');
-    expect((textFinders.at(4).evaluate().single.widget as Text).data,
-        'topic with most dislikes');
-    expect((textFinders.at(5).evaluate().single.widget as Text).data,
-        'topic with least views');
-    expect((textFinders.at(6).evaluate().single.widget as Text).data,
-        'alphabetically first topic');
+    final cardTexts = <String>[
+      'z topic',
+      'topic with most views',
+      'topic with most likes',
+      'topic with most dislikes',
+      'topic with least views',
+      'alphabetically first topic',
+    ];
+
+    for (var i = 0; i < 6; i++) {
+      final cardTextFinder = find.descendant(
+        of: cardFinder.at(i),
+        matching: find.byType(Text),
+      );
+
+      expect(
+        (cardTextFinder.first.evaluate().single.widget as Text).data,
+        cardTexts[i],
+      );
+    }
   });
 
   testWidgets('DropdownButton changes value correctly for Most Popular',
@@ -192,20 +204,26 @@ void main() {
     Finder cardFinder = find.byType(Card);
     expect(cardFinder, findsNWidgets(6));
 
-    // Check the order of card titles
-    final textFinders = find.byType(Text);
-    expect((textFinders.at(1).evaluate().single.widget as Text).data,
-        'topic with most views');
-    expect((textFinders.at(2).evaluate().single.widget as Text).data,
-        'topic with most dislikes');
-    expect((textFinders.at(3).evaluate().single.widget as Text).data,
-        'alphabetically first topic');
-    expect(
-        (textFinders.at(4).evaluate().single.widget as Text).data, 'z topic');
-    expect((textFinders.at(5).evaluate().single.widget as Text).data,
-        'topic with most likes');
-    expect((textFinders.at(6).evaluate().single.widget as Text).data,
-        'topic with least views');
+    final cardTexts = <String>[
+      'topic with most views',
+      'topic with most dislikes',
+      'alphabetically first topic',
+      'z topic',
+      'topic with most likes',
+      'topic with least views',
+    ];
+
+    for (var i = 0; i < 6; i++) {
+      final cardTextFinder = find.descendant(
+        of: cardFinder.at(i),
+        matching: find.byType(Text),
+      );
+
+      expect(
+        (cardTextFinder.first.evaluate().single.widget as Text).data,
+        cardTexts[i],
+      );
+    }
   });
 
   testWidgets('DropdownButton changes value correctly for Trending',
@@ -236,20 +254,26 @@ void main() {
     Finder cardFinder = find.byType(Card);
     expect(cardFinder, findsNWidgets(6));
 
-    // Check the order of card titles
-    final textFinders = find.byType(Text);
-    expect((textFinders.at(1).evaluate().single.widget as Text).data,
-        'topic with most views');
-    expect((textFinders.at(2).evaluate().single.widget as Text).data,
-        'topic with most dislikes');
-    expect((textFinders.at(3).evaluate().single.widget as Text).data,
-        'alphabetically first topic');
-    expect(
-        (textFinders.at(4).evaluate().single.widget as Text).data, 'z topic');
-    expect((textFinders.at(5).evaluate().single.widget as Text).data,
-        'topic with most likes');
-    expect((textFinders.at(6).evaluate().single.widget as Text).data,
-        'topic with least views');
+    final cardTexts = <String>[
+      'topic with most views',
+      'topic with most dislikes',
+      'alphabetically first topic',
+      'z topic',
+      'topic with most likes',
+      'topic with least views',
+    ];
+
+    for (var i = 0; i < 6; i++) {
+      final cardTextFinder = find.descendant(
+        of: cardFinder.at(i),
+        matching: find.byType(Text),
+      );
+
+      expect(
+        (cardTextFinder.first.evaluate().single.widget as Text).data,
+        cardTexts[i],
+      );
+    }
   });
 
   testWidgets('DropdownButton changes value correctly for Most Likes',
@@ -280,20 +304,26 @@ void main() {
     Finder cardFinder = find.byType(Card);
     expect(cardFinder, findsNWidgets(6));
 
-    // Check the order of card titles
-    final textFinders = find.byType(Text);
-    expect((textFinders.at(1).evaluate().single.widget as Text).data,
-        'topic with most likes');
-    expect((textFinders.at(2).evaluate().single.widget as Text).data,
-        'topic with most views');
-    expect((textFinders.at(3).evaluate().single.widget as Text).data,
-        'topic with most dislikes');
-    expect((textFinders.at(4).evaluate().single.widget as Text).data,
-        'alphabetically first topic');
-    expect(
-        (textFinders.at(5).evaluate().single.widget as Text).data, 'z topic');
-    expect((textFinders.at(6).evaluate().single.widget as Text).data,
-        'topic with least views');
+    final cardTexts = <String>[
+      'topic with most likes',
+      'topic with most views',
+      'topic with most dislikes',
+      'alphabetically first topic',
+      'z topic',
+      'topic with least views',
+    ];
+
+    for (var i = 0; i < 6; i++) {
+      final cardTextFinder = find.descendant(
+        of: cardFinder.at(i),
+        matching: find.byType(Text),
+      );
+
+      expect(
+        (cardTextFinder.first.evaluate().single.widget as Text).data,
+        cardTexts[i],
+      );
+    }
   });
 
   testWidgets('DropdownButton changes value correctly for Most Dislikes',
@@ -324,20 +354,26 @@ void main() {
     Finder cardFinder = find.byType(Card);
     expect(cardFinder, findsNWidgets(6));
 
-    // Check the order of card titles
-    final textFinders = find.byType(Text);
-    expect((textFinders.at(1).evaluate().single.widget as Text).data,
-        'topic with most dislikes');
-    expect((textFinders.at(2).evaluate().single.widget as Text).data,
-        'topic with most views');
-    expect((textFinders.at(3).evaluate().single.widget as Text).data,
-        'topic with most likes');
-    expect((textFinders.at(4).evaluate().single.widget as Text).data,
-        'alphabetically first topic');
-    expect(
-        (textFinders.at(5).evaluate().single.widget as Text).data, 'z topic');
-    expect((textFinders.at(6).evaluate().single.widget as Text).data,
-        'topic with least views');
+    final cardTexts = <String>[
+      'topic with most dislikes',
+      'topic with most views',
+      'topic with most likes',
+      'alphabetically first topic',
+      'z topic',
+      'topic with least views',
+    ];
+
+    for (var i = 0; i < 6; i++) {
+      final cardTextFinder = find.descendant(
+        of: cardFinder.at(i),
+        matching: find.byType(Text),
+      );
+
+      expect(
+        (cardTextFinder.first.evaluate().single.widget as Text).data,
+        cardTexts[i],
+      );
+    }
   });
 
   // Test the analytics of the topics when a topic is selected

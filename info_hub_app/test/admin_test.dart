@@ -86,7 +86,7 @@ void main() {
     });
 
     await tester.pumpWidget(adminWidget);
-    await tester.tap(find.text('Message feature'));
+    await tester.tap(find.text('Message Users'));
     await tester.pumpAndSettle();
     expect(find.byType(MessageView), findsOneWidget);
   });
