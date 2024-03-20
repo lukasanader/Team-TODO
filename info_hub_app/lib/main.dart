@@ -65,7 +65,7 @@ Future<void> main() async {
   FirebaseAuth auth = FirebaseAuth.instance;
   FirebaseFirestore firestore = FirebaseFirestore.instance;
   FirebaseStorage storage = FirebaseStorage.instance;
-    initializeDateFormatting('en_GB', null).then((_) { 
+  initializeDateFormatting('en_GB', null).then((_) {
     runApp(MyApp(
       firestore: firestore,
       auth: auth,
@@ -127,6 +127,8 @@ class _MyAppState extends State<MyApp> {
           firestore: widget.firestore,
           storage: widget.storage,
           auth: widget.auth,
+          messaging: FirebaseMessaging.instance,
+          localnotificationsplugin: FlutterLocalNotificationsPlugin(),
           themeManager: themeManager,
         ),
         routes: {

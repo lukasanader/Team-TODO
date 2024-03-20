@@ -14,12 +14,16 @@ class StartPage extends StatelessWidget {
   final FirebaseAuth auth;
   final FirebaseStorage storage;
   final ThemeManager themeManager;
+  final FirebaseMessaging messaging;
+  final FlutterLocalNotificationsPlugin localnotificationsplugin;
   const StartPage(
       {super.key,
       required this.firestore,
       required this.auth,
       required this.storage,
-      required this.themeManager});
+      required this.themeManager,
+      required this.messaging,
+      required this.localnotificationsplugin});
 
   @override
   Widget build(BuildContext context) {
