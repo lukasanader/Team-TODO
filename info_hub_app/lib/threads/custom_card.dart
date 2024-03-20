@@ -296,7 +296,6 @@ class _CustomCardState extends State<CustomCard> {
                     });
 
                     if (!showErrorTitle && !showErrorDescription) {
-                      // Update the local UI immediately
                       setState(() {
                         docData['title'] = titleInputController.text;
                         docData['description'] =
@@ -304,7 +303,6 @@ class _CustomCardState extends State<CustomCard> {
                         isEdited = true;
                       });
 
-                      // Asynchronously update Firestore
                       widget.firestore.collection("thread").doc(docId).update({
                         "title": titleInputController.text,
                         "description": descriptionInputController.text,

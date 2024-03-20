@@ -68,7 +68,7 @@ class _ThreadRepliesState extends State<ThreadReplies> {
         await widget.firestore.collection('Users').doc(creatorId).get();
     Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
 
-    String authorName = userData['name'] ?? 'Anonymous';
+    String authorName = generateUniqueName(creatorId) ?? 'Anonymous';
     String userProfilePhoto =
         userData['selectedProfilePhoto'] ?? 'default_profile_photo.png';
 
@@ -81,6 +81,7 @@ class _ThreadRepliesState extends State<ThreadReplies> {
       "userProfilePhoto": userProfilePhoto,
       "threadId": widget.threadId,
       "timestamp": DateTime.now(),
+      "isEdited": false,
     };
 
     setState(() => localReplies.add(newReply));
@@ -243,141 +244,4 @@ class _ThreadRepliesState extends State<ThreadReplies> {
       ),
     );
   }
-
-//old expanded
-  /*
-              Expanded(
-                child: StreamBuilder<QuerySnapshot>(
-                  stream: replyStream,
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData) return CircularProgressIndicator();
-                    return ListView.builder(
-                      itemCount: snapshot.data!.docs.length,
-                      itemBuilder: (context, index) {
-                        var replyDoc = snapshot.data!.docs[index];
-                        var creatorId = replyDoc[
-                            'creator']; // Assuming 'creator' is the user ID
-
-                        return FutureBuilder<DocumentSnapshot>(
-                          future: widget.firestore
-                              .collection('Users')
-                              .doc(creatorId)
-                              .get(),
-                          builder: (BuildContext context,
-                              AsyncSnapshot<DocumentSnapshot> userSnapshot) {
-                            if (!userSnapshot.hasData) {
-                              return CircularProgressIndicator(); // Or some placeholder widget
-                            }
-
-                            var userDocData = userSnapshot.data?.data()
-                                as Map<String, dynamic>?;
-                            var profilePhoto =
-                                userDocData?['selectedProfilePhoto'] ??
-                                    'default_profile_photo.png';
-
-                            return ReplyCard(
-                              snapshot: snapshot.data!,
-                              index: index,
-                              firestore: widget.firestore,
-                              auth: widget.auth,
-                              userProfilePhoto:
-                                  profilePhoto, // Pass the profile photo here
-                            );
-                          },
-                        );
-                      },
-                    );
-                  },
-                ),
-              ),
-
-              */
-
-/*
-  void _showDialog(BuildContext context) async {
-    //bool showErrorAuthor = false;
-    bool showErrorContent = false;
-
-    await showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              contentPadding: const EdgeInsets.all(12.0),
-              content: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    const Text("Please fill out the form"),
-                    /*TextField(
-                      key: const Key('Author'),
-                      autofocus: true,
-                      autocorrect: true,
-                      decoration: InputDecoration(
-                        labelText: "Author",
-                        errorText:
-                            showErrorAuthor ? "Please enter your name" : null,
-                      ),
-                      controller: authorInputController,
-                    ),*/
-                    TextField(
-                      key: const Key('Content'),
-                      autofocus: true,
-                      autocorrect: true,
-                      decoration: InputDecoration(
-                        labelText: "Reply Content",
-                        errorText:
-                            showErrorContent ? "Please enter a reply" : null,
-                      ),
-                      controller: contentInputController,
-                    ),
-                  ],
-                ),
-              ),
-              actions: <Widget>[
-                TextButton(
-                  onPressed: () {
-                    //authorInputController.clear();
-                    contentInputController.clear();
-                    Navigator.pop(context);
-                  },
-                  child: const Text("Cancel"),
-                ),
-                TextButton(
-                  onPressed: () {
-                    setState(() {
-                      //showErrorAuthor = authorInputController.text.isEmpty;
-                      showErrorContent = contentInputController.text.isEmpty;
-                    });
-
-                    if ( //!showErrorAuthor &&
-                        !showErrorContent) {
-                      String docId = widget.auth.currentUser!
-                          .uid; // Use the passed auth instance
-                      String authorName = generateUniqueName(docId);
-
-                      widget.firestore.collection("replies").add({
-                        // Use the passed firestore instance
-                        "author": authorName,
-                        "content": contentInputController.text,
-                        "threadId": widget.threadId,
-                        "timestamp": FieldValue.serverTimestamp(),
-                        "creator": docId,
-                      }).then((response) {
-                        //authorInputController.clear();
-                        contentInputController.clear();
-                        Navigator.pop(context);
-                      });
-                    }
-                  },
-                  child: const Text("Submit"),
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
-  } */
 }

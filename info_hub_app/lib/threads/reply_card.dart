@@ -68,6 +68,7 @@ class _ReplyCardState extends State<ReplyCard> {
 */
     var docId = widget.reply['id'];
     var content = widget.reply['content'] ?? 'No content provided';
+    var isEdited = widget.reply['isEdited'] ?? false;
     var creator = widget.reply['creator'] ?? ' ';
     var currentUserId = widget.auth.currentUser!.uid;
     var timestamp = (widget.reply['timestamp'] as Timestamp?)?.toDate();
@@ -116,6 +117,15 @@ class _ReplyCardState extends State<ReplyCard> {
                     overflow: TextOverflow.ellipsis,
                     maxLines: 3,
                   ),
+                  if (isEdited) // Display " (edited)" if the reply is edited
+                    Text(
+                      " (edited)",
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Color.fromARGB(255, 255, 0, 0),
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
                   SizedBox(height: 4),
                   Text(
                     formatter,
@@ -132,7 +142,7 @@ class _ReplyCardState extends State<ReplyCard> {
                   if (currentUserId == creator)
                     IconButton(
                       key: Key('editButton_$docId'),
-                      icon: Icon(FontAwesomeIcons.edit, size: 15),
+                      icon: Icon(FontAwesomeIcons.penToSquare, size: 15),
                       onPressed: () {
                         _showDialog(context, docId);
                       },
@@ -204,17 +214,19 @@ class _ReplyCardState extends State<ReplyCard> {
               onPressed: () async {
                 if (contentController.text.isNotEmpty) {
                   String updatedContent = contentController.text;
-                  if (!updatedContent.endsWith("(edited)")) {
-                    updatedContent += " (edited)";
-                  }
+
                   await widget.firestore
                       .collection('replies')
                       .doc(docId)
                       .update({
                     'content': updatedContent,
                     'timestamp': FieldValue.serverTimestamp(),
+                    'isEdited': true,
                   });
-                  Navigator.pop(context);
+
+                  if (mounted) {
+                    Navigator.pop(context);
+                  }
                 } else {
                   setState(() {
                     showErrorContent = true;
