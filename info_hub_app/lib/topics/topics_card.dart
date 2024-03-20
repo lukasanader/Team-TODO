@@ -357,3 +357,157 @@ class TopicDraftCard extends StatelessWidget {
     }
   }
 }
+
+class LargeTopicCard extends StatelessWidget {
+  final QueryDocumentSnapshot _topic;
+  final FirebaseFirestore firestore;
+  final FirebaseStorage storage;
+  final FirebaseAuth auth;
+
+  const LargeTopicCard(
+    this.firestore,
+    this.auth,
+    this.storage,
+    this._topic, {
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final Map<String, dynamic>? topicData =
+        _topic.data() as Map<String, dynamic>?;
+
+    final date = (topicData != null && topicData.containsKey('date'))
+        ? (topicData['date'] as Timestamp).toDate()
+        : null;
+
+    final mediaList = (topicData != null && topicData.containsKey('media'))
+        ? topicData['media'] as List<dynamic>
+        : null;
+    final media = mediaList?.isNotEmpty == true ? mediaList!.first : null;
+    final mediaUrl = media != null ? media['url'] as String? : null;
+    final mediaType = media != null ? media['mediaType'] as String? : null;
+
+    Widget mediaWidget = SizedBox.shrink();
+
+    if (mediaType == 'video') {
+      mediaWidget = FutureBuilder<Uint8List>(
+        future: mediaUrl != null
+            ? _getVideoThumbnail(mediaUrl)
+            : Future.value(Uint8List(0)),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const CircularProgressIndicator();
+          } else if (snapshot.hasError || snapshot.data == null) {
+            return const Text('Error loading thumbnail');
+          } else {
+            return Container(
+              width: 400, // Adjust width as needed
+              height: 180, // Adjust height as needed
+              child: Image.memory(
+                snapshot.data!,
+                fit: BoxFit.cover,
+              ),
+            );
+          }
+        },
+      );
+    } else if (mediaType == 'image') {
+      mediaWidget = Container(
+        width: 400, // Adjust width as needed
+        height: 180, // Adjust height as needed
+        child: Image.network(
+          mediaUrl!,
+          fit: BoxFit.cover,
+        ),
+      );
+    }
+
+    return GestureDetector(
+      onTap: () {
+        DatabaseService(uid: auth.currentUser!.uid, firestore: firestore)
+            .addTopicActivity(_topic);
+        PersistentNavBarNavigator.pushNewScreen(
+          context,
+          screen: ViewTopicScreen(
+            firestore: firestore,
+            auth: auth,
+            storage: storage,
+            topic: _topic,
+            themeManager: themeManager,
+          ),
+          withNavBar: false,
+        );
+      },
+      child: Card(
+        elevation: 4,
+        margin: EdgeInsets.all(8),
+        child: SizedBox(
+          width: double.infinity,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (mediaType != null)
+                Padding(
+                  padding: const EdgeInsets.all(4.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (mediaUrl != null)
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(8.0),
+                          child: mediaWidget,
+                        ),
+                      if (mediaUrl != null) const SizedBox(height: 4),
+                      Text(
+                        topicData?['title'] ?? '',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.black,
+                        ),
+                      ),
+                      if (date != null)
+                        Text(
+                          '${_formatDate(date)}',
+                          style: const TextStyle(
+                            fontSize: 10,
+                            color: Colors.grey,
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _formatDate(DateTime? date) {
+    if (date == null) return '';
+
+    final now = DateTime.now();
+    final difference = now.difference(date);
+
+    if (difference.inDays > 0) {
+      return '${difference.inDays}d ago';
+    } else if (difference.inHours > 0) {
+      return '${difference.inHours}h ago';
+    } else if (difference.inMinutes > 0) {
+      return '${difference.inMinutes}m ago';
+    } else {
+      return 'Just now';
+    }
+  }
+
+  Future<Uint8List> _getVideoThumbnail(String videoUrl) async {
+    final uint8list = await VideoThumbnail.thumbnailData(
+      video: videoUrl,
+      imageFormat: ImageFormat.JPEG,
+      maxWidth: 350,
+      quality: 100,
+    );
+    return uint8list!;
+  }
+}
