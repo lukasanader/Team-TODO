@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/admin/admin_dash.dart';
+import 'package:info_hub_app/registration/user_controller.dart';
 import 'package:info_hub_app/reset_password/reset_password.dart';
 import 'package:info_hub_app/services/auth.dart';
 import 'package:info_hub_app/helpers/base.dart';
@@ -39,7 +40,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  void toggle () {
+  void toggle() {
     setState(() {
       _obscureText = !_obscureText;
     });
@@ -94,10 +95,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 },
               ),
               const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: toggle,
-                child: new Text(_obscureText ? "Show" : "Hide"),
-              ),
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () async {
@@ -105,11 +102,15 @@ class _LoginScreenState extends State<LoginScreen> {
                     User? user = await _auth.signInUser(
                         emailController.text, passwordController.text);
                     if (user != null) {
+                      String roleType =
+                          await UserController(widget.auth, widget.firestore)
+                              .getUserRoleType();
                       Widget nextPage = Base(
                         firestore: widget.firestore,
                         auth: widget.auth,
                         storage: widget.storage,
                         themeManager: widget.themeManager,
+                        roleType: roleType,
                       );
                       Navigator.pushAndRemoveUntil(
                         context,
@@ -129,7 +130,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 },
                 child: const Text('Login'),
               ),
-              const SizedBox(height: 20.0),
+              const SizedBox(height: 10.0),
               SizedBox(
                 width: 250.0,
                 child: TextButton(
@@ -144,9 +145,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     );
                   },
-                  child: const Text(
+                  child: Text(
                     'Forgot Password?',
-                    style: TextStyle(fontSize: 16, color: Colors.black),
+                    style: Theme.of(context).textTheme.bodyMedium,
                   ),
                 ),
               ),
@@ -157,26 +158,46 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget buildTextFormField({
-    required TextEditingController controller,
-    required String hintText,
-    required String labelText,
-    bool obscureText = false,
-    String? Function(String?)? validator,
-  }) {
-    return TextFormField(
-      controller: controller,
-      obscureText: obscureText,
-      autofocus: true,
-      textInputAction: TextInputAction.next,
-      decoration: InputDecoration(
-        hintText: hintText,
-        labelText: labelText,
-        labelStyle: const TextStyle(color: Colors.red),
-        hintStyle: const TextStyle(color: Colors.black),
-      ),
-      style: const TextStyle(color: Colors.black),
-      validator: validator,
-    );
+  Widget buildTextFormField(
+      {required TextEditingController controller,
+      required String hintText,
+      required String labelText,
+      bool obscureText = false,
+      String? Function(String?)? validator}) {
+    if (labelText == 'Password') {
+      return TextFormField(
+        controller: controller,
+        obscureText: obscureText,
+        autofocus: true,
+        textInputAction: TextInputAction.next,
+        decoration: InputDecoration(
+            hintText: hintText,
+            labelText: labelText,
+            suffixIcon: IconButton(
+              style: ButtonStyle(
+                overlayColor: MaterialStateProperty.all(Colors.transparent),
+                splashFactory: NoSplash.splashFactory,
+              ),
+              padding: const EdgeInsets.only(top: 15.0),
+              onPressed: toggle,
+              icon: Icon(
+                _obscureText ? Icons.visibility : Icons.visibility_off,
+              ),
+            )),
+        validator: validator,
+      );
+    } else {
+      return TextFormField(
+        controller: controller,
+        obscureText: obscureText,
+        autofocus: true,
+        textInputAction: TextInputAction.next,
+        decoration: InputDecoration(
+          hintText: hintText,
+          labelText: labelText,
+        ),
+        validator: validator,
+      );
+    }
   }
 }

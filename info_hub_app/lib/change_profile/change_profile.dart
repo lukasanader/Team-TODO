@@ -51,16 +51,28 @@ class _ChangeProfileState extends State<ChangeProfile> {
             const SizedBox(height: 10),
             TextField(
               controller: _newPasswordController,
-              obscureText: true,
-              decoration: const InputDecoration(
+              obscureText: _obscureNewPasswordText,
+              decoration: InputDecoration(
                 labelText: 'New Password',
-                border: UnderlineInputBorder(),
+                suffixIcon: IconButton(
+                  onPressed: newPasswordToggle,
+                  icon: Icon(
+                    _obscureNewPasswordText
+                        ? Icons.visibility
+                        : Icons.visibility_off,
+                  ),
+                  padding: const EdgeInsets.only(top: 15.0),
+                  style: ButtonStyle(
+                    overlayColor: MaterialStateProperty.all(Colors.transparent),
+                    splashFactory: NoSplash.splashFactory,
+                  ),
+                ),
               ),
             ),
             const SizedBox(height: 10),
             TextField(
               controller: _confirmPasswordController,
-              obscureText: true,
+              obscureText: _obscureConfirmPasswordText,
               decoration: InputDecoration(
                 labelText: 'Confirm Password',
                 border: const UnderlineInputBorder(),

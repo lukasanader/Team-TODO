@@ -1,9 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:info_hub_app/model/model.dart';
 import 'package:info_hub_app/helpers/helper_widgets.dart';
+import 'package:info_hub_app/registration/user_controller.dart';
 import 'package:info_hub_app/topics/topics_card.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+
+import '../controller/topic_question_controller.dart';
 
 class DiscoveryView extends StatefulWidget {
   final FirebaseFirestore firestore;
@@ -23,7 +27,6 @@ class _DiscoveryViewState extends State<DiscoveryView> {
   final TextEditingController _questionController = TextEditingController();
   final TextEditingController _searchController = TextEditingController();
   List<Object> _topicsList = [];
-  List<Object> _searchedTopicsList = [];
   int topicLength = 0;
 
   late List<bool> isSelected = [];
@@ -31,12 +34,24 @@ class _DiscoveryViewState extends State<DiscoveryView> {
   List<String> _categories = [];
   List<String> categoriesSelected = [];
 
+  List<Object> _displayedTopicsList = [];
+  
+
+
+
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
+  void initState() {
+    super.initState();
     getCategoryList();
-    updateTopicsList();
+    getAllTopicsList().then((_) {
+      setState(() {
+        _displayedTopicsList = _topicsList;
+      });
+    });
+
+
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -67,7 +82,7 @@ class _DiscoveryViewState extends State<DiscoveryView> {
                 } else {
                   categoriesSelected.remove(_categories[index]);
                 }
-                updateTopicListBasedOnCategory(categoriesSelected);
+                _searchData(_searchController.text);
               });
             },
             children: List.generate(
@@ -83,7 +98,7 @@ class _DiscoveryViewState extends State<DiscoveryView> {
           ListView.builder(
             physics: const NeverScrollableScrollPhysics(),
             shrinkWrap: true,
-            itemCount: topicLength == 0 ? 1 : topicLength * 2 - 1,
+            itemCount: _displayedTopicsList.isEmpty ? 1 : _displayedTopicsList.length * 2 - 1,
             itemBuilder: (context, index) {
               if (index.isOdd) {
                 // Add Padding and Container between TopicCards
@@ -96,41 +111,37 @@ class _DiscoveryViewState extends State<DiscoveryView> {
                 );
               } else {
                 final topicIndex = index ~/ 2;
-                if (_topicsList.isEmpty) {
+                if (_displayedTopicsList.isEmpty && _topicsList.isEmpty) {
                   return const Center(
                     child: CircularProgressIndicator(),
                   );
                 } else {
-                  if (_searchController.text.isEmpty) {
-                    return TopicCard(
-                      widget.firestore,
-                      widget.auth,
-                      widget.storage,
-                      _topicsList[topicIndex] as QueryDocumentSnapshot<Object>,
-                    );
-                  } else if (_searchedTopicsList.isEmpty) {
+
+                  if (_displayedTopicsList.isEmpty) {
                     return const ListTile(
                       title: Text(
                         "Sorry there are no topics for this!",
                         textAlign: TextAlign.center,
                       ),
                     );
-                  } else {
+                  }
+                  else {
                     return TopicCard(
                       widget.firestore,
                       widget.auth,
                       widget.storage,
-                      _searchedTopicsList[topicIndex]
+                      _displayedTopicsList[topicIndex]
                           as QueryDocumentSnapshot<Object>,
                     );
                   }
+ 
                 }
               }
             },
           ),
           ElevatedButton(
               onPressed: () {
-                _showPostDialog();
+                addQuestionDialog();
               },
               child: const Text("Ask a question!")),
           addVerticalSpace(20),
@@ -139,134 +150,39 @@ class _DiscoveryViewState extends State<DiscoveryView> {
     );
   }
 
-  void _searchData(String query) {
-    List<QueryDocumentSnapshot<Object?>> tempList = [];
-
-    for (int i = 0; i < _topicsList.length; i++) {
-      QueryDocumentSnapshot topic =
-          _topicsList[i] as QueryDocumentSnapshot<Object?>;
-      if (topic['title'] != null) {
-        String title = topic['title'].toString().toLowerCase();
-        if (title.contains(query.toLowerCase())) {
-          tempList.add(topic);
-        }
-      }
-    }
-
-    setState(() {
-      _searchedTopicsList = tempList;
-      topicLength = _searchedTopicsList.length;
-    });
-  }
-
-  Future<List<Object>> getTopicsList() async {
-    String uid = widget.auth.currentUser!.uid;
-    DocumentSnapshot user =
-        await widget.firestore.collection('Users').doc(uid).get();
-    String role = user['roleType'];
-    late QuerySnapshot data;
-
-    if (role == 'admin') {
-      data = await widget.firestore.collection('topics').orderBy('title').get();
-    } else {
-      data = await widget.firestore
-          .collection('topics')
-          .where('tags', arrayContains: role)
-          .orderBy('title')
-          .get();
-    }
-
-    return List.from(data.docs);
-  }
-
-  Future updateTopicsList() async {
-    List<Object> tempTopicList = await getTopicsList();
-
-    setState(() {
-      _topicsList = tempTopicList;
-      topicLength = _topicsList.length;
-    });
-  }
-
-  Future updateTopicListBasedOnCategory(List<String> categories) async {
-    if (categories.isEmpty) {
-      updateTopicsList();
-    } else {
-      List<Object> allTopics = await getTopicsList();
-
-      List<Object> categoryTopicList = [];
-
-      for (dynamic topic in allTopics) {
-        var data = topic.data();
-        if (data != null && data.containsKey('categories')) {
-          if (categories.every((item) => data['categories'].contains(item))) {
-            categoryTopicList.add(topic);
-          }
-        }
-      }
-
-      setState(() {
-        _topicsList = categoryTopicList;
-        topicLength = _topicsList.length;
-      });
-    }
-  }
-
-  Future getCategoryList() async {
-    QuerySnapshot data =
-        await widget.firestore.collection('categories').orderBy('name').get();
-
-    List<Object> dataList = List.from(data.docs);
-    List<String> tempStringList = [];
-    List<Widget> tempWidgetList = [];
-
-    for (dynamic category in dataList) {
-      tempStringList.add(category['name']);
-      tempWidgetList.add(Text(category['name']));
-    }
-
-    setState(() {
-      _categories = tempStringList;
-      _categoriesWidget = tempWidgetList;
-      isSelected = List<bool>.filled(_categoriesWidget.length, false);
-    });
-  }
-
-  void _showPostDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text(''),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: _questionController,
-                decoration:
-                    const InputDecoration(labelText: 'Ask a question...'),
+  Future<void> addQuestionDialog() async {
+      // Show dialog to get user input
+      await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Ask a question'),
+            content: TextField(
+              controller: _questionController,
+              decoration: const InputDecoration(
+                labelText: 'Enter your question...',
               ),
-              const SizedBox(height: 20),
+            ),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Cancel'),
+              ),
               ElevatedButton(
                 onPressed: () async {
-                  // Access the entered text using _textFieldController.text
-                  //call method to add question to database
-                  DateTime currentDate = DateTime.now();
-                  final postData = {
-                    'question': _questionController.text,
-                    'uid': 1,
-                    'date': currentDate.toString(),
-                  };
-                  CollectionReference db =
-                      widget.firestore.collection('questions');
-                  await db.add(postData);
-                  _questionController.clear();
-                  // Close the dialog
-                  Navigator.of(context).pop();
+                  // Get the entered question text
+                  String questionText = _questionController.text.trim();
 
-                  // Show the message dialog
-                  // ignore: use_build_context_synchronously
-                  showDialog(
+                  // Validate question text
+                  if (questionText.isNotEmpty) {
+                    TopicQuestionController(firestore: widget.firestore,auth: widget.auth).handleQuestion(questionText);
+                    // Clear the text field
+                    _questionController.clear();
+                    // Close the dialog
+                    Navigator.of(context).pop();
+                     showDialog(
                     context: context,
                     builder: (BuildContext context) {
                       return AlertDialog(
@@ -306,13 +222,122 @@ class _DiscoveryViewState extends State<DiscoveryView> {
                       );
                     },
                   );
+
+                    // Show success message
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Question submitted successfully!'),
+                      ),
+                    );
+                  } else {
+                    // Show error message if question is empty
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Please enter a question.'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
                 },
                 child: const Text('Submit'),
               ),
             ],
-          ),
-        );
-      },
-    );
+          );
+        },
+      );
+    }
+
+  void _searchData(String query) {
+    updateTopicListBasedOnCategory(categoriesSelected);
+
+    if (query.isNotEmpty) {
+      List<QueryDocumentSnapshot<Object?>> tempList = [];
+
+      for (int i = 0; i < _displayedTopicsList.length; i++) {
+        QueryDocumentSnapshot topic =
+            _displayedTopicsList[i] as QueryDocumentSnapshot<Object?>;
+        if (topic['title'] != null) {
+          String title = topic['title'].toString().toLowerCase();
+          if (title.contains(query.toLowerCase())) {
+            tempList.add(topic);
+          }
+        }
+      }
+
+      setState(() {
+        _displayedTopicsList = tempList;
+      });
+    }
   }
+
+
+
+
+  Future getAllTopicsList() async {
+    String role = await UserController(widget.auth, widget.firestore)
+      .getUserRoleType();
+    late QuerySnapshot data;
+
+    if (role == 'admin') {
+      data = await widget.firestore.collection('topics').orderBy('title').get();
+    } else {
+      data = await widget.firestore
+          .collection('topics')
+          .where('tags', arrayContains: role)
+          .orderBy('title')
+          .get();
+    }
+
+    List<Object> tempList = List.from(data.docs);
+
+    setState(() {
+      _topicsList = tempList;
+    });
+  }
+
+
+  Future updateTopicListBasedOnCategory(List<String> categories) async {
+
+    if (categories.isNotEmpty) {
+      List<Object> categoryTopicList = [];
+
+      for (dynamic topic in _topicsList) {
+        var data = topic.data();
+        if (data != null && data.containsKey('categories')) {
+          if (categories.every((item) => data['categories'].contains(item))) {
+            categoryTopicList.add(topic);
+          }
+        }
+      }
+
+      setState(() {
+        _displayedTopicsList = categoryTopicList;
+      });
+    } else {
+      setState(() {
+        _displayedTopicsList = _topicsList;
+      });
+    }
+  }
+
+  Future getCategoryList() async {
+    QuerySnapshot data =
+        await widget.firestore.collection('categories').orderBy('name').get();
+
+    List<Object> dataList = List.from(data.docs);
+    List<String> tempStringList = [];
+    List<Widget> tempWidgetList = [];
+
+    for (dynamic category in dataList) {
+      tempStringList.add(category['name']);
+      tempWidgetList.add(Text(category['name']));
+    }
+
+    setState(() {
+      _categories = tempStringList;
+      _categoriesWidget = tempWidgetList;
+      isSelected = List<bool>.filled(_categoriesWidget.length, false);
+    });
+  }
+
 }

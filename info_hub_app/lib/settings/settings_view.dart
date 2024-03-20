@@ -7,6 +7,7 @@ import 'package:info_hub_app/profile_view/profile_view.dart';
 import 'package:info_hub_app/profile_view/profile_view_controller.dart';
 import 'package:info_hub_app/registration/user_model.dart';
 import 'package:info_hub_app/notifications/manage_notifications.dart';
+import 'package:info_hub_app/screens/activity_view.dart';
 import 'package:info_hub_app/services/database.dart';
 import 'package:info_hub_app/settings/general_settings.dart';
 import 'package:info_hub_app/settings/help_page.dart';
@@ -106,9 +107,17 @@ class _SettingsViewState extends State<SettingsView> {
                 );
               },
             ),
-            const ListTile(
-              title: Text('History'),
-            ),
+            ListTile(
+                title: const Text('History'),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    CupertinoPageRoute(
+                      builder: (context) => ActivityView(
+                          firestore: widget.firestore, auth: widget.auth),
+                    ),
+                  );
+                }),
             ListTile(
               title: const Text("Privacy"),
               onTap: () {

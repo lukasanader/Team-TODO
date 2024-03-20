@@ -160,6 +160,7 @@ class _HomePageState extends State<HomePage> {
             ),
             addVerticalSpace(10),
             GridView.extent(
+              physics: const NeverScrollableScrollPhysics(),
               shrinkWrap: true,
               maxCrossAxisExtent: 150,
               crossAxisSpacing: 50,
@@ -168,13 +169,14 @@ class _HomePageState extends State<HomePage> {
               children: [
                 ElevatedButton(
                   onPressed: () {
-                    PersistentNavBarNavigator.pushNewScreen(
+                    Navigator.push(
                       context,
-                      screen: ExperienceView(
-                        firestore: widget.firestore,
-                        auth: widget.auth,
+                      CupertinoPageRoute(
+                        builder: (context) => ExperienceView(
+                          firestore: widget.firestore,
+                          auth: widget.auth,
+                        ),
                       ),
-                      withNavBar: false,
                     );
                   },
                   style: ElevatedButton.styleFrom(
@@ -191,7 +193,6 @@ class _HomePageState extends State<HomePage> {
                     PersistentNavBarNavigator.pushNewScreen(
                       context,
                       screen: const WebinarView(),
-                      withNavBar: false,
                     );
                   },
                   style: ElevatedButton.styleFrom(
@@ -225,16 +226,18 @@ class _HomePageState extends State<HomePage> {
         .where('tags', arrayContains: role)
         .get();
 
-    setState(() {
-      _topicsList = List.from(data.docs);
-      _topicsList.sort((b, a) =>
-          getTrending(a as QueryDocumentSnapshot<Object?>)
-              .compareTo(getTrending(b as QueryDocumentSnapshot<Object?>)));
-      topicLength = _topicsList.length;
-      if (topicLength > 6) {
-        _topicsList.removeRange(6, topicLength);
-      }
-      topicLength = _topicsList.length;
-    });
+    if (mounted) {
+      setState(() {
+        _topicsList = List.from(data.docs);
+        _topicsList.sort((b, a) =>
+            getTrending(a as QueryDocumentSnapshot<Object?>)
+                .compareTo(getTrending(b as QueryDocumentSnapshot<Object?>)));
+        topicLength = _topicsList.length;
+        if (topicLength > 6) {
+          _topicsList.removeRange(6, topicLength);
+        }
+        topicLength = _topicsList.length;
+      });
+    }
   }
 }

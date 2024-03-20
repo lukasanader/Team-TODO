@@ -145,6 +145,28 @@ void main() {
     expect(find.text('Example 1'), findsOneWidget);
   });
 
+  testWidgets(
+      'Ensure padding is visible if there are at least two verified experiences',
+      (WidgetTester tester) async {
+    topicsCollectionRef.add({
+      'title': 'Example 3',
+      'description': 'Example experience',
+      'verified': true
+    });
+
+    // Build our app and trigger a frame.
+    await tester.pumpWidget(experienceViewWidget);
+    await tester.pumpAndSettle();
+
+    Finder listViewFinder = find.byType(ListView);
+    expect(listViewFinder, findsOneWidget);
+
+    Finder cardFinder = find.byType(Card);
+    expect(cardFinder, findsNWidgets(2));
+
+    expect(find.byType(Padding), findsWidgets);
+  });
+
   testWidgets('The unverified experiences are being not displayed',
       (WidgetTester tester) async {
     // Build our app and trigger a frame.

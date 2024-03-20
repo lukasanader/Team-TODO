@@ -97,7 +97,7 @@ void main() {
     //Tells the correct answer
     expect(find.text('Correct answer(s) was: A building'), findsOne);
     //check if correct score is outputted
-    expect(find.text("Your score is 1 out of 2"), findsOne);
+    expect(find.text("Your new score is 1 out of 2"), findsOne);
 
     final querySnapshot = await firestore.collection('Quiz').get();
 

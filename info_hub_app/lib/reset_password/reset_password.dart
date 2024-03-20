@@ -18,7 +18,6 @@ class ResetPassword extends StatefulWidget {
 }
 
 class _ResetPasswordState extends State<ResetPassword> {
-
   final TextEditingController _emailController = TextEditingController();
   String _errorText = '';
 
@@ -43,21 +42,25 @@ class _ResetPasswordState extends State<ResetPassword> {
               controller: _emailController,
               decoration: const InputDecoration(
                 labelText: 'Email',
-                border: OutlineInputBorder(),
               ),
             ),
-            const SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: () async {
-                if (!_isEmailValid(_emailController.text)) {
-                  setState(() {
-                    _errorText = 'Invalid email address';
-                  });
-                  return;
-                }
-                await _sendPasswordResetEmail(_emailController.text);
-              },
-              child: const Text('Send Email'),
+            const SizedBox(height: 15),
+            Center(
+              child: ElevatedButton(
+                onPressed: () async {
+                  if (!_isEmailValid(_emailController.text)) {
+                    setState(() {
+                      _errorText = 'Invalid email address';
+                    });
+                    return;
+                  }
+                  await _sendPasswordResetEmail(_emailController.text);
+                },
+                child: const Text(
+                  'Send Email',
+                  textAlign: TextAlign.center,
+                ),
+              ),
             ),
             const SizedBox(height: 10),
             Text(

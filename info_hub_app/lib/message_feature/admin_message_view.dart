@@ -8,6 +8,7 @@ import 'package:info_hub_app/message_feature/message_room/message_room_controlle
 import 'package:info_hub_app/message_feature/message_rooms_card.dart';
 import 'package:info_hub_app/message_feature/message_service.dart';
 import 'package:info_hub_app/message_feature/messaging_room_view.dart';
+import 'package:info_hub_app/registration/user_controller.dart';
 import 'package:info_hub_app/registration/user_model.dart';
 import 'package:info_hub_app/services/database.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
@@ -66,10 +67,14 @@ class _MessageViewState extends State<MessageView> {
                   itemCount: _chatList.length,
                   itemBuilder: (context, index) {
                     dynamic chat = _chatList[index]; 
+                    
                     return Row(
                       children: [
                         Expanded(
-                          child: MessageRoomCard(widget.firestore, widget.auth, chat), 
+                          child: MessageRoomCard(
+                            widget.firestore, 
+                            widget.auth, 
+                            chat), 
                         ),                    
                         IconButton(
                           onPressed: () {

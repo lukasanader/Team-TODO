@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:info_hub_app/helpers/helper_widgets.dart';
 import 'package:info_hub_app/patient_experience/experience_controller.dart';
 import 'package:info_hub_app/patient_experience/experience_model.dart';
 import 'package:info_hub_app/patient_experience/experiences_card.dart';
@@ -20,15 +21,10 @@ class _ExperienceViewState extends State<ExperienceView> {
   List<Experience> _experienceList = [];
   // ignore: prefer_final_fields
 
-
-
-
   @override
   void initState() {
     super.initState();
-    _experienceController = ExperienceController(
-      widget.auth, 
-      widget.firestore);
+    _experienceController = ExperienceController(widget.auth, widget.firestore);
   }
 
   @override
@@ -41,17 +37,33 @@ class _ExperienceViewState extends State<ExperienceView> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text("Patient's Experiences"),
+          title: const Text("Patient Experiences"),
         ),
         body: SafeArea(
             child: Column(
           children: [
             Expanded(
               child: ListView.builder(
-                  itemCount: _experienceList.length,
-                  itemBuilder: (context, index) {
-                    return ExperienceCard(_experienceList[index]);
-                  }),
+                itemCount: _experienceList.length,
+                itemBuilder: (context, index) {
+                  // Check if it's the last item
+                  bool isLastItem = index == _experienceList.length - 1;
+                  return Column(
+                    children: [
+                      ExperienceCard(_experienceList[index]),
+                      // Add padding and divider if not the last item
+                      if (!isLastItem)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Container(
+                            height: 1,
+                            color: Colors.grey,
+                          ),
+                        ),
+                    ],
+                  );
+                },
+              ),
             ),
             ElevatedButton(
               onPressed: () {
@@ -66,7 +78,8 @@ class _ExperienceViewState extends State<ExperienceView> {
                 });
               },
               child: const Text("Share your experience!"),
-            )
+            ),
+            addVerticalSpace(20),
           ],
         )));
   }
@@ -229,11 +242,10 @@ class _ExperienceViewState extends State<ExperienceView> {
                   }
 
                   _experienceController.saveExperience(
-                    titleController.text,
-                    descriptionController.text
-                  );
+                      titleController.text.trim(),
+                      descriptionController.text.trim());
 
-                  Navigator.of(context).pop(); 
+                  Navigator.of(context).pop();
                   showDialog(
                     context: context,
                     builder: (BuildContext context) {
@@ -263,14 +275,13 @@ class _ExperienceViewState extends State<ExperienceView> {
   }
 
   Future updateExperienceList() async {
-    List<Experience> data = await _experienceController.getVerifiedExperienceList();
+    List<Experience> data =
+        await _experienceController.getVerifiedExperienceList();
 
     setState(() {
       _experienceList = data;
     });
   }
-
-
 
   Future<void> _blankTitleOrExperienceAlert(BuildContext context) async {
     return showDialog<void>(

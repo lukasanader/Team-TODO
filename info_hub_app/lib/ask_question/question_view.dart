@@ -1,23 +1,27 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:info_hub_app/ask_question/question_card.dart';
 import 'package:english_words/english_words.dart';
+import 'package:info_hub_app/controller/topic_question_controller.dart';
+import 'package:info_hub_app/model/model.dart';
 
 class ViewQuestionPage extends StatefulWidget {
   final FirebaseFirestore firestore;
-  const ViewQuestionPage({super.key, required this.firestore});
+  final FirebaseAuth auth;
+  const ViewQuestionPage({super.key, required this.firestore, required this.auth});
   @override
   _ViewQuestionPageState createState() => _ViewQuestionPageState();
 }
 
 class _ViewQuestionPageState extends State<ViewQuestionPage>{
-List<Object> _questionList = [];
+List<TopicQuestion> _questionList = [];
 
 
 @override
-void didChangeDependencies() {
+void didChangeDependencies() async{
     super.didChangeDependencies();
-    getQuestionList();
+    getQuestions();
 }
 
 @override
@@ -41,7 +45,7 @@ Widget build(BuildContext context) {
                 title: Text('There are currently no more questions!'),
               );
             }else{
-              return QuestionCard(_questionList[index] as QueryDocumentSnapshot,widget.firestore,getQuestionList);
+              return QuestionCard(_questionList[index],widget.firestore,getQuestions,widget.auth);
             }
           }
         ))
@@ -51,10 +55,10 @@ Widget build(BuildContext context) {
     );
     }
 
-    Future getQuestionList() async {
-    QuerySnapshot data = await widget.firestore.collection('questions').orderBy('question').get();
-    setState(() {
-      _questionList = List.from(data.docs);
-    });
-  }
+    Future<void> getQuestions() async{
+      List<TopicQuestion> temp = await TopicQuestionController(firestore: widget.firestore,auth: widget.auth).getQuestionList();
+      setState(() {
+        _questionList=temp;
+      });
+    }
 }
