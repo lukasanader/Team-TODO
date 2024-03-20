@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:info_hub_app/topics/create_topic.dart';
 
 class CheckmarkAnimationScreen extends StatefulWidget {
   final Key? key;
@@ -30,7 +31,7 @@ class _CheckmarkAnimationScreenState extends State<CheckmarkAnimationScreen> {
             ),
             SizedBox(height: 20),
             Text(
-              'Your changes are on the way..',
+              'Your Topic is in progress..',
               style: TextStyle(
                 fontSize: 20,
               ),

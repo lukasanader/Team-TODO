@@ -69,161 +69,169 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: const Text('Team TODO'),
-          actions: <Widget>[
-            IconButton(
-              icon: const Icon(Icons.notifications_none_outlined),
-              onPressed: () {
-                // Placeholder method for notification icon
-                // Navigate to notification page
-                Navigator.push(
-                  context,
-                  CupertinoPageRoute(
-                      builder: (context) => Notifications(
-                            auth: widget.auth,
-                            firestore: widget.firestore,
-                          )),
-                );
-              },
+      appBar: AppBar(
+        title: const Text('Team TODO'),
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(Icons.notifications_none_outlined),
+            onPressed: () {
+              Navigator.push(
+                context,
+                CupertinoPageRoute(
+                  builder: (context) => Notifications(
+                    auth: widget.auth,
+                    firestore: widget.firestore,
+                  ),
+                ),
+              );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.email_outlined),
+            onPressed: () {
+              Navigator.push(
+                context,
+                CupertinoPageRoute(
+                  builder: (context) => PatientMessageView(
+                    firestore: widget.firestore,
+                    auth: widget.auth,
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => TestView(
+                firestore: widget.firestore,
+                auth: widget.auth,
+                storage: widget.storage,
+              ),
             ),
-            IconButton(
-              icon: const Icon(Icons.email_outlined),
-              onPressed: () {
-                Navigator.push(
+          );
+        },
+        child: const Text('tests'),
+      ),
+      body: Column(
+        children: [
+          addVerticalSpace(10),
+          const Text(
+            "Trending topics",
+            textAlign: TextAlign.left,
+            style: TextStyle(
+              fontSize: 18,
+            ),
+          ),
+          addVerticalSpace(10),
+          Expanded(
+            child: SingleChildScrollView(
+              child: ListView.builder(
+                physics: const NeverScrollableScrollPhysics(),
+                shrinkWrap: true,
+                itemCount: topicLength == 0 ? 0 : topicLength * 2 - 1,
+                itemBuilder: (context, index) {
+                  if (index.isOdd) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Container(
+                        height: 1,
+                        color: Colors.grey,
+                      ),
+                    );
+                  } else {
+                    final topicIndex = index ~/ 2;
+                    return TopicCard(
+                      widget.firestore,
+                      widget.auth,
+                      widget.storage,
+                      _topicsList[topicIndex] as QueryDocumentSnapshot<Object>,
+                    );
+                  }
+                },
+              ),
+            ),
+          ),
+          addVerticalSpace(10),
+          const Text(
+            "Explore",
+            style: TextStyle(
+              fontSize: 18,
+            ),
+          ),
+          addVerticalSpace(10),
+          GridView.extent(
+            physics: const NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            maxCrossAxisExtent: 150,
+            crossAxisSpacing: 50,
+            mainAxisSpacing: 50,
+            padding: const EdgeInsets.all(20),
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
                     context,
                     CupertinoPageRoute(
-                      builder: (context) => PatientMessageView(
+                      builder: (context) => ExperienceView(
                         firestore: widget.firestore,
                         auth: widget.auth,
                       ),
-                    ));
-              },
-            ),
-          ],
-        ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => TestView(
-                          firestore: widget.firestore,
-                          auth: widget.auth,
-                          storage: widget.storage,
-                        )));
-          },
-          child: const Text('tests'),
-        ),
-
-        //above is the floating action button
-        body: SingleChildScrollView(
-          child: Column(children: [
-            addVerticalSpace(10),
-            const Text(
-              "Trending topics",
-              textAlign: TextAlign.left,
-              style: TextStyle(
-                fontSize: 18,
-              ),
-            ),
-            addVerticalSpace(10),
-            ListView.builder(
-              physics: const NeverScrollableScrollPhysics(),
-              shrinkWrap: true,
-              itemCount: topicLength == 0 ? 0 : topicLength * 2 - 1,
-              itemBuilder: (context, index) {
-                if (index.isOdd) {
-                  // Add Padding and Container between TopicCards
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Container(
-                      height: 1,
-                      color: Colors.grey,
                     ),
                   );
-                } else {
-                  final topicIndex = index ~/ 2;
-                  return TopicCard(
-                    widget.firestore,
-                    widget.auth,
-                    widget.storage,
-                    _topicsList[topicIndex] as QueryDocumentSnapshot<Object>,
-                  );
-                }
-              },
-            ),
-            addVerticalSpace(10),
-            const Text(
-              "Explore",
-              style: TextStyle(
-                fontSize: 18,
+                },
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                child: const Text(
+                  'Patient Experience',
+                  textAlign: TextAlign.center,
+                ),
               ),
-            ),
-            addVerticalSpace(10),
-            GridView.extent(
-              physics: const NeverScrollableScrollPhysics(),
-              shrinkWrap: true,
-              maxCrossAxisExtent: 150,
-              crossAxisSpacing: 50,
-              mainAxisSpacing: 50,
-              padding: const EdgeInsets.all(20),
-              children: [
-                ElevatedButton(
-
-                  onPressed: () async {
-                    // ignore: use_build_context_synchronously
-                    PersistentNavBarNavigator.pushNewScreen(
-                      context,
-                      screen: ExperienceView(
-                        firestore: widget.firestore,
-                        auth: widget.auth,
-                      ),
-                      withNavBar: false,
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                      shape: RoundedRectangleBorder(
+              ElevatedButton(
+                onPressed: () async {
+                  UserModel user = await generateCurrentUser();
+                  WebinarService webinarService = WebinarService(
+                    firestore: widget.firestore,
+                    storage: widget.storage,
+                  );
+                  PersistentNavBarNavigator.pushNewScreen(
+                    context,
+                    screen: WebinarView(
+                      firestore: widget.firestore,
+                      user: user,
+                      webinarService: webinarService,
+                    ),
+                    withNavBar: false,
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
-                  )),
-                  child: const Text(
-                    'Patient Experience',
-                    textAlign: TextAlign.center,
                   ),
                 ),
-                ElevatedButton(
-                  onPressed: () async {
-                    UserModel user = await generateCurrentUser();
-                    WebinarService webinarService = WebinarService(firestore: widget.firestore, storage: widget.storage);
-                    // ignore: use_build_context_synchronously
-                    PersistentNavBarNavigator.pushNewScreen(
-                      context,
-                      screen: WebinarView(
-                        firestore: widget.firestore,
-                        user: user,
-                        webinarService: webinarService,
-                      ),
-                      withNavBar: false,
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                      shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  )),
-                  child: const Text(
-                    'Webinars',
-                    textAlign: TextAlign.center,
-                  ),
+                child: const Text(
+                  'Webinars',
+                  textAlign: TextAlign.center,
                 ),
-              ],
-            ),
-          ]),
-        ));
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 
   Future<UserModel> generateCurrentUser() async {
     String uid = widget.auth.currentUser!.uid;
-    DocumentSnapshot userDoc = await widget.firestore.collection('Users').doc(uid).get();
+    DocumentSnapshot userDoc =
+        await widget.firestore.collection('Users').doc(uid).get();
     List<String> likedTopics = List<String>.from(userDoc['likedTopics']);
     List<String> dislikedTopics = List<String>.from(userDoc['dislikedTopics']);
     UserModel user = UserModel(
