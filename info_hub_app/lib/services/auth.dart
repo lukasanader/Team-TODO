@@ -13,8 +13,14 @@ import 'package:info_hub_app/notifications/manage_notifications.dart';
 class AuthService {
   final FirebaseAuth auth;
   final FirebaseFirestore firestore;
+  final FirebaseMessaging messaging;
+  final FlutterLocalNotificationsPlugin localnotificationsplugin;
 
-  AuthService({required this.firestore, required this.auth});
+  AuthService(
+      {required this.firestore,
+      required this.auth,
+      required this.messaging,
+      required this.localnotificationsplugin});
 
   // create user model
   UserModel? _userFromFirebaseUser(
@@ -40,7 +46,7 @@ class AuthService {
   Stream<User?> get user {
     return auth.authStateChanges();
   }
-  
+
   // register user
   Future registerUser(
     String firstName,
@@ -73,8 +79,8 @@ class AuthService {
         await PushNotifications(
                 auth: auth,
                 firestore: firestore,
-                messaging: FirebaseMessaging.instance,
-                localnotificationsplugin: FlutterLocalNotificationsPlugin())
+                messaging: messaging,
+                localnotificationsplugin: localnotificationsplugin)
             .storeDeviceToken();
 
         // create user model
@@ -98,8 +104,8 @@ class AuthService {
         await PushNotifications(
                 auth: auth,
                 firestore: firestore,
-                messaging: FirebaseMessaging.instance,
-                localnotificationsplugin: FlutterLocalNotificationsPlugin())
+                messaging: messaging,
+                localnotificationsplugin: localnotificationsplugin)
             .storeDeviceToken();
         return user;
       }
