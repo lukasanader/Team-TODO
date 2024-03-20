@@ -13,6 +13,7 @@ class CustomCard extends StatefulWidget {
   final FirebaseFirestore firestore;
   final FirebaseAuth auth;
   final String userProfilePhoto;
+  final Function onEditCompleted;
 
   const CustomCard({
     Key? key,
@@ -21,6 +22,7 @@ class CustomCard extends StatefulWidget {
     required this.firestore,
     required this.auth,
     required this.userProfilePhoto,
+    required this.onEditCompleted,
   }) : super(key: key);
 
   @override
@@ -136,14 +138,14 @@ class _CustomCardState extends State<CustomCard> {
                   if (currentUserId == creator)
                     IconButton(
                       key: Key('editButton_$docId'),
-                      icon: const Icon(FontAwesomeIcons.edit, size: 15),
+                      icon: const Icon(FontAwesomeIcons.penToSquare, size: 15),
                       onPressed: () {
                         _showDialog(context, docId);
                       },
                     ),
                   if (currentUserId == creator)
                     IconButton(
-                      icon: const Icon(FontAwesomeIcons.trashAlt, size: 15),
+                      icon: const Icon(FontAwesomeIcons.trashCan, size: 15),
                       onPressed: () async {
                         if (!mounted) return;
                         // batch delete removes up to 500 replies at a time from the replies collection due to firestore limitations
@@ -227,23 +229,18 @@ class _CustomCardState extends State<CustomCard> {
     );
   }
 
-  /*
   _showDialog(BuildContext context, String docId) async {
-    // bool showErrorName = false;
     bool showErrorTitle = false;
     bool showErrorDescription = false;
 
     var docSnapshot =
         await widget.firestore.collection("thread").doc(docId).get();
     var docData = docSnapshot.data() as Map<String, dynamic>;
-    // print("Selected Profile Photo: ${docData['selectedProfilePhoto']}");
 
     if (!mounted) return;
 
     titleInputController.text = docData['title'] ?? '';
     descriptionInputController.text = docData['description'] ?? '';
-    //nameInputController.text = docData['name'] ?? '';
- 
 
     await showDialog(
       context: context,
@@ -257,17 +254,6 @@ class _CustomCardState extends State<CustomCard> {
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
                     const Text("Please fill out the form"),
-                    /*TextField(
-                      key: const Key('Author'),
-                      autofocus: true,
-                      autocorrect: true,
-                      decoration: InputDecoration(
-                        labelText: "Author",
-                        errorText:
-                            showErrorName ? "Please enter your name" : null,
-                      ),
-                      controller: nameInputController,
-                    ), */
                     TextField(
                       key: const Key('Title'),
                       autofocus: true,
@@ -297,9 +283,6 @@ class _CustomCardState extends State<CustomCard> {
               actions: <Widget>[
                 TextButton(
                   onPressed: () {
-                    /*nameInputController.clear();
-                    titleInputController.clear();
-                    descriptionInputController.clear();*/
                     Navigator.pop(context);
                   },
                   child: const Text("Cancel"),
@@ -313,130 +296,23 @@ class _CustomCardState extends State<CustomCard> {
                     });
 
                     if (!showErrorTitle && !showErrorDescription) {
-                      String updatedDescription =
-                          descriptionInputController.text;
-                      // Check if the description already ends with "(edited)" to avoid appending it multiple times
-                      if (!updatedDescription.endsWith("(edited)")) {
-                        updatedDescription += " (edited)";
-                      }
+                      // Update the local UI immediately
+                      setState(() {
+                        docData['title'] = titleInputController.text;
+                        docData['description'] =
+                            descriptionInputController.text;
+                        isEdited = true;
+                      });
 
+                      // Asynchronously update Firestore
                       widget.firestore.collection("thread").doc(docId).update({
                         "title": titleInputController.text,
-                        "description": updatedDescription,
+                        "description": descriptionInputController.text,
                         "timestamp": FieldValue.serverTimestamp(),
-                      }).then((response) {
-                        Navigator.pop(context);
+                        "isEdited": true,
                       });
-                    }
-                  },
-                  child: const Text("Update"),
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
-  }
 
-*/
-
-  _showDialog(BuildContext context, String docId) async {
-    bool showErrorTitle = false;
-    bool showErrorDescription = false;
-
-    var docSnapshot =
-        await widget.firestore.collection("thread").doc(docId).get();
-    var docData = docSnapshot.data() as Map<String, dynamic>;
-
-    if (!mounted) return;
-
-    // Extract the original content without the "(edited)" tag
-    String originalTitle = docData['title'] ?? '';
-    String originalDescription = docData['description'] ?? '';
-    String editableTitle = originalTitle.replaceAll(" (edited)", "");
-    String editableDescription =
-        originalDescription.replaceAll(" (edited)", "");
-
-    // Initialize the text controllers with the editable content
-    titleInputController.text = editableTitle;
-    descriptionInputController.text = editableDescription;
-
-    await showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              contentPadding: const EdgeInsets.all(12.0),
-              content: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    const Text("Please fill out the form"),
-                    TextField(
-                      key: const Key('Title'),
-                      autofocus: true,
-                      autocorrect: true,
-                      decoration: InputDecoration(
-                        labelText: "Title",
-                        errorText:
-                            showErrorTitle ? "Please enter a title" : null,
-                      ),
-                      controller: titleInputController,
-                    ),
-                    TextField(
-                      key: const Key('Description'),
-                      autofocus: true,
-                      autocorrect: true,
-                      decoration: InputDecoration(
-                        labelText: "Description",
-                        errorText: showErrorDescription
-                            ? "Please enter a description"
-                            : null,
-                      ),
-                      controller: descriptionInputController,
-                    ),
-                  ],
-                ),
-              ),
-              actions: <Widget>[
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: const Text("Cancel"),
-                ),
-                TextButton(
-                  onPressed: () {
-                    setState(() {
-                      showErrorTitle = titleInputController.text.isEmpty;
-                      showErrorDescription =
-                          descriptionInputController.text.isEmpty;
-                    });
-
-                    if (!showErrorTitle && !showErrorDescription) {
-                      String updatedTitle = titleInputController.text;
-                      String updatedDescription =
-                          descriptionInputController.text;
-
-                      // Only append "(edited)" if the content has been changed
-                      if (updatedTitle != editableTitle &&
-                          !originalTitle.endsWith("(edited)")) {
-                        updatedTitle += " (edited)";
-                      }
-                      if (updatedDescription != editableDescription &&
-                          !originalDescription.endsWith("(edited)")) {
-                        updatedDescription += " (edited)";
-                      }
-
-                      widget.firestore.collection("thread").doc(docId).update({
-                        "title": updatedTitle,
-                        "description": updatedDescription,
-                        "timestamp": FieldValue.serverTimestamp(),
-                      }).then((response) {
-                        Navigator.pop(context);
-                      });
+                      Navigator.pop(context);
                     }
                   },
                   child: const Text("Update"),

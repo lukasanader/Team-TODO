@@ -7,19 +7,23 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:info_hub_app/threads/name_generator.dart';
 
 class ReplyCard extends StatefulWidget {
-  final QuerySnapshot snapshot;
-  final int index;
+  //final QuerySnapshot snapshot;
+  //final int index;
+  final Map<String, dynamic> reply;
   final FirebaseFirestore firestore;
   final FirebaseAuth auth;
   final String userProfilePhoto;
+  final String authorName;
 
   const ReplyCard({
     Key? key,
-    required this.snapshot,
-    required this.index,
+    //required this.snapshot,
+    //required this.index,
+    required this.reply,
     required this.firestore,
     required this.auth,
     required this.userProfilePhoto,
+    required this.authorName,
   }) : super(key: key);
 
   @override
@@ -27,16 +31,16 @@ class ReplyCard extends StatefulWidget {
 }
 
 class _ReplyCardState extends State<ReplyCard> {
-  late DocumentSnapshot replyDoc;
+  //late DocumentSnapshot replyDoc;
   //late TextEditingController authorController;
   late TextEditingController contentController;
 
   @override
   void initState() {
     super.initState();
-    replyDoc = widget.snapshot.docs[widget.index];
+    //replyDoc = widget.snapshot.docs[widget.index];
     //authorController = TextEditingController();
-    contentController = TextEditingController();
+    contentController = TextEditingController(text: widget.reply['content']);
   }
 
   @override
@@ -48,6 +52,7 @@ class _ReplyCardState extends State<ReplyCard> {
 
   @override
   Widget build(BuildContext context) {
+    /*
     var docData = replyDoc.data() as Map<String, dynamic>;
     var docId = replyDoc.id;
 
@@ -60,6 +65,15 @@ class _ReplyCardState extends State<ReplyCard> {
         ? DateFormat("dd-MMM-yyyy 'at' HH:mm").format(timestamp)
         : 'Timestamp not available';
     var authorName = generateUniqueName(creator);
+*/
+    var docId = widget.reply['id'];
+    var content = widget.reply['content'] ?? 'No content provided';
+    var creator = widget.reply['creator'] ?? ' ';
+    var currentUserId = widget.auth.currentUser!.uid;
+    var timestamp = (widget.reply['timestamp'] as Timestamp?)?.toDate();
+    var formatter = timestamp != null
+        ? DateFormat("dd-MMM-yyyy 'at' HH:mm").format(timestamp)
+        : 'Timestamp not available';
 
     return Column(
       children: <Widget>[
@@ -72,6 +86,12 @@ class _ReplyCardState extends State<ReplyCard> {
             elevation: 5,
             child: ListTile(
               leading: CircleAvatar(
+                /*
+                backgroundImage: widget.userProfilePhoto.startsWith('http')
+                    ? NetworkImage(widget.userProfilePhoto)
+                        as ImageProvider<Object>
+                    : AssetImage('assets/${widget.userProfilePhoto}')
+                        as ImageProvider<Object>, */
                 backgroundImage: widget.userProfilePhoto.startsWith('http')
                     ? NetworkImage(widget.userProfilePhoto)
                         as ImageProvider<Object>
@@ -79,7 +99,7 @@ class _ReplyCardState extends State<ReplyCard> {
                         as ImageProvider<Object>,
               ),
               title: Text(
-                authorName,
+                widget.authorName,
                 style: TextStyle(
                   fontSize: 20.0,
                   fontWeight: FontWeight.bold,
@@ -137,6 +157,90 @@ class _ReplyCardState extends State<ReplyCard> {
       ],
     );
   }
+
+  void _showDialog(BuildContext context, String docId) async {
+    bool showErrorContent = false;
+
+    var docSnapshot =
+        await widget.firestore.collection('replies').doc(docId).get();
+    var docData = docSnapshot.data() as Map<String, dynamic>;
+
+    if (!mounted) return;
+
+    contentController.text = docData['content'] ?? '';
+
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          contentPadding: const EdgeInsets.all(12.0),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                const Text("Edit your reply"),
+                TextField(
+                  key: const Key('Content'),
+                  autofocus: true,
+                  autocorrect: true,
+                  decoration: InputDecoration(
+                    labelText: "Content",
+                    errorText: showErrorContent ? "Please enter content" : null,
+                  ),
+                  controller: contentController,
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              key: const Key('cancelButton'),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                if (contentController.text.isNotEmpty) {
+                  String updatedContent = contentController.text;
+                  if (!updatedContent.endsWith("(edited)")) {
+                    updatedContent += " (edited)";
+                  }
+                  await widget.firestore
+                      .collection('replies')
+                      .doc(docId)
+                      .update({
+                    'content': updatedContent,
+                    'timestamp': FieldValue.serverTimestamp(),
+                  });
+                  Navigator.pop(context);
+                } else {
+                  setState(() {
+                    showErrorContent = true;
+                  });
+                }
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
 
 /*
   void _showDialog(BuildContext context, String docId) async {
@@ -225,74 +329,3 @@ class _ReplyCardState extends State<ReplyCard> {
     }
   }
   */
-
-  void _showDialog(BuildContext context, String docId) async {
-    bool showErrorContent = false;
-
-    var docSnapshot =
-        await widget.firestore.collection('replies').doc(docId).get();
-    var docData = docSnapshot.data() as Map<String, dynamic>;
-
-    if (!mounted) return;
-
-    contentController.text = docData['content'] ?? '';
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          contentPadding: const EdgeInsets.all(12.0),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                const Text("Edit your reply"),
-                TextField(
-                  key: const Key('Content'),
-                  autofocus: true,
-                  autocorrect: true,
-                  decoration: InputDecoration(
-                    labelText: "Content",
-                    errorText: showErrorContent ? "Please enter content" : null,
-                  ),
-                  controller: contentController,
-                ),
-              ],
-            ),
-          ),
-          actions: <Widget>[
-            TextButton(
-              key: const Key('cancelButton'),
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () async {
-                if (contentController.text.isNotEmpty) {
-                  String updatedContent = contentController.text;
-                  if (!updatedContent.endsWith("(edited)")) {
-                    updatedContent += " (edited)";
-                  }
-                  await widget.firestore
-                      .collection('replies')
-                      .doc(docId)
-                      .update({
-                    'content': updatedContent,
-                    'timestamp': FieldValue.serverTimestamp(),
-                  });
-                  Navigator.pop(context);
-                } else {
-                  showErrorContent = true;
-                  setState(() {});
-                }
-              },
-              child: const Text('Save'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-}

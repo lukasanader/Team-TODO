@@ -26,7 +26,9 @@ class _ThreadRepliesState extends State<ThreadReplies> {
   late Stream<QuerySnapshot> replyStream;
   late Future<DocumentSnapshot> threadFuture;
   late TextEditingController contentInputController;
-  //late TextEditingController authorInputController;
+  List<Map<String, dynamic>> localReplies = [];
+  bool _isAddingReply =
+      false; // Declare the variable to track if a reply is being added
 
   @override
   void initState() {
@@ -36,17 +38,124 @@ class _ThreadRepliesState extends State<ThreadReplies> {
     replyStream = widget.firestore
         .collection("replies")
         .where('threadId', isEqualTo: widget.threadId)
-        //.orderBy('timestamp', descending: false)
         .snapshots();
     contentInputController = TextEditingController();
-    //authorInputController = TextEditingController();
+
+    replyStream.listen((snapshot) {
+      setState(() {
+        localReplies = snapshot.docs
+            .map((doc) => {...doc.data() as Map<String, dynamic>, 'id': doc.id})
+            .toList();
+      });
+    });
   }
 
   @override
   void dispose() {
     contentInputController.dispose();
-    //authorInputController.dispose();
     super.dispose();
+  }
+
+  void _addReplyToLocalList(String content, String creatorId) async {
+    if (_isAddingReply || content.isEmpty) return;
+    if (mounted) {
+      setState(() {
+        _isAddingReply = true;
+      });
+    }
+
+    DocumentSnapshot userDoc =
+        await widget.firestore.collection('Users').doc(creatorId).get();
+    Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
+
+    String authorName = userData['name'] ?? 'Anonymous';
+    String userProfilePhoto =
+        userData['selectedProfilePhoto'] ?? 'default_profile_photo.png';
+
+    String tempReplyId = DateTime.now().millisecondsSinceEpoch.toString();
+    Map<String, dynamic> newReply = {
+      "id": tempReplyId,
+      "author": authorName,
+      "content": content,
+      "creator": creatorId,
+      "userProfilePhoto": userProfilePhoto,
+      "threadId": widget.threadId,
+      "timestamp": DateTime.now(),
+    };
+
+    setState(() => localReplies.add(newReply));
+    //localReplies.add(newReply);
+
+    widget.firestore.collection("replies").add(newReply).then((docRef) {
+      int index = localReplies.indexWhere((r) => r["id"] == tempReplyId);
+      if (index != -1) {
+        setState(() {
+          localReplies[index]['id'] = docRef.id;
+        });
+      }
+    }).whenComplete(() => setState(() => _isAddingReply = false));
+  }
+
+  void _showDialog(BuildContext context) async {
+    bool showErrorContent = false;
+
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              contentPadding: const EdgeInsets.all(12.0),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    const Text("Please fill out the form"),
+                    TextField(
+                      key: const Key('Content'),
+                      autofocus: true,
+                      autocorrect: true,
+                      decoration: InputDecoration(
+                        labelText: "Reply Content",
+                        errorText:
+                            showErrorContent ? "Please enter a reply" : null,
+                      ),
+                      controller: contentInputController,
+                    ),
+                  ],
+                ),
+              ),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    contentInputController.clear();
+                    Navigator.pop(context);
+                  },
+                  child: const Text("Cancel"),
+                ),
+                TextButton(
+                  onPressed: () {
+                    if (!_isAddingReply &&
+                        contentInputController.text.isNotEmpty) {
+                      String docId = widget.auth.currentUser!.uid;
+                      String authorName = generateUniqueName(docId);
+                      _addReplyToLocalList(contentInputController.text, docId);
+                      //contentInputController.clear();
+                      Navigator.pop(context);
+                    } else {
+                      setState(() {
+                        showErrorContent = true;
+                      });
+                    }
+                  },
+                  child: const Text("Submit"),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    ).then((_) => contentInputController.clear());
   }
 
   @override
@@ -56,11 +165,8 @@ class _ThreadRepliesState extends State<ThreadReplies> {
         onPressed: () => _showDialog(context),
         child: Icon(FontAwesomeIcons.reply),
       ),
-      body: StreamBuilder<DocumentSnapshot>(
-        stream: widget.firestore
-            .collection("thread")
-            .doc(widget.threadId)
-            .snapshots(),
+      body: FutureBuilder<DocumentSnapshot>(
+        future: threadFuture,
         builder: (context, AsyncSnapshot<DocumentSnapshot> threadSnapshot) {
           if (!threadSnapshot.hasData) return CircularProgressIndicator();
           var threadData = threadSnapshot.data!.data() as Map<String, dynamic>;
@@ -116,6 +222,31 @@ class _ThreadRepliesState extends State<ThreadReplies> {
                 ),
               ),
               Expanded(
+                child: ListView.builder(
+                  itemCount: localReplies.length,
+                  itemBuilder: (context, index) {
+                    var reply = localReplies[index];
+                    return ReplyCard(
+                      reply: reply,
+                      firestore: widget.firestore,
+                      auth: widget.auth,
+                      userProfilePhoto: reply['userProfilePhoto'] ??
+                          'default_profile_photo.png',
+                      authorName: reply['author'] ?? 'Anonymous',
+                    );
+                  },
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+//old expanded
+  /*
+              Expanded(
                 child: StreamBuilder<QuerySnapshot>(
                   stream: replyStream,
                   builder: (context, snapshot) {
@@ -159,13 +290,10 @@ class _ThreadRepliesState extends State<ThreadReplies> {
                   },
                 ),
               ),
-            ],
-          );
-        },
-      ),
-    );
-  }
 
+              */
+
+/*
   void _showDialog(BuildContext context) async {
     //bool showErrorAuthor = false;
     bool showErrorContent = false;
@@ -251,5 +379,5 @@ class _ThreadRepliesState extends State<ThreadReplies> {
         );
       },
     );
-  }
+  } */
 }

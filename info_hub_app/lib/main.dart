@@ -18,6 +18,8 @@ Future<void> main() async {
   FirebaseAuth auth = FirebaseAuth.instance;
   FirebaseFirestore firestore = FirebaseFirestore.instance;
   FirebaseStorage storage = FirebaseStorage.instance;
+  FirebaseFirestore.instance.settings = Settings(persistenceEnabled: false);
+
   runApp(MyApp(
     firestore: firestore,
     auth: auth,

@@ -41,6 +41,15 @@ class _ThreadAppState extends State<ThreadApp> {
     descriptionInputController = TextEditingController();
   }
 
+  void _refreshData() {
+    setState(() {
+      firestoreDb = widget.firestore
+          .collection("thread")
+          .where('topicId', isEqualTo: widget.topicId)
+          .snapshots();
+    });
+  }
+
   @override
   void dispose() {
     //nameInputController.dispose();
@@ -139,11 +148,13 @@ class _ThreadAppState extends State<ThreadApp> {
                       'default_profile_photo.png';
 
                   return CustomCard(
+                    key: ObjectKey(threadDoc.id),
                     snapshot: snapshot.data,
                     index: index,
                     firestore: widget.firestore,
                     auth: widget.auth,
                     userProfilePhoto: profilePhoto,
+                    onEditCompleted: _refreshData,
                   );
                 },
               );
@@ -273,9 +284,11 @@ class _ThreadAppState extends State<ThreadApp> {
                         "timestamp": FieldValue.serverTimestamp(),
                         "creator": docId,
                         "topicId": widget.topicId,
+                        "isEdited": false,
                       }).then((response) {
                         titleInputController.clear();
                         descriptionInputController.clear();
+                        _refreshData();
                         Navigator.pop(context);
                       });
                     }
