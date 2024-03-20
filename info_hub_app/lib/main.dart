@@ -11,6 +11,16 @@ import 'registration/start_page.dart';
 import 'package:provider/provider.dart';
 import 'package:info_hub_app/services/database.dart';
 import 'package:info_hub_app/topics/view_topic.dart';
+import 'package:flutter/services.dart' show rootBundle;
+
+// Global variables to store the word sets
+Set<String>? allNouns;
+Set<String>? allAdjectives;
+
+Future<Set<String>> loadWordSet(String path) async {
+  String data = await rootBundle.loadString(path);
+  return Set<String>.from(data.split('\n').where((line) => line.isNotEmpty));
+}
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,6 +28,8 @@ Future<void> main() async {
   FirebaseAuth auth = FirebaseAuth.instance;
   FirebaseFirestore firestore = FirebaseFirestore.instance;
   FirebaseStorage storage = FirebaseStorage.instance;
+  allNouns = await loadWordSet('assets/texts/nouns.txt');
+  allAdjectives = await loadWordSet('assets/texts/adjectives.txt');
   FirebaseFirestore.instance.settings = Settings(persistenceEnabled: false);
 
   runApp(MyApp(
@@ -31,11 +43,13 @@ class MyApp extends StatelessWidget {
   final FirebaseFirestore firestore;
   final FirebaseAuth auth;
   final FirebaseStorage storage;
-  const MyApp(
-      {super.key,
-      required this.firestore,
-      required this.auth,
-      required this.storage});
+
+  const MyApp({
+    super.key,
+    required this.firestore,
+    required this.auth,
+    required this.storage,
+  });
 
   @override
   Widget build(BuildContext context) {
