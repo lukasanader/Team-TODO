@@ -179,26 +179,145 @@ class AdminTopicCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-        onTap: () {
-          Navigator.of(context).push(
-            CupertinoPageRoute(
-              builder: (BuildContext context) {
-                return AdminTopicAnalytics(
-                  firestore: firestore,
-                  storage: storage,
-                  topic: _topic,
-                );
-              },
-            ),
-          );
+    final Map<String, dynamic>? topicData =
+        _topic.data() as Map<String, dynamic>?;
+
+    final date = (topicData != null && topicData.containsKey('date'))
+        ? (topicData['date'] as Timestamp).toDate()
+        : null;
+
+    final mediaList = (topicData != null && topicData.containsKey('media'))
+        ? topicData['media'] as List<dynamic>
+        : null;
+    final media = mediaList?.isNotEmpty ?? false ? mediaList!.first : null;
+    final mediaUrl = media != null ? media['url'] as String? : null;
+    final mediaType = media != null ? media['mediaType'] as String? : null;
+    bool containsVideo = mediaList != null &&
+        mediaList.isNotEmpty &&
+        mediaList.any((element) => element['mediaType'] == 'video');
+
+    Widget mediaWidget = const SizedBox.shrink();
+
+    if (mediaType == 'video') {
+      mediaWidget = FutureBuilder<Uint8List>(
+        future: _getVideoThumbnail(mediaUrl),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const CircularProgressIndicator();
+          } else if (snapshot.hasError) {
+            return const Text('Error loading thumbnail');
+          } else {
+            return Container(
+              width: 50, // Adjust width as needed
+              height: 50, // Adjust height as needed
+              child: Image.memory(
+                snapshot.data!,
+                fit: BoxFit.cover,
+              ),
+            );
+          }
         },
-        child: Card(
-          child: Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Text(_topic['title']),
+      );
+    } else if (mediaType == 'image') {
+      mediaWidget = Image.network(
+        mediaUrl!,
+        fit: BoxFit.cover,
+        width: 50, // Adjust width as needed
+        height: 50, // Adjust height as needed
+      );
+    }
+
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context).push(
+          CupertinoPageRoute(
+            builder: (BuildContext context) {
+              return AdminTopicAnalytics(
+                firestore: firestore,
+                storage: storage,
+                topic: _topic,
+              );
+            },
           ),
-        ));
+        );
+      },
+      child: Card(
+        child: Row(
+          children: [
+            Expanded(
+              flex: 2,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _topic['title'] as String? ?? '',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        color: Colors.black,
+                      ),
+                    ),
+                    if (date != null)
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: <Widget>[
+                          if (containsVideo)
+                            const Icon(
+                              Icons.play_circle_outline_outlined,
+                              size: 18,
+                              color: Colors.grey,
+                            ),
+
+                          if (containsVideo) const SizedBox(width: 8),
+                          Text(
+                            _formatDate(date),
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey,
+                            ),
+                          ), // Text
+                        ],
+                      ),
+                  ],
+                ),
+              ),
+            ),
+            SizedBox(
+              width: 100, // Adjust width as needed
+              child: mediaWidget,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<Uint8List> _getVideoThumbnail(String? videoUrl) async {
+    final uint8list = await VideoThumbnail.thumbnailData(
+      video: videoUrl!,
+      imageFormat: ImageFormat.JPEG,
+      maxWidth: 100,
+      quality: 50,
+    );
+    return uint8list!;
+  }
+
+  String _formatDate(DateTime? date) {
+    if (date == null) return '';
+
+    final now = DateTime.now();
+    final difference = now.difference(date);
+
+    if (difference.inDays > 0) {
+      return '${difference.inDays}d ago';
+    } else if (difference.inHours > 0) {
+      return '${difference.inHours}h ago';
+    } else if (difference.inMinutes > 0) {
+      return '${difference.inMinutes}m ago';
+    } else {
+      return 'Just now';
+    }
   }
 }
 
