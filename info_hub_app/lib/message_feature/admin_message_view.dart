@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:info_hub_app/helpers/helper_widgets.dart';
 import 'package:info_hub_app/message_feature/message_room/message_room_controller.dart';
 import 'package:info_hub_app/message_feature/message_room/message_room_model.dart';
 import 'package:info_hub_app/message_feature/message_rooms_card.dart';
@@ -33,7 +34,8 @@ class _MessageViewState extends State<MessageView> {
   @override
   void initState() {
     super.initState();
-    messageRoomController = MessageRoomController(widget.auth, widget.firestore);
+    messageRoomController =
+        MessageRoomController(widget.auth, widget.firestore);
   }
 
   @override
@@ -43,55 +45,53 @@ class _MessageViewState extends State<MessageView> {
     getUserList();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Message a user"),
+        title: const Text("Message Users"),
       ),
-      floatingActionButton: ElevatedButton(
-        onPressed: () {
-          selectUserDialog();
-        }, 
-        child: const Text('Message new patient')
-      ),
-    
-      
       body: SingleChildScrollView(
-        child: Center(
-            child: Column(
-              children: [
-                const Text('Messages'),
-                ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: _chatList.length,
-                  itemBuilder: (context, index) {
-                    dynamic chat = _chatList[index]; 
-                    
-                    return Row(
-                      children: [
-                        Expanded(
-                          child: MessageRoomCard(
-                            widget.firestore, 
-                            widget.auth, 
-                            chat), 
-                        ),                    
-                        IconButton(
-                          onPressed: () {
-                            deleteMessageRoomConfirmation(chat.id);
-                          }, 
-                          icon: const Icon(Icons.delete))
-                      ],
-                    );
-                  }
-                ),
-              ],
-            )
-          )
-      ) 
-      
-
+        child: Column(
+          children: [
+            Center(
+              child: Column(
+                children: [
+                  const Text('Messages'),
+                  ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: _chatList.length,
+                    itemBuilder: (context, index) {
+                      dynamic chat = _chatList[index];
+                      return Row(
+                        children: [
+                          Expanded(
+                            child: MessageRoomCard(
+                                widget.firestore, widget.auth, chat),
+                          ),
+                          IconButton(
+                            onPressed: () {
+                              deleteMessageRoomConfirmation(chat.id);
+                            },
+                            icon: const Icon(Icons.delete),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+            addVerticalSpace(15),
+            ElevatedButton(
+              onPressed: () {
+                selectUserDialog();
+              },
+              child: const Text('Message new patient'),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -128,24 +128,19 @@ class _MessageViewState extends State<MessageView> {
                                 _userList[index] as QueryDocumentSnapshot)),
                             onTap: () {
                               dynamic receiverUser = _userList[index];
-          
+
                               // Navigator.pop(context);
                               Navigator.pop(context);
-                              Navigator.of(context).push(
-                                CupertinoPageRoute(
+                              Navigator.of(context).push(CupertinoPageRoute(
                                   builder: (BuildContext context) {
-                                    return MessageRoomView(
-                                      firestore: widget.firestore,
-                                      auth: widget.auth,
-                                      senderId: widget.auth.currentUser!.uid,
-                                      receiverId: receiverUser.id,
-                                      onNewMessageRoomCreated: updateChatList,
-                                    );
-                                  }
-                                )
-                              );
-
-
+                                return MessageRoomView(
+                                  firestore: widget.firestore,
+                                  auth: widget.auth,
+                                  senderId: widget.auth.currentUser!.uid,
+                                  receiverId: receiverUser.id,
+                                  onNewMessageRoomCreated: updateChatList,
+                                );
+                              }));
                             },
                           );
                         }
@@ -177,8 +172,6 @@ class _MessageViewState extends State<MessageView> {
     );
   }
 
-
-
   String getEmail(QueryDocumentSnapshot user) {
     return user['email'];
   }
@@ -205,10 +198,9 @@ class _MessageViewState extends State<MessageView> {
     });
   }
 
-
   Future updateChatList() async {
     List<Object> tempList = await messageRoomController.getMessageRoomsList();
-    
+
     setState(() {
       _chatList = tempList;
     });

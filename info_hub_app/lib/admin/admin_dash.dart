@@ -235,7 +235,7 @@ class _AdminHomepageState extends State<AdminHomepage> {
                   const Icon(Icons.message),
                   addVerticalSpace(5),
                   const Text(
-                    'Message feature',
+                    'Message Users',
                     textAlign: TextAlign.center,
                   ),
                 ],
@@ -245,8 +245,7 @@ class _AdminHomepageState extends State<AdminHomepage> {
               onPressed: () async {
                 UserModel currentAdmin = await generateCurrentUser();
                 WebinarService webService = WebinarService(
-                  firestore: widget.firestore,
-                  storage: widget.storage);
+                    firestore: widget.firestore, storage: widget.storage);
                 Navigator.of(context).push(
                   CupertinoPageRoute(
                     builder: (BuildContext context) {
@@ -259,11 +258,12 @@ class _AdminHomepageState extends State<AdminHomepage> {
                   ),
                 );
               },
-              child: const Column(
+              child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.camera),
-                  Text(
+                  const Icon(Icons.camera),
+                  addVerticalSpace(5),
+                  const Text(
                     'Add/View Webinar',
                     style: TextStyle(color: Colors.black),
                     textAlign: TextAlign.center,
@@ -331,9 +331,10 @@ class _AdminHomepageState extends State<AdminHomepage> {
         });
   }
 
-    Future<UserModel> generateCurrentUser() async {
+  Future<UserModel> generateCurrentUser() async {
     String uid = widget.auth.currentUser!.uid;
-    DocumentSnapshot userDoc = await widget.firestore.collection('Users').doc(uid).get();
+    DocumentSnapshot userDoc =
+        await widget.firestore.collection('Users').doc(uid).get();
     List<String> likedTopics = List<String>.from(userDoc['likedTopics']);
     List<String> dislikedTopics = List<String>.from(userDoc['dislikedTopics']);
     UserModel user = UserModel(
