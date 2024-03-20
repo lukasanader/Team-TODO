@@ -334,8 +334,8 @@ class TopicDraftCard extends StatelessWidget {
     final uint8list = await VideoThumbnail.thumbnailData(
       video: videoUrl!,
       imageFormat: ImageFormat.JPEG,
-      maxWidth: 100,
-      quality: 50,
+      maxWidth: 200,
+      quality: 200,
     );
     return uint8list!;
   }
