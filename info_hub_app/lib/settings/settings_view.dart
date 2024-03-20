@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:info_hub_app/profile_view/profile_view.dart';
 import 'package:info_hub_app/registration/user_model.dart';
 import 'package:info_hub_app/notifications/manage_notifications.dart';
+import 'package:info_hub_app/screens/activity_view.dart';
 import 'package:info_hub_app/services/database.dart';
 import 'package:info_hub_app/settings/general_settings.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
@@ -67,68 +68,134 @@ class _SettingsViewState extends State<SettingsView> {
           children: [
             ListTile(
               title: const Text("Account"),
+              // onTap: () {
+              //   Navigator.push(
+              //     context,
+              //     CupertinoPageRoute(
+              //         builder: (context) => ProfileView(
+              //               firestore: widget.firestore,
+              //               auth: widget.auth,
+              //             )),
+              //   );
+              // },
               onTap: () {
-                Navigator.push(
+                PersistentNavBarNavigator.pushNewScreen(
                   context,
-                  CupertinoPageRoute(
-                      builder: (context) => ProfileView(
-                            firestore: widget.firestore,
-                            auth: widget.auth,
-                          )),
+                  screen: ProfileView(
+                    firestore: widget.firestore,
+                    auth: widget.auth,
+                  ),
+                  withNavBar: false,
                 );
               },
             ),
             ListTile(
               title: const Text("General"),
+              // onTap: () {
+              //   Navigator.push(
+              //     context,
+              //     CupertinoPageRoute(
+              //       builder: (context) => GeneralSettings(
+              //         themeManager: widget.themeManager,
+              //       ),
+              //     ),
+              //   );
+              // },
               onTap: () {
-                Navigator.push(
+                PersistentNavBarNavigator.pushNewScreen(
                   context,
-                  CupertinoPageRoute(
-                    builder: (context) => GeneralSettings(
-                      themeManager: widget.themeManager,
-                    ),
+                  screen: GeneralSettings(
+                    themeManager: widget.themeManager,
                   ),
+                  withNavBar: false,
                 );
               },
             ),
             ListTile(
               title: const Text("Notifications"),
+              // onTap: () {
+              //   Navigator.push(
+              //     context,
+              //     CupertinoPageRoute(
+              //       builder: (context) => ManageNotifications(
+              //           firestore: widget.firestore, auth: widget.auth),
+              //     ),
+              //   );
+              // },
               onTap: () {
-                Navigator.push(
+                PersistentNavBarNavigator.pushNewScreen(
                   context,
-                  CupertinoPageRoute(
-                    builder: (context) => ManageNotifications(
-                        firestore: widget.firestore, auth: widget.auth),
+                  screen: ManageNotifications(
+                    firestore: widget.firestore,
+                    auth: widget.auth,
                   ),
+                  withNavBar: false,
                 );
               },
             ),
-            const ListTile(
-              title: Text('History'),
+            ListTile(
+              title: const Text('History'),
+              // onTap: () {
+              //   Navigator.push(
+              //     context,
+              //     CupertinoPageRoute(
+              //       builder: (context) => ActivityView(
+              //           firestore: widget.firestore, auth: widget.auth),
+              //     ),
+              //   );
+              // }
+              onTap: () {
+                PersistentNavBarNavigator.pushNewScreen(
+                  context,
+                  screen: ActivityView(
+                    firestore: widget.firestore,
+                    auth: widget.auth,
+                  ),
+                  withNavBar: false,
+                );
+              },
             ),
             ListTile(
               title: const Text("Privacy"),
+              // onTap: () {
+              //   Navigator.push(
+              //     context,
+              //     CupertinoPageRoute(
+              //       builder: (context) => const PrivacyPage(),
+              //     ),
+              //   );
+              // },
               onTap: () {
-                Navigator.push(
+                PersistentNavBarNavigator.pushNewScreen(
                   context,
-                  CupertinoPageRoute(
-                    builder: (context) => const PrivacyPage(),
-                  ),
+                  screen: const PrivacyPage(),
+                  withNavBar: false,
                 );
               },
             ),
             ListTile(
               title: const Text('Saved Topics'),
+              // onTap: () {
+              //   // Navigate to the saved topics page when tapped
+              //   Navigator.push(
+              //     context,
+              //     CupertinoPageRoute(
+              //         builder: (context) => SavedPage(
+              //               auth: widget.auth,
+              //               firestore: widget.firestore,
+              //               storage: widget.storage,
+              //             )),
+              //   );
+              // },
               onTap: () {
-                // Navigate to the saved topics page when tapped
-                Navigator.push(
+                PersistentNavBarNavigator.pushNewScreen(
                   context,
-                  CupertinoPageRoute(
-                      builder: (context) => SavedPage(
-                            auth: widget.auth,
-                            firestore: widget.firestore,
-                            storage: widget.storage,
-                          )),
+                  screen: SavedPage(
+                    firestore: widget.firestore,
+                    auth: widget.auth,
+                    storage: widget.storage,
+                  ),
+                  withNavBar: false,
                 );
               },
             ),
@@ -136,18 +203,29 @@ class _SettingsViewState extends State<SettingsView> {
               ListTile(
                 key: const Key("drafts_tile"),
                 title: const Text('Topic Drafts'),
-                onTap: () {
-                  // Navigate to the saved topics page when tapped
-                  Navigator.push(
-                    context,
-                    CupertinoPageRoute(
-                        builder: (context) => DraftsPage(
-                              auth: widget.auth,
-                              firestore: widget.firestore,
-                              storage: widget.storage,
-                            )),
-                  );
-                },
+                // onTap: () {
+                //   // Navigate to the saved topics page when tapped
+                //   Navigator.push(
+                //     context,
+                //     CupertinoPageRoute(
+                //         builder: (context) => DraftsPage(
+                //               auth: widget.auth,
+                //               firestore: widget.firestore,
+                //               storage: widget.storage,
+                //             )),
+                //   );
+                // },
+              onTap: () {
+                PersistentNavBarNavigator.pushNewScreen(
+                  context,
+                  screen: DraftsPage(
+                    firestore: widget.firestore,
+                    auth: widget.auth,
+                    storage: widget.storage,
+                  ),
+                  withNavBar: false,
+                );
+              },
               ),
             ListTile(
               title: const Text('Help'),

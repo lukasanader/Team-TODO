@@ -214,7 +214,11 @@ class WelcomePage extends StatelessWidget {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async {
+                      String uid = auth.currentUser!.uid;
+                      DocumentSnapshot user =
+                          await firestore.collection('Users').doc(uid).get();
+                      String roleType = user['roleType'];
                       Navigator.pushAndRemoveUntil(
                         context,
                         MaterialPageRoute(
@@ -223,6 +227,7 @@ class WelcomePage extends StatelessWidget {
                             storage: storage,
                             firestore: firestore,
                             themeManager: themeManager,
+                            roleType: roleType,
                           ),
                         ),
                         (Route<dynamic> route) => false,

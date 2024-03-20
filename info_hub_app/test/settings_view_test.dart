@@ -4,6 +4,7 @@ import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:info_hub_app/screens/activity_view.dart';
 import 'package:info_hub_app/notifications/manage_notifications.dart';
 import 'package:info_hub_app/settings/general_settings.dart';
 import 'package:info_hub_app/settings/saved/saved_page.dart';
@@ -125,6 +126,34 @@ void main() {
     // Verify that HelpPage is pushed onto the navigator's stack
     expect(find.byType(HelpPage), findsOneWidget);
   });
+
+  testWidgets('Test entering general settings works',
+      (WidgetTester tester) async {
+    // Build our PrivacyPage widget and trigger a frame.
+    await tester.pumpWidget(settingsViewWidget);
+
+    // Tap on the ListTile to navigate to TermsOfServicesPage.
+    await tester.tap(find.text('History'));
+    await tester.pumpAndSettle();
+
+    // Verify that PrivacyPage is rendered after tapping on the ListTile.
+    expect(find.byType(ActivityView), findsOneWidget);
+
+    // Verify that TermsOfServicesPage renders an AppBar with the title "Terms of Services".
+    expect(find.text('History'), findsOneWidget);
+  });
+/*
+  testWidgets('SettingsView history option goes to activity view', (WidgetTester tester) async {
+    await tester.pumpWidget(settingsViewWidget);
+    
+    expect(find.text('History'), findsOneWidget);
+
+    await tester.tap(find.text('History'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(ActivityView), findsOneWidget);
+  });
+*/
 
   testWidgets('Test entering account settings works',
       (WidgetTester tester) async {

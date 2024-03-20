@@ -26,10 +26,24 @@ class _ChangeProfileState extends State<ChangeProfile> {
   String _firstNameErrorText = '';
   String _lastNameErrorText = '';
   String _passwordErrorText = '';
+  bool _obscureNewPasswordText = true;
+  bool _obscureConfirmPasswordText = true;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+  }
+
+  void newPasswordToggle() {
+    setState(() {
+      _obscureNewPasswordText = !_obscureNewPasswordText;
+    });
+  }
+
+  void confirmPasswordToggle() {
+    setState(() {
+      _obscureConfirmPasswordText = !_obscureConfirmPasswordText;
+    });
   }
 
   @override
@@ -46,7 +60,6 @@ class _ChangeProfileState extends State<ChangeProfile> {
               controller: _firstNameController,
               decoration: InputDecoration(
                 labelText: 'First Name',
-                border: const UnderlineInputBorder(),
                 errorText:
                     _firstNameErrorText.isNotEmpty ? _firstNameErrorText : null,
               ),
@@ -56,7 +69,6 @@ class _ChangeProfileState extends State<ChangeProfile> {
               controller: _lastNameController,
               decoration: InputDecoration(
                 labelText: 'Last Name',
-                border: const UnderlineInputBorder(),
                 errorText:
                     _lastNameErrorText.isNotEmpty ? _lastNameErrorText : null,
               ),
@@ -64,21 +76,45 @@ class _ChangeProfileState extends State<ChangeProfile> {
             const SizedBox(height: 10),
             TextField(
               controller: _newPasswordController,
-              obscureText: true,
-              decoration: const InputDecoration(
+              obscureText: _obscureNewPasswordText,
+              decoration: InputDecoration(
                 labelText: 'New Password',
-                border: UnderlineInputBorder(),
+                suffixIcon: IconButton(
+                  onPressed: newPasswordToggle,
+                  icon: Icon(
+                    _obscureNewPasswordText
+                        ? Icons.visibility
+                        : Icons.visibility_off,
+                  ),
+                  padding: const EdgeInsets.only(top: 15.0),
+                  style: ButtonStyle(
+                    overlayColor: MaterialStateProperty.all(Colors.transparent),
+                    splashFactory: NoSplash.splashFactory,
+                  ),
+                ),
               ),
             ),
             const SizedBox(height: 10),
             TextField(
               controller: _confirmPasswordController,
-              obscureText: true,
+              obscureText: _obscureConfirmPasswordText,
               decoration: InputDecoration(
                 labelText: 'Confirm Password',
-                border: const UnderlineInputBorder(),
                 errorText:
                     _passwordErrorText.isNotEmpty ? _passwordErrorText : null,
+                suffixIcon: IconButton(
+                  onPressed: confirmPasswordToggle,
+                  icon: Icon(
+                    _obscureConfirmPasswordText
+                        ? Icons.visibility
+                        : Icons.visibility_off,
+                  ),
+                  padding: const EdgeInsets.only(top: 15.0),
+                  style: ButtonStyle(
+                    overlayColor: MaterialStateProperty.all(Colors.transparent),
+                    splashFactory: NoSplash.splashFactory,
+                  ),
+                ),
               ),
             ),
             const SizedBox(height: 20),
@@ -98,20 +134,22 @@ class _ChangeProfileState extends State<ChangeProfile> {
 
                 // Update profile
                 await _updateProfile();
-
-                // Navigate and show success message
-                // ignore: use_build_context_synchronously
-                Navigator.pop(context);
                 // ignore: use_build_context_synchronously
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                    content: Text('Changes saved'),
+                    content: Text(
+                      'Changes saved',
+                      textAlign: TextAlign.center,
+                    ),
                     duration: Duration(seconds: 5),
-                    backgroundColor: Colors.green,
                   ),
                 );
+
+                // Navigate and show success message
+                // ignore: use_build_context_synchronously
+                Navigator.pop(context, true);
               },
-              child: Text(
+              child: const Text(
                 'Save Changes',
               ),
             ),

@@ -57,10 +57,11 @@ void main() {
       'likes': 0,
       'tags': ['Patient'],
       'views': 0,
-      'quizId': "",
+      'quizID': "",
       'dislikes': 0,
       'categories': ['Sports'],
-      'date': DateTime.now()
+      'date': DateTime.now(),
+      'quizID': ''
     });
 
     QuerySnapshot data = await ref.orderBy('title').get();
@@ -149,7 +150,7 @@ void main() {
       ],
       'likes': 0,
       'views': 0,
-      'quizId': "",
+      'quizID': "",
       'tags': ['Patient'],
       'dislikes': 0,
       'categories': ['Sports'],
@@ -209,7 +210,7 @@ void main() {
       'likes': 0,
       'tags': ['Patient'],
       'views': 0,
-      'quizId': "",
+      'quizID': "",
       'dislikes': 0,
       'categories': ['Sports'],
       'date': DateTime.now()
@@ -248,7 +249,7 @@ void main() {
       'likes': 0,
       'tags': ['Patient'],
       'views': 0,
-      'quizId': "",
+      'quizID': "",
       'dislikes': 0,
       'categories': ['Sports'],
       'date': DateTime.now()

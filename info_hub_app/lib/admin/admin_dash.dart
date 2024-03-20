@@ -4,14 +4,20 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:info_hub_app/analytics/analytics_base.dart';
+import 'package:info_hub_app/helpers/helper_widgets.dart';
 
 import 'package:info_hub_app/message_feature/admin_message_view.dart';
 
 import 'package:info_hub_app/patient_experience/admin_experience_view.dart';
+import 'package:info_hub_app/registration/user_model.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:info_hub_app/topics/create_topic.dart';
 import 'package:info_hub_app/ask_question/question_view.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
+import 'package:info_hub_app/webinar/admin-webinar-screens/admin_webinar_dashboard.dart';
+import 'package:info_hub_app/webinar/admin-webinar-screens/create_webinar_screen.dart';
+import 'package:info_hub_app/webinar/service/webinar_service.dart';
 
 class AdminHomepage extends StatefulWidget {
   final FirebaseFirestore firestore;
@@ -54,133 +60,213 @@ class _AdminHomepageState extends State<AdminHomepage> {
               onPressed: () {
                 selectUserDialog();
               },
-              child: const Column(
+              child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.add),
-                  Text(
+                  const Icon(Icons.add),
+                  addVerticalSpace(5),
+                  const Text(
                     'Add Admin',
-                    style: TextStyle(color: Colors.black),
+                    textAlign: TextAlign.center,
                   ),
                 ],
               ),
             ),
             ElevatedButton(
-                onPressed: () => Navigator.of(context).push(
-                      CupertinoPageRoute(
-                        builder: (BuildContext context) {
-                          return CreateTopicScreen(
-                            storage: widget.storage,
-                            firestore: widget.firestore,
-                            auth: widget.auth,
-                            themeManager: widget.themeManager,
-                          );
-                        },
-                      ),
+                onPressed: () {
+                  PersistentNavBarNavigator.pushNewScreen(
+                    context,
+                    screen: CreateTopicScreen(
+                      firestore: widget.firestore,
+                      auth: widget.auth,
+                      storage: widget.storage,
+                      themeManager: widget.themeManager,
                     ),
-                child: const Column(mainAxisSize: MainAxisSize.min, children: [
-                  Icon(Icons.note_add_sharp),
-                  Text('Create Topic',
-                      style: TextStyle(color: Color.fromARGB(255, 0, 0, 0))),
+                    withNavBar: false,
+                  );
+                },
+                child: Column(mainAxisSize: MainAxisSize.min, children: [
+                  const Icon(Icons.note_add_sharp),
+                  addVerticalSpace(5),
+                  const Text(
+                    'Create Topic',
+                    textAlign: TextAlign.center,
+                  ),
                 ])),
             ElevatedButton(
               onPressed: () {
                 //PLACE VIEW THREAD METHOD HERE
               },
-              child: const Column(
+              child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.question_answer),
-                  Text(
+                  const Icon(Icons.question_answer),
+                  addVerticalSpace(5),
+                  const Text(
                     'View Thread',
-                    style: TextStyle(color: Colors.black),
+                    textAlign: TextAlign.center,
                   ),
                 ],
               ),
             ),
             ElevatedButton(
-              onPressed: () => Navigator.of(context).push(
-                CupertinoPageRoute(
-                  builder: (BuildContext context) {
-                    return ViewQuestionPage(
-                      firestore: widget.firestore,
-                    );
-                  },
-                ),
-              ),
-              child: const Column(
+              // onPressed: () => Navigator.of(context).push(
+              //   CupertinoPageRoute(
+              //     builder: (BuildContext context) {
+              //       return ViewQuestionPage(
+              //         firestore: widget.firestore,
+              //         auth: widget.auth,
+              //       );
+              //     },
+              //   ),
+              // ),
+              onPressed: () {
+                PersistentNavBarNavigator.pushNewScreen(
+                  context,
+                  screen: ViewQuestionPage(
+                    firestore: widget.firestore,
+                    auth: widget.auth,
+                  ),
+                  withNavBar: false,
+                );
+              },
+              child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.question_mark),
-                  Text(
+                  const Icon(Icons.question_mark),
+                  addVerticalSpace(5),
+                  const Text(
                     'View Questions',
-                    style: TextStyle(color: Colors.black),
+                    textAlign: TextAlign.center,
                   ),
                 ],
               ),
             ),
             ElevatedButton(
-              onPressed: () => Navigator.of(context).push(
-                CupertinoPageRoute(
-                  builder: (BuildContext context) {
-                    return AdminExperienceView(
-                      firestore: widget.firestore,
-                      auth: widget.auth,
-                    );
-                  },
-                ),
-              ),
-              child: const Column(
+              // onPressed: () => Navigator.of(context).push(
+              //   CupertinoPageRoute(
+              //     builder: (BuildContext context) {
+              //       return AdminExperienceView(
+              //         firestore: widget.firestore,
+              //         auth: widget.auth,
+              //       );
+              //     },
+              //   ),
+              // ),
+              onPressed: () {
+                PersistentNavBarNavigator.pushNewScreen(
+                  context,
+                  screen: AdminExperienceView(
+                    firestore: widget.firestore,
+                    auth: widget.auth,
+                  ),
+                  withNavBar: false,
+                );
+              },
+              child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.book),
-                  Text(
+                  const Icon(Icons.book),
+                  addVerticalSpace(5),
+                  const Text(
                     'View Experiences',
-                    style: TextStyle(color: Colors.black),
+                    textAlign: TextAlign.center,
                   ),
                 ],
               ),
             ),
             ElevatedButton(
-              onPressed: () => Navigator.of(context).push(
-                CupertinoPageRoute(
-                  builder: (BuildContext context) {
-                    return AnalyticsBase(
-                      firestore: widget.firestore,
-                      storage: widget.storage,
-                    );
-                  },
-                ),
-              ),
-              child: const Column(
+              // onPressed: () => Navigator.of(context).push(
+              //   CupertinoPageRoute(
+              //     builder: (BuildContext context) {
+              //       return AnalyticsBase(
+              //         firestore: widget.firestore,
+              //         storage: widget.storage,
+              //       );
+              //     },
+              //   ),
+              // ),
+              onPressed: () {
+                PersistentNavBarNavigator.pushNewScreen(
+                  context,
+                  screen: AnalyticsBase(
+                    firestore: widget.firestore,
+                    storage: widget.storage,
+                  ),
+                  withNavBar: false,
+                );
+              },
+              child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.analytics),
-                  Text(
+                  const Icon(Icons.analytics),
+                  addVerticalSpace(5),
+                  const Text(
                     'View Analytics',
-                    style: TextStyle(color: Colors.black),
+                    textAlign: TextAlign.center,
                   ),
                 ],
               ),
             ),
             ElevatedButton(
-              onPressed: () => Navigator.of(context).push(
-                CupertinoPageRoute(
-                  builder: (BuildContext context) {
-                    return MessageView(
-                      firestore: widget.firestore,
-                      auth: widget.auth,
-                    );
-                  },
-                ),
+              // onPressed: () => Navigator.of(context).push(
+              //   CupertinoPageRoute(
+              //     builder: (BuildContext context) {
+              //       return MessageView(
+              //         firestore: widget.firestore,
+              //         auth: widget.auth,
+              //       );
+              //     },
+              //   ),
+              // ),
+              onPressed: () {
+                PersistentNavBarNavigator.pushNewScreen(
+                  context,
+                  screen: MessageView(
+                    firestore: widget.firestore,
+                    auth: widget.auth,
+                  ),
+                  withNavBar: false,
+                );
+              },
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.message),
+                  addVerticalSpace(5),
+                  const Text(
+                    'Message feature',
+                    textAlign: TextAlign.center,
+                  ),
+                ],
               ),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                UserModel currentAdmin = await generateCurrentUser();
+                WebinarService webService = WebinarService(
+                  firestore: widget.firestore,
+                  storage: widget.storage);
+                Navigator.of(context).push(
+                  CupertinoPageRoute(
+                    builder: (BuildContext context) {
+                      return WebinarDashboard(
+                        firestore: widget.firestore,
+                        user: currentAdmin,
+                        webinarService: webService,
+                      );
+                    },
+                  ),
+                );
+              },
               child: const Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.message),
+                  Icon(Icons.camera),
                   Text(
-                    'Message feature',
+                    'Add/View Webinar',
                     style: TextStyle(color: Colors.black),
+                    textAlign: TextAlign.center,
                   ),
                 ],
               ),
@@ -243,6 +329,23 @@ class _AdminHomepageState extends State<AdminHomepage> {
             );
           });
         });
+  }
+
+    Future<UserModel> generateCurrentUser() async {
+    String uid = widget.auth.currentUser!.uid;
+    DocumentSnapshot userDoc = await widget.firestore.collection('Users').doc(uid).get();
+    List<String> likedTopics = List<String>.from(userDoc['likedTopics']);
+    List<String> dislikedTopics = List<String>.from(userDoc['dislikedTopics']);
+    UserModel user = UserModel(
+      uid: uid,
+      firstName: userDoc['firstName'],
+      lastName: userDoc['lastName'],
+      email: userDoc['email'],
+      roleType: userDoc['roleType'],
+      likedTopics: likedTopics,
+      dislikedTopics: dislikedTopics,
+    );
+    return user;
   }
 
   Future getUserList() async {

@@ -194,4 +194,61 @@ class DatabaseService {
 
     return preferences;
   }
+
+    Future addTopicActivity(QueryDocumentSnapshot topic) async{
+    QuerySnapshot data = await firestore.collection('activity').where('aid', isEqualTo: topic.id).where('uid', isEqualTo: uid).get();
+    if(data.docs.isEmpty){
+      CollectionReference activityCollectionRef = firestore.collection('activity');
+      await activityCollectionRef.add({
+        'uid': uid,
+        'aid': topic.id,
+        'type': 'topics',
+        'date': DateTime.now()
+      });
+    }
+  }
+  Future addThreadActivity(String threadId) async{
+    QuerySnapshot data = await firestore.collection('activity').where('aid', isEqualTo: threadId).where('uid', isEqualTo: uid).get();
+    if(data.docs.isEmpty){
+      CollectionReference activityCollectionRef = firestore.collection('activity');
+      await activityCollectionRef.add({
+        'uid': uid,
+        'aid': threadId,
+        'type': 'thread',
+        'date': DateTime.now()
+      });
+    }
+  }
+  
+  Future<List<dynamic>> getActivityList(String activity) async {
+  QuerySnapshot data = await firestore.collection('activity').where('type', isEqualTo: activity).where('uid', isEqualTo: uid).get();
+  List<dynamic> activities = List.from(data.docs);
+  List<dynamic> userActivity = [];
+
+  for (int index = 0; index < activities.length; index++) {
+    String activityID = activities[index]['aid'];
+    DocumentSnapshot snapshot = await firestore.collection(activity).doc(activityID).get();
+    Map<String, dynamic> temp = snapshot.data() as Map<String, dynamic>;
+    temp['viewDate'] = activities[index]['date'];
+    userActivity.add(temp);
+  }
+  return userActivity;
 }
+
+Future<List<dynamic>> getLikedTopics() async {
+  DocumentSnapshot snapshot = await firestore.collection('Users').doc(uid).get();
+    Map<String, dynamic> temp = snapshot.data() as Map<String, dynamic>;
+    List<dynamic> userTopics = temp['likedTopics'];
+    (userTopics);
+    
+    List<dynamic> likedTopics =[];
+    for(int index = 0; index < userTopics.length; index++){
+      DocumentSnapshot doc = await firestore.collection('topics').doc(userTopics[index]).get();
+      Map<String, dynamic> temp = doc.data() as Map<String, dynamic>;
+      likedTopics.add(temp);
+    } 
+    return likedTopics;
+}
+
+}
+

@@ -116,21 +116,27 @@ class _SavedPageState extends State<SavedPage> {
           }
         } else {
           // If savedTopics is empty, set _topicsList to an empty list
+          if (mounted) {
+            setState(() {
+              _topicsList = [];
+            });
+          }
+        }
+      } else {
+        // If "savedTopics" field is null or not found, set _topicsList to an empty list
+        if (mounted) {
           setState(() {
             _topicsList = [];
           });
         }
-      } else {
-        // If "savedTopics" field is null or not found, set _topicsList to an empty list
+      }
+    } else {
+      // If user document doesn't exist, set _topicsList to an empty list
+      if (mounted) {
         setState(() {
           _topicsList = [];
         });
       }
-    } else {
-      // If user document doesn't exist, set _topicsList to an empty list
-      setState(() {
-        _topicsList = [];
-      });
     }
   }
 }
