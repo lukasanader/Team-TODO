@@ -93,22 +93,22 @@ class _AdminHomepageState extends State<AdminHomepage> {
                     textAlign: TextAlign.center,
                   ),
                 ])),
-            ElevatedButton(
-              onPressed: () {
-                //PLACE VIEW THREAD METHOD HERE
-              },
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.question_answer),
-                  addVerticalSpace(5),
-                  const Text(
-                    'View Thread',
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
-            ),
+            // ElevatedButton(
+            //   onPressed: () {
+            //     //PLACE VIEW THREAD METHOD HERE
+            //   },
+            //   child: Column(
+            //     mainAxisSize: MainAxisSize.min,
+            //     children: [
+            //       const Icon(Icons.question_answer),
+            //       addVerticalSpace(5),
+            //       const Text(
+            //         'View Thread',
+            //         textAlign: TextAlign.center,
+            //       ),
+            //     ],
+            //   ),
+            // ),
             ElevatedButton(
               // onPressed: () => Navigator.of(context).push(
               //   CupertinoPageRoute(

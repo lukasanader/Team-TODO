@@ -170,15 +170,16 @@ class _HomePageState extends State<HomePage> {
               padding: const EdgeInsets.all(20),
               children: [
                 ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
+
+                  onPressed: () async {
+                    // ignore: use_build_context_synchronously
+                    PersistentNavBarNavigator.pushNewScreen(
                       context,
-                      CupertinoPageRoute(
-                        builder: (context) => ExperienceView(
-                          firestore: widget.firestore,
-                          auth: widget.auth,
-                        ),
+                      screen: ExperienceView(
+                        firestore: widget.firestore,
+                        auth: widget.auth,
                       ),
+                      withNavBar: false,
                     );
                   },
                   style: ElevatedButton.styleFrom(
