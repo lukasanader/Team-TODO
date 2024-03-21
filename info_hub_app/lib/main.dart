@@ -20,6 +20,15 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:info_hub_app/topics/view_topic.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:flutter/services.dart' show rootBundle;
+
+Set<String>? allNouns;
+Set<String>? allAdjectives;
+
+Future<Set<String>> loadWordSet(String path) async {
+  String data = await rootBundle.loadString(path);
+  return Set<String>.from(data.split('\n').where((line) => line.isNotEmpty));
+}
 
 final navigatorKey = GlobalKey<NavigatorState>();
 
@@ -28,6 +37,9 @@ ThemeManager themeManager = ThemeManager();
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  allNouns = await loadWordSet('assets/texts/nouns.txt');
+  allAdjectives = await loadWordSet('assets/texts/adjectives.txt');
+  FirebaseFirestore.instance.settings = Settings(persistenceEnabled: false);
   PushNotifications pushNotifications = PushNotifications(
       auth: FirebaseAuth.instance,
       firestore: FirebaseFirestore.instance,

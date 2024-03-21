@@ -84,7 +84,10 @@ class _ProfileViewState extends State<ProfileView> {
               child: CircleAvatar(
                 radius: 60,
                 backgroundColor: Colors.grey[200],
-                backgroundImage: AssetImage('assets/$_selectedProfilePhoto'),
+                backgroundImage: _selectedProfilePhoto.startsWith('http')
+                    ? NetworkImage(_selectedProfilePhoto)
+                    : AssetImage('assets/$_selectedProfilePhoto')
+                        as ImageProvider, // Profile photo
               ),
             ),
             Positioned(
