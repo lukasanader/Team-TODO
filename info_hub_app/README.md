@@ -1,16 +1,27 @@
-# info_hub_app
+# Info Hub for young people with liver disease
+ An Android/IOS application developed for anybody interested or affected by liver disease to obtain information on the condition and share their experiences dealing with them
 
-A new Flutter project.
+## Authors
+Murbarkh Abdul Hamid
+Michael Alelegn
+Bruno Miguel Fonseca Cavaca
+Fardeen Idrus
+Hasan Issa
+Benjamin Morka
+Luka Sanader
+Sharujan Sriramasothy
+Abdullah Zahran
 
-## Getting Started
+# Release History
 
-This project is a starting point for a Flutter application.
+## v1.0.0 - 28-03-2024
 
-A few resources to get you started if this is your first Flutter project:
+Initial alpha release
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## Deployed Version
+Accessible through:
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## References
+
+https://github.com/pichillilorenzo/flutter_inappwebview/issues/2019 (Testing purposes)
+https://github.com/sarbagyastha/youtube_player_flutter/blob/master/packages/youtube_player_flutter/test/youtube_player_flutter_test.dart (Testing purposes)
