@@ -1,7 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:info_hub_app/main.dart';
 import 'package:info_hub_app/services/auth.dart';
 import 'package:info_hub_app/registration/user_model.dart';
@@ -15,11 +17,15 @@ class RegistrationScreen extends StatefulWidget {
   final FirebaseFirestore firestore;
   final FirebaseAuth auth;
   final FirebaseStorage storage;
+  final FirebaseMessaging messaging;
+  final FlutterLocalNotificationsPlugin localnotificationsplugin;
   const RegistrationScreen(
       {super.key,
       required this.firestore,
       required this.storage,
-      required this.auth});
+      required this.auth,
+      required this.messaging,
+      required this.localnotificationsplugin});
 
   @override
   State<RegistrationScreen> createState() => _RegistrationScreenState();
@@ -33,7 +39,11 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   @override
   void initState() {
     super.initState();
-    _auth = AuthService(firestore: widget.firestore, auth: widget.auth);
+    _auth = AuthService(
+        firestore: widget.firestore,
+        auth: widget.auth,
+        messaging: widget.messaging,
+        localnotificationsplugin: widget.localnotificationsplugin);
   }
 
   void passwordToggle() {

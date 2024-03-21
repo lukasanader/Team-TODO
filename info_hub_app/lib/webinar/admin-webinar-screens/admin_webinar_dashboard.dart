@@ -12,7 +12,12 @@ class WebinarDashboard extends StatefulWidget {
   final FirebaseFirestore firestore;
   final WebinarService webinarService;
 
-  const WebinarDashboard({Key? key, required this.user, required this.firestore, required this.webinarService}) : super(key: key);
+  const WebinarDashboard({
+    super.key,
+    required this.user,
+    required this.firestore,
+    required this.webinarService
+    });
 
   @override
   _WebinarDashboardState createState() => _WebinarDashboardState();

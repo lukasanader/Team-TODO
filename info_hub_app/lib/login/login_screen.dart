@@ -1,9 +1,10 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:info_hub_app/admin/admin_dash.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:info_hub_app/registration/user_controller.dart';
 import 'package:info_hub_app/reset_password/reset_password.dart';
 import 'package:info_hub_app/services/auth.dart';
@@ -16,12 +17,16 @@ class LoginScreen extends StatefulWidget {
   final FirebaseAuth auth;
   final FirebaseStorage storage;
   final ThemeManager themeManager;
+  final FirebaseMessaging messaging;
+  final FlutterLocalNotificationsPlugin localnotificationsplugin;
   const LoginScreen(
       {super.key,
       required this.firestore,
       required this.auth,
       required this.storage,
-      required this.themeManager});
+      required this.themeManager,
+      required this.messaging,
+      required this.localnotificationsplugin});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -37,6 +42,8 @@ class _LoginScreenState extends State<LoginScreen> {
     _auth = AuthService(
       firestore: widget.firestore,
       auth: widget.auth,
+      messaging: widget.messaging,
+      localnotificationsplugin: widget.localnotificationsplugin,
     );
   }
 

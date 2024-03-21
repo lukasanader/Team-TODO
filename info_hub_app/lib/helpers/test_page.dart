@@ -46,6 +46,7 @@ class _TestViewState extends State<TestView> {
           onPressed: () async {
             await DatabaseService(
                     firestore: widget.firestore,
+                    auth: widget.auth,
                     uid: widget.auth.currentUser!.uid)
                 .createNotification('Test Notification',
                     'This is a test notification', DateTime.now());

@@ -1,13 +1,12 @@
+// ignore_for_file: library_private_types_in_public_api, use_build_context_synchronously
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
 import 'package:info_hub_app/analytics/analytics_base.dart';
 import 'package:info_hub_app/helpers/helper_widgets.dart';
-
 import 'package:info_hub_app/message_feature/admin_message_view.dart';
-
 import 'package:info_hub_app/patient_experience/admin_experience_view.dart';
 import 'package:info_hub_app/registration/user_model.dart';
 import 'package:info_hub_app/theme/theme_constants.dart';
@@ -17,7 +16,6 @@ import 'package:info_hub_app/ask_question/question_view.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:info_hub_app/webinar/admin-webinar-screens/admin_webinar_dashboard.dart';
-import 'package:info_hub_app/webinar/admin-webinar-screens/create_webinar_screen.dart';
 import 'package:info_hub_app/webinar/service/webinar_service.dart';
 
 class AdminHomepage extends StatefulWidget {

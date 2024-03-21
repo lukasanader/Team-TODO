@@ -206,7 +206,7 @@ class _ThreadRepliesState extends State<ThreadReplies> {
                           .uid; // Use the passed auth instance
                       String authorName = generateUniqueName(docId);
 
-                      DatabaseService(firestore: widget.firestore,uid: docId).addThreadActivity(widget.threadId);
+                      DatabaseService(auth: widget.auth, firestore: widget.firestore,uid: docId).addThreadActivity(widget.threadId);
 
                       widget.firestore.collection("replies").add({
                         // Use the passed firestore instance

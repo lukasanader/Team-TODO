@@ -74,7 +74,7 @@ class TopicCard extends StatelessWidget {
 
     return GestureDetector(
       onTap: () {
-        DatabaseService(uid: auth.currentUser!.uid, firestore: firestore)
+        DatabaseService(auth: auth, uid: auth.currentUser!.uid, firestore: firestore)
             .addTopicActivity(_topic);
         PersistentNavBarNavigator.pushNewScreen(
           context,
@@ -544,7 +544,7 @@ class LargeTopicCard extends StatelessWidget {
 
     return GestureDetector(
       onTap: () {
-        DatabaseService(uid: auth.currentUser!.uid, firestore: firestore)
+        DatabaseService(auth: auth, uid: auth.currentUser!.uid, firestore: firestore)
             .addTopicActivity(_topic);
         PersistentNavBarNavigator.pushNewScreen(
           context,

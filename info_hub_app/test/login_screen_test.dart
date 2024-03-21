@@ -1,4 +1,6 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:info_hub_app/admin/admin_dash.dart';
 import 'package:info_hub_app/home_page/home_page.dart';
@@ -9,16 +11,87 @@ import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import 'package:info_hub_app/reset_password/reset_password.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
 
+class MockFlutterLocalNotificationsPlugin extends Fake
+    implements FlutterLocalNotificationsPlugin {
+  bool initializeCalled = false;
+
+  @override
+  Future<bool?> initialize(InitializationSettings initializationSettings,
+      {onDidReceiveNotificationResponse,
+      onDidReceiveBackgroundNotificationResponse}) async {
+    initializeCalled = true;
+    return initializeCalled;
+  }
+
+  bool showCalled = false;
+
+  @override
+  Future<void> show(
+    int id,
+    String? title,
+    String? body,
+    NotificationDetails? notificationDetails, {
+    String? payload,
+  }) async {
+    showCalled = true;
+  }
+}
+
+class FakeFirebaseMessaging extends Fake implements FirebaseMessaging {
+  Function(RemoteMessage)? onMessageOpenedAppHandler;
+
+  void simulateMessageOpenedApp(RemoteMessage message) {
+    if (onMessageOpenedAppHandler != null) {
+      onMessageOpenedAppHandler!(message);
+    }
+  }
+
+  @override
+  Future<String?> getToken({String? vapidKey}) async {
+    return 'fakeDeviceToken';
+  }
+
+  @override
+  Future<NotificationSettings> requestPermission({
+    bool alert = false,
+    bool announcement = false,
+    bool badge = false,
+    bool carPlay = false,
+    bool criticalAlert = false,
+    bool provisional = false,
+    bool sound = false,
+  }) async {
+    return const NotificationSettings(
+      authorizationStatus: AuthorizationStatus.authorized,
+      alert: AppleNotificationSetting.enabled,
+      announcement: AppleNotificationSetting.enabled,
+      badge: AppleNotificationSetting.enabled,
+      carPlay: AppleNotificationSetting.enabled,
+      criticalAlert: AppleNotificationSetting.enabled,
+      sound: AppleNotificationSetting.enabled,
+      lockScreen: AppleNotificationSetting.enabled,
+      notificationCenter: AppleNotificationSetting.enabled,
+      showPreviews: AppleShowPreviewSetting.always,
+      timeSensitive: AppleNotificationSetting.enabled,
+    );
+  }
+}
+
 void main() {
   final firestore = FakeFirebaseFirestore();
   final auth = MockFirebaseAuth();
   final storage = MockFirebaseStorage();
+  final firebaseMessaging = FakeFirebaseMessaging();
+  final mockFlutterLocalNotificationsPlugin =
+      MockFlutterLocalNotificationsPlugin();
   testWidgets('test if login text exists', (WidgetTester test) async {
     await test.pumpWidget(MaterialApp(
         home: LoginScreen(
             firestore: firestore,
             auth: auth,
             storage: storage,
+            messaging: firebaseMessaging,
+            localnotificationsplugin: mockFlutterLocalNotificationsPlugin,
             themeManager: ThemeManager())));
     expect(find.text('Please fill in the login details.'), findsOneWidget);
   });
@@ -29,6 +102,8 @@ void main() {
             firestore: firestore,
             auth: auth,
             storage: storage,
+            messaging: firebaseMessaging,
+            localnotificationsplugin: mockFlutterLocalNotificationsPlugin,
             themeManager: ThemeManager())));
     final emailField = find.ancestor(
       of: find.text('Email'),
@@ -43,6 +118,8 @@ void main() {
             firestore: firestore,
             auth: auth,
             storage: storage,
+            messaging: firebaseMessaging,
+            localnotificationsplugin: mockFlutterLocalNotificationsPlugin,
             themeManager: ThemeManager())));
     final passwordField = find.ancestor(
       of: find.text('Password'),
@@ -58,6 +135,8 @@ void main() {
             firestore: firestore,
             auth: auth,
             storage: storage,
+            messaging: firebaseMessaging,
+            localnotificationsplugin: mockFlutterLocalNotificationsPlugin,
             themeManager: ThemeManager())));
     final emailField = find.ancestor(
       of: find.text('Email'),
@@ -93,6 +172,8 @@ void main() {
             firestore: firestore,
             auth: auth,
             storage: storage,
+            messaging: firebaseMessaging,
+            localnotificationsplugin: mockFlutterLocalNotificationsPlugin,
             themeManager: ThemeManager())));
     final emailField = find.ancestor(
       of: find.text('Email'),
@@ -126,6 +207,8 @@ void main() {
             firestore: firestore,
             auth: auth,
             storage: storage,
+            messaging: firebaseMessaging,
+            localnotificationsplugin: mockFlutterLocalNotificationsPlugin,
             themeManager: ThemeManager())));
     final emailField = find.ancestor(
       of: find.text('Email'),
@@ -149,6 +232,8 @@ void main() {
             firestore: firestore,
             auth: auth,
             storage: storage,
+            messaging: firebaseMessaging,
+            localnotificationsplugin: mockFlutterLocalNotificationsPlugin,
             themeManager: ThemeManager())));
     final emailField = find.ancestor(
       of: find.text('Email'),
@@ -172,6 +257,8 @@ void main() {
             firestore: firestore,
             auth: auth,
             storage: storage,
+            messaging: firebaseMessaging,
+            localnotificationsplugin: mockFlutterLocalNotificationsPlugin,
             themeManager: ThemeManager())));
     final emailField = find.ancestor(
       of: find.text('Email'),
@@ -194,6 +281,8 @@ void main() {
             firestore: firestore,
             auth: auth,
             storage: storage,
+            messaging: firebaseMessaging,
+            localnotificationsplugin: mockFlutterLocalNotificationsPlugin,
             themeManager: ThemeManager())));
     final loginButton = find.text('Login');
     await test.tap(loginButton);
@@ -208,6 +297,8 @@ void main() {
             firestore: firestore,
             auth: auth,
             storage: storage,
+            messaging: firebaseMessaging,
+            localnotificationsplugin: mockFlutterLocalNotificationsPlugin,
             themeManager: ThemeManager())));
     await test.pumpAndSettle();
 
@@ -224,6 +315,8 @@ void main() {
             firestore: firestore,
             auth: auth,
             storage: storage,
+            messaging: firebaseMessaging,
+            localnotificationsplugin: mockFlutterLocalNotificationsPlugin,
             themeManager: ThemeManager())));
     await test.pumpAndSettle();
 
@@ -239,6 +332,8 @@ void main() {
             firestore: firestore,
             auth: auth,
             storage: storage,
+            messaging: firebaseMessaging,
+            localnotificationsplugin: mockFlutterLocalNotificationsPlugin,
             themeManager: ThemeManager())));
     await test.pumpAndSettle();
 

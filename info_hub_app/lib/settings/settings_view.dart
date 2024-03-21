@@ -1,8 +1,10 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:info_hub_app/profile_view/profile_view.dart';
 import 'package:info_hub_app/registration/user_model.dart';
 import 'package:info_hub_app/notifications/manage_notifications.dart';
@@ -55,6 +57,7 @@ class _SettingsViewState extends State<SettingsView> {
           create: (_) => DatabaseService(
             uid: FirebaseAuth.instance.currentUser!.uid,
             firestore: FirebaseFirestore.instance,
+            auth: FirebaseAuth.instance,
           ).users,
           initialData: [], // Initial data while waiting for Firebase data
         ),
@@ -214,17 +217,17 @@ class _SettingsViewState extends State<SettingsView> {
                 //             )),
                 //   );
                 // },
-              onTap: () {
-                PersistentNavBarNavigator.pushNewScreen(
-                  context,
-                  screen: DraftsPage(
-                    firestore: widget.firestore,
-                    auth: widget.auth,
-                    storage: widget.storage,
-                  ),
-                  withNavBar: false,
-                );
-              },
+                onTap: () {
+                  PersistentNavBarNavigator.pushNewScreen(
+                    context,
+                    screen: DraftsPage(
+                      firestore: widget.firestore,
+                      auth: widget.auth,
+                      storage: widget.storage,
+                    ),
+                    withNavBar: false,
+                  );
+                },
               ),
             ListTile(
               title: const Text('Help'),
@@ -254,6 +257,8 @@ class _SettingsViewState extends State<SettingsView> {
                     firestore: widget.firestore,
                     auth: widget.auth,
                     storage: widget.storage,
+                    messaging: FirebaseMessaging.instance,
+                    localnotificationsplugin: FlutterLocalNotificationsPlugin(),
                     themeManager: widget.themeManager,
                   ),
                   withNavBar: false,
