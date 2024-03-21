@@ -9,7 +9,7 @@ import 'package:info_hub_app/webinar/webinar-screens/chat.dart';
 
 void main() {
   late FakeFirebaseFirestore firestore;
-  late Widget ChatScreenWidget;
+  late Widget chatScreenWidget;
   late MockFirebaseStorage mockStorage;
   late UserModel user;
 
@@ -28,7 +28,7 @@ void main() {
       likedTopics: [],
       dislikedTopics: [],
     );
-    ChatScreenWidget = MaterialApp(
+    chatScreenWidget = MaterialApp(
       home: Chat(firestore: firestore,
       user: user, webinarID: 'test',
       webinarService: webService)
@@ -36,7 +36,7 @@ void main() {
   });
 
   testWidgets('Chat Widget Test - Loading State', (WidgetTester tester) async {
-    await tester.pumpWidget(ChatScreenWidget);
+    await tester.pumpWidget(chatScreenWidget);
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
   });
 
@@ -48,7 +48,7 @@ void main() {
       'createdAt': DateTime.now(),
     });
 
-    await tester.pumpWidget(ChatScreenWidget);
+    await tester.pumpWidget(chatScreenWidget);
     await tester.pumpAndSettle();
 
     expect(find.text('Error loading chat'), findsNothing);
@@ -62,7 +62,7 @@ void main() {
       'createdAt': DateTime.now(),
     });
 
-    await tester.pumpWidget(ChatScreenWidget);
+    await tester.pumpWidget(chatScreenWidget);
     await tester.pumpAndSettle();
 
     expect(find.text('Test message'), findsOneWidget);
@@ -76,7 +76,7 @@ void main() {
       'createdAt': DateTime.now(),
     });
 
-    await tester.pumpWidget(ChatScreenWidget);
+    await tester.pumpWidget(chatScreenWidget);
     await tester.pumpAndSettle();
 
     expect(find.text('Anonymous Beaver'), findsOneWidget);
@@ -90,14 +90,14 @@ void main() {
       'createdAt': DateTime.now(),
     });
 
-    await tester.pumpWidget(ChatScreenWidget);
+    await tester.pumpWidget(chatScreenWidget);
     await tester.pumpAndSettle();
 
     expect(find.text(user.firstName), findsOneWidget);
   });
 
   testWidgets('Test User can not write profanities in their messages', (WidgetTester tester) async {
-    await tester.pumpWidget(ChatScreenWidget);
+    await tester.pumpWidget(chatScreenWidget);
     await tester.pumpAndSettle();
 
     final enterMessageField = find.ancestor(
@@ -117,7 +117,7 @@ void main() {
   });
 
   testWidgets('Test User can not write their name in their messages', (WidgetTester tester) async {
-    await tester.pumpWidget(ChatScreenWidget);
+    await tester.pumpWidget(chatScreenWidget);
     await tester.pumpAndSettle();
     
     final enterMessageField = find.ancestor(
@@ -138,7 +138,7 @@ void main() {
   });
 
   testWidgets('Test User can type and send message', (WidgetTester tester) async {
-    await tester.pumpWidget(ChatScreenWidget);
+    await tester.pumpWidget(chatScreenWidget);
     await tester.pumpAndSettle();
     final enterMessageField = find.ancestor(
       of: find.text('Type your message...'),
