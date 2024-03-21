@@ -7,7 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:info_hub_app/registration/user_model.dart';
 import 'package:info_hub_app/webinar/service/webinar_service.dart';
 import 'package:info_hub_app/webinar/webinar-screens/display_webinar.dart';
-import 'mock.dart';
+import '../mock.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'package:flutter_inappwebview_platform_interface/flutter_inappwebview_platform_interface.dart';

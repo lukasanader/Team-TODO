@@ -136,4 +136,22 @@ void main() {
     
     expect(find.text('Please refrain from using language that may be rude to others or writing your name in your messages.'), findsNothing);
   });
+
+  testWidgets('Test User can type and send message', (WidgetTester tester) async {
+    await tester.pumpWidget(ChatScreenWidget);
+    await tester.pumpAndSettle();
+    final enterMessageField = find.ancestor(
+      of: find.text('Type your message...'),
+      matching: find.byType(TextField),
+    );
+    await tester.enterText(enterMessageField, 'Hello world');
+    await tester.tap(find.byIcon(Icons.send));
+    await tester.pumpAndSettle();
+    final querySnapshot = await firestore
+                            .collection('Webinar')
+                            .doc('test')
+                            .collection('comments')
+                            .get();
+    expect(querySnapshot.docs.length,greaterThan(0));
+  });
 }
