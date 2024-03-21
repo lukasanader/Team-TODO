@@ -10,7 +10,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:info_hub_app/notifications/notification.dart' as custom;
 import 'package:info_hub_app/notifications/notifications.dart';
-import 'package:info_hub_app/notifications/preferences.dart';
 import 'package:info_hub_app/push_notifications/push_notifications.dart';
 import 'package:info_hub_app/services/database.dart';
 import 'package:mockito/mockito.dart';
