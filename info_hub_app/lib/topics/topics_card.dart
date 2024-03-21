@@ -76,6 +76,8 @@ class TopicCard extends StatelessWidget {
       onTap: () {
         DatabaseService(auth: auth, uid: auth.currentUser!.uid, firestore: firestore)
             .addTopicActivity(_topic);
+        DatabaseService(auth: auth, uid: auth.currentUser!.uid, firestore: firestore)
+            .incrementView(_topic);
         PersistentNavBarNavigator.pushNewScreen(
           context,
           screen: ViewTopicScreen(
@@ -546,6 +548,8 @@ class LargeTopicCard extends StatelessWidget {
       onTap: () {
         DatabaseService(auth: auth, uid: auth.currentUser!.uid, firestore: firestore)
             .addTopicActivity(_topic);
+        DatabaseService(auth: auth, uid: auth.currentUser!.uid, firestore: firestore)
+            .incrementView(_topic);
         PersistentNavBarNavigator.pushNewScreen(
           context,
           screen: ViewTopicScreen(

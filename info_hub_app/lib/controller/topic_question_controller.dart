@@ -37,6 +37,7 @@ class TopicQuestionController {
   } 
 
   Future<List<TopicQuestion>> getRelevantQuestions(String title) async{
+    title=title.replaceAll("?", "").replaceAll(".", "").toLowerCase();
     QuerySnapshot data = await firestore.collection('questions').get();
     List<dynamic> questionList=List.from(data.docs);
     List<String> keywords =[];
@@ -48,7 +49,7 @@ class TopicQuestionController {
     }
     List<dynamic> tempQuestions =[];
     for(int i=0; i<questionList.length; i++){
-      List<String> questionWords = questionList[i]['question'].split(' ');
+      List<String> questionWords = questionList[i]['question'].replaceAll("?", "").replaceAll(".", "").toLowerCase().split(' ');
       for(int j=0; j<questionWords.length; j++){
         if(keywords.contains(questionWords[j])){
           tempQuestions.add(questionList[i]);
