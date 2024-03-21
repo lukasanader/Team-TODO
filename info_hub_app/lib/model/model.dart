@@ -1,10 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Activity {
-  final String id;
+  String id;
   final String aid;
   final String type;
   final String uid;
+  final Timestamp date;
 
   Activity(
       {
@@ -12,6 +13,7 @@ class Activity {
         required this.aid,
         required this.type,
         required this.uid,
+        required this.date
       });
 
   factory Activity.fromSnapshot(DocumentSnapshot snapshot) {
@@ -19,10 +21,12 @@ class Activity {
       id: snapshot.id,
       aid: snapshot['aid'],
       type: snapshot['type'],
-      uid: snapshot['uid']
+      uid: snapshot['uid'],
+      date: snapshot['date'],
     );
   }
 }
+
 
 class TopicQuestion {
   final String id;
