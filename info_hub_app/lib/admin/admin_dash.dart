@@ -18,6 +18,7 @@ import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:info_hub_app/webinar/admin-webinar-screens/admin_webinar_dashboard.dart';
 import 'package:info_hub_app/webinar/admin-webinar-screens/create_webinar_screen.dart';
 import 'package:info_hub_app/webinar/service/webinar_service.dart';
+import 'package:info_hub_app/threads/view_threads.dart';
 
 class AdminHomepage extends StatefulWidget {
   final FirebaseFirestore firestore;
@@ -95,7 +96,14 @@ class _AdminHomepageState extends State<AdminHomepage> {
                 ])),
             ElevatedButton(
               onPressed: () {
-                //PLACE VIEW THREAD METHOD HERE
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => ViewThreads(
+                      firestore: widget.firestore,
+                      auth: widget.auth,
+                    ),
+                  ),
+                );
               },
               child: Column(
                 mainAxisSize: MainAxisSize.min,
