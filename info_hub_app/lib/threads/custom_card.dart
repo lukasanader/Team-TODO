@@ -6,6 +6,7 @@ import 'package:info_hub_app/threads/thread_replies.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:info_hub_app/threads/name_generator.dart';
+import 'package:expansion_tile_card/expansion_tile_card.dart';
 
 class CustomCard extends StatefulWidget {
   final QuerySnapshot? snapshot;
@@ -96,7 +97,145 @@ class _CustomCardState extends State<CustomCard> {
         : 'Timestamp not available';
     var authorName = generateUniqueName(creator);
 
+    final ButtonStyle flatButtonStyle = TextButton.styleFrom(
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(4.0)),
+      ),
+    );
+
     return Column(
+      children: <Widget>[
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12.0),
+          child: ExpansionTileCard(
+            leading: CircleAvatar(
+              radius: 30,
+              backgroundImage: widget.userProfilePhoto.startsWith('http')
+                  ? NetworkImage(widget.userProfilePhoto)
+                      as ImageProvider<Object>
+                  : AssetImage('assets/${widget.userProfilePhoto}')
+                      as ImageProvider<Object>,
+            ),
+            title: Row(
+              children: <Widget>[
+                Expanded(
+                  child: InkWell(
+                    key: Key('navigateToThreadReplies_${widget.index}'),
+                    onTap: () {
+                      Navigator.of(context).push(CupertinoPageRoute(
+                        builder: (BuildContext context) => ThreadReplies(
+                          threadId: docId,
+                          firestore: widget.firestore,
+                          auth: widget.auth,
+                        ),
+                      ));
+                    },
+                    child: Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            subtitle: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Expanded(
+                  child: Text(
+                    authorName,
+                    style: const TextStyle(fontSize: 14),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                Text(
+                  formatter,
+                  style: const TextStyle(fontSize: 14),
+                ),
+              ],
+            ),
+            children: <Widget>[
+              const Divider(
+                thickness: 1.0,
+                height: 1.0,
+              ),
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      description,
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyMedium!
+                          .copyWith(fontSize: 16),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    if (isEdited)
+                      const Text(
+                        " (edited)",
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Color.fromARGB(255, 255, 0, 0),
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                    ButtonBar(
+                      alignment: MainAxisAlignment.spaceAround,
+                      buttonHeight: 52.0,
+                      buttonMinWidth: 90.0,
+                      children: <Widget>[
+                        if (currentUserId == creator)
+                          TextButton(
+                            style: flatButtonStyle,
+                            onPressed: () {
+                              _showDialog(context, docId);
+                            },
+                            child: Column(
+                              children: const <Widget>[
+                                Icon(Icons.edit),
+                                Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 2.0),
+                                ),
+                                Text('Edit Post'),
+                              ],
+                            ),
+                          ),
+                        if (currentUserId == creator)
+                          TextButton(
+                            style: flatButtonStyle,
+                            onPressed: () async {
+                              // Place your delete logic here
+                            },
+                            child: Column(
+                              children: const <Widget>[
+                                Icon(Icons.delete),
+                                Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 2.0),
+                                ),
+                                Text('Delete Post'),
+                              ],
+                            ),
+                          ),
+                        // Additional buttons or logic for user role can be added here
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+
+    /* return Column(
       children: <Widget>[
         SizedBox(
           height: 140,
@@ -226,7 +365,7 @@ class _CustomCardState extends State<CustomCard> {
           ),
         ),
       ],
-    );
+    ); */
   }
 
   _showDialog(BuildContext context, String docId) async {

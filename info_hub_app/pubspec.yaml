@@ -92,6 +92,8 @@ dependencies:
   http: ^1.2.1
   video_thumbnail: ^0.5.3
 
+  expansion_tile_card: ^3.0.0 
+
 
 
 
