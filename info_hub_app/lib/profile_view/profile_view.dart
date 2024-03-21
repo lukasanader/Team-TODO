@@ -83,7 +83,7 @@ class _ProfileViewState extends State<ProfileView> {
               onTap: _showProfilePhotoOptions,
               child: CircleAvatar(
                 radius: 60,
-                backgroundColor: Colors.grey[200],
+                backgroundColor: COLOR_SECONDARY_GREY_LIGHT,
                 backgroundImage: AssetImage('assets/$_selectedProfilePhoto'),
               ),
             ),
@@ -132,7 +132,7 @@ class _ProfileViewState extends State<ProfileView> {
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
       margin: const EdgeInsets.symmetric(vertical: 6),
       decoration: BoxDecoration(
-        color: COLOR_SECONDARY_LIGHT,
+        color: COLOR_SECONDARY_GREY_LIGHT,
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(

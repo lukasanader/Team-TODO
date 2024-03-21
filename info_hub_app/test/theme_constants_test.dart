@@ -5,12 +5,12 @@ import 'package:info_hub_app/theme/theme_constants.dart';
 void main() {
   test('Test light theme colors', () {
     expect(COLOR_PRIMARY_LIGHT, Colors.red.shade700);
-    expect(COLOR_SECONDARY_LIGHT, Colors.grey.shade300);
+    expect(COLOR_SECONDARY_GREY_LIGHT, Colors.grey.shade300);
+    expect(COLOR_SECONDARY_GREY_LIGHT_DARKER, Colors.grey.shade600);
   });
 
   test('Test dark theme colors', () {
     expect(COLOR_PRIMARY_DARK, Colors.red.shade500);
-    expect(COLOR_SECONDARY_DARK, Colors.grey.shade700);
   });
 
   testWidgets('Test light theme properties', (WidgetTester tester) async {
@@ -47,7 +47,7 @@ void main() {
         theme: lightTheme,
         home: Scaffold(
           appBar: AppBar(
-            title: Text('Test'),
+            title: const Text('Test'),
           ),
         ),
       ),

@@ -10,6 +10,7 @@ import 'package:info_hub_app/message_feature/admin_message_view.dart';
 
 import 'package:info_hub_app/patient_experience/admin_experience_view.dart';
 import 'package:info_hub_app/registration/user_model.dart';
+import 'package:info_hub_app/theme/theme_constants.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:info_hub_app/topics/create_topic.dart';
 import 'package:info_hub_app/ask_question/question_view.dart';
@@ -286,6 +287,10 @@ class _AdminHomepageState extends State<AdminHomepage> {
             return AlertDialog(
               title: TextField(
                 controller: _searchController,
+                decoration: const InputDecoration(
+                  prefixIcon: Icon(Icons.search),
+                  hintText: 'Search',
+                ),
                 onChanged: (query) async {
                   await getUserList();
                   setState(() {});
@@ -312,8 +317,8 @@ class _AdminHomepageState extends State<AdminHomepage> {
                               });
                             },
                             tileColor: selected[index]
-                                ? Colors.blue.withOpacity(0.5)
-                                : null,
+                                ? COLOR_PRIMARY_LIGHT.withOpacity(0.2)
+                                : Colors.transparent,
                           );
                         }
                       })),
