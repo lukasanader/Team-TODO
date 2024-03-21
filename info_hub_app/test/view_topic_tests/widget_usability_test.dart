@@ -61,7 +61,6 @@ void main() {
       'dislikes': 0,
       'categories': ['Sports'],
       'date': DateTime.now(),
-      'quizID': ''
     });
 
     QuerySnapshot data = await ref.orderBy('title').get();

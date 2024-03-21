@@ -53,7 +53,7 @@ Future<void> main() async {
                 firestore: firestore,
                 uid: auth.currentUser!.uid,
               ).notifications,
-              initialData: [],
+              initialData: const [],
             ),
           ],
           child: MaterialApp(
@@ -100,7 +100,7 @@ Future<void> main() async {
                 auth: auth,
                 firestore: firestore,
               ).notifications,
-              initialData: [],
+              initialData: const [],
             ),
           ],
           child: MaterialApp(
@@ -152,7 +152,7 @@ Future<void> main() async {
 
                     expect(snapshot.exists, isFalse);
                   },
-                  child: Text('Create and Delete Notification'),
+                  child: const Text('Create and Delete Notification'),
                 ),
               ],
             ),
@@ -181,7 +181,7 @@ Future<void> main() async {
                       firestore: firestore,
                       uid: auth.currentUser!.uid)
                   .notifications,
-              initialData: [],
+              initialData: const [],
             ),
           ],
           child: MaterialApp(
@@ -199,7 +199,7 @@ Future<void> main() async {
       expect(find.text('Test Title'), findsOneWidget);
       expect(find.text('Test Body'), findsOneWidget);
 
-      await tester.drag(find.text('Test Title'), Offset(500.0, 0.0));
+      await tester.drag(find.text('Test Title'), const Offset(500.0, 0.0));
       await tester.pumpAndSettle();
 
       expect(find.text('Test Title'), findsNothing);

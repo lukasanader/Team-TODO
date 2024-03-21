@@ -5,9 +5,6 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:info_hub_app/admin/admin_dash.dart';
-import 'package:info_hub_app/discovery_view/discovery_view.dart';
-import 'package:info_hub_app/home_page/home_page.dart';
 import 'package:info_hub_app/push_notifications/push_notifications.dart';
 import 'package:info_hub_app/theme/theme_constants.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
@@ -18,7 +15,6 @@ import 'package:info_hub_app/services/database.dart';
 import 'package:info_hub_app/notifications/notifications.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:info_hub_app/topics/view_topic.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
