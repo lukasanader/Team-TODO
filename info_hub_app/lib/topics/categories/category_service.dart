@@ -5,11 +5,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:info_hub_app/topics/categories/category_model.dart';
 
 class CategoryController {
-  final FirebaseAuth _auth;
   final FirebaseFirestore _firestore;
 
   CategoryController(
-    this._auth,
     this._firestore
   );
 
