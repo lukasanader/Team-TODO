@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
+import 'package:info_hub_app/main.dart';
 import 'package:info_hub_app/notifications/notification.dart' as custom;
 import 'package:info_hub_app/notifications/notifications.dart';
 import 'package:info_hub_app/notifications/preferences.dart';
@@ -117,7 +118,7 @@ Future<void> main() async {
       firestore = FakeFirebaseFirestore();
       auth = MockFirebaseAuth(signedIn: true);
       firebaseMessaging = FakeFirebaseMessaging();
-      mockNavigatorKey = GlobalKey<NavigatorState>();
+      mockNavigatorKey = navigatorKey;
       mockClient = MockClient();
       mockFlutterLocalNotificationsPlugin =
           MockFlutterLocalNotificationsPlugin();
@@ -125,7 +126,7 @@ Future<void> main() async {
           auth: auth,
           firestore: firestore,
           messaging: firebaseMessaging,
-          navigatorKey: mockNavigatorKey,
+          nav: mockNavigatorKey,
           http: mockClient,
           localnotificationsplugin: mockFlutterLocalNotificationsPlugin);
     });
@@ -204,7 +205,7 @@ Future<void> main() async {
         notificationResponseType: NotificationResponseType.selectedNotification,
       );
 
-      pushNotifications.onNotificationTap(mockNotificationResponse);
+      PushNotifications.onNotificationTap(mockNotificationResponse);
 
       await tester.pumpAndSettle();
 
