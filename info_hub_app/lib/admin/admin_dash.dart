@@ -1,13 +1,12 @@
+// ignore_for_file: library_private_types_in_public_api, use_build_context_synchronously
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
 import 'package:info_hub_app/analytics/analytics_base.dart';
 import 'package:info_hub_app/helpers/helper_widgets.dart';
-
 import 'package:info_hub_app/message_feature/admin_message_view.dart';
-
 import 'package:info_hub_app/patient_experience/admin_experience_view.dart';
 import 'package:info_hub_app/registration/user_model.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
@@ -16,7 +15,6 @@ import 'package:info_hub_app/ask_question/question_view.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:info_hub_app/webinar/admin-webinar-screens/admin_webinar_dashboard.dart';
-import 'package:info_hub_app/webinar/admin-webinar-screens/create_webinar_screen.dart';
 import 'package:info_hub_app/webinar/service/webinar_service.dart';
 
 class AdminHomepage extends StatefulWidget {
@@ -93,22 +91,22 @@ class _AdminHomepageState extends State<AdminHomepage> {
                     textAlign: TextAlign.center,
                   ),
                 ])),
-            // ElevatedButton(
-            //   onPressed: () {
-            //     //PLACE VIEW THREAD METHOD HERE
-            //   },
-            //   child: Column(
-            //     mainAxisSize: MainAxisSize.min,
-            //     children: [
-            //       const Icon(Icons.question_answer),
-            //       addVerticalSpace(5),
-            //       const Text(
-            //         'View Thread',
-            //         textAlign: TextAlign.center,
-            //       ),
-            //     ],
-            //   ),
-            // ),
+            ElevatedButton(
+              onPressed: () {
+                //PLACE VIEW THREAD METHOD HERE
+              },
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.question_answer),
+                  addVerticalSpace(5),
+                  const Text(
+                    'View Thread',
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
             ElevatedButton(
               // onPressed: () => Navigator.of(context).push(
               //   CupertinoPageRoute(
@@ -235,7 +233,7 @@ class _AdminHomepageState extends State<AdminHomepage> {
                   const Icon(Icons.message),
                   addVerticalSpace(5),
                   const Text(
-                    'Message feature',
+                    'Message Users',
                     textAlign: TextAlign.center,
                   ),
                 ],
@@ -245,8 +243,7 @@ class _AdminHomepageState extends State<AdminHomepage> {
               onPressed: () async {
                 UserModel currentAdmin = await generateCurrentUser();
                 WebinarService webService = WebinarService(
-                  firestore: widget.firestore,
-                  storage: widget.storage);
+                    firestore: widget.firestore, storage: widget.storage);
                 Navigator.of(context).push(
                   CupertinoPageRoute(
                     builder: (BuildContext context) {
@@ -259,11 +256,12 @@ class _AdminHomepageState extends State<AdminHomepage> {
                   ),
                 );
               },
-              child: const Column(
+              child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.camera),
-                  Text(
+                  const Icon(Icons.camera),
+                  addVerticalSpace(5),
+                  const Text(
                     'Add/View Webinar',
                     style: TextStyle(color: Colors.black),
                     textAlign: TextAlign.center,
@@ -331,9 +329,10 @@ class _AdminHomepageState extends State<AdminHomepage> {
         });
   }
 
-    Future<UserModel> generateCurrentUser() async {
+  Future<UserModel> generateCurrentUser() async {
     String uid = widget.auth.currentUser!.uid;
-    DocumentSnapshot userDoc = await widget.firestore.collection('Users').doc(uid).get();
+    DocumentSnapshot userDoc =
+        await widget.firestore.collection('Users').doc(uid).get();
     List<String> likedTopics = List<String>.from(userDoc['likedTopics']);
     List<String> dislikedTopics = List<String>.from(userDoc['dislikedTopics']);
     UserModel user = UserModel(

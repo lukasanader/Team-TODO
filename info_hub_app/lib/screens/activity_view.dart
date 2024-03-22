@@ -98,13 +98,13 @@ class _ActivityViewState extends State<ActivityView> {
 
   Future getActivityList() async {
     List<dynamic> topicTemp = await DatabaseService(
-            uid: widget.auth.currentUser!.uid, firestore: widget.firestore)
+            auth: widget.auth, uid: widget.auth.currentUser!.uid, firestore: widget.firestore)
         .getActivityList('topics');
     List<dynamic> threadTemp = await DatabaseService(
-            uid: widget.auth.currentUser!.uid, firestore: widget.firestore)
+            auth: widget.auth, uid: widget.auth.currentUser!.uid, firestore: widget.firestore)
         .getActivityList('thread');
     List<dynamic>? likedTemp = await DatabaseService(
-            uid: widget.auth.currentUser!.uid, firestore: widget.firestore)
+            auth: widget.auth, uid: widget.auth.currentUser!.uid, firestore: widget.firestore)
         .getLikedTopics();
 
     setState(() {

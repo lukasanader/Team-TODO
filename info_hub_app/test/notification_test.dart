@@ -49,10 +49,11 @@ Future<void> main() async {
           providers: [
             StreamProvider<List<custom.Notification>>(
               create: (_) => DatabaseService(
-                uid: auth.currentUser!.uid,
+                auth: auth,
                 firestore: firestore,
+                uid: auth.currentUser!.uid,
               ).notifications,
-              initialData: [],
+              initialData: const [],
             ),
           ],
           child: MaterialApp(
@@ -96,9 +97,10 @@ Future<void> main() async {
             StreamProvider<List<custom.Notification>>(
               create: (_) => DatabaseService(
                 uid: auth.currentUser!.uid,
+                auth: auth,
                 firestore: firestore,
               ).notifications,
-              initialData: [],
+              initialData: const [],
             ),
           ],
           child: MaterialApp(
@@ -126,8 +128,9 @@ Future<void> main() async {
                 ElevatedButton(
                   onPressed: () async {
                     String notificationId = await DatabaseService(
-                      uid: 'user',
+                      auth: auth,
                       firestore: firestore,
+                      uid: auth.currentUser!.uid,
                     ).createNotification(
                       'Test Title',
                       'Test Body',
@@ -137,9 +140,10 @@ Future<void> main() async {
                     expect(notificationId, isNotEmpty);
 
                     await DatabaseService(
-                      uid: 'user',
-                      firestore: firestore,
-                    ).deleteNotification(notificationId);
+                            auth: auth,
+                            firestore: firestore,
+                            uid: auth.currentUser!.uid)
+                        .deleteNotification(notificationId);
 
                     final notificationAfterDelete = firestore
                         .collection(NotificationCollection)
@@ -148,7 +152,7 @@ Future<void> main() async {
 
                     expect(snapshot.exists, isFalse);
                   },
-                  child: Text('Create and Delete Notification'),
+                  child: const Text('Create and Delete Notification'),
                 ),
               ],
             ),
@@ -173,10 +177,11 @@ Future<void> main() async {
           providers: [
             StreamProvider<List<custom.Notification>>(
               create: (_) => DatabaseService(
-                uid: auth.currentUser!.uid,
-                firestore: firestore,
-              ).notifications,
-              initialData: [],
+                      auth: auth,
+                      firestore: firestore,
+                      uid: auth.currentUser!.uid)
+                  .notifications,
+              initialData: const [],
             ),
           ],
           child: MaterialApp(
@@ -194,7 +199,7 @@ Future<void> main() async {
       expect(find.text('Test Title'), findsOneWidget);
       expect(find.text('Test Body'), findsOneWidget);
 
-      await tester.drag(find.text('Test Title'), Offset(500.0, 0.0));
+      await tester.drag(find.text('Test Title'), const Offset(500.0, 0.0));
       await tester.pumpAndSettle();
 
       expect(find.text('Test Title'), findsNothing);

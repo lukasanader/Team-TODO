@@ -11,11 +11,11 @@ class WebinarView extends StatefulWidget {
   final WebinarService webinarService;
 
   const WebinarView({
-    Key? key,
+    super.key,
     required this.firestore,
     required this.user,
     required this.webinarService,
-  }) : super(key: key);
+  });
 
   @override
   State<WebinarView> createState() => _WebinarViewState();
@@ -31,7 +31,7 @@ class _WebinarViewState extends State<WebinarView> {
         title: const Text("Webinars"),
       ),
       body: Padding(
-        padding: const EdgeInsets.only(bottom: 16.0), // Adjust the padding as needed
+        padding: const EdgeInsets.only(bottom: 16.0),
         child: Column(
           children: [
             Expanded(
