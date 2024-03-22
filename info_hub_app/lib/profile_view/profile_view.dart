@@ -208,17 +208,4 @@ class _ProfileViewState extends State<ProfileView> {
       await widget.controller.updateSelectedProfilePhoto(selectedPhoto);
     }
   }
-
-  void _changeProfile() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => ChangeProfile(controller: ChangeProfileController(
-          firestore: widget.controller.firestore,
-          auth: widget.controller.auth,
-        ),
-      ),
-      )
-    );
-  }
 }

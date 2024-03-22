@@ -212,6 +212,7 @@ void main() {
     'email': 'profileview@example.org',
     'roleType' : 'Patient',
   };
+  
   await firestore.collection('Users').doc(fakeUserId).set(fakeUser);
 
   await tester.pumpWidget(MaterialApp(home: ProfileView(controller: ProfileViewController(firestore: firestore, auth: auth))));
