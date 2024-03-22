@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/message_feature/message_bubble.dart';
-import 'package:info_hub_app/message_feature/message_service.dart';
+import 'package:info_hub_app/message_feature/message_controller.dart';
 import 'package:info_hub_app/threads/name_generator.dart';
 
 class MessageRoomView extends StatefulWidget {
@@ -26,19 +26,19 @@ class MessageRoomView extends StatefulWidget {
 
 class _MessageRoomViewState extends State<MessageRoomView> {
   final TextEditingController _messageController = TextEditingController();
-  late MessageService messageService;
+  late MessageController messageController;
   late Widget displayName = const Text('Loading');
 
   @override
   void initState() {
     super.initState();
-    messageService = MessageService(widget.auth, widget.firestore);
+    messageController = MessageController(widget.auth, widget.firestore);
     getDisplayName();
   }
 
   void sendMessage() async {
     if (_messageController.text.isNotEmpty) {
-      await messageService.sendMessage(
+      await messageController.sendMessage(
           widget.receiverId, _messageController.text);
       _messageController.clear();
     }
@@ -70,7 +70,7 @@ class _MessageRoomViewState extends State<MessageRoomView> {
 
   Widget _buildMessageList() {
     return StreamBuilder(
-        stream: messageService.getMessages(
+        stream: messageController.getMessages(
             widget.receiverId, widget.auth.currentUser!.uid),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {

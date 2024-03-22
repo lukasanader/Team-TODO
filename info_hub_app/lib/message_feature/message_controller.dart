@@ -6,11 +6,11 @@ import 'package:info_hub_app/message_feature/message_room/message_room_controlle
 import 'package:info_hub_app/controller/user_controller.dart';
 import 'package:info_hub_app/threads/name_generator.dart';
 
-class MessageService extends ChangeNotifier {
+class MessageController extends ChangeNotifier {
   final FirebaseAuth _firebaseAuth;
   final FirebaseFirestore _firestore;
 
-  MessageService(
+  MessageController(
     this._firebaseAuth,
     this._firestore,
   );

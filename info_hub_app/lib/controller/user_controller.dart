@@ -35,5 +35,18 @@ class UserController {
     return user['email'];
   }
 
+  String getEmail(QueryDocumentSnapshot user) {
+    return user['email'];
+  }
+
+  Future<List<Object>> getUserListBasedOnRoleType(String roleType) async {
+    QuerySnapshot data = await _firestore
+        .collection('Users')
+        .where('roleType', isEqualTo: roleType)
+        .get();
+    List<Object> userList = List.from(data.docs);
+
+    return userList;
+  }
 
 }

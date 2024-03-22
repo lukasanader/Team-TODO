@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:info_hub_app/controller/user_controller.dart';
 import 'package:info_hub_app/helpers/helper_widgets.dart';
 import 'package:info_hub_app/message_feature/message_room/message_room_controller.dart';
 import 'package:info_hub_app/message_feature/message_rooms_card.dart';
@@ -21,12 +22,15 @@ class _MessageViewState extends State<MessageView> {
   List<Object> _userList = [];
   List<Object> _chatList = [];
   late MessageRoomController messageRoomController;
+  late UserController userController;
 
   @override
   void initState() {
     super.initState();
     messageRoomController =
         MessageRoomController(widget.auth, widget.firestore);
+    userController =
+        UserController(widget.auth, widget.firestore);
   }
 
   @override
@@ -115,7 +119,7 @@ class _MessageViewState extends State<MessageView> {
                           );
                         } else {
                           return ListTile(
-                            title: Text(getEmail(
+                            title: Text(userController.getEmail(
                                 _userList[index] as QueryDocumentSnapshot)),
                             onTap: () {
                               dynamic receiverUser = _userList[index];
@@ -163,17 +167,13 @@ class _MessageViewState extends State<MessageView> {
     );
   }
 
-  String getEmail(QueryDocumentSnapshot user) {
-    return user['email'];
-  }
 
   Future getUserList() async {
-    QuerySnapshot data = await widget.firestore
-        .collection('Users')
-        .where('roleType', isEqualTo: 'Patient')
-        .get();
-    List<Object> tempList = List.from(data.docs);
+    List<Object> tempList = await userController
+      .getUserListBasedOnRoleType('Patient');
+
     String search = _searchController.text;
+
     if (search.isNotEmpty) {
       for (int i = 0; i < tempList.length; i++) {
         QueryDocumentSnapshot user = tempList[i] as QueryDocumentSnapshot;
