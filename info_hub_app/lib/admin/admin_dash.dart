@@ -245,16 +245,14 @@ class _AdminHomepageState extends State<AdminHomepage> {
                 UserModel currentAdmin = await generateCurrentUser();
                 WebinarService webService = WebinarService(
                     firestore: widget.firestore, storage: widget.storage);
-                Navigator.of(context).push(
-                  CupertinoPageRoute(
-                    builder: (BuildContext context) {
-                      return WebinarDashboard(
-                        firestore: widget.firestore,
-                        user: currentAdmin,
-                        webinarService: webService,
-                      );
-                    },
+                PersistentNavBarNavigator.pushNewScreen(
+                  context,
+                  screen: WebinarDashboard(
+                    firestore: widget.firestore,
+                    user: currentAdmin,
+                    webinarService: webService,
                   ),
+                  withNavBar: false,
                 );
               },
               child: Column(
