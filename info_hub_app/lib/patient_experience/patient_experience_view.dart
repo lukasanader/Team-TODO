@@ -219,7 +219,6 @@ class _ExperienceViewState extends State<ExperienceView> {
                 controller: titleController,
                 decoration: const InputDecoration(
                   labelText: 'Title',
-                  border: OutlineInputBorder(),
                 ),
               ),
               const SizedBox(height: 20),
@@ -229,8 +228,7 @@ class _ExperienceViewState extends State<ExperienceView> {
                 keyboardType: TextInputType.multiline,
                 controller: descriptionController,
                 decoration: const InputDecoration(
-                  labelText: 'Share your experience!',
-                  border: OutlineInputBorder(),
+                  labelText: 'Write your experience here',
                 ),
               ),
               const SizedBox(height: 20),
