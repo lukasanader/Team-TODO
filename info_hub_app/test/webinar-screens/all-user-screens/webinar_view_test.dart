@@ -208,7 +208,6 @@ void main() {
       addUpcomingFirestoreDocument();
       await tester.pumpWidget(webinarViewScreen);
       await tester.pumpAndSettle();
-      await tester.ensureVisible(find.byType(IconButton));
       await tester.tap(find.byType(IconButton));
       await tester.pumpAndSettle();
       expect(find.text('Move to Live'), findsOneWidget);
@@ -238,7 +237,6 @@ void main() {
       addUpcomingFirestoreDocument();
       await tester.pumpWidget(webinarViewScreen);
       await tester.pumpAndSettle();
-      await tester.ensureVisible(find.byType(IconButton));
       await tester.tap(find.byType(IconButton));
       await tester.pumpAndSettle();
       expect(find.text('Move to Live'), findsOneWidget);
@@ -270,7 +268,6 @@ void main() {
       addLiveFirestoreDocument();
       await tester.pumpWidget(webinarViewScreen);
       await tester.pumpAndSettle();
-      await tester.ensureVisible(find.byType(IconButton));
       await tester.tap(find.byType(IconButton));
       await tester.pumpAndSettle();
       expect(find.text('Move to Archive'), findsOneWidget);
@@ -313,7 +310,6 @@ void main() {
       addLiveFirestoreDocument();
       await tester.pumpWidget(webinarViewScreen);
       await tester.pumpAndSettle();
-      await tester.ensureVisible(find.byType(IconButton));
       await tester.tap(find.byType(IconButton));
       await tester.pumpAndSettle();
       expect(find.text('Move to Archive'), findsOneWidget);
@@ -352,7 +348,6 @@ void main() {
       addLiveFirestoreDocument();
       await tester.pumpWidget(webinarViewScreen);
       await tester.pumpAndSettle();
-      await tester.ensureVisible(find.byType(IconButton));
       await tester.tap(find.byType(IconButton));
       await tester.pumpAndSettle();
       expect(find.text('Move to Archive'), findsOneWidget);
