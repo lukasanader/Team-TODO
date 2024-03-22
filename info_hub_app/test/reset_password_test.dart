@@ -6,6 +6,16 @@ import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 
 
 void main() {
+
+    testWidgets('Test if Reset Password Header is visible', (WidgetTester tester) async {
+    final firestore = FakeFirebaseFirestore();
+    final auth = MockFirebaseAuth();
+    await tester.runAsync(() async {
+      await tester.pumpWidget(MaterialApp(home: ResetPassword(firestore: firestore, auth: auth)));
+      expect(find.text('Reset Password'), findsOneWidget);
+    });
+  });
+  
   testWidgets('Test if Email TextField is present', (WidgetTester tester) async {
     final firestore = FakeFirebaseFirestore();
     final auth = MockFirebaseAuth();

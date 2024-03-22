@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:info_hub_app/topics/view_topic.dart';
-import 'package:info_hub_app/topics/create_topic.dart';
+import 'package:info_hub_app/topics/create_topic/create_topic.dart';
 import 'package:video_player_platform_interface/video_player_platform_interface.dart';
 import 'package:url_launcher_platform_interface/url_launcher_platform_interface.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
@@ -61,7 +61,6 @@ void main() {
       'dislikes': 0,
       'categories': ['Sports'],
       'date': DateTime.now(),
-      'quizID': ''
     });
 
     QuerySnapshot data = await ref.orderBy('title').get();

@@ -123,11 +123,11 @@ class WebinarCard extends StatelessWidget {
         return StatefulBuilder(
           builder: (BuildContext context, setState) {
             return AlertDialog(
-              title: const Text('Move to Archived'),
+              title: const Text('Move to Archive'),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text('Are you sure you want to move this webinar to archived?'),
+                  const Text('Are you sure you want to move this webinar to the archive?'),
                   const SizedBox(height: 20),
                   TextField(
                     controller: urlController,
@@ -178,34 +178,40 @@ class WebinarCard extends StatelessWidget {
   }
 
   // allows admin to change webinar card from upcoming to live
-  void _showLiveDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Move to Live'),
-          content: const Text('Are you sure you want to move this webinar to live?'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                // if the user cancels the operation, nothing happens
-                Navigator.pop(context);
-              },
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () async {
+void _showLiveDialog(BuildContext context) {
+  // Store the context in a variable
+  BuildContext dialogContext = context;
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: const Text('Move to Live'),
+        content: const Text('Are you sure you want to move this webinar to live?'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              // if the user cancels the operation, nothing happens
+              Navigator.pop(dialogContext); // Use the stored dialogContext
+            },
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              // Check if the widget associated with the context is mounted
+              if (Navigator.of(dialogContext).canPop()) {
                 // update database with new information and pop dialog box off the screen
                 await webinarService.setWebinarStatus(post.webinarID, post.youtubeURL, changeToLive: true);
-                Navigator.pop(context);
-              },
-              child: const Text('Confirm'),
-            ),
-          ],
-        );
-      },
-    );
-  }
+                Navigator.pop(dialogContext); // Use the stored dialogContext
+              }
+            },
+            child: const Text('Confirm'),
+          ),
+        ],
+      );
+    },
+  );
+}
+
 
   // prompts the user with an informative summary that a webinar is not yet available to be watched and when they should check
   void _showUpcomingDialog(BuildContext context, String startTime) {

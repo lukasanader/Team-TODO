@@ -19,7 +19,6 @@ import 'package:info_hub_app/services/database.dart';
 import 'package:info_hub_app/notifications/notifications.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:info_hub_app/topics/view_topic.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();

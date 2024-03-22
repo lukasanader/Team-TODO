@@ -15,7 +15,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:path/path.dart';
 import 'package:path/path.dart' as path;
 import 'package:info_hub_app/ask_question/question_card.dart';
-import 'transitions/checkmark_transition.dart';
+import '../transitions/checkmark_transition.dart';
+import 'topic_model.dart';
 
 class CreateTopicScreen extends StatefulWidget {
   final FirebaseFirestore firestore;
@@ -557,6 +558,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
 
   Future<void> _uploadTopic(context, bool saveAsDraft) async {
     List<Map<String, String>> mediaList = [];
+    Topic newTopic = Topic();
     for (var item in mediaUrls) {
       String url = item['url']!;
       String mediaType = item['mediaType']!;
@@ -579,24 +581,25 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
         widget.firestore.collection('topics');
 
     if (!editing && !drafting) {
-      Map<String, Object> details = {
-        'title': titleController.text,
-        'description': descriptionController.text,
-        'articleLink': articleLinkController.text,
-        'media': mediaList,
-        'views': 0,
-        'likes': 0,
-        'dislikes': 0,
-        'tags': _tags,
-        'categories': _categories,
-        'date': DateTime.now(),
-        'quizID': quizID,
-      };
+      newTopic = Topic(
+        title: titleController.text,
+        description: descriptionController.text,
+        articleLink: articleLinkController.text,
+        media: mediaList,
+        views: 0,
+        likes: 0,
+        dislikes: 0,
+        tags: _tags,
+        categories: _categories,
+        date: DateTime.now(),
+        quizID: quizID,
+      );
       if (saveAsDraft) {
-        details['userID'] = widget.auth.currentUser?.uid as Object;
+        newTopic.userID = widget.auth.currentUser?.uid;
         CollectionReference topicDraftsCollectionRef =
             widget.firestore.collection('topicDrafts');
-        final topicDraftRef = await topicDraftsCollectionRef.add(details);
+        final topicDraftRef =
+            await topicDraftsCollectionRef.add(newTopic.toJson());
         final user = widget.auth.currentUser;
         if (user != null) {
           final userDocRef = widget.firestore.collection('Users').doc(user.uid);
@@ -605,26 +608,27 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
           });
         }
       } else {
-        await topicCollectionRef.add(details);
+        await topicCollectionRef.add(newTopic.toJson());
       }
     } else {
       if (widget.topic != null && widget.topic!['quizID'] != '') {
         quizID = widget.topic!['quizID'];
       }
-      final topicDetails = {
-        'title': titleController.text,
-        'description': descriptionController.text,
-        'articleLink': articleLinkController.text,
-        'media': mediaList,
-        'views': editing ? widget.topic!['views'] : widget.draft!['views'],
-        'likes': editing ? widget.topic!['likes'] : widget.draft!['likes'],
-        'categories': _categories,
-        'dislikes':
-            editing ? widget.topic!['dislikes'] : widget.draft!['dislikes'],
-        'date': editing ? widget.topic!['date'] : widget.draft!['date'],
-        'tags': _tags,
-        'quizID': quizID
-      };
+      newTopic = Topic(
+          title: titleController.text,
+          description: descriptionController.text,
+          articleLink: articleLinkController.text,
+          media: mediaList,
+          views: editing ? widget.topic!['views'] : widget.draft!['views'],
+          likes: editing ? widget.topic!['likes'] : widget.draft!['likes'],
+          categories: _categories,
+          dislikes:
+              editing ? widget.topic!['dislikes'] : widget.draft!['dislikes'],
+          date: editing
+              ? widget.topic!['date'].toDate()
+              : widget.draft!['date'].toDate(),
+          tags: _tags,
+          quizID: quizID);
 
       for (var item in originalUrls) {
         if (!mediaList
@@ -636,7 +640,9 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
       }
 
       if (editing) {
-        await topicCollectionRef.doc(widget.topic!.id).update(topicDetails);
+        await topicCollectionRef
+            .doc(widget.topic!.id)
+            .update(newTopic.toJson());
         QuerySnapshot? data = await topicCollectionRef.orderBy('title').get();
         for (QueryDocumentSnapshot doc in data.docs) {
           // Check if the document ID matches the ID of the topic
@@ -646,7 +652,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
           }
         }
       } else if (drafting) {
-        await topicCollectionRef.add(topicDetails);
+        await topicCollectionRef.add(newTopic.toJson());
         deleteDraft();
       }
       if (editing) {}
@@ -659,7 +665,6 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
         TopicQuestionController(firestore: widget.firestore, auth: widget.auth);
     List<TopicQuestion> questions =
         await controller.getRelevantQuestions(title);
-
     // ignore: use_build_context_synchronously
     await showDialog(
       context: context,
