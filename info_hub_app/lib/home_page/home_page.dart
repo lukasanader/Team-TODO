@@ -237,6 +237,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future getTopicsList() async {
+
+    //added this line to prevent null error
+
+    if (widget.auth.currentUser == null) {
+    return;
+  }
     String uid = widget.auth.currentUser!.uid;
     DocumentSnapshot user =
         await widget.firestore.collection('Users').doc(uid).get();
