@@ -4,12 +4,15 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'dart:convert';
 
+import 'package:get/get.dart';
+import 'package:info_hub_app/main.dart';
+
 class PushNotifications {
   final FirebaseAuth auth;
   final FirebaseFirestore firestore;
   final FirebaseMessaging messaging;
   final FlutterLocalNotificationsPlugin localnotificationsplugin;
-  final navigatorKey;
+  final nav;
   final http;
 
   PushNotifications(
@@ -17,7 +20,7 @@ class PushNotifications {
       required this.firestore,
       required this.messaging,
       required this.localnotificationsplugin,
-      this.navigatorKey,
+      this.nav,
       this.http});
 
   // Initialize Firebase Messaging
@@ -51,7 +54,7 @@ class PushNotifications {
   }
 
   // Handle tap on local notification in foreground
-  void onNotificationTap(NotificationResponse notificationResponse) {
+  static void onNotificationTap(NotificationResponse notificationResponse) {
     navigatorKey.currentState!
         .pushNamed("/notifications", arguments: notificationResponse);
   }

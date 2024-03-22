@@ -6,7 +6,7 @@ import 'package:info_hub_app/main.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'view_topic.dart';
 import 'package:info_hub_app/services/database.dart';
-import 'create_topic.dart';
+import 'create_topic/create_topic.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
@@ -48,7 +48,7 @@ class TopicCard extends StatelessWidget {
         future: _getVideoThumbnail(mediaUrl),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CircularProgressIndicator();
+            return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return const Text('Error loading thumbnail');
           } else {
@@ -74,7 +74,8 @@ class TopicCard extends StatelessWidget {
 
     return GestureDetector(
       onTap: () {
-        DatabaseService(auth: auth, uid: auth.currentUser!.uid, firestore: firestore)
+        DatabaseService(
+                auth: auth, uid: auth.currentUser!.uid, firestore: firestore)
             .addTopicActivity(_topic);
         PersistentNavBarNavigator.pushNewScreen(
           context,
@@ -203,7 +204,7 @@ class AdminTopicCard extends StatelessWidget {
         future: _getVideoThumbnail(mediaUrl),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CircularProgressIndicator();
+            return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return const Text('Error loading thumbnail');
           } else {
@@ -358,7 +359,7 @@ class TopicDraftCard extends StatelessWidget {
         future: _getVideoThumbnail(mediaUrl),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CircularProgressIndicator();
+            return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return const Text('Error loading thumbnail');
           } else {
@@ -516,7 +517,7 @@ class LargeTopicCard extends StatelessWidget {
             : Future.value(Uint8List(0)),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CircularProgressIndicator();
+            return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError || snapshot.data == null) {
             return const Text('Error loading thumbnail');
           } else {
@@ -544,7 +545,8 @@ class LargeTopicCard extends StatelessWidget {
 
     return GestureDetector(
       onTap: () {
-        DatabaseService(auth: auth, uid: auth.currentUser!.uid, firestore: firestore)
+        DatabaseService(
+                auth: auth, uid: auth.currentUser!.uid, firestore: firestore)
             .addTopicActivity(_topic);
         PersistentNavBarNavigator.pushNewScreen(
           context,

@@ -1,16 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:info_hub_app/profile_view/profile_view_controller.dart';
 import 'package:info_hub_app/change_profile/change_profile.dart';
-import 'package:info_hub_app/threads/name_generator.dart';
+import 'package:info_hub_app/change_profile/change_profile_controller.dart';
 import 'package:info_hub_app/theme/theme_constants.dart';
 
 class ProfileView extends StatefulWidget {
-  final FirebaseFirestore firestore;
-  final FirebaseAuth auth;
+  final ProfileViewController controller;
 
-  const ProfileView({Key? key, required this.firestore, required this.auth})
-      : super(key: key);
+  const ProfileView({super.key, required this.controller});
 
   @override
   State<ProfileView> createState() => _ProfileViewState();
@@ -28,22 +25,13 @@ class _ProfileViewState extends State<ProfileView> {
   }
 
   Future<void> _displayProfile() async {
-    final user = widget.auth.currentUser;
-
-    if (user != null) {
-      final docRef = widget.firestore.collection('Users');
-
-      final querySnapshot = await docRef.get();
-      final userDoc =
-          querySnapshot.docs.firstWhere((doc) => doc.id == user.uid);
-
-      setState(() {
-        _currentUser = userDoc.data();
-        _selectedProfilePhoto = _currentUser?['selectedProfilePhoto'] ??
-            'default_profile_photo.png';
-        _isLoading = false;
-      });
-    }
+    final currentUser = await widget.controller.getCurrentUser();
+    setState(() {
+      _currentUser = currentUser;
+      _selectedProfilePhoto =
+          _currentUser?['selectedProfilePhoto'] ?? 'default_profile_photo.png';
+      _isLoading = false;
+    });
   }
 
   @override
@@ -71,8 +59,6 @@ class _ProfileViewState extends State<ProfileView> {
   }
 
   Widget _buildProfileHeader() {
-    // Name generation
-    String uniqueName = generateUniqueName(widget.auth.currentUser?.uid ?? '');
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -83,7 +69,6 @@ class _ProfileViewState extends State<ProfileView> {
               onTap: _showProfilePhotoOptions,
               child: CircleAvatar(
                 radius: 60,
-                backgroundColor: Colors.grey[200],
                 backgroundImage: AssetImage('assets/$_selectedProfilePhoto'),
               ),
             ),
@@ -100,7 +85,7 @@ class _ProfileViewState extends State<ProfileView> {
         ),
         const SizedBox(height: 10),
         Text(
-          uniqueName,
+          widget.controller.getProfileName(),
           style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
         Text(
@@ -132,7 +117,7 @@ class _ProfileViewState extends State<ProfileView> {
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
       margin: const EdgeInsets.symmetric(vertical: 6),
       decoration: BoxDecoration(
-        color: COLOR_SECONDARY_LIGHT,
+        color: COLOR_SECONDARY_GREY_LIGHT,
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
@@ -158,18 +143,26 @@ class _ProfileViewState extends State<ProfileView> {
     );
   }
 
+  // Widget _buildChangeProfileButton() {
+  //   return ElevatedButton(
+  //     onPressed: _changeProfile,
+  //     child: const Text('Change Profile'),
+  //   );
+  // }
+
   Widget _buildChangeProfileButton() {
     return ElevatedButton(
       onPressed: () async {
         final result = await Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ChangeProfile(
-              firestore: widget.firestore,
-              auth: widget.auth,
-            ),
-          ),
-        );
+            context,
+            MaterialPageRoute(
+              builder: (context) => ChangeProfile(
+                controller: ChangeProfileController(
+                  firestore: widget.controller.firestore,
+                  auth: widget.controller.auth,
+                ),
+              ),
+            ));
 
         // Check if changes were saved
         if (result != null && result) {
@@ -228,13 +221,7 @@ class _ProfileViewState extends State<ProfileView> {
       setState(() {
         _selectedProfilePhoto = selectedPhoto;
       });
-
-      // Update selected profile photo in Firestore
-      final user = widget.auth.currentUser;
-      if (user != null) {
-        final docRef = widget.firestore.collection('Users').doc(user.uid);
-        docRef.update({'selectedProfilePhoto': selectedPhoto});
-      }
+      await widget.controller.updateSelectedProfilePhoto(selectedPhoto);
     }
   }
 }

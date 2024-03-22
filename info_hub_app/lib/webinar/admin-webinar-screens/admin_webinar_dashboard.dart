@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -12,41 +14,34 @@ class WebinarDashboard extends StatefulWidget {
   final FirebaseFirestore firestore;
   final WebinarService webinarService;
 
-  const WebinarDashboard({
-    super.key,
-    required this.user,
-    required this.firestore,
-    required this.webinarService
-    });
+  const WebinarDashboard(
+      {super.key,
+      required this.user,
+      required this.firestore,
+      required this.webinarService});
 
   @override
   _WebinarDashboardState createState() => _WebinarDashboardState();
 }
 
 class _WebinarDashboardState extends State<WebinarDashboard> {
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.red,
         title: const Text('Webinar Dashboard'),
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(20.0),
+          padding: const EdgeInsets.all(15.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text(
+              Text(
                 'Webinar Analytics',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.red,
-                ),
+                style: Theme.of(context).textTheme.headlineSmall,
+                textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 20),
               GridView.count(
                 shrinkWrap: true,
                 crossAxisCount: 2,
@@ -54,7 +49,8 @@ class _WebinarDashboardState extends State<WebinarDashboard> {
                 mainAxisSpacing: 10,
                 children: [
                   StreamBuilder<String>(
-                    stream: Stream.fromFuture(widget.webinarService.getNumberOfLiveWebinars()),
+                    stream: Stream.fromFuture(
+                        widget.webinarService.getNumberOfLiveWebinars()),
                     builder: (context, snapshot) {
                       return StatisticCard(
                         label: 'Live Webinars',
@@ -65,7 +61,8 @@ class _WebinarDashboardState extends State<WebinarDashboard> {
                     },
                   ),
                   StreamBuilder<String>(
-                    stream: Stream.fromFuture(widget.webinarService.getNumberOfUpcomingWebinars()),
+                    stream: Stream.fromFuture(
+                        widget.webinarService.getNumberOfUpcomingWebinars()),
                     builder: (context, snapshot) {
                       return StatisticCard(
                         label: 'Upcoming Webinars',
@@ -76,7 +73,8 @@ class _WebinarDashboardState extends State<WebinarDashboard> {
                     },
                   ),
                   StreamBuilder<String>(
-                    stream: Stream.fromFuture(widget.webinarService.getNumberOfLiveViewers()),
+                    stream: Stream.fromFuture(
+                        widget.webinarService.getNumberOfLiveViewers()),
                     builder: (context, snapshot) {
                       return StatisticCard(
                         label: 'Live Viewers',
@@ -87,7 +85,8 @@ class _WebinarDashboardState extends State<WebinarDashboard> {
                     },
                   ),
                   StreamBuilder<String>(
-                    stream: Stream.fromFuture(widget.webinarService.getNumberOfArchivedWebinars()),
+                    stream: Stream.fromFuture(
+                        widget.webinarService.getNumberOfArchivedWebinars()),
                     builder: (context, snapshot) {
                       return StatisticCard(
                         label: 'Archived Webinars',
@@ -114,12 +113,8 @@ class _WebinarDashboardState extends State<WebinarDashboard> {
                     ),
                   );
                 },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                ),
                 child: const Text(
                   'View Webinars',
-                  style: TextStyle(color: Colors.black),
                 ),
               ),
               const SizedBox(height: 10),
@@ -137,12 +132,8 @@ class _WebinarDashboardState extends State<WebinarDashboard> {
                     ),
                   );
                 },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                ),
                 child: const Text(
                   'Create Webinars',
-                  style: TextStyle(color: Colors.black),
                 ),
               ),
             ],
