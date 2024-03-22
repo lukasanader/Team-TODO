@@ -17,7 +17,7 @@ import 'package:info_hub_app/patient_experience/patient_experience_view.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:info_hub_app/threads/name_generator.dart';
 import 'package:info_hub_app/topics/view_topic.dart';
-import 'package:info_hub_app/webinar/webinar_view.dart';
+import 'package:info_hub_app/webinar/webinar-screens/webinar_view.dart';
 
 void main() {
   late MockFirebaseAuth auth;
@@ -71,11 +71,12 @@ void main() {
 
     trendingTopicWidget = MaterialApp(
       home: Base(
-          storage: storage,
-          auth: auth,
-          firestore: firestore,
-          themeManager: themeManager,
-          roleType: 'Patient',),
+        storage: storage,
+        auth: auth,
+        firestore: firestore,
+        themeManager: themeManager,
+        roleType: 'Patient',
+      ),
     );
   });
 
@@ -106,8 +107,8 @@ void main() {
     final textFinders = find.byType(Text);
     // Check the order of card titles
     expect((textFinders.at(1).evaluate().single.widget as Text).data, 'test 1');
-    expect((textFinders.at(2).evaluate().single.widget as Text).data, 'test 2');
-    expect((textFinders.at(3).evaluate().single.widget as Text).data, 'test 3');
+    expect((textFinders.at(3).evaluate().single.widget as Text).data, 'test 2');
+    expect((textFinders.at(5).evaluate().single.widget as Text).data, 'test 3');
   });
 
   testWidgets('Shows only first 6 trending topics',
@@ -188,7 +189,8 @@ void main() {
     final textFinders = find.byType(Text);
 
     // Check that test 7 is ignored
-    expect((textFinders.at(6).evaluate().single.widget as Text).data, 'test 6');
+    expect(
+        (textFinders.at(11).evaluate().single.widget as Text).data, 'test 6');
   });
 
   testWidgets('Click into a topic test', (WidgetTester tester) async {
@@ -237,7 +239,7 @@ void main() {
       'patientId': uid,
       'patientDisplayName': generateUniqueName(uid),
       'adminDisplayName': 'patient@gmail.com'
-      });
+    });
 
     await tester.pumpWidget(trendingTopicWidget);
     await tester.pumpAndSettle();
@@ -279,7 +281,9 @@ void main() {
       'email': 'test@tested.org',
       'firstName': 'James',
       'lastName': 'Doe',
-      'roleType': 'Patient'
+      'roleType': 'Patient',
+      'likedTopics': [],
+      'dislikedTopics': [],
     });
     await tester.pumpWidget(trendingTopicWidget);
     await tester.pumpAndSettle();
@@ -369,7 +373,7 @@ void main() {
     final textFinders = find.byType(Text);
 
     // Check that test 6 is seen but test 5 is not
-    expect((textFinders.at(5).evaluate().single.widget as Text).data, 'test 6');
+    expect((textFinders.at(9).evaluate().single.widget as Text).data, 'test 6');
     expect(find.text('test 5'), findsNothing);
   });
 }

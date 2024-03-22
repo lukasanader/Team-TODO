@@ -5,7 +5,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:info_hub_app/discovery_view/discovery_view.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
-import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 
 void main() {
   late FakeFirebaseFirestore firestore;
@@ -151,9 +150,9 @@ void main() {
 
     expect((textFinders.first.evaluate().single.widget as Text).data,
         'Multiple will show');
-    expect((textFinders.at(1).evaluate().single.widget as Text).data,
-        'Multiple will show 2');
     expect((textFinders.at(2).evaluate().single.widget as Text).data,
+        'Multiple will show 2');
+    expect((textFinders.at(4).evaluate().single.widget as Text).data,
         'Multiple will show 3');
   });
 
@@ -186,9 +185,9 @@ void main() {
     final textFinders = find.byType(Text);
     // Check the order of card titles
     expect((textFinders.first.evaluate().single.widget as Text).data, 'A test');
-    expect((textFinders.at(1).evaluate().single.widget as Text).data, 'B test');
-    expect((textFinders.at(2).evaluate().single.widget as Text).data, 'C test');
-    expect((textFinders.at(3).evaluate().single.widget as Text).data, 'D test');
+    expect((textFinders.at(2).evaluate().single.widget as Text).data, 'B test');
+    expect((textFinders.at(4).evaluate().single.widget as Text).data, 'C test');
+    expect((textFinders.at(6).evaluate().single.widget as Text).data, 'D test');
   });
 
   testWidgets('DiscoveryView will display categories as toggle buttons',

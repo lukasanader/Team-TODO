@@ -1,13 +1,23 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:info_hub_app/main.dart';
 import 'package:info_hub_app/notifications/notification.dart' as custom;
+import 'package:info_hub_app/push_notifications/push_notifications.dart';
 import 'package:info_hub_app/registration/user_model.dart';
 import 'package:info_hub_app/notifications/preferences.dart';
+import 'package:http/http.dart' as http;
 
 class DatabaseService {
+  final FirebaseAuth auth;
   final String uid;
   final FirebaseFirestore firestore;
 
-  DatabaseService({required this.uid, required this.firestore});
+  DatabaseService(
+      {required this.auth, required this.uid, required this.firestore});
 
   Future<String> createNotification(
       String title, String body, DateTime timestamp) async {
@@ -19,7 +29,46 @@ class DatabaseService {
       'body': body,
       'timestamp': timestamp,
     });
+
+    // Send push notification to all device tokens
+    // Send push notification only if push notifications preference is enabled
+    final preferences = await getPreferences();
+    if (preferences.isNotEmpty && preferences.first.push_notifications) {
+      await sendNotificationToDevices(
+          title, body, http.Client(), FlutterLocalNotificationsPlugin());
+    }
     return docRef.id;
+  }
+
+  Future<void> sendNotificationToDevices(String title, String body,
+      http.Client client, FlutterLocalNotificationsPlugin plugin) async {
+    final tokens = await getUserDeviceTokens();
+
+    // Send the notification to each device token
+    for (final token in tokens) {
+      await PushNotifications(
+              auth: auth,
+              firestore: firestore,
+              messaging: FirebaseMessaging.instance,
+              navigatorKey: navigatorKey,
+              http: client,
+              localnotificationsplugin: plugin)
+          .sendNotificationToDevice(token, title, body);
+    }
+  }
+
+  Future<List> getUserDeviceTokens() async {
+    // Query Firestore to get the device tokens for the user
+    final snapshot = await firestore
+        .collection('Users')
+        .doc(uid)
+        .collection('deviceTokens')
+        .get();
+
+    // Extract the device tokens from the snapshot
+    final tokens = snapshot.docs.map((doc) => doc.get('token')).toList();
+
+    return tokens;
   }
 
   Future<void> deleteNotification(String id) async {
@@ -109,7 +158,7 @@ class DatabaseService {
   Future<void> createPreferences() async {
     CollectionReference prefCollection = firestore.collection('preferences');
     await prefCollection.add({
-      'uid': uid,
+      'uid': auth.currentUser!.uid,
       'push_notifications': true,
     });
   }
@@ -117,7 +166,7 @@ class DatabaseService {
   List<Preferences> prefListFromSnapshot(QuerySnapshot snapshot) {
     return snapshot.docs.map((doc) {
       return Preferences(
-        uid: uid,
+        uid: auth.currentUser!.uid,
         push_notifications: doc.get('push_notifications') ?? true,
       );
     }).toList();
@@ -126,6 +175,24 @@ class DatabaseService {
   Stream<List<Preferences>> get preferences {
     CollectionReference prefCollectionRef = firestore.collection('preferences');
     return prefCollectionRef.snapshots().map(prefListFromSnapshot);
+  }
+
+  Future<List<Preferences>> getPreferences() async {
+    // Fetch user preferences from Firestore
+    final snapshot = await firestore
+        .collection('preferences')
+        .where('uid', isEqualTo: uid)
+        .get();
+
+    // Convert preferences snapshot to a list of Preferences objects
+    final preferences = snapshot.docs
+        .map((doc) => Preferences(
+              uid: doc.get('uid'),
+              push_notifications: doc.get('push_notifications'),
+            ))
+        .toList();
+
+    return preferences;
   }
 
     Future addTopicActivity(QueryDocumentSnapshot topic) async{

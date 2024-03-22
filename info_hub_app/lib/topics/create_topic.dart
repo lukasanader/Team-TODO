@@ -178,6 +178,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                   key: const Key('draft_btn'),
                   onPressed: () async {
                     await _uploadTopic(context, true);
+                    Navigator.pop(context);
                   },
                   child: const Text(
                     'Save Draft',
@@ -483,7 +484,25 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                         onPressed: () async {
                           if (_topicFormKey.currentState!.validate() &&
                               _tags.isNotEmpty) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    const CheckmarkAnimationScreen(),
+                              ),
+                            );
+                            await Future.delayed(const Duration(seconds: 2));
                             await _uploadTopic(context, false);
+                            Navigator.pop(context);
+                            if (drafting) {
+                              Navigator.of(context)
+                                  .popUntil((route) => route.isFirst);
+                            } else if (editing) {
+                              Navigator.pop(context, updatedTopicDoc);
+                            } else {
+                              Navigator.pop(context);
+                            }
+
                             await _showDeleteQuestionDialog(
                                 context, titleController.text);
                           }
@@ -538,7 +557,6 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
 
   Future<void> _uploadTopic(context, bool saveAsDraft) async {
     List<Map<String, String>> mediaList = [];
-
     for (var item in mediaUrls) {
       String url = item['url']!;
       String mediaType = item['mediaType']!;
@@ -556,6 +574,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
 
       mediaList.add(uploadData);
     }
+
     CollectionReference topicCollectionRef =
         widget.firestore.collection('topics');
 
@@ -571,6 +590,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
         'tags': _tags,
         'categories': _categories,
         'date': DateTime.now(),
+        'quizID': quizID,
       };
       if (saveAsDraft) {
         details['userID'] = widget.auth.currentUser?.uid as Object;
@@ -587,17 +607,10 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
       } else {
         await topicCollectionRef.add(details);
       }
-      Navigator.pop(context);
     } else {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const CheckmarkAnimationScreen(),
-        ),
-      );
-
-      await Future.delayed(const Duration(seconds: 2));
-
+      if (widget.topic != null && widget.topic!['quizID'] != '') {
+        quizID = widget.topic!['quizID'];
+      }
       final topicDetails = {
         'title': titleController.text,
         'description': descriptionController.text,
@@ -610,6 +623,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
             editing ? widget.topic!['dislikes'] : widget.draft!['dislikes'],
         'date': editing ? widget.topic!['date'] : widget.draft!['date'],
         'tags': _tags,
+        'quizID': quizID
       };
 
       for (var item in originalUrls) {
@@ -634,12 +648,8 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
       } else if (drafting) {
         await topicCollectionRef.add(topicDetails);
         deleteDraft();
-        Navigator.of(context).popUntil((route) => route.isFirst);
       }
-      if (editing) {
-        Navigator.pop(context);
-        Navigator.pop(context, updatedTopicDoc);
-      }
+      if (editing) {}
     }
   }
 
@@ -794,30 +804,31 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
       List<PlatformFile>? selection, String type) async {
     List<PlatformFile>? data =
         result != null && result.files.isNotEmpty ? result.files : selection;
-
-    for (PlatformFile file in filterFiles(data!, type)) {
-      String mediaPath = file.path!;
-      setState(() {
-        _imageURL = type == 'image' ? mediaPath : null;
-        _videoURL = type == 'video' ? mediaPath : null;
-        Map<String, String> fileInfo = {
-          'url': mediaPath,
-          'mediaType': type,
-        };
-        if (!changingMedia) {
-          mediaUrls.add(fileInfo);
-          currentIndex = mediaUrls.length - 1;
-        } else {
-          mediaUrls[currentIndex] = fileInfo;
-        }
-        if (type == "image") {
-          _videoURL = null;
-        } else {
-          _imageURL = null;
-        }
-      });
+    if (data != null) {
+      for (PlatformFile file in filterFiles(data, type)) {
+        String mediaPath = file.path!;
+        setState(() {
+          _imageURL = type == 'image' ? mediaPath : null;
+          _videoURL = type == 'video' ? mediaPath : null;
+          Map<String, String> fileInfo = {
+            'url': mediaPath,
+            'mediaType': type,
+          };
+          if (!changingMedia) {
+            mediaUrls.add(fileInfo);
+            currentIndex = mediaUrls.length - 1;
+          } else {
+            mediaUrls[currentIndex] = fileInfo;
+          }
+          if (type == "image") {
+            _videoURL = null;
+          } else {
+            _imageURL = null;
+          }
+        });
+      }
     }
-    if (data.isNotEmpty) {
+    if (data != null && data.isNotEmpty) {
       if (type == 'image') {
         await _initializeImage();
       } else {
@@ -898,13 +909,13 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
           ),
           if (!editing || networkUrls.contains(_videoURL))
             Text(
-              'The above is a preview of your video.                         ${currentIndex + 1} / ${mediaUrls.length}',
+              'The above is a preview of your video.       ${currentIndex + 1} / ${mediaUrls.length}',
               key: const Key('upload_text_video'),
               style: const TextStyle(color: Colors.grey),
             ),
           if (editing && !networkUrls.contains(_videoURL))
             Text(
-              'The above is a preview of your new video.                    ${currentIndex + 1} / ${mediaUrls.length}',
+              'The above is a preview of your new video.    ${currentIndex + 1} / ${mediaUrls.length}',
               key: const Key('edit_text_video'),
               style: const TextStyle(color: Colors.grey),
             ),
@@ -934,13 +945,13 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
         if (networkUrls.contains(_imageURL)) Image.network((_imageURL!)),
         if (!editing || networkUrls.contains(_imageURL))
           Text(
-            'The above is a preview of your image.                    ${currentIndex + 1} / ${mediaUrls.length}',
+            'The above is a preview of your image.          ${currentIndex + 1} / ${mediaUrls.length}',
             key: const Key('upload_text_image'),
             style: const TextStyle(color: Colors.grey),
           ),
         if (editing && !networkUrls.contains(_imageURL))
           Text(
-            'The above is a preview of your new image.                    ${currentIndex + 1} / ${mediaUrls.length}',
+            'The above is a preview of your new image.        ${currentIndex + 1} / ${mediaUrls.length}',
             key: const Key('edit_text_image'),
             style: const TextStyle(color: Colors.grey),
           ),

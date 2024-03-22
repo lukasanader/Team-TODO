@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:info_hub_app/model/model.dart';
 import 'package:info_hub_app/helpers/helper_widgets.dart';
 import 'package:info_hub_app/registration/user_controller.dart';
 import 'package:info_hub_app/topics/topics_card.dart';
@@ -35,9 +34,6 @@ class _DiscoveryViewState extends State<DiscoveryView> {
   List<String> categoriesSelected = [];
 
   List<Object> _displayedTopicsList = [];
-  
-
-
 
   @override
   void initState() {
@@ -48,10 +44,7 @@ class _DiscoveryViewState extends State<DiscoveryView> {
         _displayedTopicsList = _topicsList;
       });
     });
-
-
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -68,121 +61,137 @@ class _DiscoveryViewState extends State<DiscoveryView> {
           },
         ),
       ),
-      body: SingleChildScrollView(
-          child: Column(
+      body: Column(
         children: [
-          addVerticalSpace(10),
-          ToggleButtons(
-            isSelected: isSelected,
-            onPressed: (int index) {
-              setState(() {
-                isSelected[index] = !isSelected[index];
-                if (!categoriesSelected.contains(_categories[index])) {
-                  categoriesSelected.add(_categories[index]);
-                } else {
-                  categoriesSelected.remove(_categories[index]);
-                }
-                _searchData(_searchController.text);
-              });
-            },
-            children: List.generate(
-              _categoriesWidget.length,
-              (index) => Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 15.0), // Adjust the horizontal spacing here
-                child: _categoriesWidget[index],
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  addVerticalSpace(10),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: ToggleButtons(
+                      isSelected: isSelected,
+                      onPressed: (int index) {
+                        setState(() {
+                          isSelected[index] = !isSelected[index];
+                          if (!categoriesSelected
+                              .contains(_categories[index])) {
+                            categoriesSelected.add(_categories[index]);
+                          } else {
+                            categoriesSelected.remove(_categories[index]);
+                          }
+                          _searchData(_searchController.text);
+                        });
+                      },
+                      children: List.generate(
+                        _categoriesWidget.length,
+                        (index) => Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal:
+                                  15.0), // Adjust the horizontal spacing here
+                          child: _categoriesWidget[index],
+                        ),
+                      ),
+                    ),
+                  ),
+                  addVerticalSpace(10),
+                  ListView.builder(
+                    physics: const NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    itemCount: _displayedTopicsList.isEmpty
+                        ? 1
+                        : _displayedTopicsList.length * 2 - 1,
+                    itemBuilder: (context, index) {
+                      if (index.isOdd) {
+                        // Add Padding and Container between TopicCards
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Container(
+                            height: 1,
+                            color: Colors.grey,
+                          ),
+                        );
+                      } else {
+                        final topicIndex = index ~/ 2;
+                        if (_displayedTopicsList.isEmpty &&
+                            _topicsList.isEmpty) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        } else {
+                          if (_displayedTopicsList.isEmpty) {
+                            return const ListTile(
+                              title: Text(
+                                "Sorry there are no topics for this!",
+                                textAlign: TextAlign.center,
+                              ),
+                            );
+                          } else {
+                            return TopicCard(
+                              widget.firestore,
+                              widget.auth,
+                              widget.storage,
+                              _displayedTopicsList[topicIndex]
+                                  as QueryDocumentSnapshot<Object>,
+                            );
+                          }
+                        }
+                      }
+                    },
+                  ),
+                  addVerticalSpace(20),
+                ],
               ),
             ),
           ),
-          addVerticalSpace(10),
-          ListView.builder(
-            physics: const NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
-            itemCount: _displayedTopicsList.isEmpty ? 1 : _displayedTopicsList.length * 2 - 1,
-            itemBuilder: (context, index) {
-              if (index.isOdd) {
-                // Add Padding and Container between TopicCards
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Container(
-                    height: 1,
-                    color: Colors.grey,
-                  ),
-                );
-              } else {
-                final topicIndex = index ~/ 2;
-                if (_displayedTopicsList.isEmpty && _topicsList.isEmpty) {
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                } else {
-
-                  if (_displayedTopicsList.isEmpty) {
-                    return const ListTile(
-                      title: Text(
-                        "Sorry there are no topics for this!",
-                        textAlign: TextAlign.center,
-                      ),
-                    );
-                  }
-                  else {
-                    return TopicCard(
-                      widget.firestore,
-                      widget.auth,
-                      widget.storage,
-                      _displayedTopicsList[topicIndex]
-                          as QueryDocumentSnapshot<Object>,
-                    );
-                  }
- 
-                }
-              }
-            },
-          ),
           ElevatedButton(
-              onPressed: () {
-                addQuestionDialog();
-              },
-              child: const Text("Ask a question!")),
+            onPressed: () {
+              addQuestionDialog();
+            },
+            child: const Text("Ask a question!"),
+          ),
           addVerticalSpace(20),
         ],
-      )),
+      ),
     );
   }
 
   Future<void> addQuestionDialog() async {
-      // Show dialog to get user input
-      await showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('Ask a question'),
-            content: TextField(
-              controller: _questionController,
-              decoration: const InputDecoration(
-                labelText: 'Enter your question...',
-              ),
+    // Show dialog to get user input
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Ask a question'),
+          content: TextField(
+            controller: _questionController,
+            decoration: const InputDecoration(
+              labelText: 'Enter your question...',
             ),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: const Text('Cancel'),
-              ),
-              ElevatedButton(
-                onPressed: () async {
-                  // Get the entered question text
-                  String questionText = _questionController.text.trim();
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                // Get the entered question text
+                String questionText = _questionController.text.trim();
 
-                  // Validate question text
-                  if (questionText.isNotEmpty) {
-                    TopicQuestionController(firestore: widget.firestore,auth: widget.auth).handleQuestion(questionText);
-                    // Clear the text field
-                    _questionController.clear();
-                    // Close the dialog
-                    Navigator.of(context).pop();
-                     showDialog(
+                // Validate question text
+                if (questionText.isNotEmpty) {
+                  TopicQuestionController(
+                          firestore: widget.firestore, auth: widget.auth)
+                      .handleQuestion(questionText);
+                  // Clear the text field
+                  _questionController.clear();
+                  // Close the dialog
+                  Navigator.of(context).pop();
+                  showDialog(
                     context: context,
                     builder: (BuildContext context) {
                       return AlertDialog(
@@ -223,29 +232,29 @@ class _DiscoveryViewState extends State<DiscoveryView> {
                     },
                   );
 
-                    // Show success message
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Question submitted successfully!'),
-                      ),
-                    );
-                  } else {
-                    // Show error message if question is empty
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Please enter a question.'),
-                        backgroundColor: Colors.red,
-                      ),
-                    );
-                  }
-                },
-                child: const Text('Submit'),
-              ),
-            ],
-          );
-        },
-      );
-    }
+                  // Show success message
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Question submitted successfully!'),
+                    ),
+                  );
+                } else {
+                  // Show error message if question is empty
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Please enter a question.'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              },
+              child: const Text('Submit'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   void _searchData(String query) {
     updateTopicListBasedOnCategory(categoriesSelected);
@@ -270,12 +279,9 @@ class _DiscoveryViewState extends State<DiscoveryView> {
     }
   }
 
-
-
-
   Future getAllTopicsList() async {
-    String role = await UserController(widget.auth, widget.firestore)
-      .getUserRoleType();
+    String role =
+        await UserController(widget.auth, widget.firestore).getUserRoleType();
     late QuerySnapshot data;
 
     if (role == 'admin') {
@@ -295,9 +301,7 @@ class _DiscoveryViewState extends State<DiscoveryView> {
     });
   }
 
-
   Future updateTopicListBasedOnCategory(List<String> categories) async {
-
     if (categories.isNotEmpty) {
       List<Object> categoryTopicList = [];
 
@@ -339,5 +343,4 @@ class _DiscoveryViewState extends State<DiscoveryView> {
       isSelected = List<bool>.filled(_categoriesWidget.length, false);
     });
   }
-
 }

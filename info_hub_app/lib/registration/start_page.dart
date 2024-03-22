@@ -1,7 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
 import 'registration_screen.dart';
 import 'package:info_hub_app/login/login_screen.dart';
@@ -11,12 +14,16 @@ class StartPage extends StatelessWidget {
   final FirebaseAuth auth;
   final FirebaseStorage storage;
   final ThemeManager themeManager;
+  final FirebaseMessaging messaging;
+  final FlutterLocalNotificationsPlugin localnotificationsplugin;
   const StartPage(
       {super.key,
       required this.firestore,
       required this.auth,
       required this.storage,
-      required this.themeManager});
+      required this.themeManager,
+      required this.messaging,
+      required this.localnotificationsplugin});
 
   @override
   Widget build(BuildContext context) {
@@ -56,6 +63,9 @@ class StartPage extends StatelessWidget {
                           storage: storage,
                           firestore: firestore,
                           auth: auth,
+                          messaging: FirebaseMessaging.instance,
+                          localnotificationsplugin:
+                              FlutterLocalNotificationsPlugin(),
                         ),
                       ),
                     );
@@ -83,13 +93,15 @@ class StartPage extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => LoginScreen(
-                          firestore: firestore,
-                          auth: auth,
-                          storage: storage,
-                          themeManager: themeManager,
-                        ),
-                      ),
+                          builder: (context) => LoginScreen(
+                                firestore: firestore,
+                                auth: auth,
+                                storage: storage,
+                                themeManager: themeManager,
+                                messaging: FirebaseMessaging.instance,
+                                localnotificationsplugin:
+                                    FlutterLocalNotificationsPlugin(),
+                              )),
                     );
                   },
                   style: OutlinedButton.styleFrom(

@@ -83,7 +83,7 @@ class _CreateQuizState extends State<CreateQuiz> {
                   return QuizQuestionCard(
                     question: widget.isEdit ? editQuestions[index].question : questions[index],
                     questionNo: index + 1,
-                    quizID: widget.isEdit && widget.topic != null ? widget.topic!['quizID'] : quizID,
+                    quizID: widget.isEdit && widget.topic != null && widget.topic!['quizID']!='' ? widget.topic!['quizID'] : quizID,
                     firestore: widget.firestore,
                     auth: widget.auth,
                     editQuestion: widget.isEdit ? editQuestions[index] : null,
@@ -129,9 +129,7 @@ class _CreateQuizState extends State<CreateQuiz> {
                 ElevatedButton(
                   onPressed: () {
                     if (questions.isNotEmpty || editQuestions.isNotEmpty) {
-                      if(!widget.isEdit){
                         widget.addQuiz!(quizID);
-                      }
                       Navigator.pop(context);
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(

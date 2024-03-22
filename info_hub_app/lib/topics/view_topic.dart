@@ -122,7 +122,7 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
             child: Chewie(controller: _chewieController!),
           ),
           Text(
-            '                                                                                  ${currentIndex + 1} / ${updatedTopic['media'].length}',
+            '                                                                  ${currentIndex + 1} / ${updatedTopic['media'].length}',
             style: const TextStyle(color: Colors.grey),
           ),
         ],
@@ -136,7 +136,7 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
       children: [
         Image.network(_imageUrl!),
         Text(
-          '                                                                                  ${currentIndex + 1} / ${updatedTopic['media'].length}',
+          '                                                                   ${currentIndex + 1} / ${updatedTopic['media'].length}',
           style: const TextStyle(color: Colors.grey),
         ),
       ],

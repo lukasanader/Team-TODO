@@ -1,23 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:info_hub_app/admin/admin_dash.dart';
-import 'package:info_hub_app/message_feature/admin_message_view.dart';
 import 'package:info_hub_app/message_feature/message_bubble.dart';
-import 'package:info_hub_app/message_feature/message_model.dart';
-import 'package:info_hub_app/message_feature/message_rooms_card.dart';
-import 'package:info_hub_app/message_feature/message_service.dart';
 import 'package:info_hub_app/message_feature/messaging_room_view.dart';
-import 'package:info_hub_app/patient_experience/admin_experience_view.dart';
-import 'package:info_hub_app/topics/create_topic.dart';
-import 'package:info_hub_app/ask_question/question_view.dart';
-import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
-import 'package:mockito/mockito.dart';
-
-import '../mock.dart';
 
 void main() {
   late MockFirebaseAuth auth;
@@ -57,7 +44,7 @@ void main() {
     });
 
     messageRoomViewWidget = MaterialApp(
-      home: MessageRoomView(firestore: firestore, auth: auth, senderId: uid, receiverId: '123456789'),
+      home: MessageRoomView(firestore: firestore, auth: auth, senderId: uid, receiverId: '123456789', onNewMessageRoomCreated: () {},),
     );
   });
 

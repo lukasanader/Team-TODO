@@ -100,26 +100,34 @@ class _DraftsPageState extends State<DraftsPage> {
               .collection('topicDrafts')
               .where(FieldPath.documentId, whereIn: draftedTopics)
               .get();
-          setState(() {
-            _draftsList = List.from(data.docs);
-          });
+          if (mounted) {
+            setState(() {
+              _draftsList = List.from(data.docs);
+            });
+          }
         } else {
           // If savedTopics is empty, set _topicsList to an empty list
+          if (mounted) {
+            setState(() {
+              _draftsList = [];
+            });
+          }
+        }
+      } else {
+        // If "savedTopics" field is null or not found, set _topicsList to an empty list
+        if (mounted) {
           setState(() {
             _draftsList = [];
           });
         }
-      } else {
-        // If "savedTopics" field is null or not found, set _topicsList to an empty list
+      }
+    } else {
+      // If user document doesn't exist, set _topicsList to an empty list
+      if (mounted) {
         setState(() {
           _draftsList = [];
         });
       }
-    } else {
-      // If user document doesn't exist, set _topicsList to an empty list
-      setState(() {
-        _draftsList = [];
-      });
     }
   }
 }

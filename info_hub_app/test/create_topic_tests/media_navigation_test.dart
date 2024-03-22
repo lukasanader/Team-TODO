@@ -194,7 +194,8 @@ void main() async {
       'views': 0,
       'dislikes': 0,
       'categories': ['Sports'],
-      'date': DateTime.now()
+      'date': DateTime.now(),
+      'quizID': ''
     });
 
     const url =

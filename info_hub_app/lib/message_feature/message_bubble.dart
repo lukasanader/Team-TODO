@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:info_hub_app/theme/theme_constants.dart';
 
 class MessageBubble extends StatelessWidget {
   final String message;
@@ -11,10 +12,9 @@ class MessageBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(12),
-
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
-        color: Colors.blue,
+        color: COLOR_SECONDARY_LIGHT,
       ),
       child: Text(
         message,
@@ -24,7 +24,4 @@ class MessageBubble extends StatelessWidget {
       ),
     );
   }
-
-
-
 }

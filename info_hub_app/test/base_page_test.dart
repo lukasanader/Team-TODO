@@ -16,13 +16,12 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:info_hub_app/services/database.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:provider/provider.dart';
-import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'mock.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 
 void main() {
   late FirebaseFirestore firestore = FakeFirebaseFirestore();
-  late MockFirebaseAuth auth = MockFirebaseAuth();
+  late MockFirebaseAuth auth = MockFirebaseAuth(signedIn: true);
   late MockFirebaseStorage storage = MockFirebaseStorage();
   late ThemeManager themeManager = ThemeManager();
 
@@ -143,8 +142,9 @@ void main() {
     await tester.pumpWidget(MultiProvider(
       providers: [
         StreamProvider<List<custom.Notification>>(
-          create: (_) =>
-              DatabaseService(uid: '', firestore: firestore).notifications,
+          create: (_) => DatabaseService(
+                  auth: auth, firestore: firestore, uid: auth.currentUser!.uid)
+              .notifications,
           initialData: const [], // Initial data while waiting for Firebase data
         ),
       ],
@@ -166,8 +166,9 @@ void main() {
     await tester.pumpWidget(MultiProvider(
       providers: [
         StreamProvider<List<custom.Notification>>(
-          create: (_) =>
-              DatabaseService(uid: '', firestore: firestore).notifications,
+          create: (_) => DatabaseService(
+                  auth: auth, firestore: firestore, uid: auth.currentUser!.uid)
+              .notifications,
           initialData: const [], // Initial data while waiting for Firebase data
         ),
       ],

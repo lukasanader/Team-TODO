@@ -4,8 +4,6 @@ import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
-import 'package:get/get.dart';
-import 'package:info_hub_app/model/model.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:info_hub_app/topics/create_topic.dart';
 import 'package:info_hub_app/topics/quiz/create_quiz.dart';
@@ -291,7 +289,6 @@ Future<void> main() async {
       // Check if the correctAnswers field exists and contains "organ"
       if (doc.data().containsKey('question') &&
           doc.data()['question'] == 'What is a doctor?') {
-          print('here');
           expect(doc['correctAnswers'] as List, ['A Person']); //contains the right correct answers
           expect(doc['wrongAnswers'] as List, ['A dog']);
           expect(doc['quizID'], '1'); 

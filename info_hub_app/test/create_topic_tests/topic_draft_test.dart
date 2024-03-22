@@ -96,7 +96,8 @@ void main() async {
       'dislikes': 0,
       'categories': ['Sports'],
       'date': DateTime.now(),
-      'userID': adminUserDoc.id
+      'userID': adminUserDoc.id,
+      'quizID': ''
     });
     await firestore.collection('Users').doc('adminUser').update({
       'draftedTopics': FieldValue.arrayUnion([draftDocRef.id])

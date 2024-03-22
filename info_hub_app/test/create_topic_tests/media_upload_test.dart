@@ -114,6 +114,7 @@ void main() async {
     expect(find.byType(Chewie), findsOneWidget);
 
     await tester.tap(find.text('PUBLISH TOPIC'));
+    await tester.pumpAndSettle();
 
     final ListResult result = await mockStorage.ref().child('media').listAll();
 
@@ -153,6 +154,7 @@ void main() async {
     expect(find.byType(Image), findsOneWidget);
 
     await tester.tap(find.text('PUBLISH TOPIC'));
+    await tester.pumpAndSettle();
 
     final ListResult result = await mockStorage.ref().child('media').listAll();
 
@@ -183,7 +185,8 @@ void main() async {
       'views': 0,
       'dislikes': 0,
       'categories': ['Sports'],
-      'date': DateTime.now()
+      'date': DateTime.now(),
+      'quizID': '1'
     });
 
     data = await topicCollectionRef.orderBy('title').get();
@@ -222,8 +225,7 @@ void main() async {
 
     await tester.tap(updateButtonFinder);
 
-    await tester.pump();
-    await tester.pumpAndSettle(const Duration(seconds: 2));
+    await tester.pumpAndSettle();
 
     final QuerySnapshot<Map<String, dynamic>> querySnapshot =
         await firestore.collection("topics").get();
