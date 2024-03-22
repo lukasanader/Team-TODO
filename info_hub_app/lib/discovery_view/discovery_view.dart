@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:info_hub_app/model/model.dart';
 import 'package:info_hub_app/helpers/helper_widgets.dart';
 import 'package:info_hub_app/registration/user_controller.dart';
+import 'package:info_hub_app/topics/categories/category_model.dart';
+import 'package:info_hub_app/topics/categories/category_service.dart';
 import 'package:info_hub_app/topics/topics_card.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -326,16 +328,17 @@ class _DiscoveryViewState extends State<DiscoveryView> {
   }
 
   Future getCategoryList() async {
-    QuerySnapshot data =
-        await widget.firestore.collection('categories').orderBy('name').get();
+    List<Category> categoryList = await CategoryController(
+      widget.auth, 
+      widget.firestore).getCategoryList();
 
-    List<Object> dataList = List.from(data.docs);
+
     List<String> tempStringList = [];
     List<Widget> tempWidgetList = [];
 
-    for (dynamic category in dataList) {
-      tempStringList.add(category['name']);
-      tempWidgetList.add(Text(category['name']));
+    for (Category category in categoryList) {
+      tempStringList.add(category.name.toString());
+      tempWidgetList.add(Text(category.name.toString()));
     }
 
     setState(() {
