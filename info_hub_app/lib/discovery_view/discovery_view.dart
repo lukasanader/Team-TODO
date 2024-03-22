@@ -172,12 +172,6 @@ class _DiscoveryViewState extends State<DiscoveryView> {
           ),
           actions: <Widget>[
             TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
               onPressed: () async {
                 // Get the entered question text
                 String questionText = _questionController.text.trim();
@@ -249,6 +243,12 @@ class _DiscoveryViewState extends State<DiscoveryView> {
                 }
               },
               child: const Text('Submit'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
             ),
           ],
         );

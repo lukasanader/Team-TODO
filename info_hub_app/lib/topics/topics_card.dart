@@ -48,7 +48,7 @@ class TopicCard extends StatelessWidget {
         future: _getVideoThumbnail(mediaUrl),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CircularProgressIndicator();
+            return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return const Text('Error loading thumbnail');
           } else {
@@ -204,7 +204,7 @@ class AdminTopicCard extends StatelessWidget {
         future: _getVideoThumbnail(mediaUrl),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CircularProgressIndicator();
+            return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return const Text('Error loading thumbnail');
           } else {
@@ -359,7 +359,7 @@ class TopicDraftCard extends StatelessWidget {
         future: _getVideoThumbnail(mediaUrl),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CircularProgressIndicator();
+            return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return const Text('Error loading thumbnail');
           } else {
@@ -517,7 +517,7 @@ class LargeTopicCard extends StatelessWidget {
             : Future.value(Uint8List(0)),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CircularProgressIndicator();
+            return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError || snapshot.data == null) {
             return const Text('Error loading thumbnail');
           } else {

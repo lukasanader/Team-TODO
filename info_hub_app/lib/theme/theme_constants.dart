@@ -11,12 +11,12 @@ import 'package:flutter/material.dart';
 
 // Light theme constant colors
 final COLOR_PRIMARY_LIGHT = Colors.red.shade700;
-final COLOR_SECONDARY_LIGHT = Colors.grey.shade300;
-const COLOR_PRINARY_OFF_WHITE = Color.fromARGB(240, 255, 255, 255);
+final COLOR_SECONDARY_GREY_LIGHT = Colors.grey.shade300;
+final COLOR_SECONDARY_GREY_LIGHT_DARKER = Colors.grey.shade600;
+const COLOR_PRIMARY_OFF_WHITE = Color.fromARGB(240, 255, 255, 255);
 
 // Dark theme constant colors
 final COLOR_PRIMARY_DARK = Colors.red.shade500;
-final COLOR_SECONDARY_DARK = Colors.grey.shade700;
 
 // Light theme data
 ThemeData lightTheme = ThemeData(
@@ -27,7 +27,7 @@ ThemeData lightTheme = ThemeData(
 
     // App bar theme
     appBarTheme: AppBarTheme(
-      surfaceTintColor: COLOR_SECONDARY_LIGHT,
+      surfaceTintColor: COLOR_SECONDARY_GREY_LIGHT,
       titleTextStyle: const TextStyle(
         color: Colors.black,
         fontSize: 22,
@@ -39,7 +39,52 @@ ThemeData lightTheme = ThemeData(
       color: Colors.transparent,
     ),
     listTileTheme: const ListTileThemeData(
-      iconColor: Colors.black,
+      tileColor: Colors.transparent,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(
+          Radius.circular(10),
+        ),
+      ),
+    ),
+    splashColor: COLOR_PRIMARY_LIGHT.withOpacity(0.2),
+
+    // Date picker theme
+    datePickerTheme: DatePickerThemeData(
+      headerBackgroundColor: COLOR_PRIMARY_LIGHT,
+      headerForegroundColor: Colors.white,
+      shadowColor: Colors.transparent,
+      surfaceTintColor: COLOR_SECONDARY_GREY_LIGHT,
+      backgroundColor: Colors.white,
+      inputDecorationTheme: InputDecorationTheme(
+        border: UnderlineInputBorder(
+          borderSide: BorderSide(
+            color: COLOR_SECONDARY_GREY_LIGHT_DARKER,
+          ),
+        ),
+        focusedBorder: UnderlineInputBorder(
+          borderSide: BorderSide(
+            color: COLOR_PRIMARY_LIGHT,
+            width: 2,
+          ),
+        ),
+      ),
+    ),
+
+    // Time picker theme
+    timePickerTheme: TimePickerThemeData(
+      inputDecorationTheme: InputDecorationTheme(
+        border: UnderlineInputBorder(
+          borderSide: BorderSide(
+            color: COLOR_SECONDARY_GREY_LIGHT_DARKER,
+          ),
+        ),
+        focusedBorder: UnderlineInputBorder(
+          borderSide: BorderSide(
+            color: COLOR_PRIMARY_LIGHT,
+            width: 2,
+          ),
+        ),
+      ),
     ),
 
     // All text themes
@@ -87,7 +132,7 @@ ThemeData lightTheme = ThemeData(
         fontSize: 16,
       ),
       hintStyle: TextStyle(
-        color: COLOR_SECONDARY_DARK,
+        color: COLOR_SECONDARY_GREY_LIGHT_DARKER,
         fontSize: 16,
         fontWeight: FontWeight.w500,
       ),
@@ -102,8 +147,8 @@ ThemeData lightTheme = ThemeData(
           width: 2,
         ),
       ),
-      prefixIconColor: COLOR_SECONDARY_DARK,
-      suffixIconColor: COLOR_SECONDARY_DARK,
+      prefixIconColor: COLOR_SECONDARY_GREY_LIGHT_DARKER,
+      suffixIconColor: COLOR_SECONDARY_GREY_LIGHT_DARKER,
     ),
 
     // Dropdown menu theme
@@ -116,7 +161,7 @@ ThemeData lightTheme = ThemeData(
           fontWeight: FontWeight.w500,
         ),
         hintStyle: TextStyle(
-          color: COLOR_SECONDARY_DARK,
+          color: COLOR_SECONDARY_GREY_LIGHT_DARKER,
           fontSize: 16,
           fontWeight: FontWeight.w500,
         ),
@@ -136,7 +181,7 @@ ThemeData lightTheme = ThemeData(
           ),
         ),
         side: MaterialStateProperty.all(BorderSide(color: COLOR_PRIMARY_LIGHT)),
-        backgroundColor: MaterialStateProperty.all(COLOR_PRINARY_OFF_WHITE),
+        backgroundColor: MaterialStateProperty.all(COLOR_PRIMARY_OFF_WHITE),
         surfaceTintColor: MaterialStateProperty.all(Colors.transparent),
         shadowColor: MaterialStateProperty.all(Colors.transparent),
         shape: MaterialStateProperty.all(
@@ -187,7 +232,7 @@ ThemeData lightTheme = ThemeData(
       ),
     ),
     snackBarTheme: SnackBarThemeData(
-      backgroundColor: COLOR_SECONDARY_LIGHT,
+      backgroundColor: COLOR_SECONDARY_GREY_LIGHT,
       contentTextStyle: const TextStyle(
         color: Colors.black,
         fontSize: 16,
