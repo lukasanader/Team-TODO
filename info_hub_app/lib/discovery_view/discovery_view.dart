@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/discovery_view/discovery_view_dialogs.dart';
 import 'package:info_hub_app/helpers/helper_widgets.dart';
-import 'package:info_hub_app/registration/user_controller.dart';
+import 'package:info_hub_app/controller/user_controller.dart';
 import 'package:info_hub_app/topics/categories/category_model.dart';
 import 'package:info_hub_app/topics/categories/category_service.dart';
 import 'package:info_hub_app/topics/topics_card.dart';

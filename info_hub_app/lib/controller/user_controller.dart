@@ -30,7 +30,7 @@ class UserController {
     return user['roleType'];
   }
 
-  Future<String> getEmail() async {
+  Future<String> getCurrentUserEmail() async {
     DocumentSnapshot user = await getCurrentUser();
     return user['email'];
   }

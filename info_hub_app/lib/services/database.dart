@@ -7,7 +7,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:info_hub_app/main.dart';
 import 'package:info_hub_app/notifications/notification.dart' as custom;
 import 'package:info_hub_app/push_notifications/push_notifications.dart';
-import 'package:info_hub_app/registration/user_model.dart';
+import 'package:info_hub_app/model/user_model.dart';
 import 'package:info_hub_app/notifications/preferences.dart';
 import 'package:http/http.dart' as http;
 

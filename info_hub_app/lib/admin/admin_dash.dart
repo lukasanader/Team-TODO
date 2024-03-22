@@ -8,7 +8,7 @@ import 'package:info_hub_app/analytics/analytics_base.dart';
 import 'package:info_hub_app/helpers/helper_widgets.dart';
 import 'package:info_hub_app/message_feature/admin_message_view.dart';
 import 'package:info_hub_app/patient_experience/admin_experience_view.dart';
-import 'package:info_hub_app/registration/user_model.dart';
+import 'package:info_hub_app/model/user_model.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:info_hub_app/topics/create_topic.dart';
 import 'package:info_hub_app/ask_question/question_view.dart';

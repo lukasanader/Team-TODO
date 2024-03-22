@@ -11,7 +11,7 @@ import 'package:info_hub_app/helpers/helper_widgets.dart';
 import 'package:info_hub_app/helpers/test_page.dart';
 import 'package:info_hub_app/message_feature/patient_message_view.dart';
 import 'package:info_hub_app/patient_experience/patient_experience_view.dart';
-import 'package:info_hub_app/registration/user_model.dart';
+import 'package:info_hub_app/model/user_model.dart';
 import 'package:info_hub_app/topics/topics_card.dart';
 import 'package:info_hub_app/notifications/notifications.dart';
 import 'package:flutter/cupertino.dart';

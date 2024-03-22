@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:info_hub_app/registration/user_model.dart';
+import 'package:info_hub_app/model/user_model.dart';
 import 'package:info_hub_app/webinar/admin-webinar-screens/create_webinar_screen.dart';
 import 'package:info_hub_app/webinar/admin-webinar-screens/stats_cards.dart';
 import 'package:info_hub_app/webinar/service/webinar_service.dart';
