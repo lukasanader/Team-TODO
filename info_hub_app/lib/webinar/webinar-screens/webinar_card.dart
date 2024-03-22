@@ -115,8 +115,8 @@ class WebinarCard extends StatelessWidget {
                   _showArchiveDialog(context);
                 },
                 child: Container(
-                  padding: const EdgeInsets.only(top: 10),
-                  height: 80, // Specify the desired height here
+                  padding: const EdgeInsets.only(top: 5),
+                  height: 65,
                   child: const ListTile(
                     leading: Icon(Icons.archive_outlined),
                     title: Text('Move to Archive'),
@@ -130,14 +130,29 @@ class WebinarCard extends StatelessWidget {
                   _showLiveDialog(context);
                 },
                 child: Container(
-                  padding: const EdgeInsets.only(top: 10),
-                  height: 80, // Specify the desired height here
+                  padding: const EdgeInsets.only(top: 5),
+                  height: 65,
                   child: const ListTile(
                     leading: Icon(Icons.live_tv_outlined),
                     title: Text('Move to Live'),
                   ),
                 ),
-              )
+              ),
+            if (post.status == "Archived")
+              InkWell(
+                onTap: () {
+                  Navigator.pop(context);
+                  // ADD METHOD HERE TO DELETE WEBINAR
+                },
+                child: Container(
+                  padding: const EdgeInsets.only(top: 5),
+                  height: 65,
+                  child: const ListTile(
+                    leading: Icon(Icons.delete_outlined),
+                    title: Text('Delete Webinar'),
+                  ),
+                ),
+              ),
           ],
         );
       },
