@@ -301,6 +301,10 @@ class _ThreadRepliesState extends State<ThreadReplies> {
       });
     }
 
+    DocumentSnapshot threadDoc =
+        await widget.firestore.collection('thread').doc(widget.threadId).get();
+    String threadTitle = threadDoc['title'] ?? 'No Title';
+
     DocumentSnapshot userDoc =
         await widget.firestore.collection('Users').doc(creatorId).get();
     Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
@@ -317,6 +321,7 @@ class _ThreadRepliesState extends State<ThreadReplies> {
       "creator": creatorId,
       "userProfilePhoto": userProfilePhoto,
       "threadId": widget.threadId,
+      "threadTitle": threadTitle,
       "timestamp": DateTime.now(),
       "isEdited": false,
     };

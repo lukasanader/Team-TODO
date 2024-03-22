@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:info_hub_app/threads/thread_replies.dart';
+import 'package:intl/intl.dart';
 
 class ViewThreads extends StatefulWidget {
   final FirebaseFirestore firestore;
@@ -14,22 +17,62 @@ class ViewThreads extends StatefulWidget {
 }
 
 class _ViewThreadsState extends State<ViewThreads> {
-  late Stream<QuerySnapshot> threadsStream;
+  late Stream<QuerySnapshot> contentStream;
+  bool isViewingThreads = true;
 
   @override
   void initState() {
     super.initState();
-    threadsStream = widget.firestore.collection("thread").snapshots();
+    contentStream = widget.firestore.collection("thread").snapshots();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("View Threads"),
+        title: Text(isViewingThreads ? "View Threads" : "View Replies"),
+        actions: [
+          TextButton(
+            onPressed: () => setState(() {
+              isViewingThreads = true;
+              contentStream = widget.firestore.collection("thread").snapshots();
+            }),
+            child: Text(
+              "Threads",
+              style: TextStyle(
+                  color: isViewingThreads
+                      ? Colors.white
+                      : Theme.of(context).primaryColor),
+            ),
+            style: TextButton.styleFrom(
+              backgroundColor: isViewingThreads
+                  ? Theme.of(context).primaryColor
+                  : Colors.white,
+            ),
+          ),
+          TextButton(
+            onPressed: () => setState(() {
+              isViewingThreads = false;
+              contentStream =
+                  widget.firestore.collection("replies").snapshots();
+            }),
+            child: Text(
+              "Replies",
+              style: TextStyle(
+                  color: !isViewingThreads
+                      ? Colors.white
+                      : Theme.of(context).primaryColor),
+            ),
+            style: TextButton.styleFrom(
+              backgroundColor: !isViewingThreads
+                  ? Theme.of(context).primaryColor
+                  : Colors.white,
+            ),
+          ),
+        ],
       ),
       body: StreamBuilder<QuerySnapshot>(
-        stream: threadsStream,
+        stream: contentStream,
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (snapshot.hasError) {
             return Text('Something went wrong: ${snapshot.error}');
@@ -41,15 +84,106 @@ class _ViewThreadsState extends State<ViewThreads> {
 
           return ListView(
             children: snapshot.data!.docs.map((DocumentSnapshot document) {
-              Map<String, dynamic> thread =
+              Map<String, dynamic> data =
                   document.data()! as Map<String, dynamic>;
-              return ListTile(
-                leading: Icon(Icons.comment),
-                title: Text(thread['title'] ?? 'No Title'),
-                subtitle: Text('Author: ${thread['author']}'),
-                trailing: IconButton(
-                  icon: const Icon(Icons.delete),
-                  onPressed: () => deleteThread(document.id),
+              return Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                elevation: 5,
+                child: ListTile(
+                  leading: CircleAvatar(
+                    backgroundImage: data['userProfilePhoto'] != null &&
+                            data['userProfilePhoto'].startsWith('http')
+                        ? NetworkImage(data['userProfilePhoto'])
+                            as ImageProvider<Object>
+                        : AssetImage(
+                                'assets/${data['userProfilePhoto'] ?? 'default_thread_image.png'}')
+                            as ImageProvider<Object>,
+                    radius: 38,
+                  ),
+                  title: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Expanded(
+                        child: InkWell(
+                          onTap: () {
+                            if (!isViewingThreads) {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => ThreadReplies(
+                                    threadId: data['threadId'],
+                                    firestore: widget.firestore,
+                                    auth: widget.auth,
+                                  ),
+                                ),
+                              );
+                            }
+                          },
+                          child: Text(
+                            isViewingThreads
+                                ? (data['title'] ?? 'No Title')
+                                : "From discussion: ${data['threadTitle'] ?? 'Thread Title'}",
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      if (data['authorId'] ==
+                          widget.auth.currentUser!
+                              .uid) // Use authorId or similar field
+                        IconButton(
+                          icon: const Icon(FontAwesomeIcons.trashAlt, size: 15),
+                          onPressed: () => isViewingThreads
+                              ? deleteThread(document.id)
+                              : deleteReply(document.id),
+                        ),
+                    ],
+                  ),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Text(
+                        isViewingThreads
+                            ? (data['description'] ?? 'No Description')
+                            : (data['content'] ?? 'No Content'),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 2,
+                      ),
+                      const Padding(padding: EdgeInsets.all(2)),
+                      const SizedBox(height: 4),
+                      if (!isViewingThreads)
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: <Widget>[
+                            Text(
+                              "${data['author']} - ",
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                            ),
+                            Text(
+                              data['timestamp'] != null
+                                  ? DateFormat("dd-MMM-yyyy 'at' HH:mm")
+                                      .format(data['timestamp'].toDate())
+                                  : "Unknown time",
+                              style: const TextStyle(
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                    ],
+                  ),
                 ),
               );
             }).toList(),
@@ -95,6 +229,36 @@ class _ViewThreadsState extends State<ViewThreads> {
                 await widget.firestore
                     .collection("thread")
                     .doc(threadId)
+                    .delete();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void deleteReply(String replyId) async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Delete Reply'),
+          content: const Text("Are you sure you want to delete this reply?"),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            TextButton(
+              child: const Text('Delete'),
+              onPressed: () async {
+                Navigator.of(context).pop(); // Close the dialog first
+
+                // Delete the reply
+                await widget.firestore
+                    .collection("replies")
+                    .doc(replyId)
                     .delete();
               },
             ),
