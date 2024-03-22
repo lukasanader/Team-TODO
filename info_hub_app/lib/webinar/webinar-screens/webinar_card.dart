@@ -111,7 +111,7 @@ class WebinarCard extends StatelessWidget {
             if (post.status != "Archived")
               InkWell(
                 onTap: () {
-                  Navigator.of(context).pop(); // Close the bottom sheet
+                  Navigator.pop(context);
                   _showArchiveDialog(context);
                 },
                 child: Container(
@@ -126,7 +126,7 @@ class WebinarCard extends StatelessWidget {
             if (post.status == "Upcoming")
               InkWell(
                 onTap: () {
-                  Navigator.of(context).pop(); // Close the bottom sheet
+                  Navigator.pop(context);
                   _showLiveDialog(context);
                 },
                 child: Container(
@@ -174,12 +174,6 @@ class WebinarCard extends StatelessWidget {
               ),
               actions: [
                 TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: const Text('Cancel'),
-                ),
-                ElevatedButton(
                   onPressed: () async {
                     String newURL = urlController.text;
                     if (newURL.isNotEmpty) {
@@ -206,6 +200,12 @@ class WebinarCard extends StatelessWidget {
                   },
                   child: const Text('Confirm'),
                 ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text('Cancel'),
+                ),
               ],
             );
           },
@@ -219,21 +219,14 @@ class WebinarCard extends StatelessWidget {
     // Store the context in a variable
     BuildContext dialogContext = context;
     showDialog(
-      context: context,
-      builder: (context) {
+      context: dialogContext,
+      builder: (dialogContext) {
         return AlertDialog(
           title: const Text('Move to Live'),
           content:
               const Text('Are you sure you want to move this webinar to live?'),
           actions: [
             TextButton(
-              onPressed: () {
-                // if the user cancels the operation, nothing happens
-                Navigator.pop(dialogContext); // Use the stored dialogContext
-              },
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
               onPressed: () async {
                 // Check if the widget associated with the context is mounted
                 if (Navigator.of(dialogContext).canPop()) {
@@ -245,6 +238,13 @@ class WebinarCard extends StatelessWidget {
                 }
               },
               child: const Text('Confirm'),
+            ),
+            TextButton(
+              onPressed: () {
+                // if the user cancels the operation, nothing happens
+                Navigator.pop(dialogContext); // Use the stored dialogContext
+              },
+              child: const Text('Cancel'),
             ),
           ],
         );
