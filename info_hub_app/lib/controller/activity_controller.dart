@@ -75,4 +75,13 @@ Future<List<dynamic>> getLikedTopics() async {
     } 
     return likedTopics;
 }
+
+  Future<void> deleteActivity(String aid) async {
+    CollectionReference collectionRef = FirebaseFirestore.instance.collection('activity');
+    QuerySnapshot querySnapshot = await collectionRef.where('aid', isEqualTo: aid).get();
+    for (QueryDocumentSnapshot documentSnapshot in querySnapshot.docs) {
+      await documentSnapshot.reference.delete();
+    }
+
+  }
 }
