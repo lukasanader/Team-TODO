@@ -174,6 +174,12 @@ class WebinarCard extends StatelessWidget {
               ),
               actions: [
                 TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
                   onPressed: () async {
                     String newURL = urlController.text;
                     if (newURL.isNotEmpty) {
@@ -200,12 +206,6 @@ class WebinarCard extends StatelessWidget {
                   },
                   child: const Text('Confirm'),
                 ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: const Text('Cancel'),
-                ),
               ],
             );
           },
@@ -227,6 +227,13 @@ class WebinarCard extends StatelessWidget {
               const Text('Are you sure you want to move this webinar to live?'),
           actions: [
             TextButton(
+              onPressed: () {
+                // if the user cancels the operation, nothing happens
+                Navigator.pop(dialogContext); // Use the stored dialogContext
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
               onPressed: () async {
                 // Check if the widget associated with the context is mounted
                 if (Navigator.of(dialogContext).canPop()) {
@@ -238,13 +245,6 @@ class WebinarCard extends StatelessWidget {
                 }
               },
               child: const Text('Confirm'),
-            ),
-            TextButton(
-              onPressed: () {
-                // if the user cancels the operation, nothing happens
-                Navigator.pop(dialogContext); // Use the stored dialogContext
-              },
-              child: const Text('Cancel'),
             ),
           ],
         );
