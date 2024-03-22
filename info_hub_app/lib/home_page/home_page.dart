@@ -13,7 +13,7 @@ import 'package:info_hub_app/message_feature/patient_message_view.dart';
 import 'package:info_hub_app/patient_experience/patient_experience_view.dart';
 import 'package:info_hub_app/registration/user_model.dart';
 import 'package:info_hub_app/topics/topics_card.dart';
-import 'package:info_hub_app/notifications/notifications.dart';
+import 'package:info_hub_app/notifications/notifications_view.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:info_hub_app/webinar/service/webinar_service.dart';
@@ -237,12 +237,11 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future getTopicsList() async {
-
     //added this line to prevent null error
 
     if (widget.auth.currentUser == null) {
-    return;
-  }
+      return;
+    }
     String uid = widget.auth.currentUser!.uid;
     DocumentSnapshot user =
         await widget.firestore.collection('Users').doc(uid).get();

@@ -4,8 +4,8 @@ import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:info_hub_app/notifications/notification.dart' as custom;
-import 'package:info_hub_app/notifications/notifications.dart';
+import 'package:info_hub_app/notifications/notification_model.dart' as custom;
+import 'package:info_hub_app/notifications/notifications_view.dart';
 import 'package:info_hub_app/services/database.dart';
 import 'package:provider/provider.dart';
 
@@ -131,11 +131,8 @@ Future<void> main() async {
                       auth: auth,
                       firestore: firestore,
                       uid: auth.currentUser!.uid,
-                    ).createNotification(
-                      'Test Title',
-                      'Test Body',
-                      DateTime.now(),
-                    );
+                    ).createNotification('Test Title', 'Test Body',
+                        DateTime.now(), 'Test Route');
 
                     expect(notificationId, isNotEmpty);
 

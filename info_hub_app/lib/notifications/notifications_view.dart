@@ -7,8 +7,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:info_hub_app/services/database.dart';
 
 class Notifications extends StatefulWidget {
-  FirebaseAuth auth;
-  FirebaseFirestore firestore;
+  final FirebaseAuth auth;
+  final FirebaseFirestore firestore;
   Notifications({super.key, required this.auth, required this.firestore});
 
   @override
@@ -51,7 +51,7 @@ class _NotificationsState extends State<Notifications> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Container(
-                    height: 1,
+                    height: 0,
                     color: Colors.grey,
                   ),
                 ),
