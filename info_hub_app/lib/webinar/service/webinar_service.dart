@@ -12,117 +12,84 @@ class WebinarService {
 
   WebinarService({required this.firestore, required this.storage});
     
-  Future<String> startLiveStream(String title,String url, Uint8List? image,String name, String startTime, String streamStatus) async {
+  Future<String> startLiveStream(String title, String url, Uint8List? image, String name, String startTime, String streamStatus) async {
     // assign random integer as document name
     String collectionId = (Random().nextInt(4294967296) + 100000).toString();
-    try {
-      if (title.isNotEmpty && image != null) {
-        // check if any document already exists with the set url or with the random id
-        CollectionReference webinarRef = firestore.collection('Webinar');
-        bool idExists = await checkURLExists(webinarRef, collectionId);
-        bool webinarExists = await checkURLExists(webinarRef, url);
-        if (!webinarExists && !idExists) {
+    String result = ""; // Variable to store the result
 
-          String thumbnailUrl = await uploadImageToStorage('webinar-thumbnails', image, collectionId);
+    if (title.isNotEmpty && image != null) {
+      // check if any document already exists with the set url or with the random id
+      CollectionReference webinarRef = firestore.collection('Webinar');
+      bool idExists = await checkURLExists(webinarRef, collectionId);
+      bool webinarExists = await checkURLExists(webinarRef, url);
 
-          DocumentReference docRef = webinarRef.doc(collectionId);
+      if (!webinarExists && !idExists) {
+        String thumbnailUrl = await uploadImageToStorage('webinar-thumbnails', image, collectionId);
+        DocumentReference docRef = webinarRef.doc(collectionId);
 
-          await docRef.set({
-            'id': collectionId,
-            'title': title,
-            'url': url,
-            'thumbnail': thumbnailUrl,
-            'webinarleadname' : name,
-            'startTime' : startTime,
-            'views': 0,
-            'dateStarted' : startTime,
-            'status': streamStatus,
-          });
+        await docRef.set({
+          'id': collectionId,
+          'title': title,
+          'url': url,
+          'thumbnail': thumbnailUrl,
+          'webinarleadname': name,
+          'startTime': startTime,
+          'views': 0,
+          'dateStarted': startTime,
+          'status': streamStatus,
+        });
 
-        } else {
-          return "";
-        }
-      } else {
-        return "";
+        result = collectionId; // Assign the collectionId to the result
       }
-    } catch (e) {
-      return "";
     }
-    return collectionId;
+    return result; // Return the result variable
   }
+
 
   Future<bool> checkURLExists(CollectionReference ref, String url) async {
-    try {
-      QuerySnapshot querySnapshot = await ref.where('url', isEqualTo: url).get();
-      // If there are documents in the query result, it means the uid already exists
-      return querySnapshot.docs.isNotEmpty;
-    } catch (e) {
-      // Handle any errors during the query
-      if (kDebugMode) {
-        print('Error checking uid existence: $e');
-      }
-      return false;
-    }
+    QuerySnapshot querySnapshot = await ref.where('url', isEqualTo: url).get();
+    // If there are documents in the query result, it means the uid already exists
+    return querySnapshot.docs.isNotEmpty;
   }
 
-  Future<bool> checkRandomNumberExists(CollectionReference ref, String id) async {
-    try {
+  Future<bool> checkIDExists(CollectionReference ref, String id) async {
       DocumentSnapshot docSnapshot = await ref.doc(id).get();
       // If there are documents in the query result, it means the uid already exists
       return docSnapshot.exists;
-    } catch (e) {
-      // Handle any errors during the query
-      if (kDebugMode) {
-        print('Error checking document existence: $e');
-      }
-      return false;
-    }
   }
 
   Future<String> uploadImageToStorage(String childName, Uint8List file, String uid) async {
-    // final tempDir = await getTemporaryDirectory();
-    // final tempFile = File('${tempDir.path}/temp_image.jpg');
-
-    // await tempFile.writeAsBytes(file);
-    
     Reference ref = storage.ref().child(childName).child(uid);
     UploadTask uploadTask = ref.putData(file);
-    
     TaskSnapshot snapshot = await uploadTask;
     String downloadUrl = await snapshot.ref.getDownloadURL();
-    // await tempFile.delete();
     return downloadUrl;
   }
 
   Future<void> updateViewCount(String id, bool isIncrease) async {
-    try {
-      await firestore.collection('Webinar').doc(id).update({
-        'views': FieldValue.increment(isIncrease? 1: -1),
-      });
-    } catch (e) {
-      debugPrint(e.toString());
-    }
+    await firestore
+          .collection('Webinar')
+          .doc(id)
+          .update(
+            {
+              'views': FieldValue.increment(isIncrease? 1: -1),
+              }
+          );
   }
 
   Future<void> chat(String text, String id,String roleType,String userID) async {
-    try {
-      String commentId = const Uuid().v1();
-      await firestore.collection('Webinar')
-      .doc(id)
-      .collection('comments')
-      .doc(commentId)
-      .set({
-        'message' : text,
-        'createdAt' : DateTime.now(),
-        'commentId' : commentId,
-        'roleType' : roleType,
-        'uid' : userID,
-
-      });
-
-    } on FirebaseException catch(e) {
-      debugPrint(e.toString());
-    }
+    String commentId = const Uuid().v1();
+    await firestore.collection('Webinar')
+    .doc(id)
+    .collection('comments')
+    .doc(commentId)
+    .set({
+      'message' : text,
+      'createdAt' : DateTime.now(),
+      'commentId' : commentId,
+      'roleType' : roleType,
+      'uid' : userID,
+    });
   }
 
   Future<String> getNumberOfLiveWebinars() async {
@@ -171,7 +138,6 @@ class WebinarService {
     } else if (changeToArchived) {
       dataToUpdate['status'] = "Archived";
     }
-
     await firestore.collection('Webinar').doc(webinarID).update(dataToUpdate);
   }
 }

@@ -1,13 +1,10 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
-import 'package:get/get.dart';
-import 'package:info_hub_app/model/model.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
-import 'package:info_hub_app/topics/create_topic.dart';
+import 'package:info_hub_app/topics/create_topic/create_topic.dart';
 import 'package:info_hub_app/topics/quiz/create_quiz.dart';
 import 'package:info_hub_app/topics/quiz/quiz_question_card.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
@@ -29,9 +26,14 @@ Future<void> main() async {
     });
     auth =
         MockFirebaseAuth(signedIn: true, mockUser: MockUser(uid: 'adminUser'));
-        
+
     quizWidget = MaterialApp(
-      home: CreateTopicScreen(firestore: firestore, storage: mockStorage,auth: auth, themeManager: themeManager,),
+      home: CreateTopicScreen(
+        firestore: firestore,
+        storage: mockStorage,
+        auth: auth,
+        themeManager: themeManager,
+      ),
     );
   });
 
@@ -43,14 +45,15 @@ Future<void> main() async {
     await tester.tap(find.text('ADD QUIZ'));
     await tester.pumpAndSettle();
     expect(find.byType(CreateQuiz), findsOne);
-    
+
     final saveQuizButton = find.text('Save Quiz');
     expect(saveQuizButton, findsOne);
     await tester.ensureVisible(saveQuizButton);
     await tester.pumpAndSettle();
     await tester.tap(saveQuizButton);
     await tester.pumpAndSettle();
-    expect(find.text('Please add at least one question to save the quiz'), findsOne);
+    expect(find.text('Please add at least one question to save the quiz'),
+        findsOne);
     await tester.pumpAndSettle(const Duration(seconds: 4));
 
     final addQuestionButton = find.text('Add Question');
@@ -137,7 +140,7 @@ Future<void> main() async {
     final addQuestionButton = find.text('Add Question');
     await tester.ensureVisible(addQuestionButton);
     await tester.pumpAndSettle(const Duration(seconds: 4));
-  
+
     await tester.enterText(find.byType(TextField), 'What is a liver?');
     await tester.ensureVisible(addQuestionButton);
     await tester.tap(addQuestionButton);
@@ -165,7 +168,7 @@ Future<void> main() async {
     await tester.pumpAndSettle();
     await tester.tap(saveQuestionButton);
     await tester.pumpAndSettle(const Duration(seconds: 4));
-    
+
     final saveQuizButton = find.text('Save Quiz');
     await tester.ensureVisible(saveQuizButton);
     await tester.pumpAndSettle();
@@ -192,9 +195,7 @@ Future<void> main() async {
     expect(wrongAnswers, true); //contains the right wrong answers
   });
 
-
-  testWidgets('Test edit quiz questions',  
-      (WidgetTester tester) async {
+  testWidgets('Test edit quiz questions', (WidgetTester tester) async {
     CollectionReference topicCollectionRef;
     QuerySnapshot data;
 
@@ -216,8 +217,8 @@ Future<void> main() async {
     quizQuestionRef.add({
       'question': 'What is a liver?',
       'correctAnswers': ['An organ'],
-      'wrongAnswers': ['A person','A cat'],
-      'quizID':'1'
+      'wrongAnswers': ['A person', 'A cat'],
+      'quizID': '1'
     });
     data = await topicCollectionRef.get();
     await tester.pumpWidget(MaterialApp(
@@ -240,21 +241,20 @@ Future<void> main() async {
     await tester.tap(find.textContaining('An organ'));
     await tester.pumpAndSettle();
 
-
     final saveQuestionButton = find.text('Save');
     await tester.ensureVisible(saveQuestionButton);
     await tester.pumpAndSettle();
     await tester.tap(saveQuestionButton);
     await tester.pumpAndSettle(const Duration(seconds: 4));
-    
+
     final addQuestionButton = find.text('Add Question');
     await tester.ensureVisible(addQuestionButton);
     await tester.pumpAndSettle(const Duration(seconds: 4));
-    
+
     await tester.enterText(find.byType(TextField), 'What is a doctor?');
     await tester.tap(addQuestionButton);
     await tester.pumpAndSettle();
-    
+
     final addAnswerButton = find.byIcon(Icons.add);
     await tester.enterText(find.byKey(const Key('answerField')), 'A Person');
     await tester.ensureVisible(addAnswerButton);
@@ -267,7 +267,6 @@ Future<void> main() async {
     await tester.pumpAndSettle();
     await tester.tap(addAnswerButton);
     await tester.pumpAndSettle();
-
 
     await tester.ensureVisible(find.text('1. A Person'));
     await tester.pumpAndSettle();
@@ -284,20 +283,17 @@ Future<void> main() async {
     await tester.pumpAndSettle(const Duration(seconds: 4));
     await tester.tap(saveQuizButton);
     await tester.pumpAndSettle();
-    
-    
-    final querySnapshot = await firestore.collection('quizQuestions').get(); 
+
+    final querySnapshot = await firestore.collection('quizQuestions').get();
     querySnapshot.docs.forEach((doc) {
       // Check if the correctAnswers field exists and contains "organ"
       if (doc.data().containsKey('question') &&
           doc.data()['question'] == 'What is a doctor?') {
-          print('here');
-          expect(doc['correctAnswers'] as List, ['A Person']); //contains the right correct answers
-          expect(doc['wrongAnswers'] as List, ['A dog']);
-          expect(doc['quizID'], '1'); 
+        expect(doc['correctAnswers'] as List,
+            ['A Person']); //contains the right correct answers
+        expect(doc['wrongAnswers'] as List, ['A dog']);
+        expect(doc['quizID'], '1');
       }
     });
-    
   });
-
 }

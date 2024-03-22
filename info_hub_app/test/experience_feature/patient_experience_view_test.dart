@@ -1,11 +1,8 @@
-import 'dart:math';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
-import 'package:info_hub_app/patient_experience/experience_model.dart';
 import 'package:info_hub_app/patient_experience/patient_experience_view.dart';
 
 void main() {
@@ -602,29 +599,22 @@ void main() {
   });
 
   testWidgets('Share experience works', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
     await tester.pumpWidget(experienceViewWidget);
     await tester.pumpAndSettle();
 
-    // Trigger the _showPostDialog method
     await tester.tap(find.text('Share your experience!'));
     await tester.pumpAndSettle();
 
-    // Verify that the AlertDialog for sharing experience is displayed
     expect(find.byType(AlertDialog), findsOneWidget);
 
-    // Enter text into the Title TextField
     await tester.enterText(find.byType(TextField).first, 'Test experience');
 
-    // Enter text into the Description TextField
     await tester.enterText(find.byType(TextField).last,
         'This is an example of an experience description from a user');
 
-    // Tap the Submit button
     await tester.tap(find.text('Submit'));
     await tester.pumpAndSettle();
 
-    // Verify that the "Thank you" AlertDialog is displayed after submitting
     expect(find.text('Thank you for sharing your experience.'), findsOneWidget);
     await tester.tap(find.text('OK'));
     await tester.pumpAndSettle();

@@ -50,7 +50,7 @@ class DatabaseService {
               auth: auth,
               firestore: firestore,
               messaging: FirebaseMessaging.instance,
-              navigatorKey: navigatorKey,
+              nav: navigatorKey,
               http: client,
               localnotificationsplugin: plugin)
           .sendNotificationToDevice(token, title, body);
@@ -210,4 +210,3 @@ Future<void> incrementView(QueryDocumentSnapshot topic) async{
 }
 
 }
-

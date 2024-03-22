@@ -10,8 +10,6 @@ import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import 'package:info_hub_app/reset_password/reset_password.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
-import 'mock.dart';
-import 'push_notifications_test.dart';
 
 class MockFlutterLocalNotificationsPlugin extends Fake
     implements FlutterLocalNotificationsPlugin {
@@ -190,7 +188,6 @@ void main() {
     final loginButton = find.text('Login');
     await test.tap(loginButton);
     await test.pumpAndSettle();
-    print(find.byType(Text));
     expect(find.byType(HomePage), findsOneWidget);
   });
 

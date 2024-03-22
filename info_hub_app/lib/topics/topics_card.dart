@@ -8,7 +8,7 @@ import 'package:info_hub_app/model/model.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'view_topic.dart';
 import 'package:info_hub_app/services/database.dart';
-import 'create_topic.dart';
+import 'create_topic/create_topic.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';

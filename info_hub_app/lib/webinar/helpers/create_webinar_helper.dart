@@ -4,6 +4,7 @@ class CreateWebinarHelper {
 
   CreateWebinarHelper();
 
+  // Creates the instruction dialog for how to create a webinar and seed the database from the user side
   void showWebinarStartingHelpDialogue(BuildContext context) {
     showDialog(
       context: context,

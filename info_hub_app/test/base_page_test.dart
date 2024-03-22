@@ -16,7 +16,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:info_hub_app/services/database.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:provider/provider.dart';
-import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'mock.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 

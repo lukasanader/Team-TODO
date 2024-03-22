@@ -1,20 +1,11 @@
-import 'dart:ffi';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/helpers/helper_widgets.dart';
 import 'package:info_hub_app/message_feature/message_room/message_room_controller.dart';
-import 'package:info_hub_app/message_feature/message_room/message_room_model.dart';
 import 'package:info_hub_app/message_feature/message_rooms_card.dart';
-import 'package:info_hub_app/message_feature/message_service.dart';
 import 'package:info_hub_app/message_feature/messaging_room_view.dart';
-import 'package:info_hub_app/registration/user_controller.dart';
-import 'package:info_hub_app/registration/user_model.dart';
-import 'package:info_hub_app/services/database.dart';
-import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
-import 'package:provider/provider.dart';
 
 class MessageView extends StatefulWidget {
   final FirebaseFirestore firestore;

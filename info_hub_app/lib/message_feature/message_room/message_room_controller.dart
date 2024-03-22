@@ -3,7 +3,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:info_hub_app/message_feature/message_room/message_room_model.dart';
-import 'package:info_hub_app/patient_experience/experience_model.dart';
 
 class MessageRoomController {
   final FirebaseAuth _auth;
