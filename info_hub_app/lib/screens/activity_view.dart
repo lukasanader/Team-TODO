@@ -1,9 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:info_hub_app/controller/activity_controller.dart';
 import 'package:info_hub_app/helpers/activity_card.dart';
-import 'package:info_hub_app/services/database.dart';
 
 class ActivityView extends StatefulWidget {
   final FirebaseFirestore firestore;
@@ -97,16 +96,10 @@ class _ActivityViewState extends State<ActivityView> {
   }
 
   Future getActivityList() async {
-    List<dynamic> topicTemp = await DatabaseService(
-            auth: widget.auth, uid: widget.auth.currentUser!.uid, firestore: widget.firestore)
-        .getActivityList('topics');
-    List<dynamic> threadTemp = await DatabaseService(
-            auth: widget.auth, uid: widget.auth.currentUser!.uid, firestore: widget.firestore)
-        .getActivityList('thread');
-    List<dynamic>? likedTemp = await DatabaseService(
-            auth: widget.auth, uid: widget.auth.currentUser!.uid, firestore: widget.firestore)
-        .getLikedTopics();
-
+    ActivityController controller = ActivityController(firestore: widget.firestore, auth: widget.auth);
+    List<dynamic> topicTemp = await controller.getActivityList('topics');
+    List<dynamic> threadTemp = await controller.getActivityList('thread');
+    List<dynamic>? likedTemp = await controller.getLikedTopics();
     setState(() {
       _topicsList = topicTemp;
       _topicsList.sort(((a, b) {

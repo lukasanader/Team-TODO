@@ -9,6 +9,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:info_hub_app/topics/topics_card.dart';
 import 'package:info_hub_app/helpers/helper.dart' show getTrending;
+import 'package:info_hub_app/topics/create_topic/topic_model.dart';
 
 class AnalyticsTopicView extends StatefulWidget {
   final FirebaseFirestore firestore;
@@ -28,20 +29,20 @@ class _AnalyticsTopicView extends State<AnalyticsTopicView> {
   String dropdownvalue = "Name A-Z";
 
   // Retrieves topic data from database as a String/Int
-  String _getTopicTitle(QueryDocumentSnapshot topic) {
-    return topic['title'];
+  String _getTopicTitle(Topic topic) {
+    return topic.title!;
   }
 
-  int _getTopicViews(QueryDocumentSnapshot topic) {
-    return topic['views'];
+  int _getTopicViews(Topic topic) {
+    return topic.views!;
   }
 
-  int _getTopicLikes(QueryDocumentSnapshot topic) {
-    return topic['likes'];
+  int _getTopicLikes(Topic topic) {
+    return topic.likes!;
   }
 
-  int _getTopicDislikes(QueryDocumentSnapshot topic) {
-    return topic['dislikes'];
+  int _getTopicDislikes(Topic topic) {
+    return topic.dislikes!;
   }
 
   @override
@@ -123,11 +124,8 @@ class _AnalyticsTopicView extends State<AnalyticsTopicView> {
                       shrinkWrap: true,
                       itemCount: topicLength == 0 ? 0 : topicLength,
                       itemBuilder: (context, index) {
-                        return AdminTopicCard(
-                            widget.firestore,
-                            widget.storage,
-                            _topicsList[index]
-                                as QueryDocumentSnapshot<Object>);
+                        return AdminTopicCard(widget.firestore, widget.storage,
+                            _topicsList[index] as Topic);
                       }),
                 ),
         ],
@@ -138,36 +136,32 @@ class _AnalyticsTopicView extends State<AnalyticsTopicView> {
   Future getTopicsList() async {
     // Retrieves topic data as QuerySnapshot from database.
     QuerySnapshot data = await widget.firestore.collection('topics').get();
-    _topicsList = List.from(data.docs);
-    topicLength = _topicsList.length;
+    List<Topic> topics =
+        data.docs.map((doc) => Topic.fromSnapshot(doc)).toList();
 
     // Amends ordering of topics on the screen when new dropdown is selected
     // or when the page is initialised for the first time.
     setState(() {
+      _topicsList = topics;
+      topicLength = _topicsList.length;
       if (dropdownvalue == "Name A-Z") {
         _topicsList.sort((a, b) =>
-            _getTopicTitle(a as QueryDocumentSnapshot<Object?>).compareTo(
-                _getTopicTitle(b as QueryDocumentSnapshot<Object?>)));
+            _getTopicTitle(a as Topic).compareTo(_getTopicTitle(b as Topic)));
       } else if (dropdownvalue == "Name Z-A") {
         _topicsList.sort((b, a) =>
-            _getTopicTitle(a as QueryDocumentSnapshot<Object?>).compareTo(
-                _getTopicTitle(b as QueryDocumentSnapshot<Object?>)));
+            _getTopicTitle(a as Topic).compareTo(_getTopicTitle(b as Topic)));
       } else if (dropdownvalue == "Most Popular") {
         _topicsList.sort((b, a) =>
-            _getTopicViews(a as QueryDocumentSnapshot<Object?>).compareTo(
-                _getTopicViews(b as QueryDocumentSnapshot<Object?>)));
+            _getTopicViews(a as Topic).compareTo(_getTopicViews(b as Topic)));
       } else if (dropdownvalue == "Trending") {
         _topicsList.sort((b, a) =>
-            getTrending(a as QueryDocumentSnapshot<Object?>)
-                .compareTo(getTrending(b as QueryDocumentSnapshot<Object?>)));
+            getTrending(a as Topic).compareTo(getTrending(b as Topic)));
       } else if (dropdownvalue == "Most Likes") {
         _topicsList.sort((b, a) =>
-            _getTopicLikes(a as QueryDocumentSnapshot<Object?>).compareTo(
-                _getTopicLikes(b as QueryDocumentSnapshot<Object?>)));
+            _getTopicLikes(a as Topic).compareTo(_getTopicLikes(b as Topic)));
       } else if (dropdownvalue == "Most Dislikes") {
-        _topicsList.sort((b, a) =>
-            _getTopicDislikes(a as QueryDocumentSnapshot<Object?>).compareTo(
-                _getTopicDislikes(b as QueryDocumentSnapshot<Object?>)));
+        _topicsList.sort((b, a) => _getTopicDislikes(a as Topic)
+            .compareTo(_getTopicDislikes(b as Topic)));
       }
     });
   }
