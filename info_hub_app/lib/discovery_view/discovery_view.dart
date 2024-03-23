@@ -32,14 +32,12 @@ class DiscoveryView extends StatefulWidget {
 class _DiscoveryViewState extends State<DiscoveryView> {
   final TextEditingController _searchController = TextEditingController();
   List<Topic> _topicsList = [];
-  int topicLength = 0;
+  List<Topic> _displayedTopicsList = [];
 
   late List<bool> isSelected = [];
   List<Widget> _categoriesWidget = [];
   List<String> _categories = [];
   List<String> categoriesSelected = [];
-
-  List<Topic> _displayedTopicsList = [];
 
   late StreamSubscription<QuerySnapshot<Object?>> _topicsSubscription;
 
@@ -47,6 +45,7 @@ class _DiscoveryViewState extends State<DiscoveryView> {
   void initState() {
     super.initState();
     initializeData();
+    widget.firestore.collection('categories').snapshots().listen(_updateCategoryList);
   }
 
   @override
@@ -165,104 +164,6 @@ class _DiscoveryViewState extends State<DiscoveryView> {
     );
   }
 
-  Future<void> addQuestionDialog() async {
-    // Show dialog to get user input
-    await showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Ask a question'),
-          content: TextField(
-            controller: _questionController,
-            decoration: const InputDecoration(
-              labelText: 'Enter your question...',
-            ),
-          ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () async {
-                // Get the entered question text
-                String questionText = _questionController.text.trim();
-
-                // Validate question text
-                if (questionText.isNotEmpty) {
-                  TopicQuestionController(
-                          firestore: widget.firestore, auth: widget.auth)
-                      .handleQuestion(questionText);
-                  // Clear the text field
-                  _questionController.clear();
-                  // Close the dialog
-                  Navigator.of(context).pop();
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return AlertDialog(
-                        title: const Text('Message'),
-                        content: const Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.check_circle,
-                              color: Colors.green,
-                              size: 50,
-                            ),
-                            SizedBox(height: 10),
-                            Text(
-                              'Thank you!',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            SizedBox(height: 10),
-                            Text(
-                              'Your question has been submitted.\n'
-                              'An admin will get back to you shortly.',
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
-                        ),
-                        actions: <Widget>[
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                            child: const Text('OK'),
-                          ),
-                        ],
-                      );
-                    },
-                  );
-
-                  // Show success message
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Question submitted successfully!'),
-                    ),
-                  );
-                } else {
-                  // Show error message if question is empty
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Please enter a question.'),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
-                }
-              },
-              child: const Text('Submit'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Cancel'),
-            ),
-          ],
-        );
-      },
-    );
-  }
 
   Future<void> initializeData() async {
     getCategoryList();
@@ -354,10 +255,6 @@ class _DiscoveryViewState extends State<DiscoveryView> {
   }
 
   Future getCategoryList() async {
-    QuerySnapshot data =
-        await widget.firestore.collection('categories').orderBy('name').get();
-
-    List<Object?> dataList = data.docs;
     List<String> tempStringList = [];
     List<Widget> tempWidgetList = [];
 
@@ -388,4 +285,11 @@ class _DiscoveryViewState extends State<DiscoveryView> {
     });
     updateTopicListBasedOnCategory(categoriesSelected);
   }
+
+  void _updateCategoryList(QuerySnapshot<Map<String, dynamic>> snapshot) {
+    categoriesSelected = [];
+    getCategoryList();
+    updateTopicListBasedOnCategory(categoriesSelected);
+  }
+
 }
