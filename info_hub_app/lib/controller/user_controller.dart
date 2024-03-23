@@ -2,6 +2,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:info_hub_app/model/user_model.dart';
 
 class UserController {
   final FirebaseAuth _auth;
@@ -30,21 +31,15 @@ class UserController {
     return user['roleType'];
   }
 
-  Future<String> getCurrentUserEmail() async {
-    DocumentSnapshot user = await getCurrentUser();
-    return user['email'];
-  }
 
-  String getEmail(QueryDocumentSnapshot user) {
-    return user['email'];
-  }
 
-  Future<List<Object>> getUserListBasedOnRoleType(String roleType) async {
+  Future<List<UserModel>> getUserListBasedOnRoleType(String roleType) async {
     QuerySnapshot data = await _firestore
         .collection('Users')
         .where('roleType', isEqualTo: roleType)
         .get();
-    List<Object> userList = List.from(data.docs);
+
+    List<UserModel> userList = List.from(data.docs.map((doc) => UserModel.fromSnapshot(doc)));
 
     return userList;
   }

@@ -9,6 +9,7 @@ import 'package:info_hub_app/message_feature/message_room/message_room_controlle
 import 'package:info_hub_app/message_feature/message_room/message_room_model.dart';
 import 'package:info_hub_app/message_feature/message_rooms_card.dart';
 import 'package:info_hub_app/message_feature/messaging_room_view.dart';
+import 'package:info_hub_app/model/user_model.dart';
 
 class MessageView extends StatefulWidget {
   final FirebaseFirestore firestore;
@@ -21,7 +22,7 @@ class MessageView extends StatefulWidget {
 
 class _MessageViewState extends State<MessageView> {
   final TextEditingController _searchController = TextEditingController();
-  List<Object> _userList = [];
+  List<UserModel> _userList = [];
   List<MessageRoom> _chatList = [];
   late MessageRoomController messageRoomController;
   late UserController userController;
@@ -121,10 +122,9 @@ class _MessageViewState extends State<MessageView> {
                           );
                         } else {
                           return ListTile(
-                            title: Text(userController.getEmail(
-                                _userList[index] as QueryDocumentSnapshot)),
+                            title: Text(_userList[index].email),
                             onTap: () {
-                              dynamic receiverUser = _userList[index];
+                              UserModel receiverUser = _userList[index];
 
                               Navigator.pop(context);
                               Navigator.of(context).push(CupertinoPageRoute(
@@ -133,7 +133,7 @@ class _MessageViewState extends State<MessageView> {
                                   firestore: widget.firestore,
                                   auth: widget.auth,
                                   senderId: widget.auth.currentUser!.uid,
-                                  receiverId: receiverUser.id,
+                                  receiverId: receiverUser.uid,
                                   onNewMessageRoomCreated: updateChatList,
                                 );
                               }));
@@ -170,21 +170,20 @@ class _MessageViewState extends State<MessageView> {
 
 
   Future getUserList() async {
-    List<Object> tempList = await userController
+    List<UserModel> tempList;
+    List<UserModel> allPatientsList = await userController
       .getUserListBasedOnRoleType('Patient');
 
-    String search = _searchController.text;
+    String search = _searchController.text.toLowerCase();
 
     if (search.isNotEmpty) {
-      for (int i = 0; i < tempList.length; i++) {
-        QueryDocumentSnapshot user = tempList[i] as QueryDocumentSnapshot;
-        String email = user['email'].toString().toLowerCase();
-        if (!email.contains(search.toLowerCase())) {
-          tempList.removeAt(i);
-          i = i - 1;
-        }
-      }
+      tempList = allPatientsList.where((user) {
+        return user.email.toLowerCase().contains(search);
+      }).toList();
+    } else {
+      tempList = allPatientsList;
     }
+    
     setState(() {
       _userList = tempList;
     });
