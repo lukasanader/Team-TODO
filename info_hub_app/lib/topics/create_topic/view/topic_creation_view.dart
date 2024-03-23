@@ -17,6 +17,7 @@ import 'package:path/path.dart' as path;
 import 'package:info_hub_app/ask_question/question_card.dart';
 import '../helpers/transitions/checkmark_transition.dart';
 import '../model/topic_model.dart';
+import '../controllers/form_controller.dart';
 
 class CreateTopicScreen extends StatefulWidget {
   final FirebaseFirestore firestore;
@@ -43,36 +44,29 @@ class CreateTopicScreen extends StatefulWidget {
 }
 
 class _CreateTopicScreenState extends State<CreateTopicScreen> {
-  late TextEditingController titleController = TextEditingController();
-  late TextEditingController descriptionController = TextEditingController();
-  late TextEditingController articleLinkController = TextEditingController();
   late GlobalKey<FormState> _topicFormKey = GlobalKey<FormState>();
   late List<Map<String, dynamic>> mediaUrls;
   late List<Map<String, dynamic>> originalUrls;
   late List<dynamic> networkUrls;
   late int currentIndex;
-  late String prevTitle;
-  late String prevDescription;
-  late String prevArticleLink;
-  late String appBarTitle;
   List<dynamic> questions = [];
   late Topic? updatedTopicDoc;
-  List<dynamic> _tags = [];
   List<String> options = ['Patient', 'Parent', 'Healthcare Professional'];
   String quizID = '';
   bool quizAdded = false;
-  List<dynamic> _categories = [];
   List<String> _categoriesOptions = [];
   final TextEditingController _newCategoryNameController =
       TextEditingController();
   String? _videoURL;
   String? _imageURL;
   bool changingMedia = false;
-  bool editing = false;
-  bool drafting = false;
+
   String? _downloadURL;
   VideoPlayerController? _videoController;
   ChewieController? _chewieController;
+  late FormController formController;
+  bool editing = false;
+  bool drafting = false;
 
   @override
   void dispose() {
@@ -90,14 +84,15 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
   @override
   void initState() {
     super.initState();
+    formController = FormController(
+        widget.auth, widget.firestore, widget.topic, widget.draft);
+    formController.initializeData();
+    editing = formController.editing;
+    drafting = formController.drafting;
 
-    currentIndex = 0;
-    editing = widget.topic != null;
-    drafting = widget.draft != null;
     mediaUrls = [];
     originalUrls = [];
     networkUrls = [];
-    appBarTitle = "Create a Topic";
     updatedTopicDoc = null;
     if (editing) {
       mediaUrls = [...widget.topic!.media!];
@@ -107,16 +102,6 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
         tempUrls.add(item['url']);
       }
       networkUrls = [...tempUrls];
-      appBarTitle = "Edit Topic";
-      prevTitle = widget.topic!.title!;
-      prevDescription = widget.topic!.description!;
-      prevArticleLink = widget.topic!.articleLink!;
-
-      titleController = TextEditingController(text: prevTitle);
-      descriptionController = TextEditingController(text: prevDescription);
-      articleLinkController = TextEditingController(text: prevArticleLink);
-      _tags = widget.topic!.tags!;
-      _categories = widget.topic!.categories!;
       initData();
       updatedTopicDoc = widget.topic!;
     } else if (drafting) {
@@ -127,16 +112,6 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
         tempUrls.add(item['url']);
       }
       networkUrls = [...tempUrls];
-      appBarTitle = "Draft";
-      prevTitle = widget.draft!.title!;
-      prevDescription = widget.draft!.description!;
-      prevArticleLink = widget.draft!.articleLink!;
-
-      titleController = TextEditingController(text: prevTitle);
-      descriptionController = TextEditingController(text: prevDescription);
-      articleLinkController = TextEditingController(text: prevArticleLink);
-      _tags = widget.draft!.tags!;
-      _categories = widget.draft!.categories!;
       initData();
     }
   }
@@ -168,7 +143,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
         appBar: AppBar(
             backgroundColor: Colors.red,
             title: Text(
-              appBarTitle,
+              formController.appBarTitle,
               style: const TextStyle(
                   color: Colors.white, fontWeight: FontWeight.bold),
             ),
@@ -200,8 +175,9 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                       Padding(
                         padding: const EdgeInsets.all(20.0),
                         child: ChipsChoice<dynamic>.multiple(
-                          value: _tags,
-                          onChanged: (val) => setState(() => _tags = val),
+                          value: formController.tags,
+                          onChanged: (val) =>
+                              setState(() => formController.tags = val),
                           choiceItems: C2Choice.listFrom<String, String>(
                             source: options,
                             value: (i, v) => v,
@@ -211,7 +187,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                           choiceStyle: C2ChipStyle.outlined(),
                         ),
                       ),
-                      if (_tags.isEmpty)
+                      if (formController.tags.isEmpty)
                         const Padding(
                           padding: EdgeInsets.symmetric(vertical: 8.0),
                           child: Text(
@@ -221,7 +197,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                         ),
                       TextFormField(
                         key: const Key('titleField'),
-                        controller: titleController,
+                        controller: formController.titleController,
                         maxLength: 70,
                         decoration: const InputDecoration(
                           labelText: 'Title *',
@@ -229,7 +205,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                               Icon(Icons.drive_file_rename_outline_outlined),
                           border: OutlineInputBorder(),
                         ),
-                        validator: validateTitle,
+                        validator: formController.validateTitle,
                       ),
                       SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
@@ -251,9 +227,9 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                               Padding(
                                 padding: const EdgeInsets.all(20.0),
                                 child: ChipsChoice<dynamic>.multiple(
-                                  value: _categories,
-                                  onChanged: (val) =>
-                                      setState(() => _categories = val),
+                                  value: formController.categories,
+                                  onChanged: (val) => setState(
+                                      () => formController.categories = val),
                                   choiceItems:
                                       C2Choice.listFrom<String, String>(
                                     source: _categoriesOptions,
@@ -270,7 +246,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                       const SizedBox(height: 10.0),
                       TextFormField(
                         key: const Key('descField'),
-                        controller: descriptionController,
+                        controller: formController.descriptionController,
                         maxLines: 5, // Reduced maxLines
                         maxLength: 500,
                         decoration: const InputDecoration(
@@ -278,18 +254,18 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                           prefixIcon: Icon(Icons.description_outlined),
                           border: OutlineInputBorder(),
                         ),
-                        validator: validateDescription,
+                        validator: formController.validateDescription,
                       ),
                       const SizedBox(height: 10.0),
                       TextFormField(
                         key: const Key('linkField'),
-                        controller: articleLinkController,
+                        controller: formController.articleLinkController,
                         decoration: const InputDecoration(
                           labelText: 'Link article',
                           prefixIcon: Icon(Icons.link_outlined),
                           border: OutlineInputBorder(),
                         ),
-                        validator: validateArticleLink,
+                        validator: formController.validateArticleLink,
                       ),
                       const SizedBox(height: 10.0),
                       Padding(
@@ -483,7 +459,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                         ),
                         onPressed: () async {
                           if (_topicFormKey.currentState!.validate() &&
-                              _tags.isNotEmpty) {
+                              formController.tags.isNotEmpty) {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -504,7 +480,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                             }
 
                             await _showDeleteQuestionDialog(
-                                context, titleController.text);
+                                context, formController.titleController.text);
                           }
                         },
                         child: Text(
@@ -581,15 +557,15 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
 
     if (!editing && !drafting) {
       newTopic = Topic(
-        title: titleController.text,
-        description: descriptionController.text,
-        articleLink: articleLinkController.text,
+        title: formController.titleController.text,
+        description: formController.descriptionController.text,
+        articleLink: formController.articleLinkController.text,
         media: mediaList,
         views: 0,
         likes: 0,
         dislikes: 0,
-        tags: _tags,
-        categories: _categories,
+        tags: formController.tags,
+        categories: formController.categories,
         date: DateTime.now(),
         quizID: quizID,
       );
@@ -614,16 +590,16 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
         quizID = widget.topic!.quizID!;
       }
       newTopic = Topic(
-          title: titleController.text,
-          description: descriptionController.text,
-          articleLink: articleLinkController.text,
+          title: formController.titleController.text,
+          description: formController.descriptionController.text,
+          articleLink: formController.articleLinkController.text,
           media: mediaList,
           views: editing ? widget.topic!.views : widget.draft!.views,
           likes: editing ? widget.topic!.likes : widget.draft!.likes,
-          categories: _categories,
+          categories: formController.categories,
           dislikes: editing ? widget.topic!.dislikes : widget.draft!.dislikes,
           date: editing ? widget.topic!.date : widget.draft!.date,
-          tags: _tags,
+          tags: formController.tags,
           quizID: quizID);
 
       for (var item in originalUrls) {
@@ -1024,31 +1000,6 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
       quizID = qid;
       quizAdded = true;
     });
-  }
-
-  // Validation functions
-  String? validateTitle(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Please enter a Title.';
-    }
-    return null;
-  }
-
-  String? validateArticleLink(String? value) {
-    if (value != null && value.isNotEmpty) {
-      final url = Uri.tryParse(value);
-      if (url == null || !url.hasAbsolutePath || !url.isAbsolute) {
-        return 'Link is not valid, please enter a valid link';
-      }
-    }
-    return null;
-  }
-
-  String? validateDescription(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Please enter a Description';
-    }
-    return null;
   }
 
   void createNewCategoryDialog(context) {
