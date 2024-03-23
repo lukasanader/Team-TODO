@@ -30,45 +30,49 @@ void main() {
       'title': 'B test',
       'description': 'this is a test',
       'articleLink': '',
-      'videoUrl': '',
+      'media': [],
       'views': 1,
       'date': DateTime.now(),
       'likes': 0,
       'dislikes': 0,
+      'categories': [],
       'tags': ['Patient']
     });
     topicsCollectionRef.add({
       'title': 'D test',
       'description': 'this is a test',
       'articleLink': '',
-      'videoUrl': '',
+      'media': [],
       'views': 1,
       'date': DateTime.now(),
       'likes': 0,
       'dislikes': 0,
-      'tags': ['Patient']
+      'tags': ['Patient'],
+      'categories': [],
     });
     topicsCollectionRef.add({
       'title': 'A test',
       'description': 'this is a test',
       'articleLink': '',
-      'videoUrl': '',
+      'media': [],
       'views': 1,
       'date': DateTime.now(),
       'likes': 0,
       'dislikes': 0,
-      'tags': ['Patient']
+      'tags': ['Patient'],
+      'categories': [],
     });
     topicsCollectionRef.add({
       'title': 'C test',
       'description': 'this is a test',
       'articleLink': '',
-      'videoUrl': '',
+      'media': [],
       'views': 1,
       'date': DateTime.now(),
       'likes': 0,
       'dislikes': 0,
-      'tags': ['Patient']
+      'tags': ['Patient'],
+      'categories': [],
     });
 
     discoveryViewWidget = MaterialApp(
@@ -101,34 +105,37 @@ void main() {
       'title': 'Multiple will show',
       'description': 'this is a test',
       'articleLink': '',
-      'videoUrl': '',
+      'media': [],
       'views': 1,
       'date': DateTime.now(),
       'likes': 0,
       'dislikes': 0,
-      'tags': ['Patient']
+      'tags': ['Patient'],
+      'categories': [],
     });
     topicsCollectionRef.add({
       'title': 'Multiple will show 2',
       'description': 'this is a test',
       'articleLink': '',
-      'videoUrl': '',
+      'media': [],
       'views': 1,
       'date': DateTime.now(),
       'likes': 0,
       'dislikes': 0,
-      'tags': ['Patient']
+      'tags': ['Patient'],
+      'categories': [],
     });
     topicsCollectionRef.add({
       'title': 'Multiple will show 3',
       'description': 'this is a test',
       'articleLink': '',
-      'videoUrl': '',
+      'media': [],
       'views': 1,
       'date': DateTime.now(),
       'likes': 0,
       'dislikes': 0,
-      'tags': ['Patient']
+      'tags': ['Patient'],
+      'categories': [],
     });
 
     await tester.pumpWidget(discoveryViewWidget);
@@ -222,17 +229,21 @@ void main() {
       'title': 'Gym topic should only show',
       'description': 'this is a test',
       'articleLink': '',
-      'videoUrl': '',
       'categories': ['Gym'],
-      'tags': ['Patient']
+      'media': [],
+      'views': 1,
+      'tags': ['Patient'],
+      'date': DateTime.now()
     });
 
     topicsCollectionRef.add({
       'title': 'Gym topic should only show 2',
       'description': 'this is a test',
       'articleLink': '',
-      'videoUrl': '',
       'categories': ['Gym'],
+      'media': [],
+      'views': 1,
+      'date': DateTime.now(),
       'tags': ['Patient']
     });
 
@@ -262,8 +273,10 @@ void main() {
       'title': 'Gym topic should only show',
       'description': 'this is a test',
       'articleLink': '',
-      'videoUrl': '',
       'categories': ['Gym'],
+      'media': [],
+      'views': 1,
+      'date': DateTime.now(),
       'tags': ['Patient']
     });
 
@@ -271,8 +284,10 @@ void main() {
       'title': 'Gym topic should only show 2',
       'description': 'this is a test',
       'articleLink': '',
-      'videoUrl': '',
       'categories': ['Gym'],
+      'media': [],
+      'views': 1,
+      'date': DateTime.now(),
       'tags': ['Patient']
     });
 
@@ -307,8 +322,10 @@ void main() {
       'title': 'Gym topic should only show',
       'description': 'this is a test',
       'articleLink': '',
-      'videoUrl': '',
       'categories': ['Gym'],
+      'media': [],
+      'views': 1,
+      'date': DateTime.now(),
       'tags': ['Patient']
     });
 
@@ -316,7 +333,9 @@ void main() {
       'title': 'Gym and smoking',
       'description': 'this is a test',
       'articleLink': '',
-      'videoUrl': '',
+      'media': [],
+      'views': 1,
+      'date': DateTime.now(),
       'categories': ['Gym', 'Smoking'],
       'tags': ['Patient']
     });
@@ -350,7 +369,9 @@ void main() {
       'title': 'Smoking topic',
       'description': 'this is a test',
       'articleLink': '',
-      'videoUrl': '',
+      'media': [],
+      'views': 1,
+      'date': DateTime.now(),
       'categories': ['Smoking'],
       'tags': ['Patient']
     });
@@ -359,7 +380,9 @@ void main() {
       'title': 'Smoking topic with specific title',
       'description': 'this is a test',
       'articleLink': '',
-      'videoUrl': '',
+      'media': [],
+      'views': 1,
+      'date': DateTime.now(),
       'categories': ['Smoking'],
       'tags': ['Patient']
     });
@@ -442,23 +465,25 @@ void main() {
       'title': 'test 1',
       'description': 'this is a test',
       'articleLink': '',
-      'videoUrl': '',
+      'media': [],
       'views': 1,
       'date': DateTime.now(),
       'likes': 0,
       'dislikes': 0,
-      'tags': ['Patient']
+      'tags': ['Patient'],
+      'categories': [],
     });
     topicCollectionRef.add({
       'title': 'test 2',
       'description': 'this is a test again',
       'articleLink': '',
-      'videoUrl': '',
+      'media': [],
       'views': 1,
       'date': DateTime.now(),
       'likes': 0,
       'dislikes': 0,
-      'tags': ['Parent']
+      'tags': ['Parent'],
+      'categories': [],
     });
     await tester.pumpWidget(discoveryViewWidget);
     await tester.pumpAndSettle();
@@ -485,34 +510,37 @@ void main() {
       'title': 'test 1',
       'description': 'this is a test',
       'articleLink': '',
-      'videoUrl': '',
+      'media': [],
       'views': 1,
       'date': DateTime.now(),
       'likes': 0,
       'dislikes': 0,
-      'tags': ['Patient']
+      'tags': ['Patient'],
+      'categories': [],
     });
     topicCollectionRef.add({
       'title': 'test 2',
       'description': 'this is a test again',
       'articleLink': '',
-      'videoUrl': '',
+      'media': [],
       'views': 1,
       'date': DateTime.now(),
       'likes': 0,
       'dislikes': 0,
-      'tags': ['Parent']
+      'tags': ['Parent'],
+      'categories': [],
     });
     topicCollectionRef.add({
       'title': 'test 3',
       'description': 'this is a test again',
       'articleLink': '',
-      'videoUrl': '',
+      'media': [],
       'views': 1,
       'date': DateTime.now(),
       'likes': 0,
       'dislikes': 0,
-      'tags': ['Healthcare Professional']
+      'tags': ['Healthcare Professional'],
+      'categories': [],
     });
     await tester.pumpWidget(discoveryViewWidget);
     await tester.pumpAndSettle();

@@ -10,6 +10,7 @@ import 'package:info_hub_app/push_notifications/push_notifications.dart';
 import 'package:info_hub_app/registration/user_model.dart';
 import 'package:info_hub_app/notifications/preferences.dart';
 import 'package:http/http.dart' as http;
+import 'package:info_hub_app/topics/create_topic/topic_model.dart';
 
 class DatabaseService {
   final FirebaseAuth auth;
@@ -195,18 +196,18 @@ class DatabaseService {
     return preferences;
   }
 
-Future<void> incrementView(QueryDocumentSnapshot topic) async{
-  DocumentReference docRef =firestore.collection('topics').doc(topic.id);
-  // Run the transaction
-  await firestore.runTransaction((transaction) async {
-    // Get the latest snapshot of the document
-    DocumentSnapshot snapshot = await transaction.get(docRef);
-    int currentViews = (snapshot.data() as Map<String, dynamic>)['views'] ?? 0;
-    // Increment the views by one
-    int newViews = currentViews + 1;
-    // Update the 'views' field in Firestore
-    transaction.update(docRef, {'views': newViews});
-  });
-}
-
+  Future<void> incrementView(Topic topic) async {
+    DocumentReference docRef = firestore.collection('topics').doc(topic.id);
+    // Run the transaction
+    await firestore.runTransaction((transaction) async {
+      // Get the latest snapshot of the document
+      DocumentSnapshot snapshot = await transaction.get(docRef);
+      int currentViews =
+          (snapshot.data() as Map<String, dynamic>)['views'] ?? 0;
+      // Increment the views by one
+      int newViews = currentViews + 1;
+      // Update the 'views' field in Firestore
+      transaction.update(docRef, {'views': newViews});
+    });
+  }
 }

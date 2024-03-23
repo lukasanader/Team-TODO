@@ -12,6 +12,7 @@ import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import '../mock_classes.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:info_hub_app/topics/create_topic/topic_model.dart';
 
 void main() async {
   late MockFirebaseAuth auth;
@@ -163,37 +164,35 @@ void main() async {
 
   testWidgets('edited topic with valid fields updates',
       (WidgetTester tester) async {
-    CollectionReference topicCollectionRef;
-    QuerySnapshot data;
-
-    topicCollectionRef = firestore.collection('topics');
     await defineUserAndStorage(tester);
 
-    await topicCollectionRef.add({
-      'title': 'Test Topic',
-      'description': 'Test Description',
-      'articleLink': '',
-      'media': [
+    Topic topic = Topic(
+      title: 'Test Topic',
+      description: 'Test Description',
+      articleLink: '',
+      media: [
         {
           'url':
               'https://fastly.picsum.photos/id/629/200/300.jpg?hmac=YTSnJIQbXgJTOWUeXAqVeQYHZDodXXFFJxd5RTKs7yU',
           'mediaType': 'image'
         }
       ],
-      'tags': ['Patient'],
-      'likes': 0,
-      'views': 0,
-      'dislikes': 0,
-      'categories': ['Sports'],
-      'date': DateTime.now(),
-      'quizID': '1'
-    });
+      tags: ['Patient'],
+      likes: 0,
+      views: 0,
+      dislikes: 0,
+      categories: ['Sports'],
+      date: DateTime.now(),
+      quizID: '1',
+    );
+    CollectionReference topicCollectionRef = firestore.collection('topics');
 
-    data = await topicCollectionRef.orderBy('title').get();
+    DocumentReference topicRef = await topicCollectionRef.add(topic.toJson());
+    topic.id = topicRef.id;
 
     await tester.pumpWidget(MaterialApp(
       home: CreateTopicScreen(
-        topic: data.docs[0] as QueryDocumentSnapshot<Object>,
+        topic: topic,
         auth: auth,
         firestore: firestore,
         storage: mockStorage,
