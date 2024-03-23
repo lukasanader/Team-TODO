@@ -2,9 +2,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:info_hub_app/controller/user_controller.dart';
 import 'package:info_hub_app/helpers/helper_widgets.dart';
 import 'package:info_hub_app/message_feature/message_room/message_room_controller.dart';
+import 'package:info_hub_app/message_feature/message_room/message_room_model.dart';
 import 'package:info_hub_app/message_feature/message_rooms_card.dart';
 import 'package:info_hub_app/message_feature/messaging_room_view.dart';
 
@@ -20,7 +22,7 @@ class MessageView extends StatefulWidget {
 class _MessageViewState extends State<MessageView> {
   final TextEditingController _searchController = TextEditingController();
   List<Object> _userList = [];
-  List<Object> _chatList = [];
+  List<MessageRoom> _chatList = [];
   late MessageRoomController messageRoomController;
   late UserController userController;
 
@@ -57,7 +59,7 @@ class _MessageViewState extends State<MessageView> {
                     shrinkWrap: true,
                     itemCount: _chatList.length,
                     itemBuilder: (context, index) {
-                      dynamic chat = _chatList[index];
+                      MessageRoom chat = _chatList[index];
                       return Row(
                         children: [
                           Expanded(
@@ -66,7 +68,7 @@ class _MessageViewState extends State<MessageView> {
                           ),
                           IconButton(
                             onPressed: () {
-                              deleteMessageRoomConfirmation(chat.id);
+                              deleteMessageRoomConfirmation(chat.id!);
                             },
                             icon: const Icon(Icons.delete),
                           ),
@@ -124,7 +126,6 @@ class _MessageViewState extends State<MessageView> {
                             onTap: () {
                               dynamic receiverUser = _userList[index];
 
-                              // Navigator.pop(context);
                               Navigator.pop(context);
                               Navigator.of(context).push(CupertinoPageRoute(
                                   builder: (BuildContext context) {
@@ -190,7 +191,7 @@ class _MessageViewState extends State<MessageView> {
   }
 
   Future updateChatList() async {
-    List<Object> tempList = await messageRoomController.getMessageRoomsList();
+    List<MessageRoom> tempList = await messageRoomController.getMessageRoomsList();
 
     setState(() {
       _chatList = tempList;

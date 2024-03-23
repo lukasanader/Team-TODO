@@ -2,6 +2,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:info_hub_app/message_feature/message_room/message_room_model.dart';
 
 class MessageRoomController {
@@ -49,7 +50,7 @@ class MessageRoomController {
       .delete();
   }
 
-  Future<List<Object>> getMessageRoomsList() async {
+  Future<List<MessageRoom>> getMessageRoomsList() async {
     late String receiverType;
     String uid = _auth.currentUser!.uid;
     DocumentSnapshot user = await _firestore.collection('Users').doc(uid).get();
@@ -67,7 +68,7 @@ class MessageRoomController {
         .where(receiverType, isEqualTo: _auth.currentUser!.uid)
         .get();
 
-    List<Object> messageRoomList = List.from(data.docs);
+    List<MessageRoom> messageRoomList = List.from(data.docs.map((doc) => MessageRoom.fromSnapshot(doc)));
     return messageRoomList;
   }
 
