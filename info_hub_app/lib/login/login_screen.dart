@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:info_hub_app/controller/user_controller.dart';
 import 'package:info_hub_app/reset_password/reset_password.dart';
+import 'package:info_hub_app/reset_password/reset_password_controller.dart';
 import 'package:info_hub_app/services/auth.dart';
 import 'package:info_hub_app/helpers/base.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -146,8 +147,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       context,
                       MaterialPageRoute(
                         builder: (context) => ResetPassword(
-                          firestore: widget.firestore,
-                          auth: widget.auth,
+                          controller: ResetPasswordController(
+                            firestore: widget.firestore,
+                            auth: widget.auth,
+                          )
                         ),
                       ),
                     );
