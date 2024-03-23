@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:info_hub_app/topics/view_topic.dart';
 
 class ActivityCard extends StatelessWidget {
   final Map<String, dynamic> _activity;
@@ -23,7 +22,7 @@ class ActivityCard extends StatelessWidget {
 
     return GestureDetector(
       onTap: () {
-        if
+      
       },
       child: Container(
         child: Card(

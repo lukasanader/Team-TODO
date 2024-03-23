@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:info_hub_app/model/model.dart';
-import 'package:info_hub_app/topics/create_topic/topic_model.dart';
 import 'package:info_hub_app/model/quiz_model.dart';
+import 'package:info_hub_app/topics/create_topic/model/topic_model.dart';
 
 class QuizController {
   FirebaseFirestore firestore;

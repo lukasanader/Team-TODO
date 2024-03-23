@@ -11,7 +11,7 @@ import 'package:info_hub_app/patient_experience/admin_experience_view.dart';
 import 'package:info_hub_app/registration/user_model.dart';
 import 'package:info_hub_app/theme/theme_constants.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
-import 'package:info_hub_app/topics/create_topic/create_topic.dart';
+import 'package:info_hub_app/topics/create_topic/view/topic_creation_view.dart';
 import 'package:info_hub_app/ask_question/question_view.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';

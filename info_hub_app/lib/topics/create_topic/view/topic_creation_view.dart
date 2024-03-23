@@ -8,15 +8,15 @@ import 'package:video_player/video_player.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:chewie/chewie.dart';
 import 'package:flutter/services.dart';
-import 'package:info_hub_app/topics/quiz/create_quiz.dart';
+import 'package:info_hub_app/topics/create_topic/helpers/quiz/create_quiz.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:path/path.dart';
 import 'package:path/path.dart' as path;
 import 'package:info_hub_app/ask_question/question_card.dart';
-import '../transitions/checkmark_transition.dart';
-import 'topic_model.dart';
+import '../helpers/transitions/checkmark_transition.dart';
+import '../model/topic_model.dart';
 
 class CreateTopicScreen extends StatefulWidget {
   final FirebaseFirestore firestore;

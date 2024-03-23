@@ -5,8 +5,8 @@ import 'package:get/get.dart';
 import 'package:info_hub_app/controller/quiz_controller.dart';
 import 'package:info_hub_app/model/model.dart';
 import 'package:info_hub_app/model/quiz_model.dart';
-import 'package:info_hub_app/topics/quiz/user_quiz_question_card.dart';
-import 'package:info_hub_app/topics/create_topic/topic_model.dart';
+import 'package:info_hub_app/topics/create_topic/helpers/quiz/user_quiz_question_card.dart';
+import 'package:info_hub_app/topics/create_topic/model/topic_model.dart';
 
 class CompleteQuiz extends StatefulWidget {
   final FirebaseFirestore firestore;
@@ -74,7 +74,8 @@ class _CompleteQuizState extends State<CompleteQuiz> {
                 );
               },
             ),
-            if (completed) Text('Your new score is $score out of $questionListLength'),
+            if (completed)
+              Text('Your new score is $score out of $questionListLength'),
             if (completedBefore) Text('Your old score is $oldScore'),
             ElevatedButton(
               onPressed: () async {
