@@ -7,14 +7,16 @@ import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:chewie/chewie.dart';
 import 'package:video_player/video_player.dart';
-import 'package:info_hub_app/topics/quiz/complete_quiz.dart';
+import 'package:info_hub_app/topics/create_topic/helpers/quiz/complete_quiz.dart';
 import 'package:flutter/services.dart';
-import 'package:info_hub_app/topics/create_topic/create_topic.dart';
+import 'package:info_hub_app/topics/create_topic/view/topic_creation_view.dart';
 import 'dart:async';
 import 'package:info_hub_app/threads/threads.dart';
+import 'package:info_hub_app/controller/activity_controller.dart';
+import 'package:info_hub_app/topics/create_topic/model/topic_model.dart';
 
 class ViewTopicScreen extends StatefulWidget {
-  final QueryDocumentSnapshot topic;
+  final Topic topic;
   final FirebaseFirestore firestore;
   final FirebaseStorage storage;
   final FirebaseAuth auth;
@@ -36,7 +38,7 @@ class ViewTopicScreen extends StatefulWidget {
 class _ViewTopicScreenState extends State<ViewTopicScreen> {
   VideoPlayerController? _videoController;
   ChewieController? _chewieController;
-  late QueryDocumentSnapshot updatedTopic;
+  late Topic updatedTopic;
   bool vidAvailable = false;
   bool imgAvailable = false;
 
@@ -60,14 +62,14 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
   }
 
   Future<void> initData() async {
-    if (updatedTopic['media'].length > 0) {
-      if (updatedTopic['media'][currentIndex]['mediaType'] == 'video') {
-        _videoURL = updatedTopic['media'][currentIndex]['url'];
+    if (updatedTopic.media!.isNotEmpty) {
+      if (updatedTopic.media![currentIndex]['mediaType'] == 'video') {
+        _videoURL = updatedTopic.media![currentIndex]['url'];
         _imageUrl = null;
 
         await _initializeVideoPlayer();
       } else {
-        _imageUrl = updatedTopic['media'][currentIndex]['url'];
+        _imageUrl = updatedTopic.media![currentIndex]['url'];
         _videoURL = null;
         await _initializeImage();
       }
@@ -122,7 +124,7 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
             child: Chewie(controller: _chewieController!),
           ),
           Text(
-            '                                                                  ${currentIndex + 1} / ${updatedTopic['media'].length}',
+            '                                                                  ${currentIndex + 1} / ${updatedTopic.media!.length}',
             style: const TextStyle(color: Colors.grey),
           ),
         ],
@@ -136,7 +138,7 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
       children: [
         Image.network(_imageUrl!),
         Text(
-          '                                                                   ${currentIndex + 1} / ${updatedTopic['media'].length}',
+          '                                                                   ${currentIndex + 1} / ${updatedTopic.media!.length}',
           style: const TextStyle(color: Colors.grey),
         ),
       ],
@@ -333,7 +335,7 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
           iconTheme: const IconThemeData(color: Colors.white),
           backgroundColor: const Color.fromRGBO(200, 0, 0, 1.0),
           title: Text(
-            updatedTopic['title'],
+            updatedTopic.title!,
             style: const TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
@@ -393,7 +395,7 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        if (updatedTopic['media'].length > 1)
+                        if (updatedTopic.media!.length > 1)
                           IconButton(
                             key: const Key('previousMediaButton'),
                             icon: const Icon(Icons.arrow_circle_left_rounded,
@@ -401,20 +403,20 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
                             onPressed: () async {
                               if (currentIndex - 1 >= 0) {
                                 currentIndex -= 1;
-                                if (updatedTopic['media'][currentIndex]
+                                if (updatedTopic.media![currentIndex]
                                         ['mediaType'] ==
                                     'video') {
-                                  _videoURL = updatedTopic['media']
-                                      [currentIndex]['url'];
+                                  _videoURL =
+                                      updatedTopic.media![currentIndex]['url'];
                                   _imageUrl = null;
                                   setState(() {});
                                   await _initializeVideoPlayer();
                                   setState(() {});
-                                } else if (updatedTopic['media'][currentIndex]
+                                } else if (updatedTopic.media![currentIndex]
                                         ['mediaType'] ==
                                     'image') {
-                                  _imageUrl = updatedTopic['media']
-                                      [currentIndex]['url'];
+                                  _imageUrl =
+                                      updatedTopic.media![currentIndex]['url'];
                                   _videoURL = null;
                                   setState(() {});
                                   await _initializeImage();
@@ -424,29 +426,29 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
                             },
                             tooltip: 'Previous Video',
                           ),
-                        if (updatedTopic['media'].length > 1)
+                        if (updatedTopic.media!.length > 1)
                           IconButton(
                             key: const Key('nextMediaButton'),
                             icon: const Icon(Icons.arrow_circle_right_rounded,
                                 color: Color.fromRGBO(150, 100, 200, 1.0)),
                             onPressed: () async {
                               if (currentIndex + 1 <
-                                  updatedTopic['media'].length) {
+                                  updatedTopic.media!.length) {
                                 currentIndex += 1;
-                                if (updatedTopic['media'][currentIndex]
+                                if (updatedTopic.media![currentIndex]
                                         ['mediaType'] ==
                                     'video') {
-                                  _videoURL = updatedTopic['media']
-                                      [currentIndex]['url'];
+                                  _videoURL =
+                                      updatedTopic.media![currentIndex]['url'];
                                   _imageUrl = null;
                                   setState(() {});
                                   await _initializeVideoPlayer();
                                   setState(() {});
-                                } else if (updatedTopic['media'][currentIndex]
+                                } else if (updatedTopic.media![currentIndex]
                                         ['mediaType'] ==
                                     'image') {
-                                  _imageUrl = updatedTopic['media']
-                                      [currentIndex]['url'];
+                                  _imageUrl =
+                                      updatedTopic.media![currentIndex]['url'];
                                   _videoURL = null;
                                   setState(() {});
                                   await _initializeImage();
@@ -465,7 +467,7 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          '${updatedTopic['description']}',
+                          '${updatedTopic.description}',
                           style: const TextStyle(fontSize: 18.0),
                         ),
                         const SizedBox(height: 16),
@@ -499,8 +501,8 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
                                     builder: (context) => ThreadApp(
                                         firestore: widget.firestore,
                                         auth: widget.auth,
-                                        topicId: widget.topic.id,
-                                        topicTitle: widget.topic['title']),
+                                        topicId: widget.topic.id!,
+                                        topicTitle: widget.topic.title!),
                                   ),
                                 );
                               },
@@ -527,13 +529,13 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
                 ],
               ),
             ),
-            if (updatedTopic['articleLink'] != '')
+            if (updatedTopic.articleLink != '')
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Center(
                   child: ElevatedButton(
                     onPressed: () {
-                      launchUrl(Uri.parse(updatedTopic['articleLink']));
+                      launchUrl(Uri.parse(updatedTopic.articleLink!));
                     },
                     child: const Text('Read Article'),
                   ),
@@ -566,8 +568,8 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
                                 onPressed: () {
                                   // Delete the topic
                                   deleteTopic();
-                                  Navigator.of(context)
-                                      .pop(); // Close the dialog
+                                  Navigator.pop(context,
+                                      widget.topic.id); // Close the dialog
                                 },
                                 child: const Text('Delete'),
                               ),
@@ -599,11 +601,13 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
   }
 
   deleteTopic() async {
+    ActivityController(firestore: widget.firestore, auth: widget.auth)
+        .deleteActivity(widget.topic.id!);
     removeTopicFromUsers();
     // If the topic has a video URL, delete the corresponding video from storage
-    if (updatedTopic['media'].length > 0) {
-      for (var item in updatedTopic['media']) {
-        await deleteMediaFromStorage(updatedTopic['media'].indexOf(item));
+    if (updatedTopic.media!.isNotEmpty) {
+      for (var item in updatedTopic.media!) {
+        await deleteMediaFromStorage(updatedTopic.media!.indexOf(item));
       }
     }
 
@@ -616,7 +620,7 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
   }
 
   Future<void> deleteMediaFromStorage(int index) async {
-    String fileUrl = updatedTopic['media'][index]['url'];
+    String fileUrl = updatedTopic.media![index]['url'];
 
     // get reference to the video file
     Reference ref = widget.storage.refFromURL(fileUrl);

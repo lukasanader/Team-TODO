@@ -5,9 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
-import 'package:info_hub_app/topics/quiz/complete_quiz.dart';
-import 'package:info_hub_app/topics/quiz/quiz_answer_card.dart';
-import 'package:info_hub_app/topics/view_topic.dart';
+import 'package:info_hub_app/topics/create_topic/helpers/quiz/complete_quiz.dart';
+import 'package:info_hub_app/topics/create_topic/helpers/quiz/quiz_answer_card.dart';
+import 'package:info_hub_app/topics/view_topic/view/topic_view.dart';
+import 'package:info_hub_app/topics/create_topic/model/topic_model.dart';
 
 void main() {
   late FirebaseFirestore firestore;
@@ -22,19 +23,22 @@ void main() {
     themeManager = ThemeManager();
     auth.createUserWithEmailAndPassword(
         email: 'test@email.com', password: 'Password123!');
-    await firestore.collection('topics').add({
-      'title': 'Test Topic',
-      'description': 'This is a test',
-      'articleLink': '',
-      'media': [],
-      'views': 0,
-      'likes': 0,
-      'dislikes': 0,
-      'date': DateTime.now(),
-      'quizID': '1'
-    });
-    final topicsSnapshot = await firestore.collection('topics').get();
-    final topic = topicsSnapshot.docs.first;
+    Topic topic = Topic(
+      title: 'Test Topic',
+      description: 'This is a test',
+      media: [],
+      views: 0,
+      likes: 0,
+      dislikes: 0,
+      date: DateTime.now(),
+      quizID: '1',
+    );
+
+    // Add the topic to Firestore
+    DocumentReference ref =
+        await firestore.collection('topics').add(topic.toJson());
+    topic.id = ref.id;
+
     //Add the questions
     await firestore.collection('quizQuestions').add({
       'question': 'What is a liver?',
