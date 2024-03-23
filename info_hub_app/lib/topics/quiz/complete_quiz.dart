@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:info_hub_app/controller/quiz_controller.dart';
 import 'package:info_hub_app/model/model.dart';
+import 'package:info_hub_app/model/quiz_model.dart';
 import 'package:info_hub_app/topics/quiz/user_quiz_question_card.dart';
 
 class CompleteQuiz extends StatefulWidget {
@@ -68,7 +69,7 @@ class _CompleteQuizState extends State<CompleteQuiz> {
               },
             ),
             if (completed) Text('Your new score is $score out of $questionListLength'),
-            if (completedBefore) Text('Your old is score is $oldScore'),
+            if (completedBefore) Text('Your old score is $oldScore'),
             ElevatedButton(
               onPressed: () async {
                 score = correctQuestions.where((element) => element == true).length;

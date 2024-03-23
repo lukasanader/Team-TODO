@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:info_hub_app/controller/quiz_controller.dart';
 import 'package:info_hub_app/model/model.dart';
+import 'package:info_hub_app/model/quiz_model.dart';
 import 'package:uuid/uuid.dart';
 
 import 'quiz_question_card.dart';

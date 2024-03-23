@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -72,6 +74,20 @@ Future<void> main() async {
     await tester.pumpAndSettle(const Duration(seconds: 4));
 
     expect(find.text('1. What is a liver?'), findsOneWidget);
+    //Test delete question buttton
+    final deleteQuestionButton = find.text('Delete');
+
+    expect(deleteQuestionButton, findsOneWidget);
+    await tester.ensureVisible(deleteQuestionButton);
+    await tester.pumpAndSettle();
+    await tester.tap(deleteQuestionButton);
+    await tester.pumpAndSettle(const Duration(seconds: 4));
+    expect(find.byType(QuizQuestionCard), findsNothing);
+
+    await tester.enterText(find.byType(TextField), 'What is a liver?');
+    await tester.pumpAndSettle(const Duration(seconds: 4));
+    await tester.tap(addQuestionButton);
+    await tester.pumpAndSettle(const Duration(seconds: 4));
 
     final addAnswerButton = find.byIcon(Icons.add);
     expect(addAnswerButton, findsOne);
@@ -79,6 +95,7 @@ Future<void> main() async {
     await tester.pumpAndSettle();
     await tester.tap(addAnswerButton); //Enter an invalid answer
     await tester.pumpAndSettle();
+    
     expect(find.text('Enter a valid answer'), findsOneWidget);
     await tester.enterText(find.byKey(const Key('answerField')), 'An organ');
     await tester.tap(addAnswerButton);
@@ -248,6 +265,21 @@ Future<void> main() async {
     await tester.pumpAndSettle(const Duration(seconds: 4));
 
     final addQuestionButton = find.text('Add Question');
+    await tester.ensureVisible(addQuestionButton);
+    await tester.pumpAndSettle(const Duration(seconds: 4));
+
+    await tester.enterText(find.byType(TextField), 'What is a doctor?');
+    await tester.tap(addQuestionButton);
+    await tester.pumpAndSettle();
+
+    final deleteQuestionButton = find.text('Delete');
+
+    await tester.ensureVisible(deleteQuestionButton);
+    await tester.pumpAndSettle();
+    await tester.tap(deleteQuestionButton);
+    await tester.pumpAndSettle(const Duration(seconds: 4));
+    expect(find.byType(QuizQuestionCard), findsOne);
+
     await tester.ensureVisible(addQuestionButton);
     await tester.pumpAndSettle(const Duration(seconds: 4));
 

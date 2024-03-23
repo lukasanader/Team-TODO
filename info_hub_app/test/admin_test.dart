@@ -119,6 +119,7 @@ void main() {
     expect(tester.widget<Text>(textFinder).data, 'test@nhs.com');
     //Select user
     await tester.tap(textFinder.first);
+    await tester.pumpAndSettle();
     //Tap the submit button
     await tester.tap(find.text('OK'));
     await tester.pumpAndSettle();

@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:info_hub_app/model/activity_model.dart';
 import 'package:info_hub_app/model/model.dart';
 
 class ActivityController{
@@ -77,7 +78,7 @@ Future<List<dynamic>> getLikedTopics() async {
 }
 
   Future<void> deleteActivity(String aid) async {
-    CollectionReference collectionRef = FirebaseFirestore.instance.collection('activity');
+    CollectionReference collectionRef = firestore.collection('activity');
     QuerySnapshot querySnapshot = await collectionRef.where('aid', isEqualTo: aid).get();
     for (QueryDocumentSnapshot documentSnapshot in querySnapshot.docs) {
       await documentSnapshot.reference.delete();

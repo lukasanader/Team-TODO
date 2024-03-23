@@ -388,9 +388,7 @@ void main() {
     expect(find.text('Smoking topic with specific title'), findsOneWidget);
   });
 
-  testWidgets('Show Post Dialog Test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-
+  testWidgets('Ask topic question Test', (WidgetTester tester) async {
     await tester.pumpWidget(discoveryViewWidget);
     await tester.pumpAndSettle();
 
@@ -401,10 +399,19 @@ void main() {
     // Verify that the first AlertDialog is displayed
     expect(find.byType(AlertDialog), findsOneWidget);
 
-    // Enter text into the TextField
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+    expect(find.byType(AlertDialog), findsNothing);
+
+    await tester.tap(find.text('Ask a question!'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Submit'));
+    await tester.pumpAndSettle();
+    expect(find.text('Please enter a question.'), findsOne);
+    await tester.pumpAndSettle(const Duration(seconds: 4));
+
     await tester.enterText(find.byType(TextField).last, 'Test question');
 
-    // Tap the Submit button
     await tester.tap(find.text('Submit'));
     await tester.pumpAndSettle();
 
