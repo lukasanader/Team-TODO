@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:intl/intl.dart';
-import 'package:info_hub_app/topics/create_topic/topic_model.dart';
+import 'package:info_hub_app/topics/create_topic/model/topic_model.dart';
 
 class AdminTopicAnalytics extends StatefulWidget {
   final Topic topic;

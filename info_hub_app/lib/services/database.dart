@@ -10,7 +10,7 @@ import 'package:info_hub_app/push_notifications/push_notifications.dart';
 import 'package:info_hub_app/model/user_model.dart';
 import 'package:info_hub_app/notifications/preferences_model.dart';
 import 'package:http/http.dart' as http;
-import 'package:info_hub_app/topics/create_topic/topic_model.dart';
+import 'package:info_hub_app/topics/create_topic/model/topic_model.dart';
 
 class DatabaseService {
   final FirebaseAuth auth;

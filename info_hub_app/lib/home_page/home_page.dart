@@ -12,14 +12,14 @@ import 'package:info_hub_app/helpers/test_page.dart';
 import 'package:info_hub_app/message_feature/patient_message_view.dart';
 import 'package:info_hub_app/patient_experience/patient_experience_view.dart';
 import 'package:info_hub_app/model/user_model.dart';
-import 'package:info_hub_app/topics/topics_card.dart';
 import 'package:info_hub_app/notifications/notifications_view.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:info_hub_app/topics/view_topic/helpers/topics_card.dart';
 import 'package:info_hub_app/webinar/service/webinar_service.dart';
 import 'package:info_hub_app/webinar/webinar-screens/webinar_view.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
-import 'package:info_hub_app/topics/create_topic/topic_model.dart';
+import 'package:info_hub_app/topics/create_topic/model/topic_model.dart';
 
 import 'package:info_hub_app/helpers/helper.dart' show getTrending;
 

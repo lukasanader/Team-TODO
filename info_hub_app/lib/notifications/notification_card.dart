@@ -14,7 +14,7 @@ class NotificationCard extends StatelessWidget {
 
     return GestureDetector(
       onTap: () {
-        _showNotificationDetails(context);
+        showNotificationDetails(context);
       },
       child: Padding(
         padding: const EdgeInsets.only(top: 8.0),
@@ -22,8 +22,7 @@ class NotificationCard extends StatelessWidget {
           margin: const EdgeInsets.fromLTRB(20.0, 6.0, 20.0, 0.0),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15.0),
-            side: BorderSide(
-                color: Color.fromARGB(255, 255, 87, 87)), // Add border side
+            side: BorderSide(color: Color.fromARGB(255, 255, 87, 87)),
           ),
           child: ListTile(
             title: Text(notification.title),
@@ -42,7 +41,7 @@ class NotificationCard extends StatelessWidget {
     );
   }
 
-  void _showNotificationDetails(BuildContext context) {
+  void showNotificationDetails(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -53,8 +52,6 @@ class NotificationCard extends StatelessWidget {
               children: <Widget>[
                 Text(notification.body),
                 SizedBox(height: 10),
-                // Add additional details or buttons here as needed
-                // Example: Button to direct the user to the notification source
                 ElevatedButton(
                   onPressed: () {
                     navigatorKey.currentState!.pushNamed(notification.route);
