@@ -1,11 +1,13 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/helpers/helper_widgets.dart';
 import 'package:info_hub_app/registration/user_controller.dart';
-import 'package:info_hub_app/topics/topics_card.dart';
+import 'package:info_hub_app/topics/view_topic/helpers/topics_card.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
+import 'package:info_hub_app/topics/create_topic/model/topic_model.dart';
 import '../controller/topic_question_controller.dart';
 
 class DiscoveryView extends StatefulWidget {
@@ -18,6 +20,7 @@ class DiscoveryView extends StatefulWidget {
       required this.auth,
       required this.storage,
       required this.firestore});
+
   @override
   _DiscoveryViewState createState() => _DiscoveryViewState();
 }
@@ -25,7 +28,7 @@ class DiscoveryView extends StatefulWidget {
 class _DiscoveryViewState extends State<DiscoveryView> {
   final TextEditingController _questionController = TextEditingController();
   final TextEditingController _searchController = TextEditingController();
-  List<Object> _topicsList = [];
+  List<Topic> _topicsList = [];
   int topicLength = 0;
 
   late List<bool> isSelected = [];
@@ -33,17 +36,20 @@ class _DiscoveryViewState extends State<DiscoveryView> {
   List<String> _categories = [];
   List<String> categoriesSelected = [];
 
-  List<Object> _displayedTopicsList = [];
+  List<Topic> _displayedTopicsList = [];
+
+  late StreamSubscription<QuerySnapshot<Object?>> _topicsSubscription;
 
   @override
   void initState() {
     super.initState();
-    getCategoryList();
-    getAllTopicsList().then((_) {
-      setState(() {
-        _displayedTopicsList = _topicsList;
-      });
-    });
+    initializeData();
+  }
+
+  @override
+  void dispose() {
+    _topicsSubscription.cancel();
+    super.dispose();
   }
 
   @override
@@ -132,8 +138,7 @@ class _DiscoveryViewState extends State<DiscoveryView> {
                               widget.firestore,
                               widget.auth,
                               widget.storage,
-                              _displayedTopicsList[topicIndex]
-                                  as QueryDocumentSnapshot<Object>,
+                              _displayedTopicsList[topicIndex],
                             );
                           }
                         }
@@ -256,17 +261,39 @@ class _DiscoveryViewState extends State<DiscoveryView> {
     );
   }
 
+  Future<void> initializeData() async {
+    getCategoryList();
+    await getAllTopicsList().then((_) {
+      setState(() {
+        _displayedTopicsList = _topicsList;
+      });
+    });
+
+    String role =
+        await UserController(widget.auth, widget.firestore).getUserRoleType();
+    Query<Object?> topicsQuery;
+
+    if (role == 'admin') {
+      topicsQuery = widget.firestore.collection('topics').orderBy('title');
+    } else {
+      topicsQuery = widget.firestore
+          .collection('topics')
+          .where('tags', arrayContains: role)
+          .orderBy('title');
+    }
+
+    _topicsSubscription = topicsQuery.snapshots().listen(_updateTopicsList);
+  }
+
   void _searchData(String query) {
     updateTopicListBasedOnCategory(categoriesSelected);
 
     if (query.isNotEmpty) {
-      List<QueryDocumentSnapshot<Object?>> tempList = [];
-
+      List<Topic> tempList = [];
       for (int i = 0; i < _displayedTopicsList.length; i++) {
-        QueryDocumentSnapshot topic =
-            _displayedTopicsList[i] as QueryDocumentSnapshot<Object?>;
-        if (topic['title'] != null) {
-          String title = topic['title'].toString().toLowerCase();
+        Topic topic = _displayedTopicsList[i];
+        if (topic.title != null) {
+          String title = topic.title.toString().toLowerCase();
           if (title.contains(query.toLowerCase())) {
             tempList.add(topic);
           }
@@ -294,7 +321,8 @@ class _DiscoveryViewState extends State<DiscoveryView> {
           .get();
     }
 
-    List<Object> tempList = List.from(data.docs);
+    List<Topic> tempList =
+        data.docs.map((doc) => Topic.fromSnapshot(doc)).toList();
 
     setState(() {
       _topicsList = tempList;
@@ -303,12 +331,10 @@ class _DiscoveryViewState extends State<DiscoveryView> {
 
   Future updateTopicListBasedOnCategory(List<String> categories) async {
     if (categories.isNotEmpty) {
-      List<Object> categoryTopicList = [];
-
-      for (dynamic topic in _topicsList) {
-        var data = topic.data();
-        if (data != null && data.containsKey('categories')) {
-          if (categories.every((item) => data['categories'].contains(item))) {
+      List<Topic> categoryTopicList = [];
+      for (var topic in _topicsList) {
+        if (topic.categories != null) {
+          if (categories.every((item) => topic.categories!.contains(item))) {
             categoryTopicList.add(topic);
           }
         }
@@ -328,7 +354,7 @@ class _DiscoveryViewState extends State<DiscoveryView> {
     QuerySnapshot data =
         await widget.firestore.collection('categories').orderBy('name').get();
 
-    List<Object> dataList = List.from(data.docs);
+    List<Object?> dataList = data.docs;
     List<String> tempStringList = [];
     List<Widget> tempWidgetList = [];
 
@@ -342,5 +368,16 @@ class _DiscoveryViewState extends State<DiscoveryView> {
       _categoriesWidget = tempWidgetList;
       isSelected = List<bool>.filled(_categoriesWidget.length, false);
     });
+  }
+
+  void _updateTopicsList(QuerySnapshot<Object?> snapshot) {
+    final List<QueryDocumentSnapshot<Object?>> topics = snapshot.docs;
+    final List<Topic> topicList =
+        topics.map((doc) => Topic.fromSnapshot(doc)).toList();
+    setState(() {
+      _topicsList = topicList;
+      _displayedTopicsList = List.from(_topicsList);
+    });
+    updateTopicListBasedOnCategory(categoriesSelected);
   }
 }

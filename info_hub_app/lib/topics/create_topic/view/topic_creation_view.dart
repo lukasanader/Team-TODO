@@ -8,21 +8,21 @@ import 'package:video_player/video_player.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:chewie/chewie.dart';
 import 'package:flutter/services.dart';
-import 'package:info_hub_app/topics/quiz/create_quiz.dart';
+import 'package:info_hub_app/topics/create_topic/helpers/quiz/create_quiz.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:path/path.dart';
 import 'package:path/path.dart' as path;
 import 'package:info_hub_app/ask_question/question_card.dart';
-import '../transitions/checkmark_transition.dart';
-import 'topic_model.dart';
+import '../helpers/transitions/checkmark_transition.dart';
+import '../model/topic_model.dart';
 
 class CreateTopicScreen extends StatefulWidget {
   final FirebaseFirestore firestore;
   final FirebaseStorage storage;
-  QueryDocumentSnapshot? topic;
-  QueryDocumentSnapshot? draft;
+  Topic? topic;
+  Topic? draft;
   final FirebaseAuth auth;
   List<PlatformFile>? selectedFiles;
   final ThemeManager themeManager;
@@ -56,7 +56,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
   late String prevArticleLink;
   late String appBarTitle;
   List<dynamic> questions = [];
-  late QueryDocumentSnapshot<Object?>? updatedTopicDoc;
+  late Topic? updatedTopicDoc;
   List<dynamic> _tags = [];
   List<String> options = ['Patient', 'Parent', 'Healthcare Professional'];
   String quizID = '';
@@ -100,7 +100,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
     appBarTitle = "Create a Topic";
     updatedTopicDoc = null;
     if (editing) {
-      mediaUrls = [...widget.topic!['media']];
+      mediaUrls = [...widget.topic!.media!];
       originalUrls = [...mediaUrls];
       List<dynamic> tempUrls = [];
       for (var item in mediaUrls) {
@@ -108,19 +108,19 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
       }
       networkUrls = [...tempUrls];
       appBarTitle = "Edit Topic";
-      prevTitle = widget.topic!['title'];
-      prevDescription = widget.topic!['description'];
-      prevArticleLink = widget.topic!['articleLink'];
+      prevTitle = widget.topic!.title!;
+      prevDescription = widget.topic!.description!;
+      prevArticleLink = widget.topic!.articleLink!;
 
       titleController = TextEditingController(text: prevTitle);
       descriptionController = TextEditingController(text: prevDescription);
       articleLinkController = TextEditingController(text: prevArticleLink);
-      _tags = widget.topic!['tags'];
-      _categories = widget.topic!['categories'];
+      _tags = widget.topic!.tags!;
+      _categories = widget.topic!.categories!;
       initData();
       updatedTopicDoc = widget.topic!;
     } else if (drafting) {
-      mediaUrls = [...widget.draft!['media']];
+      mediaUrls = [...widget.draft!.media!];
       originalUrls = [...mediaUrls];
       List<dynamic> tempUrls = [];
       for (var item in mediaUrls) {
@@ -128,23 +128,22 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
       }
       networkUrls = [...tempUrls];
       appBarTitle = "Draft";
-      prevTitle = widget.draft!['title'];
-      prevDescription = widget.draft!['description'];
-      prevArticleLink = widget.draft!['articleLink'];
+      prevTitle = widget.draft!.title!;
+      prevDescription = widget.draft!.description!;
+      prevArticleLink = widget.draft!.articleLink!;
 
       titleController = TextEditingController(text: prevTitle);
       descriptionController = TextEditingController(text: prevDescription);
       articleLinkController = TextEditingController(text: prevArticleLink);
-      _tags = widget.draft!['tags'];
-      _categories = widget.draft!['categories'];
+      _tags = widget.draft!.tags!;
+      _categories = widget.draft!.categories!;
       initData();
     }
   }
 
   Future<void> initData() async {
-    List<dynamic> mediaData = widget.topic != null
-        ? widget.topic!['media']!
-        : widget.draft!['media']!;
+    List<dynamic> mediaData =
+        widget.topic != null ? widget.topic!.media! : widget.draft!.media!;
     if (mediaData.isNotEmpty) {
       if (mediaData[currentIndex]['mediaType']! == 'video') {
         _videoURL = mediaData[currentIndex]['url']!;
@@ -611,22 +610,19 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
         await topicCollectionRef.add(newTopic.toJson());
       }
     } else {
-      if (widget.topic != null && widget.topic!['quizID'] != '') {
-        quizID = widget.topic!['quizID'];
+      if (widget.topic != null && widget.topic!.quizID != '') {
+        quizID = widget.topic!.quizID!;
       }
       newTopic = Topic(
           title: titleController.text,
           description: descriptionController.text,
           articleLink: articleLinkController.text,
           media: mediaList,
-          views: editing ? widget.topic!['views'] : widget.draft!['views'],
-          likes: editing ? widget.topic!['likes'] : widget.draft!['likes'],
+          views: editing ? widget.topic!.views : widget.draft!.views,
+          likes: editing ? widget.topic!.likes : widget.draft!.likes,
           categories: _categories,
-          dislikes:
-              editing ? widget.topic!['dislikes'] : widget.draft!['dislikes'],
-          date: editing
-              ? widget.topic!['date'].toDate()
-              : widget.draft!['date'].toDate(),
+          dislikes: editing ? widget.topic!.dislikes : widget.draft!.dislikes,
+          date: editing ? widget.topic!.date : widget.draft!.date,
           tags: _tags,
           quizID: quizID);
 
@@ -643,14 +639,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
         await topicCollectionRef
             .doc(widget.topic!.id)
             .update(newTopic.toJson());
-        QuerySnapshot? data = await topicCollectionRef.orderBy('title').get();
-        for (QueryDocumentSnapshot doc in data.docs) {
-          // Check if the document ID matches the ID of the topic
-          if (doc.id == widget.topic!.id) {
-            updatedTopicDoc = doc as QueryDocumentSnapshot<Object>;
-            break;
-          }
-        }
+        updatedTopicDoc = newTopic;
       } else if (drafting) {
         await topicCollectionRef.add(newTopic.toJson());
         deleteDraft();

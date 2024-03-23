@@ -12,13 +12,14 @@ import 'package:info_hub_app/helpers/test_page.dart';
 import 'package:info_hub_app/message_feature/patient_message_view.dart';
 import 'package:info_hub_app/patient_experience/patient_experience_view.dart';
 import 'package:info_hub_app/registration/user_model.dart';
-import 'package:info_hub_app/topics/topics_card.dart';
+import 'package:info_hub_app/topics/view_topic/helpers/topics_card.dart';
 import 'package:info_hub_app/notifications/notifications_view.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:info_hub_app/webinar/service/webinar_service.dart';
 import 'package:info_hub_app/webinar/webinar-screens/webinar_view.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
+import 'package:info_hub_app/topics/create_topic/model/topic_model.dart';
 
 import 'package:info_hub_app/helpers/helper.dart' show getTrending;
 
@@ -139,7 +140,7 @@ class _HomePageState extends State<HomePage> {
                       widget.firestore,
                       widget.auth,
                       widget.storage,
-                      _topicsList[topicIndex] as QueryDocumentSnapshot<Object>,
+                      _topicsList[topicIndex] as Topic,
                     );
                   }
                 },
@@ -253,10 +254,9 @@ class _HomePageState extends State<HomePage> {
 
     if (mounted) {
       setState(() {
-        _topicsList = List.from(data.docs);
+        _topicsList = data.docs.map((doc) => Topic.fromSnapshot(doc)).toList();
         _topicsList.sort((b, a) =>
-            getTrending(a as QueryDocumentSnapshot<Object?>)
-                .compareTo(getTrending(b as QueryDocumentSnapshot<Object?>)));
+            getTrending(a as Topic).compareTo(getTrending(b as Topic)));
         topicLength = _topicsList.length;
         if (topicLength > 6) {
           _topicsList.removeRange(6, topicLength);
