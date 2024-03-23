@@ -13,7 +13,7 @@ class ManageNotifications extends StatefulWidget {
 
 class _ManageNotificationsState extends State<ManageNotifications> {
   late bool _pushNotificationsEnabled;
-  bool _isLoading = true; // Add a boolean variable to track loading state
+  bool _isLoading = true;
 
   @override
   void initState() {
@@ -32,7 +32,7 @@ class _ManageNotificationsState extends State<ManageNotifications> {
     setState(() {
       _pushNotificationsEnabled =
           querySnapshot.docs.first.get('push_notifications');
-      _isLoading = false; // Set loading state to false when data is fetched
+      _isLoading = false;
     });
   }
 
@@ -55,7 +55,7 @@ class _ManageNotificationsState extends State<ManageNotifications> {
       appBar: AppBar(
         title: Text('Manage Notifications'),
       ),
-      body: _isLoading // Show loading indicator if data is loading
+      body: _isLoading
           ? Center(child: CircularProgressIndicator())
           : ListView(
               children: [
@@ -65,7 +65,7 @@ class _ManageNotificationsState extends State<ManageNotifications> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Transform.scale(
-                        scale: 0.8, // Adjust scale factor as needed
+                        scale: 0.8,
                         child: Switch(
                           value: _pushNotificationsEnabled,
                           onChanged: (value) {
