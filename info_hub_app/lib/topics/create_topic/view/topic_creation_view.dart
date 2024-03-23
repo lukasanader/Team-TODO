@@ -12,12 +12,11 @@ import 'package:info_hub_app/topics/create_topic/helpers/quiz/create_quiz.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:path/path.dart';
-import 'package:path/path.dart' as path;
 import 'package:info_hub_app/ask_question/question_card.dart';
 import '../helpers/transitions/checkmark_transition.dart';
 import '../model/topic_model.dart';
 import '../controllers/form_controller.dart';
+import '../controllers/media_upload_controller.dart';
 
 class CreateTopicScreen extends StatefulWidget {
   final FirebaseFirestore firestore;
@@ -40,15 +39,12 @@ class CreateTopicScreen extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<CreateTopicScreen> createState() => _CreateTopicScreenState();
+  State<CreateTopicScreen> createState() => CreateTopicScreenState();
 }
 
-class _CreateTopicScreenState extends State<CreateTopicScreen> {
-  late GlobalKey<FormState> _topicFormKey = GlobalKey<FormState>();
-  late List<Map<String, dynamic>> mediaUrls;
-  late List<Map<String, dynamic>> originalUrls;
-  late List<dynamic> networkUrls;
-  late int currentIndex;
+class CreateTopicScreenState extends State<CreateTopicScreen> {
+  late GlobalKey<FormState> topicFormKey = GlobalKey<FormState>();
+  int currentIndex = 0;
   List<dynamic> questions = [];
   late Topic? updatedTopicDoc;
   List<String> options = ['Patient', 'Parent', 'Healthcare Professional'];
@@ -57,14 +53,12 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
   List<String> _categoriesOptions = [];
   final TextEditingController _newCategoryNameController =
       TextEditingController();
-  String? _videoURL;
-  String? _imageURL;
-  bool changingMedia = false;
 
-  String? _downloadURL;
+  String? downloadURL;
   VideoPlayerController? _videoController;
   ChewieController? _chewieController;
   late FormController formController;
+  late MediaUploadController mediaUploadController;
   bool editing = false;
   bool drafting = false;
 
@@ -85,52 +79,17 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
   void initState() {
     super.initState();
     formController = FormController(
-        widget.auth, widget.firestore, widget.topic, widget.draft);
+        widget.auth, widget.firestore, widget.topic, widget.draft, this, null);
     formController.initializeData();
+
+    mediaUploadController = MediaUploadController(
+        widget.auth, widget.firestore, widget.storage, formController, this);
+    mediaUploadController.initializeData();
+
+    formController.mediaUploadController = mediaUploadController;
     editing = formController.editing;
     drafting = formController.drafting;
-
-    mediaUrls = [];
-    originalUrls = [];
-    networkUrls = [];
     updatedTopicDoc = null;
-    if (editing) {
-      mediaUrls = [...widget.topic!.media!];
-      originalUrls = [...mediaUrls];
-      List<dynamic> tempUrls = [];
-      for (var item in mediaUrls) {
-        tempUrls.add(item['url']);
-      }
-      networkUrls = [...tempUrls];
-      initData();
-      updatedTopicDoc = widget.topic!;
-    } else if (drafting) {
-      mediaUrls = [...widget.draft!.media!];
-      originalUrls = [...mediaUrls];
-      List<dynamic> tempUrls = [];
-      for (var item in mediaUrls) {
-        tempUrls.add(item['url']);
-      }
-      networkUrls = [...tempUrls];
-      initData();
-    }
-  }
-
-  Future<void> initData() async {
-    List<dynamic> mediaData =
-        widget.topic != null ? widget.topic!.media! : widget.draft!.media!;
-    if (mediaData.isNotEmpty) {
-      if (mediaData[currentIndex]['mediaType']! == 'video') {
-        _videoURL = mediaData[currentIndex]['url']!;
-        _imageURL = null;
-
-        await _initializeVideoPlayer();
-      } else {
-        _imageURL = mediaData[currentIndex]['url']!;
-        _videoURL = null;
-        await _initializeImage();
-      }
-    }
   }
 
   @override
@@ -152,7 +111,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                 TextButton(
                   key: const Key('draft_btn'),
                   onPressed: () async {
-                    await _uploadTopic(context, true);
+                    await formController.uploadTopic(context, true);
                     Navigator.pop(context);
                   },
                   child: const Text(
@@ -162,7 +121,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                 )
             ]),
         body: Form(
-          key: _topicFormKey,
+          key: topicFormKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -313,18 +272,21 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                           ElevatedButton.icon(
                             key: const Key('uploadMediaButton'),
                             onPressed: () {
-                              if (_videoURL != null || _imageURL != null) {
-                                changingMedia = true;
+                              if (mediaUploadController.videoURL != null ||
+                                  mediaUploadController.imageURL != null) {
+                                mediaUploadController.changingMedia = true;
                               }
-                              if (_videoURL == null && _imageURL == null) {
-                                changingMedia = false;
+                              if (mediaUploadController.videoURL == null &&
+                                  mediaUploadController.imageURL == null) {
+                                mediaUploadController.changingMedia = false;
                               }
                               _showMediaUploadOptions(context);
                             },
                             icon: const Icon(
                               Icons.cloud_upload_outlined,
                             ),
-                            label: _videoURL != null || _imageURL != null
+                            label: mediaUploadController.videoURL != null ||
+                                    mediaUploadController.imageURL != null
                                 ? const Text(
                                     'Change Media',
                                     style: TextStyle(
@@ -346,11 +308,12 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                             ),
                           ),
                           const SizedBox(width: 10),
-                          if (_videoURL != null || _imageURL != null)
+                          if (mediaUploadController.videoURL != null ||
+                              mediaUploadController.imageURL != null)
                             ElevatedButton.icon(
                               key: const Key('moreMediaButton'),
                               onPressed: () {
-                                changingMedia = false;
+                                mediaUploadController.changingMedia = false;
                                 _showMediaUploadOptions(context);
                               },
                               icon: const Icon(
@@ -372,14 +335,17 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                         ],
                       ),
                       const SizedBox(height: 10.0),
-                      if (_videoURL != null && _chewieController != null)
+                      if (mediaUploadController.videoURL != null &&
+                          _chewieController != null)
                         _videoPreviewWidget(),
-                      if (_imageURL != null) _imagePreviewWidget(),
-                      if (_videoURL != null || _imageURL != null)
+                      if (mediaUploadController.imageURL != null)
+                        _imagePreviewWidget(),
+                      if (mediaUploadController.videoURL != null ||
+                          mediaUploadController.imageURL != null)
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
-                            if (mediaUrls.length > 1)
+                            if (mediaUploadController.mediaUrls.length > 1)
                               IconButton(
                                 key: const Key('previousMediaButton'),
                                 icon: const Icon(
@@ -388,53 +354,64 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                                 onPressed: () async {
                                   if (currentIndex - 1 >= 0) {
                                     currentIndex -= 1;
-                                    if (mediaUrls[currentIndex]['mediaType'] ==
+                                    if (mediaUploadController
+                                                .mediaUrls[currentIndex]
+                                            ['mediaType'] ==
                                         'video') {
-                                      _videoURL =
-                                          mediaUrls[currentIndex]['url'];
-                                      _imageURL = null;
+                                      mediaUploadController.videoURL =
+                                          mediaUploadController
+                                              .mediaUrls[currentIndex]['url'];
+                                      mediaUploadController.imageURL = null;
                                       setState(() {});
-                                      await _initializeVideoPlayer();
+                                      await initializeVideoPlayer();
 
                                       setState(() {});
-                                    } else if (mediaUrls[currentIndex]
+                                    } else if (mediaUploadController
+                                                .mediaUrls[currentIndex]
                                             ['mediaType'] ==
                                         'image') {
-                                      _imageURL =
-                                          mediaUrls[currentIndex]['url'];
-                                      _videoURL = null;
+                                      mediaUploadController.imageURL =
+                                          mediaUploadController
+                                              .mediaUrls[currentIndex]['url'];
+                                      mediaUploadController.videoURL = null;
                                       setState(() {});
-                                      await _initializeImage();
+                                      await initializeImage();
                                     }
                                   }
                                 },
                                 tooltip: 'Previous Video',
                               ),
-                            if (mediaUrls.length > 1)
+                            if (mediaUploadController.mediaUrls.length > 1)
                               IconButton(
                                 key: const Key('nextMediaButton'),
                                 icon: const Icon(
                                     Icons.arrow_circle_right_rounded,
                                     color: Color.fromRGBO(150, 100, 200, 1.0)),
                                 onPressed: () async {
-                                  if (currentIndex + 1 < mediaUrls.length) {
+                                  if (currentIndex + 1 <
+                                      mediaUploadController.mediaUrls.length) {
                                     currentIndex += 1;
-                                    if (mediaUrls[currentIndex]['mediaType'] ==
+                                    if (mediaUploadController
+                                                .mediaUrls[currentIndex]
+                                            ['mediaType'] ==
                                         'video') {
-                                      _videoURL =
-                                          mediaUrls[currentIndex]['url'];
-                                      _imageURL = null;
+                                      mediaUploadController.videoURL =
+                                          mediaUploadController
+                                              .mediaUrls[currentIndex]['url'];
+                                      mediaUploadController.imageURL = null;
                                       setState(() {});
-                                      await _initializeVideoPlayer();
+                                      await initializeVideoPlayer();
                                       setState(() {});
-                                    } else if (mediaUrls[currentIndex]
+                                    } else if (mediaUploadController
+                                                .mediaUrls[currentIndex]
                                             ['mediaType'] ==
                                         'image') {
-                                      _imageURL =
-                                          mediaUrls[currentIndex]['url'];
-                                      _videoURL = null;
+                                      mediaUploadController.imageURL =
+                                          mediaUploadController
+                                              .mediaUrls[currentIndex]['url'];
+                                      mediaUploadController.videoURL = null;
                                       setState(() {});
-                                      await _initializeImage();
+                                      await initializeImage();
                                     }
                                   }
                                 },
@@ -458,7 +435,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                           backgroundColor: Colors.red,
                         ),
                         onPressed: () async {
-                          if (_topicFormKey.currentState!.validate() &&
+                          if (topicFormKey.currentState!.validate() &&
                               formController.tags.isNotEmpty) {
                             Navigator.push(
                               context,
@@ -468,7 +445,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                               ),
                             );
                             await Future.delayed(const Duration(seconds: 2));
-                            await _uploadTopic(context, false);
+                            await formController.uploadTopic(context, false);
                             Navigator.pop(context);
                             if (drafting) {
                               Navigator.of(context)
@@ -502,126 +479,8 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
     );
   }
 
-  void deleteDraft() async {
-    final user = widget.auth.currentUser;
-    if (user != null) {
-      final userDocRef = widget.firestore.collection('Users').doc(user.uid);
-
-      DocumentSnapshot userDoc = await userDocRef.get();
-
-      if (userDoc.exists) {
-        // Get the current list of drafted topics
-        List<String> draftedTopics =
-            List<String>.from(userDoc['draftedTopics']);
-
-        // Remove the current draft ID from the list
-        draftedTopics.remove(widget.draft!.id);
-
-        // Update the user document with the modified draftedTopics list
-        await userDocRef.update({
-          'draftedTopics': draftedTopics,
-        });
-
-        // Delete the draft from the topicDrafts collection
-        await widget.firestore
-            .collection('topicDrafts')
-            .doc(widget.draft!.id)
-            .delete();
-      }
-    }
-  }
-
-  Future<void> _uploadTopic(context, bool saveAsDraft) async {
-    List<Map<String, String>> mediaList = [];
-    Topic newTopic = Topic();
-    for (var item in mediaUrls) {
-      String url = item['url']!;
-      String mediaType = item['mediaType']!;
-
-      if (networkUrls.contains(url)) {
-        _downloadURL = url;
-      } else {
-        _downloadURL = await uploadMediaToStorage(url);
-      }
-
-      Map<String, String> uploadData = {
-        'url': _downloadURL!,
-        'mediaType': mediaType,
-      };
-
-      mediaList.add(uploadData);
-    }
-
-    CollectionReference topicCollectionRef =
-        widget.firestore.collection('topics');
-
-    if (!editing && !drafting) {
-      newTopic = Topic(
-        title: formController.titleController.text,
-        description: formController.descriptionController.text,
-        articleLink: formController.articleLinkController.text,
-        media: mediaList,
-        views: 0,
-        likes: 0,
-        dislikes: 0,
-        tags: formController.tags,
-        categories: formController.categories,
-        date: DateTime.now(),
-        quizID: quizID,
-      );
-      if (saveAsDraft) {
-        newTopic.userID = widget.auth.currentUser?.uid;
-        CollectionReference topicDraftsCollectionRef =
-            widget.firestore.collection('topicDrafts');
-        final topicDraftRef =
-            await topicDraftsCollectionRef.add(newTopic.toJson());
-        final user = widget.auth.currentUser;
-        if (user != null) {
-          final userDocRef = widget.firestore.collection('Users').doc(user.uid);
-          await userDocRef.update({
-            'draftedTopics': FieldValue.arrayUnion([topicDraftRef.id])
-          });
-        }
-      } else {
-        await topicCollectionRef.add(newTopic.toJson());
-      }
-    } else {
-      if (widget.topic != null && widget.topic!.quizID != '') {
-        quizID = widget.topic!.quizID!;
-      }
-      newTopic = Topic(
-          title: formController.titleController.text,
-          description: formController.descriptionController.text,
-          articleLink: formController.articleLinkController.text,
-          media: mediaList,
-          views: editing ? widget.topic!.views : widget.draft!.views,
-          likes: editing ? widget.topic!.likes : widget.draft!.likes,
-          categories: formController.categories,
-          dislikes: editing ? widget.topic!.dislikes : widget.draft!.dislikes,
-          date: editing ? widget.topic!.date : widget.draft!.date,
-          tags: formController.tags,
-          quizID: quizID);
-
-      for (var item in originalUrls) {
-        if (!mediaList
-            .map((map) => map['url'])
-            .toList()
-            .contains(item['url'])) {
-          deleteMediaFromStorage(item['url']);
-        }
-      }
-
-      if (editing) {
-        await topicCollectionRef
-            .doc(widget.topic!.id)
-            .update(newTopic.toJson());
-        updatedTopicDoc = newTopic;
-      } else if (drafting) {
-        await topicCollectionRef.add(newTopic.toJson());
-        deleteDraft();
-      }
-      if (editing) {}
-    }
+  void updateState() {
+    setState(() {});
   }
 
   Future<void> _showDeleteQuestionDialog(
@@ -732,7 +591,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
               title: const Text('Upload Image'),
               onTap: () {
                 Navigator.pop(context);
-                _pickFromDevice("image");
+                mediaUploadController.pickFromDevice("image");
               },
             ),
             ListTile(
@@ -740,7 +599,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
               title: const Text('Upload Video'),
               onTap: () {
                 Navigator.pop(context);
-                _pickFromDevice("video");
+                mediaUploadController.pickFromDevice("video");
               },
             ),
           ],
@@ -750,92 +609,17 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
     return;
   }
 
-  Future<void> _pickFromDevice(String type) async {
-    List<String> extensions = type == "image"
-        ? ['jpg', 'jpeg', 'png']
-        : ['mp4', 'mov', 'avi', 'mkv', 'wmv'];
-
-    FilePickerResult? result = widget.selectedFiles == null
-        ? await FilePicker.platform.pickFiles(
-            type: FileType.custom,
-            allowedExtensions: extensions,
-            allowMultiple: !changingMedia,
-          )
-        : null;
-
-    if (result != null) {
-      handleNavigation(result, null, type);
-    } else {
-      handleNavigation(null, widget.selectedFiles, type);
-    }
-  }
-
-  Future<void> handleNavigation(FilePickerResult? result,
-      List<PlatformFile>? selection, String type) async {
-    List<PlatformFile>? data =
-        result != null && result.files.isNotEmpty ? result.files : selection;
-    if (data != null) {
-      for (PlatformFile file in filterFiles(data, type)) {
-        String mediaPath = file.path!;
-        setState(() {
-          _imageURL = type == 'image' ? mediaPath : null;
-          _videoURL = type == 'video' ? mediaPath : null;
-          Map<String, String> fileInfo = {
-            'url': mediaPath,
-            'mediaType': type,
-          };
-          if (!changingMedia) {
-            mediaUrls.add(fileInfo);
-            currentIndex = mediaUrls.length - 1;
-          } else {
-            mediaUrls[currentIndex] = fileInfo;
-          }
-          if (type == "image") {
-            _videoURL = null;
-          } else {
-            _imageURL = null;
-          }
-        });
-      }
-    }
-    if (data != null && data.isNotEmpty) {
-      if (type == 'image') {
-        await _initializeImage();
-      } else {
-        await _initializeVideoPlayer();
-      }
-    }
-  }
-
-  List<PlatformFile> filterFiles(List<PlatformFile> files, String type) {
-    return files.where((file) {
-      // Get the file extension
-      String extension = path.extension(file.path!).toLowerCase();
-
-      // Check if the extension is for an image file
-      if (type == "image") {
-        return extension == '.jpg' ||
-            extension == '.jpeg' ||
-            extension == '.png';
-      } else {
-        return extension == '.mp4' ||
-            extension == '.mov' ||
-            extension == '.avi' ||
-            extension == '.mkv' ||
-            extension == '.wmv' ||
-            extension == '.flv';
-      }
-    }).toList();
-  }
-
-  Future<void> _initializeVideoPlayer() async {
-    _disposeVideoPlayer();
-    if (_videoURL != null && _videoURL!.isNotEmpty) {
-      if (!networkUrls.contains(_videoURL)) {
-        _videoController = VideoPlayerController.file(File(_videoURL!));
-      } else {
+  Future<void> initializeVideoPlayer() async {
+    disposeVideoPlayer();
+    if (mediaUploadController.videoURL != null &&
+        mediaUploadController.videoURL!.isNotEmpty) {
+      if (!mediaUploadController.networkUrls
+          .contains(mediaUploadController.videoURL)) {
         _videoController =
-            VideoPlayerController.networkUrl(Uri.parse(_videoURL!));
+            VideoPlayerController.file(File(mediaUploadController.videoURL!));
+      } else {
+        _videoController = VideoPlayerController.networkUrl(
+            Uri.parse(mediaUploadController.videoURL!));
       }
 
       await _videoController!.initialize();
@@ -852,7 +636,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
     }
   }
 
-  void _disposeVideoPlayer() {
+  void disposeVideoPlayer() {
     _videoController?.pause();
     _videoController?.dispose();
     _videoController = null;
@@ -862,8 +646,9 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
     _chewieController = null;
   }
 
-  Future<void> _initializeImage() async {
-    if (_imageURL != null && _imageURL!.isNotEmpty) {
+  Future<void> initializeImage() async {
+    if (mediaUploadController.imageURL != null &&
+        mediaUploadController.imageURL!.isNotEmpty) {
       setState(() {});
     }
   }
@@ -877,15 +662,19 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
             aspectRatio: _videoController!.value.aspectRatio,
             child: Chewie(controller: _chewieController!),
           ),
-          if (!editing || networkUrls.contains(_videoURL))
+          if (!editing ||
+              mediaUploadController.networkUrls
+                  .contains(mediaUploadController.videoURL))
             Text(
-              'The above is a preview of your video.       ${currentIndex + 1} / ${mediaUrls.length}',
+              'The above is a preview of your video.       ${currentIndex + 1} / ${mediaUploadController.mediaUrls.length}',
               key: const Key('upload_text_video'),
               style: const TextStyle(color: Colors.grey),
             ),
-          if (editing && !networkUrls.contains(_videoURL))
+          if (editing &&
+              !mediaUploadController.networkUrls
+                  .contains(mediaUploadController.videoURL))
             Text(
-              'The above is a preview of your new video.    ${currentIndex + 1} / ${mediaUrls.length}',
+              'The above is a preview of your new video.    ${currentIndex + 1} / ${mediaUploadController.mediaUrls.length}',
               key: const Key('edit_text_video'),
               style: const TextStyle(color: Colors.grey),
             ),
@@ -897,7 +686,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                 key: const Key('deleteVideoButton'),
                 icon: const Icon(Icons.delete_forever_outlined,
                     color: Colors.red),
-                onPressed: _clearSelection,
+                onPressed: mediaUploadController.clearSelection,
                 tooltip: 'Remove Video',
               ),
             ],
@@ -911,17 +700,25 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (!networkUrls.contains(_imageURL)) Image.file(File(_imageURL!)),
-        if (networkUrls.contains(_imageURL)) Image.network((_imageURL!)),
-        if (!editing || networkUrls.contains(_imageURL))
+        if (!mediaUploadController.networkUrls
+            .contains(mediaUploadController.imageURL))
+          Image.file(File(mediaUploadController.imageURL!)),
+        if (mediaUploadController.networkUrls
+            .contains(mediaUploadController.imageURL))
+          Image.network((mediaUploadController.imageURL!)),
+        if (!editing ||
+            mediaUploadController.networkUrls
+                .contains(mediaUploadController.imageURL))
           Text(
-            'The above is a preview of your image.          ${currentIndex + 1} / ${mediaUrls.length}',
+            'The above is a preview of your image.          ${currentIndex + 1} / ${mediaUploadController.mediaUrls.length}',
             key: const Key('upload_text_image'),
             style: const TextStyle(color: Colors.grey),
           ),
-        if (editing && !networkUrls.contains(_imageURL))
+        if (editing &&
+            !mediaUploadController.networkUrls
+                .contains(mediaUploadController.imageURL))
           Text(
-            'The above is a preview of your new image.        ${currentIndex + 1} / ${mediaUrls.length}',
+            'The above is a preview of your new image.        ${currentIndex + 1} / ${mediaUploadController.mediaUrls.length}',
             key: const Key('edit_text_image'),
             style: const TextStyle(color: Colors.grey),
           ),
@@ -933,66 +730,13 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
               key: const Key('deleteImageButton'),
               icon:
                   const Icon(Icons.delete_forever_outlined, color: Colors.red),
-              onPressed: _clearSelection,
+              onPressed: mediaUploadController.clearSelection,
               tooltip: 'Remove Image',
             ),
           ],
         ),
       ],
     );
-  }
-
-  Future<void> deleteMediaFromStorage(String url) async {
-    // get reference to the file
-    Reference ref = widget.storage.refFromURL(url);
-
-    // Delete the file
-    await ref.delete();
-  }
-
-  void _clearSelection() {
-    List<Map<String, dynamic>> oldMediaUrls = [...mediaUrls];
-    setState(() {
-      if (mediaUrls[currentIndex]['mediaType'] == 'video') {
-        _disposeVideoPlayer();
-      }
-      if (mediaUrls.length == 1) {
-        currentIndex = 0;
-      }
-      mediaUrls.removeAt(currentIndex);
-      if (mediaUrls.isNotEmpty) {
-        if (currentIndex - 1 >= 0) {
-          currentIndex -= 1;
-        } else {
-          currentIndex += 1;
-        }
-        if (oldMediaUrls[currentIndex]['mediaType'] == 'video') {
-          _videoURL = oldMediaUrls[currentIndex]['url'];
-
-          _imageURL = null;
-          setState(() {});
-          _initializeVideoPlayer();
-          setState(() {});
-        } else if (oldMediaUrls[currentIndex]['mediaType'] == 'image') {
-          _imageURL = oldMediaUrls[currentIndex]['url'];
-          _videoURL = null;
-          setState(() {});
-          _initializeImage();
-
-          setState(() {});
-        }
-        if (mediaUrls.length == 1) {
-          currentIndex = 0;
-        }
-      } else {
-        if (oldMediaUrls[currentIndex]['mediaType'] == 'video') {
-          _videoURL = null;
-        } else {
-          _imageURL = null;
-        }
-        setState(() {});
-      }
-    });
   }
 
   void addQuiz(String qid) {
@@ -1126,11 +870,5 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
 
   Future<void> addCategory(String categoryName) async {
     await widget.firestore.collection('categories').add({'name': categoryName});
-  }
-
-  Future<String> uploadMediaToStorage(String url) async {
-    Reference ref = widget.storage.ref().child('media/${basename(url)}');
-    await ref.putFile(File(url));
-    return await ref.getDownloadURL();
   }
 }

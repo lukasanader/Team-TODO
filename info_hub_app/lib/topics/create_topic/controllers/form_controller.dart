@@ -2,14 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../model/topic_model.dart';
+import 'package:info_hub_app/topics/create_topic/view/topic_creation_view.dart';
+import 'media_upload_controller.dart';
 
 class FormController {
   final FirebaseAuth auth;
   final FirebaseFirestore firestore;
   Topic? topic;
   Topic? draft;
+  CreateTopicScreenState screen;
+  MediaUploadController? mediaUploadController;
 
-  FormController(this.auth, this.firestore, this.topic, this.draft);
+  FormController(this.auth, this.firestore, this.topic, this.draft, this.screen,
+      this.mediaUploadController);
 
   TextEditingController titleController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
@@ -70,5 +75,122 @@ class FormController {
       return 'Please enter a Description';
     }
     return null;
+  }
+
+  Future<void> uploadTopic(context, bool saveAsDraft) async {
+    List<Map<String, String>> mediaList = [];
+    Topic newTopic = Topic();
+    for (var item in mediaUploadController!.mediaUrls) {
+      String url = item['url']!;
+      String mediaType = item['mediaType']!;
+
+      if (mediaUploadController!.networkUrls.contains(url)) {
+        screen.downloadURL = url;
+      } else {
+        screen.downloadURL =
+            await mediaUploadController!.uploadMediaToStorage(url);
+      }
+
+      Map<String, String> uploadData = {
+        'url': screen.downloadURL!,
+        'mediaType': mediaType,
+      };
+
+      mediaList.add(uploadData);
+    }
+
+    CollectionReference topicCollectionRef = firestore.collection('topics');
+
+    if (!editing && !drafting) {
+      newTopic = Topic(
+        title: titleController.text,
+        description: descriptionController.text,
+        articleLink: articleLinkController.text,
+        media: mediaList,
+        views: 0,
+        likes: 0,
+        dislikes: 0,
+        tags: tags,
+        categories: categories,
+        date: DateTime.now(),
+        quizID: screen.quizID,
+      );
+      if (saveAsDraft) {
+        newTopic.userID = auth.currentUser?.uid;
+        CollectionReference topicDraftsCollectionRef =
+            firestore.collection('topicDrafts');
+        final topicDraftRef =
+            await topicDraftsCollectionRef.add(newTopic.toJson());
+        final user = auth.currentUser;
+        if (user != null) {
+          final userDocRef = firestore.collection('Users').doc(user.uid);
+          await userDocRef.update({
+            'draftedTopics': FieldValue.arrayUnion([topicDraftRef.id])
+          });
+        }
+      } else {
+        await topicCollectionRef.add(newTopic.toJson());
+      }
+    } else {
+      if (topic != null && topic!.quizID != '') {
+        screen.quizID = topic!.quizID!;
+      }
+      newTopic = Topic(
+          title: titleController.text,
+          description: descriptionController.text,
+          articleLink: articleLinkController.text,
+          media: mediaList,
+          views: editing ? topic!.views : draft!.views,
+          likes: editing ? topic!.likes : draft!.likes,
+          categories: categories,
+          dislikes: editing ? topic!.dislikes : draft!.dislikes,
+          date: editing ? topic!.date : draft!.date,
+          tags: tags,
+          quizID: screen.quizID);
+
+      for (var item in mediaUploadController!.originalUrls) {
+        if (!mediaList
+            .map((map) => map['url'])
+            .toList()
+            .contains(item['url'])) {
+          mediaUploadController!.deleteMediaFromStorage(item['url']);
+        }
+      }
+
+      if (editing) {
+        await topicCollectionRef.doc(topic!.id).update(newTopic.toJson());
+        screen.updatedTopicDoc = newTopic;
+      } else if (drafting) {
+        await topicCollectionRef.add(newTopic.toJson());
+        deleteDraft();
+      }
+      if (editing) {}
+    }
+  }
+
+  void deleteDraft() async {
+    final user = auth.currentUser;
+    if (user != null) {
+      final userDocRef = firestore.collection('Users').doc(user.uid);
+
+      DocumentSnapshot userDoc = await userDocRef.get();
+
+      if (userDoc.exists) {
+        // Get the current list of drafted topics
+        List<String> draftedTopics =
+            List<String>.from(userDoc['draftedTopics']);
+
+        // Remove the current draft ID from the list
+        draftedTopics.remove(draft!.id);
+
+        // Update the user document with the modified draftedTopics list
+        await userDocRef.update({
+          'draftedTopics': draftedTopics,
+        });
+
+        // Delete the draft from the topicDrafts collection
+        await firestore.collection('topicDrafts').doc(draft!.id).delete();
+      }
+    }
   }
 }
