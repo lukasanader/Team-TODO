@@ -88,9 +88,6 @@ class AuthService {
             likedTopics, dislikedTopics, hasOptedOutOfExperienceExpectations);
       }
     } catch (e) {
-      if (kDebugMode) {
-        print(e.toString());
-      }
       return null;
     }
   }
@@ -110,9 +107,6 @@ class AuthService {
         return user;
       }
     } catch (e) {
-      if (kDebugMode) {
-        print(e.toString());
-      }
       return null;
     }
   }
