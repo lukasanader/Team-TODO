@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:info_hub_app/message_feature/message_model.dart';
 import 'package:info_hub_app/message_feature/message_room/message_room_controller.dart';
 import 'package:info_hub_app/controller/user_controller.dart';
+import 'package:info_hub_app/model/user_model.dart';
 import 'package:info_hub_app/threads/name_generator.dart';
 
 class MessageController extends ChangeNotifier {
@@ -38,10 +39,10 @@ class MessageController extends ChangeNotifier {
     //checks if room is initialised, if not creates it
     DocumentSnapshot chatRoomDocument = await _firestore.collection('message_rooms').doc(chatRoomId).get();  
     if (!chatRoomDocument.exists) {
-      DocumentSnapshot receiverUser = await UserController(_firebaseAuth, _firestore).getUser(receiverId);
+      UserModel receiverUser = await UserController(_firebaseAuth, _firestore).getUser(receiverId);
 
       //will display the patients email as the card name
-      String adminDisplayName = receiverUser['email'];
+      String adminDisplayName = receiverUser.email;
 
       //will display the admins username as the card name
       String patientDisplayName = generateUniqueName(currentUserId);
