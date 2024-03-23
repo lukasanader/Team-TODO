@@ -48,8 +48,11 @@ class _TestViewState extends State<TestView> {
                     firestore: widget.firestore,
                     auth: widget.auth,
                     uid: widget.auth.currentUser!.uid)
-                .createNotification('Test Notification',
-                    'This is a test notification', DateTime.now());
+                .createNotification(
+                    'Test Notification',
+                    'This is a test notification',
+                    DateTime.now(),
+                    '/notifications');
           },
           child: const Text('Create Test Notification'),
         ),

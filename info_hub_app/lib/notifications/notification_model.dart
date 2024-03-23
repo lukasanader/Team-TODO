@@ -4,6 +4,7 @@ class Notification {
   final String title;
   final String body;
   final DateTime timestamp;
+  final String route;
 
   Notification({
     required this.id,
@@ -11,5 +12,6 @@ class Notification {
     required this.title,
     required this.body,
     required this.timestamp,
+    required this.route,
   });
 }
