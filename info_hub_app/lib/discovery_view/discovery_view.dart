@@ -266,15 +266,14 @@ class _DiscoveryViewState extends State<DiscoveryView> {
     List<String> tempStringList = [];
     List<Widget> tempWidgetList = [];
 
-    QuerySnapshot<Object?> snapshot = await widget.firestore.collection('categories').orderBy('name').get();
+    QuerySnapshot<Map<String, dynamic>> snapshot =
+        await widget.firestore.collection('categories').orderBy('name').get();
 
-    for (QueryDocumentSnapshot<Object?> doc in snapshot.docs) {
-      final data = doc.data();
-      if (data != null && data is Map<String, dynamic> && data.containsKey('name')) {
-        String name = data['name'];
-        tempStringList.add(name);
-        tempWidgetList.add(Text(name));
-      }
+    List<Category> categories = snapshot.docs.map((doc) => Category.fromSnapshot(doc)).toList();
+
+    for (Category category in categories) {
+      tempStringList.add(category.name!);
+      tempWidgetList.add(Text(category.name!));
     }
 
     setState(() {
@@ -293,8 +292,9 @@ class _DiscoveryViewState extends State<DiscoveryView> {
     updateTopicListBasedOnCategory(categoriesSelected);
   }
 
-  void _updateCategoryList(QuerySnapshot<Object?> snapshot) {
-    getCategoryList(); // Call this method to update the category list
-    updateTopicListBasedOnCategory(categoriesSelected); // Update the displayed topics based on the new category list
+  void _updateCategoryList(QuerySnapshot<Map<String, dynamic>> snapshot) {
+
+    getCategoryList();
+    updateTopicListBasedOnCategory(categoriesSelected);
   }
 }
