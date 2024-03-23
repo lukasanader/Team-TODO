@@ -9,6 +9,7 @@ import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import '../mock_classes.dart';
+import 'package:info_hub_app/topics/create_topic/topic_model.dart';
 
 void main() {
   late FakeFirebaseFirestore firestore;
@@ -59,35 +60,34 @@ void main() {
       (WidgetTester tester) async {
     CollectionReference topicCollectionRef = firestore.collection('topics');
 
-    Map<String, dynamic> details = {
-      'title': 'Test Topic',
-      'description': 'Test Description',
-      'articleLink': 'https://www.example.com',
-      'media': [
-        {
-          'url':
-              'https://firebasestorage.googleapis.com/v0/b/team-todo-38f76.appspot.com/o/videos%2F2024-02-01%2018:28:20.745204.mp4?alt=media&token=6d6e3aee-240d-470f-ab22-58e274a04010',
-          'mediaType': 'video'
-        }
-      ],
-      'likes': 0,
-      'views': 0,
-      'quizId': "",
-      'tags': ['Patient'],
-      'dislikes': 0,
-      'categories': ['Sports'],
-      'date': DateTime.now()
-    };
+    Topic topic = Topic(
+        title: 'Test Topic',
+        description: 'Test Description',
+        articleLink: 'https://www.example.com',
+        media: [
+          {
+            'url':
+                'https://firebasestorage.googleapis.com/v0/b/team-todo-38f76.appspot.com/o/videos%2F2024-02-01%2018:28:20.745204.mp4?alt=media&token=6d6e3aee-240d-470f-ab22-58e274a04010',
+            'mediaType': 'video'
+          }
+        ],
+        likes: 0,
+        views: 0,
+        quizID: "",
+        tags: ['Patient'],
+        dislikes: 0,
+        categories: ['Sports'],
+        date: DateTime.now());
 
     // Add a topic
-    DocumentReference ref = await topicCollectionRef.add(details);
+    DocumentReference ref = await topicCollectionRef.add(topic.toJson());
+    topic.id = ref.id;
 
-    QuerySnapshot data = await topicCollectionRef.orderBy('title').get();
     Widget deleteView = MaterialApp(
       home: ViewTopicScreen(
         firestore: firestore,
         storage: storage,
-        topic: data.docs[0] as QueryDocumentSnapshot<Object>,
+        topic: topic,
         auth: MockFirebaseAuth(
             signedIn: true, mockUser: MockUser(uid: 'adminUser')),
         themeManager: themeManager,
@@ -127,26 +127,34 @@ void main() {
       (WidgetTester tester) async {
     CollectionReference topicCollectionRef = firestore.collection('topics');
 
-    // Add a topic
-    DocumentReference topicDocRef = await topicCollectionRef.add({
-      'title': 'Test Topic',
-      'description': 'Test Description',
-      'articleLink': 'https://www.example.com',
-      'media': [],
-      'likes': 0,
-      'tags': ['Patient'],
-      'views': 0,
-      'quizId': "",
-      'dislikes': 0,
-      'categories': ['Sports'],
-      'date': DateTime.now()
-    });
-    QuerySnapshot data = await topicCollectionRef.orderBy('title').get();
+    Topic topic = Topic(
+        title: 'Test Topic',
+        description: 'Test Description',
+        articleLink: 'https://www.example.com',
+        media: [
+          {
+            'url':
+                'https://firebasestorage.googleapis.com/v0/b/team-todo-38f76.appspot.com/o/videos%2F2024-02-01%2018:28:20.745204.mp4?alt=media&token=6d6e3aee-240d-470f-ab22-58e274a04010',
+            'mediaType': 'video'
+          }
+        ],
+        likes: 0,
+        views: 0,
+        quizID: "",
+        tags: ['Patient'],
+        dislikes: 0,
+        categories: ['Sports'],
+        date: DateTime.now());
+
+    DocumentReference topicDocRef =
+        await topicCollectionRef.add(topic.toJson());
+    topic.id = topicDocRef.id;
+
     await tester.pumpWidget(MaterialApp(
       home: ViewTopicScreen(
         firestore: firestore,
         storage: storage,
-        topic: data.docs[0] as QueryDocumentSnapshot<Object>,
+        topic: topic,
         auth: MockFirebaseAuth(
             signedIn: true, mockUser: MockUser(uid: 'adminUser')),
         themeManager: themeManager,
@@ -156,6 +164,7 @@ void main() {
     DocumentReference adminUserDocRef =
         firestore.collection('Users').doc('adminUser');
     // dislike topic
+    await tester.ensureVisible(find.byIcon(Icons.thumb_down));
     await tester.tap(find.byIcon(Icons.thumb_down));
     await tester.pumpAndSettle();
     await tester.ensureVisible(find.byKey(const Key('delete_topic_button')));
@@ -175,27 +184,33 @@ void main() {
     CollectionReference topicCollectionRef = firestore.collection('topics');
 
     // Add a topic
-    DocumentReference topicDocRef = await topicCollectionRef.add({
-      'title': 'Test Topic',
-      'description': 'Test Description',
-      'articleLink': 'https://www.example.com',
-      'media': [],
-      'likes': 0,
-      'tags': ['Patient'],
-      'views': 0,
-      'quizId': "",
-      'dislikes': 0,
-      'categories': ['Sports'],
-      'date': DateTime.now()
-    });
-
-    QuerySnapshot data = await topicCollectionRef.orderBy('title').get();
+    Topic topic = Topic(
+        title: 'Test Topic',
+        description: 'Test Description',
+        articleLink: 'https://www.example.com',
+        media: [
+          {
+            'url':
+                'https://firebasestorage.googleapis.com/v0/b/team-todo-38f76.appspot.com/o/videos%2F2024-02-01%2018:28:20.745204.mp4?alt=media&token=6d6e3aee-240d-470f-ab22-58e274a04010',
+            'mediaType': 'video'
+          }
+        ],
+        likes: 0,
+        views: 0,
+        quizID: "",
+        tags: ['Patient'],
+        dislikes: 0,
+        categories: ['Sports'],
+        date: DateTime.now());
+    DocumentReference topicDocRef =
+        await topicCollectionRef.add(topic.toJson());
+    topic.id = topicDocRef.id;
 
     await tester.pumpWidget(MaterialApp(
       home: ViewTopicScreen(
         firestore: firestore,
         storage: storage,
-        topic: data.docs[0] as QueryDocumentSnapshot<Object>,
+        topic: topic,
         auth: MockFirebaseAuth(
             signedIn: true, mockUser: MockUser(uid: 'adminUser')),
         themeManager: themeManager,

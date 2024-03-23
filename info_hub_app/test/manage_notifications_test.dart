@@ -4,7 +4,7 @@ import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:info_hub_app/notifications/preferences.dart';
+import 'package:info_hub_app/notifications/preferences_model.dart';
 import 'package:info_hub_app/notifications/manage_notifications.dart';
 import 'package:info_hub_app/services/database.dart';
 import 'package:provider/provider.dart';

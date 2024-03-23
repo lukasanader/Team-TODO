@@ -181,17 +181,24 @@ void main() {
     });
 
     QuerySnapshot snapshot = await firestore.collection('topics').get();
-    QueryDocumentSnapshot topic;
-    if(snapshot.docs.first.id=='1'){
-      topic=snapshot.docs.first;
-    }else{
-      topic=snapshot.docs.last;
-    }
+     Topic topic = Topic(
+        title: 'Test Topic',
+        description: 'Test Description',
+        articleLink: 'https://www.example.com',
+        media: [],
+        likes: 0,
+        views: 0,
+        quizID: "",
+        tags: ['Patient'],
+        dislikes: 0,
+        categories: ['Sports'],
+        date: DateTime.now());
+        topic.id='1';
    Widget deleteView = MaterialApp(
       home: ViewTopicScreen(
         firestore: firestore,
         storage: storage,
-        topic: topic as QueryDocumentSnapshot<Object>,
+        topic: topic,
         auth: MockFirebaseAuth(
             signedIn: true, mockUser: MockUser(uid: 'adminUser')),
         themeManager: themeManager,

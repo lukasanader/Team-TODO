@@ -14,7 +14,8 @@ class ChangeProfile extends StatefulWidget {
 
 class _ChangeProfileState extends State<ChangeProfile> {
   final TextEditingController _newPasswordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
   String _firstNameErrorText = '';
@@ -35,14 +36,13 @@ class _ChangeProfileState extends State<ChangeProfile> {
     });
   }
 
-void _saveChanges() async {
+  void _saveChanges() async {
     setState(() {
       // Reset error text
       _firstNameErrorText = '';
       _lastNameErrorText = '';
       _passwordErrorText = '';
     });
-
 
     // Validation logic
     if (!widget.controller.validateInputs(
@@ -85,15 +85,16 @@ void _saveChanges() async {
     await widget.controller.updateProfile(
         _firstNameController, _lastNameController, _newPasswordController);
 
-
-    Navigator.pop(context);
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('Changes saved'),
+        content: Text(
+          'Changes saved',
+          textAlign: TextAlign.center,
+        ),
         duration: Duration(seconds: 5),
-        backgroundColor: Colors.green,
       ),
     );
+    Navigator.pop(context, true);
   }
 
   @override
@@ -174,8 +175,3 @@ void _saveChanges() async {
     );
   }
 }
-
-
-
-
-

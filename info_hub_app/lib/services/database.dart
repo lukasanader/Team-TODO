@@ -5,11 +5,12 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:info_hub_app/main.dart';
-import 'package:info_hub_app/notifications/notification.dart' as custom;
+import 'package:info_hub_app/notifications/notification_model.dart' as custom;
 import 'package:info_hub_app/push_notifications/push_notifications.dart';
 import 'package:info_hub_app/registration/user_model.dart';
-import 'package:info_hub_app/notifications/preferences.dart';
+import 'package:info_hub_app/notifications/preferences_model.dart';
 import 'package:http/http.dart' as http;
+import 'package:info_hub_app/topics/create_topic/topic_model.dart';
 
 class DatabaseService {
   final FirebaseAuth auth;
@@ -20,7 +21,7 @@ class DatabaseService {
       {required this.auth, required this.uid, required this.firestore});
 
   Future<String> createNotification(
-      String title, String body, DateTime timestamp) async {
+      String title, String body, DateTime timestamp, String route) async {
     CollectionReference notificationsCollection =
         firestore.collection('notifications');
     var docRef = await notificationsCollection.add({
@@ -28,6 +29,7 @@ class DatabaseService {
       'title': title,
       'body': body,
       'timestamp': timestamp,
+      'route': route,
     });
 
     // Send push notification to all device tokens
@@ -86,6 +88,7 @@ class DatabaseService {
         title: doc.get('title') ?? '',
         body: doc.get('body') ?? '',
         timestamp: doc.get('timestamp').toDate() ?? DateTime.now(),
+        route: doc.get('route') ?? '',
       );
     }).toList();
 
@@ -178,18 +181,18 @@ class DatabaseService {
     return preferences;
   }
 
-Future<void> incrementView(QueryDocumentSnapshot topic) async{
-  DocumentReference docRef =firestore.collection('topics').doc(topic.id);
-  // Run the transaction
-  await firestore.runTransaction((transaction) async {
-    // Get the latest snapshot of the document
-    DocumentSnapshot snapshot = await transaction.get(docRef);
-    int currentViews = (snapshot.data() as Map<String, dynamic>)['views'] ?? 0;
-    // Increment the views by one
-    int newViews = currentViews + 1;
-    // Update the 'views' field in Firestore
-    transaction.update(docRef, {'views': newViews});
-  });
-}
-
+  Future<void> incrementView(Topic topic) async {
+    DocumentReference docRef = firestore.collection('topics').doc(topic.id);
+    // Run the transaction
+    await firestore.runTransaction((transaction) async {
+      // Get the latest snapshot of the document
+      DocumentSnapshot snapshot = await transaction.get(docRef);
+      int currentViews =
+          (snapshot.data() as Map<String, dynamic>)['views'] ?? 0;
+      // Increment the views by one
+      int newViews = currentViews + 1;
+      // Update the 'views' field in Firestore
+      transaction.update(docRef, {'views': newViews});
+    });
+  }
 }

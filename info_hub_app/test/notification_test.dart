@@ -4,8 +4,8 @@ import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:info_hub_app/notifications/notification.dart' as custom;
-import 'package:info_hub_app/notifications/notifications.dart';
+import 'package:info_hub_app/notifications/notification_model.dart' as custom;
+import 'package:info_hub_app/notifications/notifications_view.dart';
 import 'package:info_hub_app/services/database.dart';
 import 'package:provider/provider.dart';
 
@@ -42,6 +42,7 @@ Future<void> main() async {
         'title': 'title1',
         'body': 'body1',
         'timestamp': DateTime.now(),
+        'route': 'route1',
       });
 
       await tester.pumpWidget(
@@ -70,9 +71,7 @@ Future<void> main() async {
       await tester.pump();
 
       expect(find.text('title1'), findsOneWidget);
-      expect(find.text('body1'), findsOneWidget);
       expect(find.text('title2'), findsNothing);
-      expect(find.text('body2'), findsNothing);
     });
 
     testWidgets(
@@ -83,12 +82,14 @@ Future<void> main() async {
         'title': 'title1',
         'body': 'body1',
         'timestamp': DateTime.now(),
+        'route': 'route1',
       });
       await firestore.collection(NotificationCollection).add({
         'uid': auth.currentUser!.uid,
         'title': 'title2',
         'body': 'body2',
         'timestamp': DateTime.now(),
+        'route': 'route2',
       });
 
       await tester.pumpWidget(
@@ -131,11 +132,8 @@ Future<void> main() async {
                       auth: auth,
                       firestore: firestore,
                       uid: auth.currentUser!.uid,
-                    ).createNotification(
-                      'Test Title',
-                      'Test Body',
-                      DateTime.now(),
-                    );
+                    ).createNotification('Test Title', 'Test Body',
+                        DateTime.now(), 'Test Route');
 
                     expect(notificationId, isNotEmpty);
 
@@ -170,6 +168,7 @@ Future<void> main() async {
         'title': 'Test Title',
         'body': 'Test Body',
         'timestamp': Timestamp.now(),
+        'route': 'Test Route',
       }).then((doc) => doc.id);
 
       await tester.pumpWidget(
@@ -197,13 +196,11 @@ Future<void> main() async {
       await tester.pump();
 
       expect(find.text('Test Title'), findsOneWidget);
-      expect(find.text('Test Body'), findsOneWidget);
 
       await tester.drag(find.text('Test Title'), const Offset(500.0, 0.0));
       await tester.pumpAndSettle();
 
       expect(find.text('Test Title'), findsNothing);
-      expect(find.text('Test Body'), findsNothing);
     });
   });
 }

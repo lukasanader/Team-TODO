@@ -7,7 +7,7 @@ import 'package:info_hub_app/registration/user_controller.dart';
 import 'package:info_hub_app/topics/topics_card.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
+import 'package:info_hub_app/topics/create_topic/topic_model.dart';
 import '../controller/topic_question_controller.dart';
 
 class DiscoveryView extends StatefulWidget {
@@ -28,7 +28,7 @@ class DiscoveryView extends StatefulWidget {
 class _DiscoveryViewState extends State<DiscoveryView> {
   final TextEditingController _questionController = TextEditingController();
   final TextEditingController _searchController = TextEditingController();
-  List<QueryDocumentSnapshot<Object?>> _topicsList = [];
+  List<Topic> _topicsList = [];
   int topicLength = 0;
 
   late List<bool> isSelected = [];
@@ -36,7 +36,7 @@ class _DiscoveryViewState extends State<DiscoveryView> {
   List<String> _categories = [];
   List<String> categoriesSelected = [];
 
-  List<QueryDocumentSnapshot<Object?>> _displayedTopicsList = [];
+  List<Topic> _displayedTopicsList = [];
 
   late StreamSubscription<QuerySnapshot<Object?>> _topicsSubscription;
 
@@ -177,12 +177,6 @@ class _DiscoveryViewState extends State<DiscoveryView> {
           ),
           actions: <Widget>[
             TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
               onPressed: () async {
                 // Get the entered question text
                 String questionText = _questionController.text.trim();
@@ -255,6 +249,12 @@ class _DiscoveryViewState extends State<DiscoveryView> {
               },
               child: const Text('Submit'),
             ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
           ],
         );
       },
@@ -262,39 +262,38 @@ class _DiscoveryViewState extends State<DiscoveryView> {
   }
 
   Future<void> initializeData() async {
-  getCategoryList();
-  await getAllTopicsList().then((_) {
-    setState(() {
-      _displayedTopicsList = _topicsList;
+    getCategoryList();
+    await getAllTopicsList().then((_) {
+      setState(() {
+        _displayedTopicsList = _topicsList;
+      });
     });
-  });
 
-  String role =
-      await UserController(widget.auth, widget.firestore).getUserRoleType();
-  Query<Object?> topicsQuery;
+    String role =
+        await UserController(widget.auth, widget.firestore).getUserRoleType();
+    Query<Object?> topicsQuery;
 
-  if (role == 'admin') {
-    topicsQuery = widget.firestore.collection('topics').orderBy('title');
-  } else {
-    topicsQuery = widget.firestore
-        .collection('topics')
-        .where('tags', arrayContains: role)
-        .orderBy('title');
+    if (role == 'admin') {
+      topicsQuery = widget.firestore.collection('topics').orderBy('title');
+    } else {
+      topicsQuery = widget.firestore
+          .collection('topics')
+          .where('tags', arrayContains: role)
+          .orderBy('title');
+    }
+
+    _topicsSubscription = topicsQuery.snapshots().listen(_updateTopicsList);
   }
-
-  _topicsSubscription = topicsQuery.snapshots().listen(_updateTopicsList);
-}
 
   void _searchData(String query) {
     updateTopicListBasedOnCategory(categoriesSelected);
 
     if (query.isNotEmpty) {
-      List<QueryDocumentSnapshot<Object?>> tempList = [];
-
+      List<Topic> tempList = [];
       for (int i = 0; i < _displayedTopicsList.length; i++) {
-        QueryDocumentSnapshot topic = _displayedTopicsList[i];
-        if (topic['title'] != null) {
-          String title = topic['title'].toString().toLowerCase();
+        Topic topic = _displayedTopicsList[i];
+        if (topic.title != null) {
+          String title = topic.title.toString().toLowerCase();
           if (title.contains(query.toLowerCase())) {
             tempList.add(topic);
           }
@@ -322,37 +321,35 @@ class _DiscoveryViewState extends State<DiscoveryView> {
           .get();
     }
 
-    List<QueryDocumentSnapshot<Object?>> tempList =
-        data.docs.cast<QueryDocumentSnapshot<Object?>>();
+    List<Topic> tempList =
+        data.docs.map((doc) => Topic.fromSnapshot(doc)).toList();
 
     setState(() {
       _topicsList = tempList;
     });
   }
 
-Future updateTopicListBasedOnCategory(List<String> categories) async {
-  if (categories.isNotEmpty) {
-    List<QueryDocumentSnapshot<Object?>> categoryTopicList = [];
-
-    for (var topic in _topicsList) {
-      final data = topic.data();
-      if (data != null && data is Map<String, dynamic> && data.containsKey('categories')) {
-        final topicCategories = List<String>.from(data['categories']);
-        if (categories.every((item) => topicCategories.contains(item))) {
-          categoryTopicList.add(topic);
+  Future updateTopicListBasedOnCategory(List<String> categories) async {
+    if (categories.isNotEmpty) {
+      List<Topic> categoryTopicList = [];
+      for (var topic in _topicsList) {
+        if (topic.categories != null) {
+          if (categories.every((item) => topic.categories!.contains(item))) {
+            categoryTopicList.add(topic);
+          }
         }
       }
-    }
 
-    setState(() {
-      _displayedTopicsList = categoryTopicList;
-    });
-  } else {
-    setState(() {
-      _displayedTopicsList = _topicsList;
-    });
+      setState(() {
+        _displayedTopicsList = categoryTopicList;
+      });
+    } else {
+      setState(() {
+        _displayedTopicsList = _topicsList;
+      });
+    }
   }
-}
+
   Future getCategoryList() async {
     QuerySnapshot data =
         await widget.firestore.collection('categories').orderBy('name').get();
@@ -375,9 +372,11 @@ Future updateTopicListBasedOnCategory(List<String> categories) async {
 
   void _updateTopicsList(QuerySnapshot<Object?> snapshot) {
     final List<QueryDocumentSnapshot<Object?>> topics = snapshot.docs;
+    final List<Topic> topicList =
+        topics.map((doc) => Topic.fromSnapshot(doc)).toList();
     setState(() {
-      _topicsList = topics;
-      _displayedTopicsList = _topicsList;
+      _topicsList = topicList;
+      _displayedTopicsList = List.from(_topicsList);
     });
     updateTopicListBasedOnCategory(categoriesSelected);
   }

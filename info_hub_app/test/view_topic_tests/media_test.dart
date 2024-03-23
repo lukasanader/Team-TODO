@@ -10,6 +10,7 @@ import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import '../mock_classes.dart';
 import 'package:mocktail_image_network/mocktail_image_network.dart';
+import 'package:info_hub_app/topics/create_topic/topic_model.dart';
 
 void main() {
   late FakeFirebaseFirestore firestore;
@@ -29,30 +30,31 @@ void main() {
       'likedTopics': [],
       'dislikedTopics': [],
     });
+    CollectionReference topicCollectionRef = firestore.collection('topics');
 
-    CollectionReference ref = firestore.collection('topics');
-
-    await ref.add({
-      'title': 'video topic',
-      'description': 'Test Description',
-      'articleLink': 'https://www.javatpoint.com/heap-sort',
-      'media': [
+    Topic topic = Topic(
+      title: 'video topic',
+      description: 'Test Description',
+      articleLink: 'https://www.javatpoint.com/heap-sort',
+      media: [
         {
           'url':
               'https://firebasestorage.googleapis.com/v0/b/team-todo-38f76.appspot.com/o/videos%2F2024-02-01%2018:28:20.745204.mp4?alt=media&token=6d6e3aee-240d-470f-ab22-58e274a04010',
           'mediaType': 'video'
         }
       ],
-      'likes': 0,
-      'tags': ['Patient'],
-      'views': 0,
-      'quizId': "",
-      'dislikes': 0,
-      'categories': ['Sports'],
-      'date': DateTime.now()
-    });
+      likes: 0,
+      tags: ['Patient'],
+      views: 0,
+      quizID: "",
+      dislikes: 0,
+      categories: ['Sports'],
+      date: DateTime.now(),
+    );
+    DocumentReference topicDocRef =
+        await topicCollectionRef.add(topic.toJson());
+    topic.id = topicDocRef.id;
 
-    QuerySnapshot data = await ref.orderBy('title').get();
     final MockUser mockUser = MockUser(
       isAnonymous: false,
       uid: 'user123',
@@ -64,7 +66,7 @@ void main() {
       home: ViewTopicScreen(
           firestore: firestore,
           storage: storage,
-          topic: data.docs[0] as QueryDocumentSnapshot<Object>,
+          topic: topic,
           auth: localAuth,
           themeManager: themeManager),
     );
@@ -100,30 +102,31 @@ void main() {
 
     CollectionReference topicCollectionRef = firestore.collection('topics');
 
-    await topicCollectionRef.add({
-      'title': 'video topic',
-      'description': 'Test Description',
-      'articleLink': 'https://www.javatpoint.com/heap-sort',
-      'media': [
-        {'url': 'http://via.placeholder.com/350x150', 'mediaType': 'image'}
-      ],
-      'likes': 0,
-      'tags': ['Patient'],
-      'views': 0,
-      'quizId': "",
-      'dislikes': 0,
-      'categories': ['Sports'],
-      'date': DateTime.now()
-    });
+    Topic topic = Topic(
+        title: 'video topic',
+        description: 'Test Description',
+        articleLink: 'https://www.javatpoint.com/heap-sort',
+        media: [
+          {'url': 'http://via.placeholder.com/350x150', 'mediaType': 'image'}
+        ],
+        likes: 0,
+        tags: ['Patient'],
+        views: 0,
+        quizID: "",
+        dislikes: 0,
+        categories: ['Sports'],
+        date: DateTime.now());
 
-    QuerySnapshot data = await topicCollectionRef.orderBy('title').get();
+    DocumentReference topicDocRef =
+        await topicCollectionRef.add(topic.toJson());
+    topic.id = topicDocRef.id;
 
     // Pass a valid URL when creating the VideoPlayerController instance
     await mockNetworkImages(() async => await tester.pumpWidget(MaterialApp(
           home: ViewTopicScreen(
             firestore: firestore,
             storage: storage,
-            topic: data.docs[0] as QueryDocumentSnapshot<Object>,
+            topic: topic,
             auth: auth,
             themeManager: themeManager,
           ),
@@ -145,40 +148,41 @@ void main() {
 
     CollectionReference topicCollectionRef = firestore.collection('topics');
 
-    await topicCollectionRef.add({
-      'title': 'video topic',
-      'description': 'Test Description',
-      'articleLink': 'https://www.javatpoint.com/heap-sort',
-      'media': [
-        {'url': 'http://via.placeholder.com/350x150', 'mediaType': 'image'},
-        {
-          'url':
-              'https://firebasestorage.googleapis.com/v0/b/team-todo-38f76.appspot.com/o/videos%2F2024-02-01%2018:28:20.745204.mp4?alt=media&token=6d6e3aee-240d-470f-ab22-58e274a04010',
-          'mediaType': 'video'
-        },
-        {
-          'url':
-              'https://images.unsplash.com/photo-1606921231106-f1083329a65c?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8ZXhhbXBsZXxlbnwwfHwwfHx8MA%3D%3D',
-          'mediaType': 'image'
-        }
-      ],
-      'likes': 0,
-      'tags': ['Patient'],
-      'views': 0,
-      'quizId': "",
-      'dislikes': 0,
-      'categories': ['Sports'],
-      'date': DateTime.now()
-    });
+    Topic topic = Topic(
+        title: 'video topic',
+        description: 'Test Description',
+        articleLink: 'https://www.javatpoint.com/heap-sort',
+        media: [
+          {'url': 'http://via.placeholder.com/350x150', 'mediaType': 'image'},
+          {
+            'url':
+                'https://firebasestorage.googleapis.com/v0/b/team-todo-38f76.appspot.com/o/videos%2F2024-02-01%2018:28:20.745204.mp4?alt=media&token=6d6e3aee-240d-470f-ab22-58e274a04010',
+            'mediaType': 'video'
+          },
+          {
+            'url':
+                'https://images.unsplash.com/photo-1606921231106-f1083329a65c?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8ZXhhbXBsZXxlbnwwfHwwfHx8MA%3D%3D',
+            'mediaType': 'image'
+          }
+        ],
+        likes: 0,
+        tags: ['Patient'],
+        views: 0,
+        quizID: "",
+        dislikes: 0,
+        categories: ['Sports'],
+        date: DateTime.now());
 
-    QuerySnapshot data = await topicCollectionRef.orderBy('title').get();
+    DocumentReference topicDocRef =
+        await topicCollectionRef.add(topic.toJson());
+    topic.id = topicDocRef.id;
 
     // Pass a valid URL when creating the VideoPlayerController instance
     await mockNetworkImages(() async => await tester.pumpWidget(MaterialApp(
           home: ViewTopicScreen(
             firestore: firestore,
             storage: storage,
-            topic: data.docs[0] as QueryDocumentSnapshot<Object>,
+            topic: topic,
             auth: auth,
             themeManager: themeManager,
           ),

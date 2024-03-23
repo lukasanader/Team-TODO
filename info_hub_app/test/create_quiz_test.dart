@@ -10,6 +10,7 @@ import 'package:info_hub_app/topics/create_topic/create_topic.dart';
 import 'package:info_hub_app/topics/quiz/create_quiz.dart';
 import 'package:info_hub_app/topics/quiz/quiz_question_card.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
+import 'package:info_hub_app/topics/create_topic/topic_model.dart';
 
 Future<void> main() async {
   late FirebaseFirestore firestore = FakeFirebaseFirestore();
@@ -230,6 +231,12 @@ Future<void> main() async {
       'categories': [],
       'quizID': '1'
     });
+
+    QuerySnapshot topicSnapshot = await topicCollectionRef.get();
+    DocumentSnapshot topicDocument = topicSnapshot.docs.first;
+
+    Topic topic = Topic.fromSnapshot(topicDocument);
+
     CollectionReference quizQuestionRef = firestore.collection('quizQuestions');
     quizQuestionRef.add({
       'question': 'What is a liver?',
@@ -240,7 +247,7 @@ Future<void> main() async {
     data = await topicCollectionRef.get();
     await tester.pumpWidget(MaterialApp(
       home: CreateTopicScreen(
-        topic: data.docs[0] as QueryDocumentSnapshot<Object>,
+        topic: topic,
         auth: auth,
         firestore: firestore,
         storage: mockStorage,

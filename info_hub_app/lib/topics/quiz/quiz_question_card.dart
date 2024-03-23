@@ -34,12 +34,14 @@ class _QuizQuestionCardState extends State<QuizQuestionCard> {
   final TextEditingController _answerController = TextEditingController();
   List<dynamic> answers = [];
   List<bool> selected = [];
-  bool isExpanded = true; 
+  bool isExpanded = true;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if(widget.editQuestion != null){getAnswerList();}
+    if (widget.editQuestion != null) {
+      getAnswerList();
+    }
   }
 
   @override
@@ -91,7 +93,8 @@ class _QuizQuestionCardState extends State<QuizQuestionCard> {
                               onPressed: () {
                                 setState(() {
                                   if (_answerController.text.isEmpty) {
-                                    showSnackBar(context, 'Enter a valid answer');
+                                    showSnackBar(
+                                        context, 'Enter a valid answer');
                                   } else {
                                     answers.add(_answerController.text);
                                     selected.add(false);
@@ -109,15 +112,18 @@ class _QuizQuestionCardState extends State<QuizQuestionCard> {
                         onPressed: saveQuestion,
                         child: const Text('Save'),
                       ),
-                     ElevatedButton(
+                      ElevatedButton(
                         onPressed: () {
                           if (widget.onDelete != null) {
                             QuizController controller = QuizController(
-                                firestore: widget.firestore,
-                                auth: widget.auth,
+                              firestore: widget.firestore,
+                              auth: widget.auth,
                             );
-                            if(widget.editQuestion !=null){controller.deleteQuestion(widget.editQuestion!);}
-                            widget.onDelete!(widget.questionNo - 1); // Trigger onDelete callback
+                            if (widget.editQuestion != null) {
+                              controller.deleteQuestion(widget.editQuestion!);
+                            }
+                            widget.onDelete!(widget.questionNo -
+                                1); // Trigger onDelete callback
                           }
                         },
                         child: const Text('Delete'),
@@ -140,7 +146,8 @@ class _QuizQuestionCardState extends State<QuizQuestionCard> {
   }
 
   Future getAnswerList() async {
-    List tempList = widget.editQuestion!.correctAnswers +  widget.editQuestion!.wrongAnswers;
+    List tempList =
+        widget.editQuestion!.correctAnswers + widget.editQuestion!.wrongAnswers;
     setState(() {
       answers = tempList;
       selected = List.generate(answers.length, (index) => false);
@@ -176,14 +183,13 @@ class _QuizQuestionCardState extends State<QuizQuestionCard> {
     if (!selected.contains(true)) {
       showSnackBar(context, 'Select at least one correct answer');
     } else {
-      if (widget.editQuestion !=null) {
+      if (widget.editQuestion != null) {
         controller.updateQuestion(
-          widget.editQuestion!,
-          controller.getAnswers(true, selected, answers),
-          controller.getAnswers(false, selected, answers),
-          widget.quizID
-          );
-      }else{
+            widget.editQuestion!,
+            controller.getAnswers(true, selected, answers),
+            controller.getAnswers(false, selected, answers),
+            widget.quizID);
+      } else {
         controller.addQuestion(
           widget.question,
           controller.getAnswers(true, selected, answers),
