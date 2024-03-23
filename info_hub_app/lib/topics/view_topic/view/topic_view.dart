@@ -7,13 +7,13 @@ import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:chewie/chewie.dart';
 import 'package:video_player/video_player.dart';
-import 'package:info_hub_app/topics/quiz/complete_quiz.dart';
+import 'package:info_hub_app/topics/create_topic/helpers/quiz/complete_quiz.dart';
 import 'package:flutter/services.dart';
-import 'package:info_hub_app/topics/create_topic/create_topic.dart';
+import 'package:info_hub_app/topics/create_topic/view/topic_creation_view.dart';
 import 'dart:async';
 import 'package:info_hub_app/threads/threads.dart';
 import 'package:info_hub_app/controller/activity_controller.dart';
-import 'package:info_hub_app/topics/create_topic/topic_model.dart';
+import 'package:info_hub_app/topics/create_topic/model/topic_model.dart';
 
 class ViewTopicScreen extends StatefulWidget {
   final Topic topic;

@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
-import 'package:info_hub_app/topics/create_topic/create_topic.dart';
-import 'package:info_hub_app/topics/quiz/create_quiz.dart';
-import 'package:info_hub_app/topics/quiz/quiz_question_card.dart';
+import 'package:info_hub_app/topics/create_topic/view/topic_creation_view.dart';
+import 'package:info_hub_app/topics/create_topic/helpers/quiz/create_quiz.dart';
+import 'package:info_hub_app/topics/create_topic/helpers/quiz/quiz_question_card.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
-import 'package:info_hub_app/topics/create_topic/topic_model.dart';
+import 'package:info_hub_app/topics/create_topic/model/topic_model.dart';
 
 Future<void> main() async {
   late FirebaseFirestore firestore = FakeFirebaseFirestore();

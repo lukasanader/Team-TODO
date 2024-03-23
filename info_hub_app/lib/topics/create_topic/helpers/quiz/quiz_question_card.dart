@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/controller/quiz_controller.dart';
 import 'package:info_hub_app/model/model.dart';
-import 'package:info_hub_app/topics/quiz/quiz_answer_card.dart';
+import 'package:info_hub_app/topics/create_topic/helpers/quiz/quiz_answer_card.dart';
 
 class QuizQuestionCard extends StatefulWidget {
   final String quizID;
