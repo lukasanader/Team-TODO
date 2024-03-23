@@ -6,6 +6,7 @@ import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:info_hub_app/topics/view_topic.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
+import 'package:info_hub_app/topics/create_topic/topic_model.dart';
 
 void main() {
   late FakeFirebaseFirestore firestore;
@@ -13,6 +14,7 @@ void main() {
   late CollectionReference topicCollectionRef;
   late DocumentReference topicDocRef;
   late MockFirebaseStorage storage;
+  late Topic topic;
   late MockUser mockUser;
   late ThemeManager themeManager = ThemeManager();
 
@@ -31,19 +33,24 @@ void main() {
 
     topicCollectionRef = firestore.collection('topics');
 
-    topicDocRef = await topicCollectionRef.add({
-      'title': 'no video topic',
-      'description': 'Test Description',
-      'articleLink': 'https://www.javatpoint.com/heap-sort',
-      'media': [],
-      'likes': 0,
-      'views': 0,
-      'quizId': "",
-      'tags': ['Patient'],
-      'dislikes': 0,
-      'categories': ['Sports'],
-      'date': DateTime.now()
-    });
+    topic = Topic(
+        id: '1',
+        title: 'no video topic',
+        description: 'Test Description',
+        articleLink: 'https://www.javatpoint.com/heap-sort',
+        media: [],
+        likes: 0,
+        views: 0,
+        quizID: "",
+        tags: ['Patient'],
+        dislikes: 0,
+        categories: ['Sports'],
+        date: DateTime.now());
+
+    topicDocRef = await ref.add(topic.toJson());
+
+    String topicId = topicDocRef.id;
+    topic.id = topicId;
 
     await ref.add({
       'title': 'video topic',
@@ -78,14 +85,11 @@ void main() {
       (WidgetTester tester) async {
     auth = MockFirebaseAuth(mockUser: mockUser, signedIn: true);
 
-    QuerySnapshot data = await topicCollectionRef.orderBy('title').get();
-
-    // Create the ViewTopicScreen widget with the test topic
     await tester.pumpWidget(MaterialApp(
       home: ViewTopicScreen(
         firestore: firestore,
         storage: storage,
-        topic: data.docs[0] as QueryDocumentSnapshot<Object>,
+        topic: topic,
         auth: auth,
         themeManager: themeManager,
       ),
@@ -113,13 +117,11 @@ void main() {
 
     auth = MockFirebaseAuth(mockUser: mockUser, signedIn: true);
 
-    QuerySnapshot data = await topicCollectionRef.orderBy('title').get();
-
     await tester.pumpWidget(MaterialApp(
       home: ViewTopicScreen(
         firestore: firestore,
         storage: storage,
-        topic: data.docs[0] as QueryDocumentSnapshot<Object>,
+        topic: topic,
         auth: auth,
         themeManager: themeManager,
       ),
@@ -147,14 +149,12 @@ void main() {
 
     auth = MockFirebaseAuth(mockUser: mockUser, signedIn: true);
 
-    QuerySnapshot data = await topicCollectionRef.orderBy('title').get();
-
     // Create the ViewTopicScreen widget with the test topic
     await tester.pumpWidget(MaterialApp(
       home: ViewTopicScreen(
         firestore: firestore,
         storage: storage,
-        topic: data.docs[0] as QueryDocumentSnapshot<Object>,
+        topic: topic,
         auth: auth,
         themeManager: themeManager,
       ),
@@ -199,13 +199,11 @@ void main() {
 
     auth = MockFirebaseAuth(mockUser: mockUser, signedIn: true);
 
-    QuerySnapshot data = await topicCollectionRef.orderBy('title').get();
-
     await tester.pumpWidget(MaterialApp(
       home: ViewTopicScreen(
         firestore: firestore,
         storage: storage,
-        topic: data.docs[0] as QueryDocumentSnapshot<Object>,
+        topic: topic,
         auth: auth,
         themeManager: themeManager,
       ),
@@ -246,13 +244,11 @@ void main() {
 
     auth = MockFirebaseAuth(mockUser: mockUser, signedIn: true);
 
-    QuerySnapshot data = await topicCollectionRef.orderBy('title').get();
-
     await tester.pumpWidget(MaterialApp(
       home: ViewTopicScreen(
         firestore: firestore,
         storage: storage,
-        topic: data.docs[0] as QueryDocumentSnapshot<Object>,
+        topic: topic,
         auth: auth,
         themeManager: themeManager,
       ),
@@ -291,13 +287,11 @@ void main() {
 
     auth = MockFirebaseAuth(mockUser: mockUser, signedIn: true);
 
-    QuerySnapshot data = await topicCollectionRef.orderBy('title').get();
-
     await tester.pumpWidget(MaterialApp(
       home: ViewTopicScreen(
         firestore: firestore,
         storage: storage,
-        topic: data.docs[0] as QueryDocumentSnapshot<Object>,
+        topic: topic,
         auth: auth,
         themeManager: themeManager,
       ),

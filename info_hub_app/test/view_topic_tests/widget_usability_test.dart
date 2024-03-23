@@ -12,12 +12,14 @@ import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import '../mock_classes.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:info_hub_app/threads/threads.dart';
+import 'package:info_hub_app/topics/create_topic/topic_model.dart';
 
 void main() {
   late MockUrlLauncher mockLauncher;
   late FakeFirebaseFirestore firestore;
   late MockFirebaseAuth auth;
   late MockFirebaseAuth localAuth;
+
   late MockFirebaseStorage storage;
   late ThemeManager themeManager = ThemeManager();
   late Widget topicWithVideo;
@@ -43,27 +45,30 @@ void main() {
 
     CollectionReference ref = firestore.collection('topics');
 
-    await ref.add({
-      'title': 'video topic',
-      'description': 'Test Description',
-      'articleLink': 'https://www.javatpoint.com/heap-sort',
-      'media': [
+    Topic topic = Topic(
+      title: 'video topic',
+      description: 'Test Description',
+      articleLink: 'https://www.javatpoint.com/heap-sort',
+      media: [
         {
           'url':
               'https://firebasestorage.googleapis.com/v0/b/team-todo-38f76.appspot.com/o/videos%2F2024-02-01%2018:28:20.745204.mp4?alt=media&token=6d6e3aee-240d-470f-ab22-58e274a04010',
           'mediaType': 'video'
         }
       ],
-      'likes': 0,
-      'tags': ['Patient'],
-      'views': 0,
-      'quizID': "",
-      'dislikes': 0,
-      'categories': ['Sports'],
-      'date': DateTime.now(),
-    });
+      likes: 0,
+      tags: ['Patient'],
+      views: 0,
+      quizID: "",
+      dislikes: 0,
+      categories: ['Sports'],
+      date: DateTime.now(),
+    );
 
-    QuerySnapshot data = await ref.orderBy('title').get();
+    DocumentReference topicRef = await ref.add(topic.toJson());
+
+    topic.id = topicRef.id;
+
     final MockUser mockUser = MockUser(
       isAnonymous: false,
       uid: 'user123',
@@ -75,7 +80,7 @@ void main() {
       home: ViewTopicScreen(
           firestore: firestore,
           storage: storage,
-          topic: data.docs[0] as QueryDocumentSnapshot<Object>,
+          topic: topic,
           auth: localAuth,
           themeManager: themeManager),
     );
@@ -136,33 +141,32 @@ void main() {
 
     VideoPlayerPlatform.instance = fakeVideoPlayerPlatform;
 
-    await topicCollectionRef.add({
-      'title': 'no video topic',
-      'description': 'Test Description',
-      'articleLink': 'https://www.javatpoint.com/heap-sort',
-      'media': [
-        {
-          'url':
-              'https://firebasestorage.googleapis.com/v0/b/team-todo-38f76.appspot.com/o/videos%2F2024-02-01%2018:28:20.745204.mp4?alt=media&token=6d6e3aee-240d-470f-ab22-58e274a04010',
-          'mediaType': 'video'
-        }
-      ],
-      'likes': 0,
-      'views': 0,
-      'quizID': "",
-      'tags': ['Patient'],
-      'dislikes': 0,
-      'categories': ['Sports'],
-      'date': DateTime.now()
-    });
-
-    QuerySnapshot data = await topicCollectionRef.orderBy('title').get();
+    Topic topic = Topic(
+        title: 'no video topic',
+        description: 'Test Description',
+        articleLink: 'https://www.javatpoint.com/heap-sort',
+        media: [
+          {
+            'url':
+                'https://firebasestorage.googleapis.com/v0/b/team-todo-38f76.appspot.com/o/videos%2F2024-02-01%2018:28:20.745204.mp4?alt=media&token=6d6e3aee-240d-470f-ab22-58e274a04010',
+            'mediaType': 'video'
+          }
+        ],
+        likes: 0,
+        views: 0,
+        quizID: "",
+        tags: ['Patient'],
+        dislikes: 0,
+        categories: ['Sports'],
+        date: DateTime.now());
+    DocumentReference topicRef = await topicCollectionRef.add(topic.toJson());
+    topic.id = topicRef.id;
 
     await tester.pumpWidget(MaterialApp(
       home: ViewTopicScreen(
         firestore: firestore,
         storage: storage,
-        topic: data.docs[0] as QueryDocumentSnapshot<Object>,
+        topic: topic,
         auth: MockFirebaseAuth(
             signedIn: true, mockUser: MockUser(uid: 'adminUser')),
         themeManager: themeManager,
@@ -201,27 +205,26 @@ void main() {
     auth = MockFirebaseAuth(mockUser: mockUser, signedIn: true);
     CollectionReference topicCollectionRef = firestore.collection('topics');
 
-    await topicCollectionRef.add({
-      'title': 'no video topic',
-      'description': 'Test Description',
-      'articleLink': 'https://www.javatpoint.com/heap-sort',
-      'media': [],
-      'likes': 0,
-      'tags': ['Patient'],
-      'views': 0,
-      'quizID': "",
-      'dislikes': 0,
-      'categories': ['Sports'],
-      'date': DateTime.now()
-    });
+    Topic topic = Topic(
+        title: 'no video topic',
+        description: 'Test Description',
+        articleLink: 'https://www.javatpoint.com/heap-sort',
+        media: [],
+        likes: 0,
+        tags: ['Patient'],
+        views: 0,
+        quizID: "",
+        dislikes: 0,
+        categories: ['Sports'],
+        date: DateTime.now());
 
-    QuerySnapshot data = await topicCollectionRef.orderBy('title').get();
-
+    DocumentReference topicRef = await topicCollectionRef.add(topic.toJson());
+    topic.id = topicRef.id;
     await tester.pumpWidget(MaterialApp(
       home: ViewTopicScreen(
         firestore: firestore,
         storage: storage,
-        topic: data.docs[0] as QueryDocumentSnapshot<Object>,
+        topic: topic,
         auth: auth,
         themeManager: themeManager,
       ),
@@ -240,21 +243,22 @@ void main() {
   testWidgets('User can save a topic', (WidgetTester tester) async {
     CollectionReference topicCollectionRef = firestore.collection('topics');
 
-    DocumentReference topicDocRef = await topicCollectionRef.add({
-      'title': 'no video topic',
-      'description': 'Test Description',
-      'articleLink': 'https://www.javatpoint.com/heap-sort',
-      'media': [],
-      'likes': 0,
-      'tags': ['Patient'],
-      'views': 0,
-      'quizID': "",
-      'dislikes': 0,
-      'categories': ['Sports'],
-      'date': DateTime.now()
-    });
+    Topic topic = Topic(
+        title: 'no video topic',
+        description: 'Test Description',
+        articleLink: 'https://www.javatpoint.com/heap-sort',
+        media: [],
+        likes: 0,
+        tags: ['Patient'],
+        views: 0,
+        quizID: "",
+        dislikes: 0,
+        categories: ['Sports'],
+        date: DateTime.now());
 
-    QuerySnapshot data = await topicCollectionRef.orderBy('title').get();
+    DocumentReference topicDocRef =
+        await topicCollectionRef.add(topic.toJson());
+    topic.id = topicDocRef.id;
 
     DocumentReference mockUserDocRef =
         firestore.collection('Users').doc('adminUser');
@@ -263,7 +267,7 @@ void main() {
       home: ViewTopicScreen(
         firestore: firestore,
         storage: storage,
-        topic: data.docs[0] as QueryDocumentSnapshot<Object>,
+        topic: topic,
         auth: MockFirebaseAuth(
             signedIn: true, mockUser: MockUser(uid: 'adminUser')),
         themeManager: themeManager,

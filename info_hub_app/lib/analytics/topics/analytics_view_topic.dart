@@ -7,9 +7,10 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:intl/intl.dart';
+import 'package:info_hub_app/topics/create_topic/topic_model.dart';
 
 class AdminTopicAnalytics extends StatefulWidget {
-  final QueryDocumentSnapshot topic;
+  final Topic topic;
   final FirebaseFirestore firestore;
   final FirebaseStorage storage;
 
@@ -29,16 +30,16 @@ class AdminAnalyticsTopicState extends State<AdminTopicAnalytics> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.topic['title']),
+        title: Text(widget.topic.title!),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildInfoRow("Likes", "${widget.topic['likes']}"),
-          _buildInfoRow("Dislikes", "${widget.topic['dislikes']}"),
-          _buildInfoRow("Views", "${widget.topic['views']}"),
-          _buildInfoRow("Uploaded Date", _formatDate(widget.topic['date'])),
-          _buildInfoRow("Uploaded Time", _formatTime(widget.topic['date'])),
+          _buildInfoRow("Likes", "${widget.topic.likes}"),
+          _buildInfoRow("Dislikes", "${widget.topic.dislikes}"),
+          _buildInfoRow("Views", "${widget.topic.views}"),
+          _buildInfoRow("Uploaded Date", _formatDate(widget.topic.date!)),
+          _buildInfoRow("Uploaded Time", _formatTime(widget.topic.date!)),
         ],
       ),
     );
@@ -69,15 +70,11 @@ class AdminAnalyticsTopicState extends State<AdminTopicAnalytics> {
     );
   }
 
-  String _formatDate(Timestamp timestamp) {
-    var dateTime =
-        DateTime.fromMillisecondsSinceEpoch(timestamp.seconds * 1000);
+  String _formatDate(DateTime dateTime) {
     return DateFormat('dd-MM-yyyy').format(dateTime);
   }
 
-  String _formatTime(Timestamp timestamp) {
-    var dateTime =
-        DateTime.fromMillisecondsSinceEpoch(timestamp.seconds * 1000);
+  String _formatTime(DateTime dateTime) {
     return DateFormat('HH:mm').format(dateTime);
   }
 }

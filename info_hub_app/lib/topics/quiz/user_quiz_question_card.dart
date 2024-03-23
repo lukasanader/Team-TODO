@@ -2,9 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/model/model.dart';
 
-
 import 'quiz_answer_card.dart';
-
 
 class UserQuizQuestionCard extends StatefulWidget {
   QuizQuestion question;
@@ -50,7 +48,8 @@ class _UserQuizQuestionCardState extends State<UserQuizQuestionCard> {
           children: [
             Row(
               children: [
-                Expanded( // Wrap Row with Expanded
+                Expanded(
+                  // Wrap Row with Expanded
                   child: Text(
                     "${widget.questionNo}. ${widget.question.question}",
                     style: const TextStyle(fontSize: 18),
@@ -98,7 +97,8 @@ class _UserQuizQuestionCardState extends State<UserQuizQuestionCard> {
   }
 
   Future getAnswerList() async {
-    List<dynamic> tempList = widget.question.correctAnswers + widget.question.wrongAnswers;
+    List<dynamic> tempList =
+        widget.question.correctAnswers + widget.question.wrongAnswers;
     setState(() {
       answers = tempList;
       answers.shuffle();
@@ -117,7 +117,9 @@ class _UserQuizQuestionCardState extends State<UserQuizQuestionCard> {
     for (int i = 0; i < indexOfAnswers.length; i++) {
       chosenAnswers.add(answers[indexOfAnswers[i]]);
     }
-    if (const ListEquality().equals(chosenAnswers, widget.question.correctAnswers) && !correct) {
+    if (const ListEquality()
+            .equals(chosenAnswers, widget.question.correctAnswers) &&
+        !correct) {
       Future.delayed(Duration.zero, () {
         setState(() {
           correct = true;
