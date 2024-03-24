@@ -146,6 +146,7 @@ class _SettingsViewState extends State<SettingsView> {
                   screen: ActivityView(
                     firestore: widget.firestore,
                     auth: widget.auth,
+                    storage: widget.storage,
                   ),
                   withNavBar: false,
                 );

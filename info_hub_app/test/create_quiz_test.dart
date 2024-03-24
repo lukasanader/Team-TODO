@@ -335,4 +335,59 @@ Future<void> main() async {
       }
     });
   });
+
+  testWidgets('Test unsave quiz questions', (WidgetTester tester) async {
+    CollectionReference topicCollectionRef;
+    QuerySnapshot data;
+
+    topicCollectionRef = firestore.collection('topics');
+    topicCollectionRef.add({
+      'title': 'test 1',
+      'description': 'Test Description',
+      'articleLink': '',
+      'media': [],
+      'likes': 0,
+      'views': 0,
+      'dislikes': 0,
+      'tags': ['Patient'],
+      'date': DateTime.now(),
+      'categories': [],
+      'quizID': '1'
+    });
+
+    QuerySnapshot topicSnapshot = await topicCollectionRef.get();
+    DocumentSnapshot topicDocument = topicSnapshot.docs.first;
+
+    Topic topic = Topic.fromSnapshot(topicDocument);
+
+    CollectionReference quizQuestionRef = firestore.collection('quizQuestions');
+    quizQuestionRef.add({
+      'question': 'What is a liver?',
+      'correctAnswers': ['An organ'],
+      'wrongAnswers': ['A person', 'A cat'],
+      'quizID': '1'
+    });
+    data = await topicCollectionRef.get();
+    await tester.pumpWidget(MaterialApp(
+      home: CreateTopicScreen(
+        topic: topic,
+        auth: auth,
+        firestore: firestore,
+        storage: mockStorage,
+        themeManager: themeManager,
+      ),
+    ));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('ADD QUIZ'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('ADD QUIZ'));
+    await tester.pumpAndSettle(const Duration(seconds: 4));
+
+    await tester.tap(find.byType(BackButton));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Yes'));
+    await tester.pumpAndSettle();
+    expect(find.byType(CreateTopicScreen), findsOne);
+  });
+
 }

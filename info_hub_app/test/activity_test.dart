@@ -11,6 +11,7 @@ import 'package:info_hub_app/home_page/home_page.dart';
 import 'package:info_hub_app/main.dart';
 import 'package:info_hub_app/screens/activity_view.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
+import 'package:info_hub_app/threads/threads.dart';
 import 'package:info_hub_app/topics/create_topic/model/topic_model.dart';
 import 'package:info_hub_app/topics/view_topic/view/topic_view.dart';
 
@@ -39,6 +40,7 @@ void main() {
       home: ActivityView(
         firestore: firestore,
         auth: auth,
+        storage: storage,
       ),
     );
     CollectionReference topicCollectionRef = firestore.collection('topics');
@@ -107,7 +109,7 @@ void main() {
     );
 
     await tester.pumpWidget(
-        MaterialApp(home: ActivityView(firestore: firestore, auth: auth)));
+        MaterialApp(home: ActivityView(firestore: firestore, auth: auth, storage: storage,)));
     await tester.pumpAndSettle();
     expect(find.text('test 1'), findsOneWidget);
   
@@ -157,11 +159,16 @@ void main() {
     });
 
     await tester.pumpWidget(
-        MaterialApp(home: ActivityView(firestore: firestore, auth: auth)));
+        MaterialApp(home: ActivityView(firestore: firestore, auth: auth, storage: storage,)));
     await tester.pumpAndSettle();
 
     expect(find.textContaining('Thread 1'), findsOne);
     expect(find.textContaining('Thread 2'), findsOne);
+    await tester.ensureVisible(find.textContaining('Thread 1'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.textContaining('Thread 1'));
+    await tester.pumpAndSettle();
+    expect(find.byType(ThreadApp), findsOne);
   });
 
    testWidgets('Test delete topic', (WidgetTester tester) async {

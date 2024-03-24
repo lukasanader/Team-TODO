@@ -181,6 +181,11 @@ class DatabaseService {
     return preferences;
   }
 
+  Future<String> getTopicTitle(String topicID) async {
+    DocumentSnapshot snapshot = await firestore.collection('topics').doc(topicID).get();
+    return snapshot['title'];
+  }
+
   Future<void> incrementView(Topic topic) async {
     DocumentReference docRef = firestore.collection('topics').doc(topic.id);
     // Run the transaction

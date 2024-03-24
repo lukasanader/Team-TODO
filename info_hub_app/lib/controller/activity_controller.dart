@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:info_hub_app/model/activity_model.dart';
 import 'package:info_hub_app/model/model.dart';
+import 'package:info_hub_app/topics/create_topic/model/topic_model.dart';
 
 class ActivityController {
   FirebaseFirestore firestore;
@@ -37,16 +38,20 @@ class ActivityController {
   }
 
   Future<void> updateActivity(Activity activity) async {
-    CollectionReference activityCollectionRef =
-        firestore.collection('activity');
-    await activityCollectionRef.doc(activity.id).set({'date': activity.date});
+    CollectionReference activityCollectionRef = firestore.collection('activity');
+  
+    // Create a map containing only the fields to be updated
+    Map<String, dynamic> data = {'date': activity.date};
+  
+    // Perform the update with merge option set to true
+    await activityCollectionRef.doc(activity.id).set(data, SetOptions(merge: true));
   }
 
-  Future<List<dynamic>> getActivityList(String activity) async {
+  Future<List<dynamic>> getActivityList(String activityName) async {
     String uid = auth.currentUser!.uid;
     QuerySnapshot data = await firestore
         .collection('activity')
-        .where('type', isEqualTo: activity)
+        .where('type', isEqualTo: activityName)
         .where('uid', isEqualTo: uid)
         .get();
     List<Activity> activities =
@@ -56,15 +61,21 @@ class ActivityController {
     for (int index = 0; index < activities.length; index++) {
       String activityID = activities[index].aid;
       DocumentSnapshot snapshot =
-          await firestore.collection(activity).doc(activityID).get();
-      Map<String, dynamic> temp = snapshot.data() as Map<String, dynamic>;
-      temp['viewDate'] = activities[index].date;
-      userActivity.add(temp);
+          await firestore.collection(activityName).doc(activityID).get();
+      dynamic activity;   
+      if(activityName=='topics'){    
+        activity= Topic.fromSnapshot(snapshot);
+        activity.viewDate=activities[index].date;
+      }else{
+        activity = snapshot.data();
+        activity['viewDate']=activities[index].date;
+      }
+      userActivity.add(activity);
     }
     return userActivity;
   }
 
-  Future<List<dynamic>> getLikedTopics() async {
+  Future<List<Topic>> getLikedTopics() async {
     String uid = auth.currentUser!.uid;
     DocumentSnapshot snapshot =
         await firestore.collection('Users').doc(uid).get();
@@ -72,11 +83,11 @@ class ActivityController {
     List<dynamic> userTopics = temp['likedTopics'];
     (userTopics);
 
-    List<dynamic> likedTopics = [];
+    List<Topic> likedTopics = [];
     for (int index = 0; index < userTopics.length; index++) {
       DocumentSnapshot doc =
           await firestore.collection('topics').doc(userTopics[index]).get();
-      Map<String, dynamic> temp = doc.data() as Map<String, dynamic>;
+      Topic temp = Topic.fromSnapshot(doc);
       likedTopics.add(temp);
     }
     return likedTopics;

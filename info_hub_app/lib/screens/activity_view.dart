@@ -1,13 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/controller/activity_controller.dart';
 import 'package:info_hub_app/helpers/activity_card.dart';
+import 'package:info_hub_app/topics/view_topic/helpers/topics_card.dart';
 
 class ActivityView extends StatefulWidget {
   final FirebaseFirestore firestore;
   final FirebaseAuth auth;
-  const ActivityView({super.key, required this.firestore, required this.auth});
+  final FirebaseStorage storage;
+  const ActivityView({super.key, required this.firestore, required this.auth, required this.storage});
 
   @override
   State<ActivityView> createState() => _ActivityViewState();
@@ -46,8 +49,7 @@ class _ActivityViewState extends State<ActivityView> {
                       : _topicsList
                           .length, // Replace with the actual number of items
                   itemBuilder: (context, index) {
-                    return ActivityCard(
-                        _topicsList[index], widget.firestore, widget.auth);
+                    return TopicCard(widget.firestore,widget.auth, widget.storage, _topicsList[index]);
                   },
                 ),
               ),
@@ -64,12 +66,11 @@ class _ActivityViewState extends State<ActivityView> {
                       : _likedTopics
                           .length, // Replace with the actual number of items
                   itemBuilder: (context, index) {
-                    return ActivityCard(
-                        _likedTopics[index], widget.firestore, widget.auth);
+                        return TopicCard(widget.firestore,widget.auth, widget.storage, _likedTopics[index]);
                   },
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 40,
               ),
               const Text(
@@ -103,8 +104,8 @@ class _ActivityViewState extends State<ActivityView> {
     setState(() {
       _topicsList = topicTemp;
       _topicsList.sort(((a, b) {
-        DateTime dateA = a['viewDate'].toDate();
-        DateTime dateB = b['viewDate'].toDate();
+        DateTime dateA = a.viewDate.toDate();
+        DateTime dateB = b.viewDate.toDate();
         return dateB.compareTo(dateA);
       }));
       _threadList = threadTemp;
