@@ -7,15 +7,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:info_hub_app/controller/user_controller.dart';
 import 'package:info_hub_app/helpers/helper_widgets.dart';
 import 'package:info_hub_app/helpers/test_page.dart';
 import 'package:info_hub_app/message_feature/patient_message_view.dart';
 import 'package:info_hub_app/patient_experience/patient_experience_view.dart';
-import 'package:info_hub_app/registration/user_model.dart';
-import 'package:info_hub_app/topics/view_topic/helpers/topics_card.dart';
+import 'package:info_hub_app/model/user_model.dart';
 import 'package:info_hub_app/notifications/notifications_view.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:info_hub_app/topics/view_topic/helpers/topics_card.dart';
 import 'package:info_hub_app/webinar/service/webinar_service.dart';
 import 'package:info_hub_app/webinar/views/webinar-screens/webinar_view.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
@@ -187,7 +188,10 @@ class _HomePageState extends State<HomePage> {
               ),
               ElevatedButton(
                 onPressed: () async {
-                  UserModel user = await generateCurrentUser();
+                  UserModel user = await UserController(
+                    widget.auth,
+                    widget.firestore
+                  ).getUser(widget.auth.currentUser!.uid);
                   WebinarService webinarService = WebinarService(
                     firestore: widget.firestore,
                     storage: widget.storage,
@@ -219,23 +223,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Future<UserModel> generateCurrentUser() async {
-    String uid = widget.auth.currentUser!.uid;
-    DocumentSnapshot userDoc =
-        await widget.firestore.collection('Users').doc(uid).get();
-    List<String> likedTopics = List<String>.from(userDoc['likedTopics']);
-    List<String> dislikedTopics = List<String>.from(userDoc['dislikedTopics']);
-    UserModel user = UserModel(
-      uid: uid,
-      firstName: userDoc['firstName'],
-      lastName: userDoc['lastName'],
-      email: userDoc['email'],
-      roleType: userDoc['roleType'],
-      likedTopics: likedTopics,
-      dislikedTopics: dislikedTopics,
-    );
-    return user;
-  }
 
   Future getTopicsList() async {
     //added this line to prevent null error

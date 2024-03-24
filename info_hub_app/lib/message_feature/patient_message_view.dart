@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/message_feature/message_room/message_room_controller.dart';
+import 'package:info_hub_app/message_feature/message_room/message_room_model.dart';
 import 'package:info_hub_app/message_feature/message_rooms_card.dart';
 
 class PatientMessageView extends StatefulWidget {
@@ -14,7 +15,7 @@ class PatientMessageView extends StatefulWidget {
 }
 
 class _PatientMessageViewState extends State<PatientMessageView> {
-  List<Object> _chatList = [];
+  List<MessageRoom> _chatList = [];
 
 
 
@@ -41,7 +42,7 @@ class _PatientMessageViewState extends State<PatientMessageView> {
               shrinkWrap: true,
               itemCount: _chatList.length,
               itemBuilder: (context, index) {
-                dynamic chat = _chatList[index]; 
+                MessageRoom chat = _chatList[index]; 
                 return MessageRoomCard(widget.firestore, widget.auth, chat);
               }
             ),
@@ -58,7 +59,7 @@ class _PatientMessageViewState extends State<PatientMessageView> {
       widget.auth, 
       widget.firestore);
 
-    List<Object> tempList = await messageRoomController.getMessageRoomsList();
+    List<MessageRoom> tempList = await messageRoomController.getMessageRoomsList();
     
     setState(() {
       _chatList = tempList;

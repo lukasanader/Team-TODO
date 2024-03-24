@@ -39,7 +39,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Create Topic'));
     await tester.pumpAndSettle();
-    expect(find.byType(CreateTopicScreen), findsOneWidget);
+    expect(find.byType(TopicCreationView), findsOneWidget);
   });
 
   testWidgets('Test view questions button', (WidgetTester tester) async {
@@ -57,7 +57,7 @@ void main() {
     await tester.pumpWidget(adminWidget);
     await tester.tap(find.text('View Thread'));
     await tester.pumpAndSettle();
-    //expect(find.byType(CreateTopicScreen), findsOneWidget);
+    //expect(find.byType(TopicCreationView), findsOneWidget);
   });
 
   testWidgets('Test view experiences button', (WidgetTester tester) async {

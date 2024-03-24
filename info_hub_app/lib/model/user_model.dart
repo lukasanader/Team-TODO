@@ -1,4 +1,6 @@
 // UserModel is mainly used for local work- it can be used to avoid having to constantly query the database in order to retrieve information
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class UserModel {
   final String uid;
   final String firstName;
@@ -23,4 +25,19 @@ class UserModel {
       this.hasOptedOutOfExperienceExpectations = false,
       this.draftedTopics,
       this.selectedProfilePhoto});
+
+  factory UserModel.fromSnapshot(DocumentSnapshot snapshot) {
+    Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
+    return UserModel(
+      uid: snapshot.id,
+      firstName: data['firstName'], 
+      lastName: data['lastName'],
+      email: data['email'],
+      roleType: data['roleType'],
+      likedTopics: List<String>.from(data['likedTopics'] ?? []),
+      dislikedTopics: List<String>.from(data['dislikedTopics'] ?? []),
+    );
+  }
+
+
 }

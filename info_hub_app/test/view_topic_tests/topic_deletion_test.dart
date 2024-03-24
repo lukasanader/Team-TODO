@@ -84,7 +84,7 @@ void main() {
     topic.id = ref.id;
 
     Widget deleteView = MaterialApp(
-      home: ViewTopicScreen(
+      home: TopicView(
         firestore: firestore,
         storage: storage,
         topic: topic,
@@ -151,7 +151,7 @@ void main() {
     topic.id = topicDocRef.id;
 
     await tester.pumpWidget(MaterialApp(
-      home: ViewTopicScreen(
+      home: TopicView(
         firestore: firestore,
         storage: storage,
         topic: topic,
@@ -207,7 +207,7 @@ void main() {
     topic.id = topicDocRef.id;
 
     await tester.pumpWidget(MaterialApp(
-      home: ViewTopicScreen(
+      home: TopicView(
         firestore: firestore,
         storage: storage,
         topic: topic,

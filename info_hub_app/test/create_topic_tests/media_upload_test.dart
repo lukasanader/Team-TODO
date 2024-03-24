@@ -75,7 +75,7 @@ void main() async {
     });
 
     basicWidget = MaterialApp(
-      home: CreateTopicScreen(
+      home: TopicCreationView(
         firestore: firestore,
         storage: mockStorage,
         auth: auth,
@@ -113,7 +113,7 @@ void main() async {
     }
 
     expect(find.byType(Chewie), findsOneWidget);
-
+    await tester.ensureVisible(find.text('PUBLISH TOPIC'));
     await tester.tap(find.text('PUBLISH TOPIC'));
     await tester.pumpAndSettle();
 
@@ -153,7 +153,7 @@ void main() async {
     }
 
     expect(find.byType(Image), findsOneWidget);
-
+    await tester.ensureVisible(find.text('PUBLISH TOPIC'));
     await tester.tap(find.text('PUBLISH TOPIC'));
     await tester.pumpAndSettle();
 
@@ -191,7 +191,7 @@ void main() async {
     topic.id = topicRef.id;
 
     await tester.pumpWidget(MaterialApp(
-      home: CreateTopicScreen(
+      home: TopicCreationView(
         topic: topic,
         auth: auth,
         firestore: firestore,

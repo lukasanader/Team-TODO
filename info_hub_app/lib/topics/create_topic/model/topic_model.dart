@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+/// Model class representing a Topic
 class Topic {
   String? id; // Document ID
   String? title;

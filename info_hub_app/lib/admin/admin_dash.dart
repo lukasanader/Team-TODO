@@ -5,10 +5,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:info_hub_app/analytics/analytics_base.dart';
+import 'package:info_hub_app/controller/user_controller.dart';
 import 'package:info_hub_app/helpers/helper_widgets.dart';
 import 'package:info_hub_app/message_feature/admin_message_view.dart';
 import 'package:info_hub_app/patient_experience/admin_experience_view.dart';
-import 'package:info_hub_app/registration/user_model.dart';
+import 'package:info_hub_app/model/user_model.dart';
 import 'package:info_hub_app/theme/theme_constants.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:info_hub_app/topics/create_topic/view/topic_creation_view.dart';
@@ -35,8 +36,15 @@ class AdminHomepage extends StatefulWidget {
 
 class _AdminHomepageState extends State<AdminHomepage> {
   final TextEditingController _searchController = TextEditingController();
-  List<Object> _userList = [];
+  late UserController _userController;
+  List<UserModel> _userList = [];
   List<bool> selected = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _userController = UserController(widget.auth, widget.firestore);
+  }
 
   @override
   void didChangeDependencies() {
@@ -75,7 +83,7 @@ class _AdminHomepageState extends State<AdminHomepage> {
                 onPressed: () {
                   PersistentNavBarNavigator.pushNewScreen(
                     context,
-                    screen: CreateTopicScreen(
+                    screen: TopicCreationView(
                       firestore: widget.firestore,
                       auth: widget.auth,
                       storage: widget.storage,
@@ -242,7 +250,8 @@ class _AdminHomepageState extends State<AdminHomepage> {
             ),
             ElevatedButton(
               onPressed: () async {
-                UserModel currentAdmin = await generateCurrentUser();
+                UserModel currentAdmin = await _userController
+                    .getUser(widget.auth.currentUser!.uid.toString());
                 WebinarService webService = WebinarService(
                     firestore: widget.firestore, storage: widget.storage);
                 PersistentNavBarNavigator.pushNewScreen(
@@ -305,8 +314,7 @@ class _AdminHomepageState extends State<AdminHomepage> {
                           );
                         } else {
                           return ListTile(
-                            title: Text(getEmail(
-                                _userList[index] as QueryDocumentSnapshot)),
+                            title: Text(_userList[index].email),
                             onTap: () {
                               setState(() {
                                 selected[index] = !selected[index];
@@ -332,54 +340,30 @@ class _AdminHomepageState extends State<AdminHomepage> {
         });
   }
 
-  Future<UserModel> generateCurrentUser() async {
-    String uid = widget.auth.currentUser!.uid;
-    DocumentSnapshot userDoc =
-        await widget.firestore.collection('Users').doc(uid).get();
-    List<String> likedTopics = List<String>.from(userDoc['likedTopics']);
-    List<String> dislikedTopics = List<String>.from(userDoc['dislikedTopics']);
-    UserModel user = UserModel(
-      uid: uid,
-      firstName: userDoc['firstName'],
-      lastName: userDoc['lastName'],
-      email: userDoc['email'],
-      roleType: userDoc['roleType'],
-      likedTopics: likedTopics,
-      dislikedTopics: dislikedTopics,
-    );
-    return user;
-  }
-
   Future getUserList() async {
-    QuerySnapshot data = await widget.firestore
-        .collection('Users')
-        .where('roleType', isEqualTo: 'Healthcare Professional')
-        .get();
-    List<Object> tempList = List.from(data.docs);
-    String search = _searchController.text;
+    List<UserModel> tempList;
+    List<UserModel> allHealthcareProfessionalsList = await _userController
+        .getUserListBasedOnRoleType('Healthcare Professional');
+
+    String search = _searchController.text.toLowerCase();
+
     if (search.isNotEmpty) {
-      for (int i = 0; i < tempList.length; i++) {
-        QueryDocumentSnapshot user = tempList[i] as QueryDocumentSnapshot;
-        String email = user['email'].toString().toLowerCase();
-        if (!email.contains(search.toLowerCase())) {
-          tempList.removeAt(i);
-          i = i - 1;
-        }
-      }
+      tempList = allHealthcareProfessionalsList.where((user) {
+        return user.email.toLowerCase().contains(search);
+      }).toList();
+    } else {
+      tempList = allHealthcareProfessionalsList;
     }
+
     setState(() {
       _userList = tempList;
       selected = List<bool>.filled(_userList.length, false);
     });
   }
 
-  String getEmail(QueryDocumentSnapshot user) {
-    return user['email'];
-  }
-
   void addAdmins() async {
     List<int> indicesToRemove = [];
-    List<dynamic> selectedUsers = [];
+    List<UserModel> selectedUsers = [];
     for (int i = 0; i < selected.length; i++) {
       if (selected[i]) {
         selectedUsers.add(_userList[i]);
@@ -389,7 +373,7 @@ class _AdminHomepageState extends State<AdminHomepage> {
     for (int i = 0; i < selectedUsers.length; i++) {
       await widget.firestore
           .collection('Users')
-          .doc(selectedUsers[i].id)
+          .doc(selectedUsers[i].uid)
           .update({'roleType': 'admin'});
     }
     getUserList(); //refreshes the list
