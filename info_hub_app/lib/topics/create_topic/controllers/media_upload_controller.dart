@@ -19,7 +19,7 @@ class MediaUploadController {
   final FirebaseStorage storage;
   FormController formController;
 
-  CreateTopicScreenState screen;
+  TopicCreationViewState screen;
 
   MediaUploadController(this.auth, this.firestore, this.storage,
       this.formController, this.screen);

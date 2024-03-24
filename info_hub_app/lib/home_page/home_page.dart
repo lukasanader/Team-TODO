@@ -19,7 +19,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:info_hub_app/topics/create_topic/controllers/topic_controller.dart';
 import 'package:info_hub_app/topics/view_topic/helpers/topics_card.dart';
 import 'package:info_hub_app/webinar/service/webinar_service.dart';
-import 'package:info_hub_app/webinar/webinar-screens/webinar_view.dart';
+import 'package:info_hub_app/webinar/views/webinar-screens/webinar_view.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:info_hub_app/topics/create_topic/model/topic_model.dart';
 

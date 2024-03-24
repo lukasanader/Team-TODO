@@ -63,7 +63,7 @@ void main() {
     localAuth = MockFirebaseAuth(mockUser: mockUser, signedIn: true);
 
     topicWithVideo = MaterialApp(
-      home: ViewTopicScreen(
+      home: TopicView(
           firestore: firestore,
           storage: storage,
           topic: topic,
@@ -76,7 +76,7 @@ void main() {
     VideoPlayerPlatform.instance = fakeVideoPlayerPlatform;
   });
 
-  testWidgets('ViewTopicScreen shows correct fields with video',
+  testWidgets('TopicView shows correct fields with video',
       (WidgetTester tester) async {
     await tester.pumpWidget(topicWithVideo);
     await tester.pumpAndSettle();
@@ -90,7 +90,7 @@ void main() {
     expect(find.byType(Chewie), findsOneWidget);
   });
 
-  testWidgets('ViewTopicScreen shows image', (WidgetTester tester) async {
+  testWidgets('TopicView shows image', (WidgetTester tester) async {
     final MockUser mockUser = MockUser(
       isAnonymous: false,
       uid: 'user123',
@@ -123,7 +123,7 @@ void main() {
 
     // Pass a valid URL when creating the VideoPlayerController instance
     await mockNetworkImages(() async => await tester.pumpWidget(MaterialApp(
-          home: ViewTopicScreen(
+          home: TopicView(
             firestore: firestore,
             storage: storage,
             topic: topic,
@@ -179,7 +179,7 @@ void main() {
 
     // Pass a valid URL when creating the VideoPlayerController instance
     await mockNetworkImages(() async => await tester.pumpWidget(MaterialApp(
-          home: ViewTopicScreen(
+          home: TopicView(
             firestore: firestore,
             storage: storage,
             topic: topic,

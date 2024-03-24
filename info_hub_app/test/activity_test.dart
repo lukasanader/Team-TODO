@@ -198,7 +198,7 @@ void main() {
         date: DateTime.now());
         topic.id='1';
    Widget deleteView = MaterialApp(
-      home: ViewTopicScreen(
+      home: TopicView(
         firestore: firestore,
         storage: storage,
         topic: topic,

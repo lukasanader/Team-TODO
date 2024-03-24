@@ -16,7 +16,7 @@ import 'package:info_hub_app/topics/create_topic/view/topic_creation_view.dart';
 import 'package:info_hub_app/ask_question/question_view.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
-import 'package:info_hub_app/webinar/admin-webinar-screens/admin_webinar_dashboard.dart';
+import 'package:info_hub_app/webinar/views/admin-webinar-screens/admin_webinar_dashboard.dart';
 import 'package:info_hub_app/webinar/service/webinar_service.dart';
 
 class AdminHomepage extends StatefulWidget {
@@ -83,7 +83,7 @@ class _AdminHomepageState extends State<AdminHomepage> {
                 onPressed: () {
                   PersistentNavBarNavigator.pushNewScreen(
                     context,
-                    screen: CreateTopicScreen(
+                    screen: TopicCreationView(
                       firestore: widget.firestore,
                       auth: widget.auth,
                       storage: widget.storage,
@@ -241,7 +241,7 @@ class _AdminHomepageState extends State<AdminHomepage> {
             ElevatedButton(
               onPressed: () async {
                 UserModel currentAdmin = await _userController
-                  .getUser(widget.auth.currentUser!.uid.toString());
+                    .getUser(widget.auth.currentUser!.uid.toString());
                 WebinarService webService = WebinarService(
                     firestore: widget.firestore, storage: widget.storage);
                 PersistentNavBarNavigator.pushNewScreen(
@@ -330,14 +330,12 @@ class _AdminHomepageState extends State<AdminHomepage> {
         });
   }
 
-
   Future getUserList() async {
     List<UserModel> tempList;
     List<UserModel> allHealthcareProfessionalsList = await _userController
-      .getUserListBasedOnRoleType('Healthcare Professional');
+        .getUserListBasedOnRoleType('Healthcare Professional');
 
     String search = _searchController.text.toLowerCase();
-
 
     if (search.isNotEmpty) {
       tempList = allHealthcareProfessionalsList.where((user) {

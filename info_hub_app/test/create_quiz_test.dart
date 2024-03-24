@@ -34,7 +34,7 @@ void main() {
 
     Future<Widget> createTopicScreenWidget({Topic? topic}) async {
       return MaterialApp(
-        home: CreateTopicScreen(
+        home: TopicCreationView(
           topic: topic,
           firestore: firestore,
           storage: mockStorage,
@@ -146,7 +146,7 @@ void main() {
 
       await tester.tap(find.text('Yes'));
       await tester.pumpAndSettle();
-      expect(find.byType(CreateTopicScreen), findsOne);
+      expect(find.byType(TopicCreationView), findsOne);
     });
 
     group('Quiz Question Operations', () {
@@ -273,7 +273,7 @@ void main() {
         await tester.pumpAndSettle();
         await tester.tap(find.text('Yes'));
         await tester.pumpAndSettle();
-        expect(find.byType(CreateTopicScreen), findsOne);
+        expect(find.byType(TopicCreationView), findsOne);
       });
     });
   });

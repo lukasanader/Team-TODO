@@ -14,7 +14,7 @@ import 'package:info_hub_app/patient_experience/admin_experience_view.dart';
 import 'package:info_hub_app/topics/create_topic/view/topic_creation_view.dart';
 import 'package:info_hub_app/ask_question/question_view.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
-import 'package:info_hub_app/webinar/admin-webinar-screens/admin_webinar_dashboard.dart';
+import 'package:info_hub_app/webinar/views/admin-webinar-screens/admin_webinar_dashboard.dart';
 
 void main() {
   late FirebaseFirestore firestore = FakeFirebaseFirestore();
@@ -59,7 +59,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Create Topic'));
     await tester.pumpAndSettle();
-    expect(find.byType(CreateTopicScreen), findsOneWidget);
+    expect(find.byType(TopicCreationView), findsOneWidget);
   });
 
   testWidgets('Test view questions button', (WidgetTester tester) async {
@@ -77,7 +77,7 @@ void main() {
     await tester.pumpWidget(adminWidget);
     await tester.tap(find.text('View Thread'));
     await tester.pumpAndSettle();
-    //expect(find.byType(CreateTopicScreen), findsOneWidget);
+    //expect(find.byType(TopicCreationView), findsOneWidget);
   });
 
 

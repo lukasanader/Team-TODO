@@ -78,7 +78,7 @@ class TopicCard extends StatelessWidget {
             .incrementView(_topic);
         PersistentNavBarNavigator.pushNewScreen(
           context,
-          screen: ViewTopicScreen(
+          screen: TopicView(
             firestore: firestore,
             auth: auth,
             storage: storage,
@@ -371,7 +371,7 @@ class TopicDraftCard extends StatelessWidget {
       onTap: () {
         PersistentNavBarNavigator.pushNewScreen(
           context,
-          screen: CreateTopicScreen(
+          screen: TopicCreationView(
             firestore: firestore,
             auth: auth,
             storage: storage,
@@ -530,7 +530,7 @@ class LargeTopicCard extends StatelessWidget {
             .incrementView(_topic);
         PersistentNavBarNavigator.pushNewScreen(
           context,
-          screen: ViewTopicScreen(
+          screen: TopicView(
             firestore: firestore,
             auth: auth,
             storage: storage,
@@ -612,5 +612,3 @@ class LargeTopicCard extends StatelessWidget {
     return uint8list!;
   }
 }
-
-

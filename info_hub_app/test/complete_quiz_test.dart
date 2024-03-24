@@ -54,7 +54,7 @@ void main() {
       'quizID': '1',
     });
     quizWidget = MaterialApp(
-      home: ViewTopicScreen(
+      home: TopicView(
         firestore: firestore,
         storage: mockStorage,
         topic: topic,
