@@ -73,7 +73,7 @@ void main() async {
     await tester.ensureVisible(find.text('Patient'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Patient'));
-
+    await tester.ensureVisible(find.text('PUBLISH TOPIC'));
     await tester.tap(find.text('PUBLISH TOPIC'));
     await tester.pumpAndSettle();
     expect(find.text('Done'), findsOne);
