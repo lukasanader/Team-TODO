@@ -456,6 +456,57 @@ void main() {
     );
   });
 
+  testWidgets('Test snackbar pops up when blank question asked',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(discoveryViewWidget);
+    await tester.pumpAndSettle();
+
+    // Trigger the _showPostDialog method
+    await tester.tap(find.text('Ask a question!'));
+    await tester.pumpAndSettle();
+
+    // Verify that the first AlertDialog is displayed
+    expect(find.byType(AlertDialog), findsOneWidget);
+
+    // Enter text into the TextField
+    await tester.enterText(find.byType(TextField).last, '');
+
+    // Tap the Submit button
+    await tester.tap(find.text('Submit'));
+    await tester.pumpAndSettle();
+
+
+    //blank answer submitted therefore alert dialog isn't closed
+    expect(find.text('Please enter a question.'), findsOneWidget);
+    expect(find.byType(AlertDialog), findsOneWidget);
+
+  });
+
+
+  testWidgets('Test cancel button upon show dialog',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(discoveryViewWidget);
+    await tester.pumpAndSettle();
+
+    // Trigger the _showPostDialog method
+    await tester.tap(find.text('Ask a question!'));
+    await tester.pumpAndSettle();
+
+    // Verify that the first AlertDialog is displayed
+    expect(find.byType(AlertDialog), findsOneWidget);
+
+
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+
+    //verify the AlertDialog is no longer displayed
+    expect(find.byType(AlertDialog), findsNothing);
+
+    expect(find.byType(DiscoveryView), findsOneWidget);
+
+  });
+
+
   testWidgets('test that shown topics are only of the same role as user',
       (WidgetTester tester) async {
     // Build our app and trigger a frame.
