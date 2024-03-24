@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:info_hub_app/controller/activity_controller.dart';
 import 'package:info_hub_app/services/database.dart';
 import 'package:info_hub_app/threads/threads.dart';
+import 'package:info_hub_app/topics/create_topic/controllers/topic_controller.dart';
 
 class ActivityCard extends StatelessWidget {
   final dynamic _activity;
@@ -20,7 +21,7 @@ class ActivityCard extends StatelessWidget {
       );
     return GestureDetector(
       onTap: () async{
-        String topicTitle= await DatabaseService(auth: auth,uid: auth.currentUser!.uid, firestore: firestore).getTopicTitle(_activity['topicId']);
+        String topicTitle= await TopicController(auth: auth, firestore: firestore).getTopicTitle(_activity['topicId']);
          // ignore: use_build_context_synchronously
          Navigator.push(
                                   context,

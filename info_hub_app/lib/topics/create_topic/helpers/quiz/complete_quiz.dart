@@ -12,12 +12,14 @@ class CompleteQuiz extends StatefulWidget {
   final FirebaseFirestore firestore;
   final Topic topic;
   final FirebaseAuth auth;
+  QuizController? quizController;
 
-  const CompleteQuiz({
+  CompleteQuiz({
     Key? key,
     required this.firestore,
     required this.topic,
     required this.auth,
+    this.quizController,
   }) : super(key: key);
 
   @override
@@ -25,19 +27,20 @@ class CompleteQuiz extends StatefulWidget {
 }
 
 class _CompleteQuizState extends State<CompleteQuiz> {
-  List<QuizQuestion> questions = [];
-  int questionListLength = 0;
-  bool completed = false;
-  bool completedBefore = false;
-  List<bool> correctQuestions = [];
-  int score = 0;
-  String oldScore = '';
+  List<QuizQuestion> _questions = [];
+  int _questionListLength = 0;
+  bool _quizCompleted = false;
+  bool _quizCompletedBefore = false;
+  List<bool> _correctQuestions = [];
+  int _score = 0;
+  String _oldScore = '';
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    getQuestionsList();
-    checkIfCompleted();
+  void initState() {
+    super.initState();
+     widget.quizController = QuizController(firestore: widget.firestore, auth: widget.auth);
+    _getQuestionsList();
+    _checkIfCompleted();
   }
 
   @override
@@ -50,47 +53,33 @@ class _CompleteQuizState extends State<CompleteQuiz> {
             ListView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              itemCount: questionListLength,
+              itemCount: _questionListLength,
               itemBuilder: (context, index) {
                 return UserQuizQuestionCard(
                   firestore: widget.firestore,
                   questionNo: index + 1,
-                  question: questions[index],
-                  completed: completed,
+                  question: _questions[index],
+                  completed: _quizCompleted,
                   onUpdateAnswer: (isCorrect) {
-                    if (isCorrect) {
-                      setState(() {
-                        correctQuestions[index] = true;
-                        score = correctQuestions
-                            .where((element) => element == true)
-                            .length;
-                      });
-                      QuizController(
-                              firestore: widget.firestore, auth: widget.auth)
-                          .handleQuizCompletion(
-                              widget.topic, "$score/$questionListLength");
-                    }
+                    _updateScore(isCorrect, index);
                   },
                 );
               },
             ),
-            if (completed)
-              Text('Your new score is $score out of $questionListLength'),
-            if (completedBefore) Text('Your old score is $oldScore'),
+            if (_quizCompleted)
+              Text('Your new score is $_score out of $_questionListLength'),
+            if (_quizCompletedBefore) Text('Your old score is $_oldScore'),
             ElevatedButton(
               onPressed: () async {
-                score =
-                    correctQuestions.where((element) => element == true).length;
+                _calculateScore();
                 setState(() {
-                  completed = true;
+                  _quizCompleted = true;
                 });
               },
               child: const Text('Done'),
             ),
             ElevatedButton(
-              onPressed: () {
-                resetPage();
-              },
+              onPressed: _resetPage,
               child: const Text('Reset'),
             ),
           ],
@@ -99,31 +88,49 @@ class _CompleteQuizState extends State<CompleteQuiz> {
     );
   }
 
-  Future<void> getQuestionsList() async {
-    List<QuizQuestion> tempList =
-        await QuizController(firestore: widget.firestore, auth: widget.auth)
-            .getQuizQuestions(widget.topic);
+  // Fetch the list of quiz questions
+  Future<void> _getQuestionsList() async {
+    final List<QuizQuestion> tempList =
+        await widget.quizController!.getQuizQuestions(widget.topic);
     setState(() {
-      questions = tempList;
-      questionListLength = questions.length;
-      correctQuestions = List.generate(questionListLength, (index) => false);
+      _questions = tempList;
+      _questionListLength = _questions.length;
+      _correctQuestions = List.generate(_questionListLength, (index) => false);
     });
   }
 
-  Future checkIfCompleted() async {
-    QuizController controller =
-        QuizController(firestore: widget.firestore, auth: widget.auth);
-
-    if (await controller.checkQuizScore(widget.topic.quizID!)) {
-      String temp = await controller.getQuizScore(widget.topic.quizID!);
+  // Check if the user has completed the quiz before
+  Future<void> _checkIfCompleted() async {
+    if (await widget.quizController!.checkQuizScore(widget.topic.quizID!)) {
+      final String temp = await widget.quizController!.getQuizScore(widget.topic.quizID!);
       setState(() {
-        oldScore = temp;
-        completedBefore = true;
+        _oldScore = temp;
+        _quizCompletedBefore = true;
       });
     }
   }
 
-  void resetPage() {
+  // Update the score based on the user's answer
+  void _updateScore(bool isCorrect, int index) {
+    if (isCorrect) {
+      setState(() {
+        _correctQuestions[index] = true;
+        _score = _correctQuestions.where((element) => element == true).length;
+      });
+      widget.quizController!.handleQuizCompletion(
+        widget.topic,
+        "$_score/$_questionListLength",
+      );
+    }
+  }
+
+  // Calculate the final score
+  void _calculateScore() {
+    _score = _correctQuestions.where((element) => element == true).length;
+  }
+
+  // Reset the quiz page
+  void _resetPage() {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(

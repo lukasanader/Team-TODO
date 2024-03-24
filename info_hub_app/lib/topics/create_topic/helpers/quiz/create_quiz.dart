@@ -12,20 +12,21 @@ import 'quiz_question_card.dart';
 class CreateQuiz extends StatefulWidget {
   final FirebaseFirestore firestore;
   final FirebaseAuth auth;
-  void Function(String)? addQuiz;
-  bool isEdit;
-  Topic? topic;
+  final void Function(String)? addQuiz;
+  final bool isEdit;
+  final Topic? topic;
 
-  CreateQuiz(
-      {super.key,
-      required this.firestore,
-      required this.auth,
-      this.addQuiz,
-      required this.isEdit,
-      this.topic});
+  CreateQuiz({
+    Key? key,
+    required this.firestore,
+    required this.auth,
+    this.addQuiz,
+    required this.isEdit,
+    this.topic,
+  }) : super(key: key);
 
   @override
-  State<CreateQuiz> createState() => _CreateQuizState();
+  _CreateQuizState createState() => _CreateQuizState();
 }
 
 class _CreateQuizState extends State<CreateQuiz> {
@@ -33,6 +34,7 @@ class _CreateQuizState extends State<CreateQuiz> {
   List<String> questions = [];
   List<QuizQuestion> editQuestions = [];
   String quizID = const Uuid().v4();
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -41,36 +43,40 @@ class _CreateQuizState extends State<CreateQuiz> {
     }
   }
 
+  // Function to handle the back button press
   Future<bool> _onWillPop() async {
     return await showDialog<bool>(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Are you sure?'),
-            content:
-                const Text('Do you want to leave without saving the quiz?'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: const Text('No'),
-              ),
-              TextButton(
-                onPressed: () {
-                  if (widget.topic != null) {
-                    quizID = widget.topic!.quizID!;
-                  }
-                  QuizController(firestore: widget.firestore, auth: widget.auth)
-                      .deleteQuiz(quizID);
-                  Navigator.of(context).pop(true);
-                },
-                child: const Text('Yes'),
-              ),
-            ],
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Are you sure?'),
+        content: const Text('Do you want to leave without saving the quiz?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('No'),
           ),
-        ) ??
+          TextButton(
+            onPressed: () {
+              // Delete the quiz if the user confirms
+              QuizController controller = QuizController(
+                firestore: widget.firestore,
+                auth: widget.auth,
+              );
+              if (widget.topic != null) {
+                quizID = widget.topic!.quizID!;
+                controller.deleteTopicQuiz(widget.topic!);
+              }
+              controller.deleteQuiz(quizID);
+              Navigator.of(context).pop(true);
+            },
+            child: const Text('Yes'),
+          ),
+        ],
+      ),
+    ) ??
         false;
   }
 
-  @override
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -78,6 +84,7 @@ class _CreateQuizState extends State<CreateQuiz> {
         title: const Text('Create Quiz'),
         leading: BackButton(
           onPressed: () async {
+            // Handle back button press
             final shouldPop = await _onWillPop();
             if (shouldPop) {
               Navigator.of(context).pop();
@@ -93,23 +100,17 @@ class _CreateQuizState extends State<CreateQuiz> {
           children: [
             Expanded(
               child: ListView.builder(
-                itemCount:
-                    widget.isEdit ? editQuestions.length : questions.length,
+                itemCount: widget.isEdit ? editQuestions.length : questions.length,
                 itemBuilder: (context, index) {
                   return QuizQuestionCard(
-                      question: widget.isEdit
-                          ? editQuestions[index].question
-                          : questions[index],
-                      questionNo: index + 1,
-                      quizID: widget.isEdit &&
-                              widget.topic != null &&
-                              widget.topic!.quizID != ''
-                          ? widget.topic!.quizID!
-                          : quizID,
-                      firestore: widget.firestore,
-                      auth: widget.auth,
-                      editQuestion: widget.isEdit ? editQuestions[index] : null,
-                      onDelete: onDeleteQuestion);
+                    question: widget.isEdit ? editQuestions[index].question : questions[index],
+                    questionNo: index + 1,
+                    quizID: widget.isEdit && widget.topic != null && widget.topic!.quizID != '' ? widget.topic!.quizID! : quizID,
+                    firestore: widget.firestore,
+                    auth: widget.auth,
+                    editQuestion: widget.isEdit ? editQuestions[index] : null,
+                    onDelete: onDeleteQuestion,
+                  );
                 },
               ),
             ),
@@ -126,23 +127,29 @@ class _CreateQuizState extends State<CreateQuiz> {
               children: [
                 ElevatedButton(
                   onPressed: () {
+                    // Add a new question
                     if (_questionController.text.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text('Please enter a question',
-                              style: TextStyle(color: Colors.red)),
+                          content: Text(
+                            'Please enter a question',
+                            style: TextStyle(color: Colors.red),
+                          ),
                         ),
                       );
                     } else {
                       setState(() {
                         if (widget.isEdit) {
+                          // Add question to editQuestions list if in edit mode
                           QuizQuestion newQuestion = QuizQuestion(
-                              id: const Uuid().v4(),
-                              correctAnswers: [],
-                              question: _questionController.text,
-                              wrongAnswers: []);
+                            id: const Uuid().v4(),
+                            correctAnswers: [],
+                            question: _questionController.text,
+                            wrongAnswers: [],
+                          );
                           editQuestions.add(newQuestion);
                         } else {
+                          // Add question to questions list if in create mode
                           questions.add(_questionController.text);
                         }
                         _questionController.clear();
@@ -154,6 +161,7 @@ class _CreateQuizState extends State<CreateQuiz> {
                 const SizedBox(width: 10),
                 ElevatedButton(
                   onPressed: () {
+                    // Save the quiz
                     if (questions.isNotEmpty || editQuestions.isNotEmpty) {
                       widget.addQuiz!(quizID);
                       Navigator.pop(context);
@@ -161,9 +169,11 @@ class _CreateQuizState extends State<CreateQuiz> {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text(
-                              'Please add at least one question to save the quiz',
-                              style: TextStyle(
-                                  color: Color.fromARGB(255, 255, 255, 255))),
+                            'Please add at least one question to save the quiz',
+                            style: TextStyle(
+                              color: Color.fromARGB(255, 255, 255, 255),
+                            ),
+                          ),
                         ),
                       );
                     }
@@ -178,17 +188,19 @@ class _CreateQuizState extends State<CreateQuiz> {
     );
   }
 
-  Future getQuestionsList() async {
+  // Function to fetch questions list if in edit mode
+  Future<void> getQuestionsList() async {
     if (widget.topic != null) {
-      List<QuizQuestion> tempList =
-          await QuizController(firestore: widget.firestore, auth: widget.auth)
-              .getQuizQuestions(widget.topic!);
+      List<QuizQuestion> tempList = await QuizController(
+        firestore: widget.firestore,
+        auth: widget.auth,
+      ).getQuizQuestions(widget.topic!);
       setState(() {
         editQuestions = tempList;
       });
     }
   }
-
+  // Callback function to handle question deletion
   void onDeleteQuestion(int index) {
     setState(() {
       if (widget.isEdit) {
@@ -198,4 +210,5 @@ class _CreateQuizState extends State<CreateQuiz> {
       }
     });
   }
+ 
 }

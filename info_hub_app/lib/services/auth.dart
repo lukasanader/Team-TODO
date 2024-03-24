@@ -42,11 +42,7 @@ class AuthService {
         dislikedTopics: dislikedTopics,
         hasOptedOutOfExperienceExpectations: false);
   }
-
-  Stream<User?> get user {
-    return auth.authStateChanges();
-  }
-
+  
   // register user
   Future registerUser(
     String firstName,

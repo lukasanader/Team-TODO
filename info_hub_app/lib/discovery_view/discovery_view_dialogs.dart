@@ -3,12 +3,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/controller/topic_question_controller.dart';
 
-
-
-
-Future<void> addQuestionDialog(context, FirebaseFirestore firestore, FirebaseAuth auth) async {
+Future<void> addQuestionDialog(
+  BuildContext context,
+  FirebaseFirestore firestore,
+  FirebaseAuth auth,
+) async {
   final TextEditingController questionController = TextEditingController();
-  // Show dialog to get user input
+
+  // Show a dialog to get the user's question input
   await showDialog(
     context: context,
     builder: (BuildContext context) {
@@ -29,18 +31,27 @@ Future<void> addQuestionDialog(context, FirebaseFirestore firestore, FirebaseAut
           ),
           ElevatedButton(
             onPressed: () async {
-              // Get the entered question text
-              String questionText = questionController.text.trim();
+              // Get the entered question text and trim whitespace
+              final String questionText = questionController.text.trim();
 
               // Validate question text
               if (questionText.isNotEmpty) {
-                TopicQuestionController(
-                        firestore: firestore, auth: auth)
-                    .handleQuestion(questionText);
+                final TopicQuestionController controller =
+                    TopicQuestionController(
+                  firestore: firestore,
+                  auth: auth,
+                );
+
+                // Handle the question
+                controller.handleQuestion(questionText);
+
                 // Clear the text field
                 questionController.clear();
+
                 // Close the dialog
                 Navigator.of(context).pop();
+
+                // Show a success dialog
                 showDialog(
                   context: context,
                   builder: (BuildContext context) {
@@ -82,18 +93,18 @@ Future<void> addQuestionDialog(context, FirebaseFirestore firestore, FirebaseAut
                   },
                 );
 
-                // Show success message
+                // Show a success snackbar
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text('Question submitted successfully!'),
                   ),
                 );
               } else {
-                // Show error message if question is empty
+                // Show an error message if the question is empty
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text('Please enter a question.'),
-                    backgroundColor: Colors.red,
+                    backgroundColor: Colors.white,
                   ),
                 );
               }

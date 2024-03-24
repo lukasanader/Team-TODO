@@ -181,23 +181,4 @@ class DatabaseService {
     return preferences;
   }
 
-  Future<String> getTopicTitle(String topicID) async {
-    DocumentSnapshot snapshot = await firestore.collection('topics').doc(topicID).get();
-    return snapshot['title'];
-  }
-
-  Future<void> incrementView(Topic topic) async {
-    DocumentReference docRef = firestore.collection('topics').doc(topic.id);
-    // Run the transaction
-    await firestore.runTransaction((transaction) async {
-      // Get the latest snapshot of the document
-      DocumentSnapshot snapshot = await transaction.get(docRef);
-      int currentViews =
-          (snapshot.data() as Map<String, dynamic>)['views'] ?? 0;
-      // Increment the views by one
-      int newViews = currentViews + 1;
-      // Update the 'views' field in Firestore
-      transaction.update(docRef, {'views': newViews});
-    });
-  }
 }

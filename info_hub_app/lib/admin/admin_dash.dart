@@ -117,16 +117,6 @@ class _AdminHomepageState extends State<AdminHomepage> {
               ),
             ),
             ElevatedButton(
-              // onPressed: () => Navigator.of(context).push(
-              //   CupertinoPageRoute(
-              //     builder: (BuildContext context) {
-              //       return ViewQuestionPage(
-              //         firestore: widget.firestore,
-              //         auth: widget.auth,
-              //       );
-              //     },
-              //   ),
-              // ),
               onPressed: () {
                 PersistentNavBarNavigator.pushNewScreen(
                   context,
@@ -363,7 +353,6 @@ class _AdminHomepageState extends State<AdminHomepage> {
     });
   }
 
-
   void addAdmins() async {
     List<int> indicesToRemove = [];
     List<UserModel> selectedUsers = [];
@@ -373,12 +362,8 @@ class _AdminHomepageState extends State<AdminHomepage> {
         indicesToRemove.add(i); // Add the selected item to the list
       }
     }
-    for (int i = 0; i < selectedUsers.length; i++) {
-      await widget.firestore
-          .collection('Users')
-          .doc(selectedUsers[i].uid)
-          .update({'roleType': 'admin'});
-    }
+    await _userController.addAdmins(selectedUsers);
+
     getUserList(); //refreshes the list
   }
 }

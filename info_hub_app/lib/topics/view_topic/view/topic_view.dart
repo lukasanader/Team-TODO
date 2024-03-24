@@ -510,6 +510,7 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
                               },
                             ),
                             // complete quiz
+                            if (widget.topic.quizID!='')
                             TextButton(
                               onPressed: () {
                                 Navigator.push(
@@ -521,8 +522,10 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
                                           auth: widget.auth)),
                                 );
                               },
-                              child: const Text('QUIZ!!'),
+                              child:
+                                const Text('QUIZ!!'),
                             ),
+                            
                           ],
                         ),
                       ],
