@@ -425,9 +425,11 @@ class _ThreadRepliesState extends State<ThreadReplies> {
             children: [
               Card(
                 margin: EdgeInsets.all(8.0),
+                elevation: 10.0,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.zero,
-                ),
+                    borderRadius: BorderRadius.circular(
+                        6.0), // Adjust border radius if needed
+                    side: BorderSide(color: Colors.grey, width: 1.0)),
                 child: Padding(
                   padding: EdgeInsets.all(16.0),
                   child: Column(

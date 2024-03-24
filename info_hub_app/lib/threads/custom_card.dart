@@ -454,7 +454,7 @@ class _CustomCardState extends State<CustomCard> {
                   child: Text(
                     authorName,
                     style: const TextStyle(fontSize: 14),
-                    overflow: TextOverflow.ellipsis,
+                    //overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 Text(
@@ -480,8 +480,8 @@ class _CustomCardState extends State<CustomCard> {
                           .textTheme
                           .bodyMedium!
                           .copyWith(fontSize: 16),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
+                      //maxLines: 2,
+                      //overflow: TextOverflow.ellipsis,
                     ),
                     if (isEdited)
                       const Text(
@@ -556,6 +556,14 @@ class _CustomCardState extends State<CustomCard> {
             ],
           ),
         ),
+        Padding(
+          padding: const EdgeInsets.only(
+              left: 50.0, right: 50.0), // Adjust the padding as needed
+          child: Divider(
+            color: Colors.grey, // Change color as needed
+            height: 1,
+          ),
+        )
       ],
     );
 

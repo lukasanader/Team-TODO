@@ -335,13 +335,13 @@ class _ThreadAppState extends State<ThreadApp> {
         title: Text(
           widget.topicTitle,
           style: const TextStyle(
-            color: Colors.white,
+            //color: Colors.white,
             fontSize: 20.0,
-            fontFamily: 'Roboto',
-            fontWeight: FontWeight.w500,
+            //fontFamily: 'Roboto',
+            //fontWeight: FontWeight.w500,
           ),
         ),
-        backgroundColor: const Color.fromARGB(255, 0, 48, 194),
+        //backgroundColor: Colors.red[900],
         elevation: 4.0,
         /*leading: 
         IconButton(
@@ -553,6 +553,7 @@ class _ThreadAppState extends State<ThreadApp> {
                         "timestamp": FieldValue.serverTimestamp(),
                         "creator": docId,
                         "topicId": widget.topicId,
+                        "topicTitle": widget.topicTitle,
                         "isEdited": false,
                       }).then((response) {
                         titleInputController.clear();
