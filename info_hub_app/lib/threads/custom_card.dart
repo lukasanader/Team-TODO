@@ -549,7 +549,7 @@ class _CustomCardState extends State<CustomCard> {
                               widget.roleType,
                               style: Theme.of(context)
                                   .textTheme
-                                  .bodySmall, // Display the roleType text
+                                  .bodyMedium, // Display the roleType text
                               // Adjust the text style as needed
                             ),
                           ],

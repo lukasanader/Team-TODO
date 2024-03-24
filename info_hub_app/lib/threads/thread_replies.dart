@@ -479,6 +479,7 @@ class _ThreadRepliesState extends State<ThreadReplies> {
                       userProfilePhoto: reply['userProfilePhoto'] ??
                           'default_profile_photo.png',
                       authorName: reply['author'] ?? 'Anonymous',
+                      roleType: reply['roleType'] ?? 'Missing Role Type',
                     );
                   },
                 ),
