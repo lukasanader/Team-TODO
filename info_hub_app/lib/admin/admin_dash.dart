@@ -16,7 +16,7 @@ import 'package:info_hub_app/topics/create_topic/view/topic_creation_view.dart';
 import 'package:info_hub_app/ask_question/question_view.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
-import 'package:info_hub_app/webinar/admin-webinar-screens/admin_webinar_dashboard.dart';
+import 'package:info_hub_app/webinar/views/admin-webinar-screens/admin_webinar_dashboard.dart';
 import 'package:info_hub_app/webinar/service/webinar_service.dart';
 
 class AdminHomepage extends StatefulWidget {
