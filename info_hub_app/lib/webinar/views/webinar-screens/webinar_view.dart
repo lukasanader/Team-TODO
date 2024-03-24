@@ -4,7 +4,7 @@ import 'package:info_hub_app/helpers/helper_widgets.dart';
 import 'package:info_hub_app/registration/user_model.dart';
 import 'package:info_hub_app/webinar/models/livestream.dart';
 import 'package:info_hub_app/webinar/service/webinar_service.dart';
-import 'package:info_hub_app/webinar/webinar-screens/webinar_card.dart';
+import 'package:info_hub_app/webinar/views/webinar-screens/webinar_card.dart';
 
 class WebinarView extends StatefulWidget {
   final FirebaseFirestore firestore;

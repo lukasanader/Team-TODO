@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:info_hub_app/registration/user_model.dart';
-import 'package:info_hub_app/webinar/admin-webinar-screens/create_webinar_screen.dart';
+import 'package:info_hub_app/webinar/views/admin-webinar-screens/create_webinar_screen.dart';
 import 'package:info_hub_app/webinar/service/webinar_service.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -83,14 +83,12 @@ void main() {
     expect(find.text('Title'), findsOneWidget);
   });
 
-  testWidgets('Test Start Webinar button is present',
-      (WidgetTester tester) async {
+  testWidgets('Test Start Webinar button is present', (WidgetTester tester) async {
     await tester.pumpWidget(createWebinarScreen);
     expect(find.text('Start Webinar'), findsOneWidget);
   });
 
-  testWidgets('Test Admin requires input to proceed',
-      (WidgetTester tester) async {
+  testWidgets('Test Admin requires input to proceed', (WidgetTester tester) async {
     await tester.pumpWidget(createWebinarScreen);
     await tester.ensureVisible(find.text('Start Webinar'));
     await tester.tap(find.text('Start Webinar'));
@@ -99,8 +97,7 @@ void main() {
     expect(find.text('URL is required'), findsOneWidget);
   });
 
-  testWidgets('Test Admin can not enter random text into YouTube url',
-      (WidgetTester tester) async {
+  testWidgets('Test Admin can not enter random text into YouTube url', (WidgetTester tester) async {
     await tester.pumpWidget(createWebinarScreen);
     await tester.ensureVisible(find.text('Start Webinar'));
     final urlField = find.ancestor(
@@ -113,8 +110,7 @@ void main() {
     expect(find.text('Enter a valid YouTube video URL'), findsOneWidget);
   });
 
-  testWidgets('Test Help Guide Dialog appears when help icon is pressed',
-      (WidgetTester tester) async {
+  testWidgets('Test Help Guide Dialog appears when help icon is pressed', (WidgetTester tester) async {
     await tester.pumpWidget(createWebinarScreen);
     await tester.ensureVisible(find.byIcon(Icons.help_outline));
     await tester.tap(find.byIcon(Icons.help_outline));
@@ -131,30 +127,26 @@ void main() {
     await tester.tap(find.byIcon(Icons.help_outline));
     await tester.pumpAndSettle();
     expect(find.text('How to Start a Livestream on YouTube'), findsOneWidget);
-    expect(find.text('Sign in to your YouTube account on a web browser.'),
-        findsOneWidget);
+    expect(find.text('Sign in to your YouTube account on a web browser.'), findsOneWidget);
     await tester.tap(find.text('Close'));
     await tester.pumpAndSettle();
     expect(find.byWidget(createWebinarScreen), findsOneWidget);
   });
 
-  testWidgets('Test Valid YouTube URL is accepted',
-      (WidgetTester tester) async {
+  testWidgets('Test Valid YouTube URL is accepted', (WidgetTester tester) async {
     await tester.pumpWidget(createWebinarScreen);
     await tester.ensureVisible(find.text('Start Webinar'));
     final urlField = find.ancestor(
       of: find.text('YouTube Video URL'),
       matching: find.byType(TextFormField),
     );
-    await tester.enterText(
-        urlField, 'https://www.youtube.com/watch?v=tSXZ8hervyY');
+    await tester.enterText(urlField, 'https://www.youtube.com/watch?v=tSXZ8hervyY');
     await tester.tap(find.text('Start Webinar'));
     await tester.pumpAndSettle();
     expect(find.text('Enter a valid YouTube video URL'), findsNothing);
   });
 
-  testWidgets('Test select scheduled date appears',
-      (WidgetTester tester) async {
+  testWidgets('Test select scheduled date appears', (WidgetTester tester) async {
     await tester.pumpWidget(createWebinarScreen);
     final titleField = find.ancestor(
       of: find.text('Title'),
@@ -165,17 +157,13 @@ void main() {
       of: find.text('YouTube Video URL'),
       matching: find.byType(TextFormField),
     );
-    await tester.enterText(
-        urlField, 'https://www.youtube.com/watch?v=tSXZ8hervyY');
-    // Simulate the user interaction to trigger the method
-    await tester.tap(find.text(
-        'Schedule Webinar')); // Assuming this is the button to schedule the webinar
+    await tester.enterText(urlField, 'https://www.youtube.com/watch?v=tSXZ8hervyY');
+    await tester.tap(find.text('Schedule Webinar'));
     await tester.pumpAndSettle();
     expect(find.text('OK'), findsOneWidget);
   });
 
-  testWidgets('Test admin can select date and time',
-      (WidgetTester tester) async {
+  testWidgets('Test admin can select date and time', (WidgetTester tester) async {
     await tester.pumpWidget(createWebinarScreen);
     final titleField = find.ancestor(
       of: find.text('Title'),
@@ -186,16 +174,13 @@ void main() {
       of: find.text('YouTube Video URL'),
       matching: find.byType(TextFormField),
     );
-    await tester.enterText(
-        urlField, 'https://www.youtube.com/watch?v=tSXZ8hervyY');
-    // Simulate the user interaction to trigger the method
+    await tester.enterText(urlField, 'https://www.youtube.com/watch?v=tSXZ8hervyY');
     await tester.tap(find.text('Schedule Webinar'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('31'));
     await tester.tap(find.text('OK'));
     await tester.pumpAndSettle();
-    var centre = tester
-        .getCenter(find.byKey(const ValueKey<String>('time-picker-dial')));
+    var centre = tester.getCenter(find.byKey(const ValueKey<String>('time-picker-dial')));
     await tester.tapAt(Offset(centre.dx - 10, centre.dy));
     await tester.pumpAndSettle();
     await tester.tapAt(Offset(centre.dx - 10, centre.dy));
@@ -203,9 +188,7 @@ void main() {
     await tester.pumpAndSettle();
   });
 
-  testWidgets(
-      'Test Schedule Webinar Redirects to Valid Screen when all data is valid',
-      (WidgetTester tester) async {
+  testWidgets('Test Schedule Webinar Redirects to Valid Screen when all data is valid', (WidgetTester tester) async {
     await provideMockedNetworkImages(() async {
       mockFilePicker();
       await tester.pumpWidget(createWebinarScreen);
@@ -235,8 +218,7 @@ void main() {
         of: find.text('YouTube Video URL'),
         matching: find.byType(TextFormField),
       );
-      await tester.enterText(
-          urlField, 'https://www.youtube.com/watch?v=tSXZ8hervgY');
+      await tester.enterText(urlField, 'https://www.youtube.com/watch?v=tSXZ8hervgY');
       await tester.pump();
       final titleField = find.ancestor(
         of: find.text('Title'),
@@ -249,8 +231,7 @@ void main() {
       await tester.tap(find.text('31'));
       await tester.tap(find.text('OK'));
       await tester.pumpAndSettle();
-      var centre = tester
-          .getCenter(find.byKey(const ValueKey<String>('time-picker-dial')));
+      var centre = tester.getCenter(find.byKey(const ValueKey<String>('time-picker-dial')));
       await tester.tapAt(Offset(centre.dx - 10, centre.dy));
       await tester.pumpAndSettle();
       await tester.tapAt(Offset(centre.dx - 10, centre.dy));
@@ -294,9 +275,7 @@ void main() {
     expect(find.byType(Image), findsOneWidget);
   });
 
-  testWidgets(
-      'Test Admin input all valid information and chooses to start live webinar works',
-      (WidgetTester tester) async {
+  testWidgets('Test Admin input all valid information and chooses to start live webinar works', (WidgetTester tester) async {
     await provideMockedNetworkImages(() async {
       mockFilePicker();
       await tester.pumpWidget(createWebinarScreen);
@@ -326,8 +305,7 @@ void main() {
         of: find.text('YouTube Video URL'),
         matching: find.byType(TextFormField),
       );
-      await tester.enterText(
-          urlField, 'https://www.youtube.com/watch?v=tSXZ8hervgY');
+      await tester.enterText(urlField, 'https://www.youtube.com/watch?v=tSXZ8hervgY');
       await tester.pump();
       final titleField = find.ancestor(
         of: find.text('Title'),
@@ -339,8 +317,7 @@ void main() {
       await tester.pump();
       final querySnapshot = await firestore
           .collection('Webinar')
-          .where('url',
-              isEqualTo: 'https://www.youtube.com/watch?v=tSXZ8hervgY')
+          .where('url', isEqualTo: 'https://www.youtube.com/watch?v=tSXZ8hervgY')
           .get();
       expect(querySnapshot.docs.length, greaterThan(0));
     });

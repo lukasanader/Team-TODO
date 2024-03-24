@@ -11,6 +11,7 @@ class Chat extends StatefulWidget {
   final UserModel user;
   final FirebaseFirestore firestore;
   final WebinarService webinarService;
+  final bool chatEnabled;
 
   const Chat({
     super.key,
@@ -18,6 +19,7 @@ class Chat extends StatefulWidget {
     required this.user,
     required this.firestore,
     required this.webinarService,
+    required this.chatEnabled,
   });
 
   @override
@@ -56,11 +58,13 @@ class _ChatState extends State<Chat> {
   ) {
     return ListTile(
       title: Text(
-        document['roleType'] == 'Healthcare Professional'
+        document['roleType'] == 'Healthcare Professional' || document['roleType'] == 'admin'
             ? widget.user.firstName
             : 'Anonymous Beaver',
         style: TextStyle(
-          color: document['uid'] == widget.user.uid ? Colors.red : Colors.black,
+          color: document['roleType'] == 'Healthcare Professional' || document['roleType'] == 'admin'
+          ? Colors.red 
+          : Colors.black,
         ),
       ),
       subtitle: Column(
@@ -154,38 +158,64 @@ class _ChatState extends State<Chat> {
                 },
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _chatController,
-                      decoration: const InputDecoration(
-                        hintText: 'Type your message...',
+            if (widget.chatEnabled) // Render chat input section only if chatEnabled is true
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _chatController,
+                        decoration: const InputDecoration(
+                          hintText: 'Type your message...',
+                        ),
                       ),
                     ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.send),
-                    onPressed: () async {
-                      // checks for profanities or name before adding comment to database
-                      bool hasProfanities = filter.hasProfanity(_chatController.text);
-                      bool hasName = _namePresent(_chatController.text);
-                      if (!hasProfanities && !hasName) {
-                        await widget.webinarService
-                            .chat(_chatController.text, widget.webinarID, widget.user.roleType,widget.user.uid);
-                      } else {
-                        _showWarningDialog();
-                      }
-                      setState(() {
-                        _chatController.text = "";
-                      });
-                    },
-                  ),
-                ],
+                    IconButton(
+                      icon: const Icon(Icons.send),
+                      onPressed: () async {
+                        // checks for profanities or name before adding comment to database
+                        bool hasProfanities = filter.hasProfanity(_chatController.text);
+                        bool hasName = _namePresent(_chatController.text);
+                        if (!hasProfanities && !hasName) {
+                          await widget.webinarService
+                              .chat(_chatController.text, widget.webinarID, widget.user.roleType,widget.user.uid);
+                        } else {
+                          _showWarningDialog();
+                        }
+                        setState(() {
+                          _chatController.text = "";
+                        });
+                      },
+                    ),
+                  ],
+                ),
               ),
-            ),
+            if (!widget.chatEnabled) // Render disabled chat input section if chatEnabled is false
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextFormField(
+                        readOnly: true, // Make the TextFormField non-editable
+                        decoration: InputDecoration(
+                          hintText: 'Chat Disabled - No Longer Live',
+                          border: OutlineInputBorder(),
+                          // Disable interaction with the disabled input field
+                          enabled: false,
+                          fillColor: Colors.grey[200], // Customize background color
+                          filled: true,
+                        ),
+                      ),
+                    ),
+                    const IconButton(
+                      icon: Icon(Icons.send),
+                      onPressed: null, // Disable the send button
+                    ),
+                  ],
+                ),
+              ),
           ],
         ),
       ),

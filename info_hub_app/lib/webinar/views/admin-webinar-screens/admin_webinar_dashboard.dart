@@ -4,10 +4,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:info_hub_app/registration/user_model.dart';
-import 'package:info_hub_app/webinar/admin-webinar-screens/create_webinar_screen.dart';
-import 'package:info_hub_app/webinar/admin-webinar-screens/stats_cards.dart';
+import 'package:info_hub_app/webinar/views/admin-webinar-screens/create_webinar_screen.dart';
+import 'package:info_hub_app/webinar/helpers/stats_cards.dart';
 import 'package:info_hub_app/webinar/service/webinar_service.dart';
-import 'package:info_hub_app/webinar/webinar-screens/webinar_view.dart';
+import 'package:info_hub_app/webinar/views/webinar-screens/webinar_view.dart';
 
 class WebinarDashboard extends StatefulWidget {
   final UserModel user;

@@ -9,6 +9,7 @@ class Livestream {
   final int viewers;
   final String startTime;
   final String status;
+  final bool chatEnabled;
 
   Livestream({
     required this.webinarID,
@@ -19,6 +20,7 @@ class Livestream {
     required this.startedBy,
     required this.startTime,
     required this.status,
+    required this.chatEnabled,
   });
 
   factory Livestream.fromMap(Map<String, dynamic> map) {
@@ -31,6 +33,7 @@ class Livestream {
       startTime: map['startTime'] ?? '',
       viewers: map['views'] ?? '',
       status: map['status'] ?? '',
+      chatEnabled: map['chatenabled'] ?? false,
     );
   }
 }

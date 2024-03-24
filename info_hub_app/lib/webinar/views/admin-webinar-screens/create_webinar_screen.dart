@@ -1,16 +1,11 @@
-import 'dart:io';
-import 'package:flutter/cupertino.dart';
 import 'package:info_hub_app/theme/theme_constants.dart';
-import 'package:info_hub_app/webinar/helpers/create_webinar_helper.dart';
-import 'package:intl/intl.dart';
+import 'package:info_hub_app/webinar/controllers/create_webinar_controller.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:info_hub_app/registration/user_model.dart';
 import 'package:info_hub_app/webinar/service/webinar_service.dart';
-import '../webinar-screens/display_webinar.dart';
 
 class CreateWebinarScreen extends StatefulWidget {
   final UserModel user;
@@ -31,12 +26,13 @@ class _CreateWebinarScreenState extends State<CreateWebinarScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _urlController = TextEditingController();
-  final CreateWebinarHelper helper = CreateWebinarHelper();
+  late CreateWebinarController controller;
   Uint8List? image;
 
   @override
   void initState() {
     super.initState();
+    controller = CreateWebinarController(webinarService: widget.webinarService, firestore: widget.firestore, user: widget.user);
     _urlController.addListener(_removeFeatureShared);
   }
 
@@ -52,58 +48,6 @@ class _CreateWebinarScreenState extends State<CreateWebinarScreen> {
       _urlController.text =
           _urlController.text.replaceAll('?feature=shared', '');
     });
-  }
-
-  Future<void> _goLiveWebinar(DateTime? time,
-      {bool isScheduled = false}) async {
-    if (_formKey.currentState!.validate()) {
-      time ??= DateTime.now();
-      String statusText = isScheduled ? 'Upcoming' : 'Live';
-      final DateFormat formatter = DateFormat('dd-MM-yyyy HH:mm', 'en_GB');
-      String webinarID = await widget.webinarService.startLiveStream(
-          _titleController.text,
-          _urlController.text,
-          image,
-          ("${widget.user.firstName} ${widget.user.lastName}"),
-          formatter.format(time).toString(),
-          statusText);
-      if (webinarID.isNotEmpty) {
-        if (!isScheduled) {
-          widget.webinarService.updateViewCount(webinarID, true);
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => WebinarScreen(
-                  webinarID: webinarID,
-                  youtubeURL: _urlController.text,
-                  currentUser: widget.user,
-                  firestore: widget.firestore,
-                  title: _titleController.text,
-                  webinarService: widget.webinarService,
-                  status: statusText),
-            ),
-          );
-        } else {
-          Navigator.of(context).pop();
-        }
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-                'A webinar with this URL may already exist. Please try again.'),
-            duration: Duration(seconds: 3),
-          ),
-        );
-      }
-    }
-  }
-
-  Future<Uint8List?> _pickImage() async {
-    FilePickerResult? pickedImage =
-        await FilePicker.platform.pickFiles(type: FileType.image);
-    if (pickedImage != null) {
-      return await File(pickedImage.files.single.path!).readAsBytes();
-    }
-    return null;
   }
 
   Future<void> _selectDateTime() async {
@@ -128,28 +72,92 @@ class _CreateWebinarScreenState extends State<CreateWebinarScreen> {
           pickedTime.hour,
           pickedTime.minute,
         );
-        _goLiveWebinar(selectedDateTime, isScheduled: true);
+        controller.goLiveWebinar(
+          context,
+          selectedDateTime,
+          _formKey.currentState,
+          _titleController.text,
+          _urlController.text,
+          image,
+          isScheduled: true
+        );
       }
     }
   }
 
-  String? _validateUrl(String? url) {
-    final RegExp youtubeUrlRegex = RegExp(
-      r'^https?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)(\?feature=shared)?$',
+  // Creates the instruction dialog for how to create a webinar and seed the database from the user side
+  void showWebinarStartingHelpDialogue(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('How to Start a Livestream on YouTube'),
+          content: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                controller.buildStep(
+                  stepNumber: 1,
+                  stepDescription: 'Sign in to your YouTube account on a web browser.',
+                ),
+                controller.buildStep(
+                  stepNumber: 2,
+                  stepDescription: 'Click on the Create button at the top right corner of the page.',
+                ),
+                controller.buildStep(
+                  stepNumber: 3,
+                  stepDescription: 'Select "Go live" from the dropdown menu.',
+                ),
+                controller.buildStep(
+                  stepNumber: 4,
+                  stepDescription: 'Enter the title and description for your livestream.',
+                ),
+                controller.buildStep(
+                  stepNumber: 5,
+                  stepDescription: 'Set the privacy settings for your livestream (Public, Unlisted, or Private).',
+                ),
+                controller.buildStep(
+                  stepNumber: 6,
+                  stepDescription: 'Click on "More options" to customize your livestream settings further (optional).',
+                ),
+                controller.buildStep(
+                  stepNumber: 7,
+                  stepDescription: 'Disable the stream chat in the YouTube Studio settings to prevent distractions.',
+                ),
+                controller.buildStep(
+                  stepNumber: 8,
+                  stepDescription: 'Click on "Next" to proceed to the next step.',
+                ),
+                controller.buildStep(
+                  stepNumber: 9,
+                  stepDescription: 'Wait for YouTube to set up your livestream. This may take a few moments.',
+                ),
+                controller.buildStep(
+                  stepNumber: 10,
+                  stepDescription: 'Once your livestream is set up, copy the link for the YouTube stream.',
+                ),
+                controller.buildStep(
+                  stepNumber: 11,
+                  stepDescription: 'Paste the copied link into the app to start streaming.',
+                ),
+                controller.buildStep(
+                  stepNumber: 12,
+                  stepDescription: 'Click on "Go live" to start streaming from the app.',
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Close'),
+            ),
+          ],
+        );
+      },
     );
-    final RegExp youtubeLiveUrlRegex = RegExp(
-      r'^https?:\/\/(?:www\.)?youtube\.com\/live\/([a-zA-Z0-9_-]+)',
-    );
-
-    if (url == null || url.isEmpty) {
-      return 'URL is required';
-    }
-
-    if (!youtubeUrlRegex.hasMatch(url) && !youtubeLiveUrlRegex.hasMatch(url)) {
-      return 'Enter a valid YouTube video URL';
-    }
-
-    return null;
   }
 
   @override
@@ -161,7 +169,7 @@ class _CreateWebinarScreenState extends State<CreateWebinarScreen> {
           IconButton(
             icon: const Icon(Icons.help_outline),
             onPressed: () {
-              helper.showWebinarStartingHelpDialogue(context);
+              showWebinarStartingHelpDialogue(context);
             },
           ),
         ],
@@ -178,7 +186,7 @@ class _CreateWebinarScreenState extends State<CreateWebinarScreen> {
                     padding: const EdgeInsets.only(top: 15),
                     child: GestureDetector(
                       onTap: () async {
-                        Uint8List? pickedImage = await _pickImage();
+                        Uint8List? pickedImage = await controller.pickImage();
                         if (pickedImage != null) {
                           setState(() {
                             image = pickedImage;
@@ -255,7 +263,7 @@ class _CreateWebinarScreenState extends State<CreateWebinarScreen> {
                             prefixIcon: Icon(Icons.link),
                             hintText: 'YouTube Video URL',
                           ),
-                          validator: _validateUrl,
+                          validator: controller.validateUrl,
                         ),
                       ),
                     ],
@@ -263,7 +271,7 @@ class _CreateWebinarScreenState extends State<CreateWebinarScreen> {
                   const SizedBox(height: 20),
                   ElevatedButton(
                     onPressed: () async {
-                      await _goLiveWebinar(null);
+                      await controller.goLiveWebinar(context, null, _formKey.currentState, _titleController.text, _urlController.text, image);
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red,

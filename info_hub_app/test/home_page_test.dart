@@ -17,7 +17,7 @@ import 'package:info_hub_app/patient_experience/patient_experience_view.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:info_hub_app/threads/name_generator.dart';
 import 'package:info_hub_app/topics/view_topic/view/topic_view.dart';
-import 'package:info_hub_app/webinar/webinar-screens/webinar_view.dart';
+import 'package:info_hub_app/webinar/views/webinar-screens/webinar_view.dart';
 
 void main() {
   late MockFirebaseAuth auth;

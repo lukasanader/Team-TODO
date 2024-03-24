@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:info_hub_app/registration/user_model.dart';
 import 'package:info_hub_app/webinar/service/webinar_service.dart';
-import 'package:info_hub_app/webinar/webinar-screens/display_webinar.dart';
+import 'package:info_hub_app/webinar/views/webinar-screens/display_webinar.dart';
 import '../mock.dart';
 
 
