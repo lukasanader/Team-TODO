@@ -3,13 +3,14 @@ import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:info_hub_app/main.dart';
-import 'package:info_hub_app/topics/create_topic.dart';
+import 'package:info_hub_app/topics/create_topic/view/topic_creation_view.dart';
 import 'package:video_player_platform_interface/video_player_platform_interface.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import '../mock_classes.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:info_hub_app/topics/create_topic/model/topic_model.dart';
 
 void main() async {
   late MockFirebaseAuth auth;
@@ -71,43 +72,46 @@ void main() async {
       (WidgetTester tester) async {
     CollectionReference draftCollectionRef;
 
-    QuerySnapshot data;
-
     draftCollectionRef = firestore.collection('topicDrafts');
 
     await defineUserAndStorage(tester);
     DocumentSnapshot adminUserDoc =
         await firestore.collection('Users').doc('adminUser').get();
 
-    DocumentReference draftDocRef = await draftCollectionRef.add({
-      'title': 'Test Topic',
-      'description': 'Test Description',
-      'articleLink': '',
-      'media': [
+    Topic draftTopic = Topic(
+      title: 'Test Topic',
+      description: 'Test Description',
+      articleLink: '',
+      media: [
         {
           'url':
               'https://firebasestorage.googleapis.com/v0/b/team-todo-38f76.appspot.com/o/videos%2F2024-02-27%2022%3A09%3A02.035911.mp4?alt=media&token=ea6b51e9-9e9f-4d2e-a014-64fc3631e321',
           'mediaType': 'video'
         }
       ],
-      'tags': ['Patient'],
-      'likes': 0,
-      'views': 0,
-      'dislikes': 0,
-      'categories': ['Sports'],
-      'date': DateTime.now(),
-      'userID': adminUserDoc.id,
-      'quizID': ''
-    });
+      tags: ['Patient'],
+      likes: 0,
+      views: 0,
+      dislikes: 0,
+      categories: ['Sports'],
+      date: DateTime.now(),
+      userID: adminUserDoc.id, // Replace with the actual user ID
+      quizID: '',
+    );
+
+    // Add the draft topic to Firestore
+    DocumentReference draftDocRef =
+        await draftCollectionRef.add(draftTopic.toJson());
+    draftTopic.id = draftDocRef.id;
+
+    // Update user document to include the draft topic
     await firestore.collection('Users').doc('adminUser').update({
       'draftedTopics': FieldValue.arrayUnion([draftDocRef.id])
     });
 
-    data = await draftCollectionRef.orderBy('title').get();
-
     await tester.pumpWidget(MaterialApp(
       home: CreateTopicScreen(
-        draft: data.docs[0] as QueryDocumentSnapshot<Object>,
+        draft: draftTopic,
         auth: auth,
         firestore: firestore,
         storage: mockStorage,

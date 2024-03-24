@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:info_hub_app/registration/user_model.dart';
+import 'package:info_hub_app/model/user_model.dart';
 import 'package:info_hub_app/webinar/models/livestream.dart';
 import 'package:info_hub_app/webinar/service/webinar_service.dart';
 import 'package:info_hub_app/webinar/webinar-screens/display_webinar.dart';
@@ -29,7 +29,7 @@ class WebinarCard extends StatelessWidget {
         if (post.status == "Upcoming") {
           _showUpcomingDialog(context, post.startTime);
         } else {
-        // if live or archived redirect to watch screen and increment view counter
+          // if live or archived redirect to watch screen and increment view counter
           await webinarService.updateViewCount(post.webinarID, true);
           Navigator.of(context).push(
             MaterialPageRoute(
@@ -88,28 +88,73 @@ class WebinarCard extends StatelessWidget {
               ),
               // if user is admin, they're able to modify webinar status using dropdown in the top right of each card
               if (isAdmin)
-                PopupMenuButton(
-                  itemBuilder: (context) => [
-                    if (post.status != "Archived")
-                      PopupMenuItem(
-                        child: const Text('Move to Archive'),
-                        onTap: () {
-                          _showArchiveDialog(context);
-                        },
-                      ),
-                    if (post.status == "Upcoming")
-                      PopupMenuItem(
-                        child: const Text('Move to Live'),
-                        onTap: () {
-                          _showLiveDialog(context);
-                        },
-                      ),
-                  ],
+                IconButton(
+                  icon: Icon(Icons.more_vert),
+                  onPressed: () => _showAdminActions(context),
                 ),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  void _showAdminActions(BuildContext context) {
+    showModalBottomSheet(
+      backgroundColor: Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      context: context,
+      builder: (BuildContext context) {
+        return Wrap(
+          children: <Widget>[
+            if (post.status != "Archived")
+              InkWell(
+                onTap: () {
+                  Navigator.pop(context);
+                  _showArchiveDialog(context);
+                },
+                child: Container(
+                  padding: const EdgeInsets.only(top: 5),
+                  height: 65,
+                  child: const ListTile(
+                    leading: Icon(Icons.archive_outlined),
+                    title: Text('Move to Archive'),
+                  ),
+                ),
+              ),
+            if (post.status == "Upcoming")
+              InkWell(
+                onTap: () {
+                  Navigator.pop(context);
+                  _showLiveDialog(context);
+                },
+                child: Container(
+                  padding: const EdgeInsets.only(top: 5),
+                  height: 65,
+                  child: const ListTile(
+                    leading: Icon(Icons.live_tv_outlined),
+                    title: Text('Move to Live'),
+                  ),
+                ),
+              ),
+            if (post.status == "Archived")
+              InkWell(
+                onTap: () {
+                  Navigator.pop(context);
+                  // ADD METHOD HERE TO DELETE WEBINAR
+                },
+                child: Container(
+                  padding: const EdgeInsets.only(top: 5),
+                  height: 65,
+                  child: const ListTile(
+                    leading: Icon(Icons.delete_outlined),
+                    title: Text('Delete Webinar'),
+                  ),
+                ),
+              ),
+          ],
+        );
+      },
     );
   }
 
@@ -123,11 +168,12 @@ class WebinarCard extends StatelessWidget {
         return StatefulBuilder(
           builder: (BuildContext context, setState) {
             return AlertDialog(
-              title: const Text('Move to Archived'),
+              title: const Text('Move to Archive'),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text('Are you sure you want to move this webinar to archived?'),
+                  const Text(
+                      'Are you sure you want to move this webinar to the archive?'),
                   const SizedBox(height: 20),
                   TextField(
                     controller: urlController,
@@ -147,23 +193,28 @@ class WebinarCard extends StatelessWidget {
                   },
                   child: const Text('Cancel'),
                 ),
-                ElevatedButton(
+                TextButton(
                   onPressed: () async {
                     String newURL = urlController.text;
                     if (newURL.isNotEmpty) {
                       // validates url into expected formats and sets these changes into database
-                      final RegExp regex = RegExp(r'https:\/\/(?:www\.)?youtube\.com\/watch\?v=([a-zA-Z0-9_-]+)|https:\/\/youtu\.be\/([a-zA-Z0-9_-]+)');
+                      final RegExp regex = RegExp(
+                          r'https:\/\/(?:www\.)?youtube\.com\/watch\?v=([a-zA-Z0-9_-]+)|https:\/\/youtu\.be\/([a-zA-Z0-9_-]+)');
                       if (regex.hasMatch(newURL)) {
-                        await webinarService.setWebinarStatus(post.webinarID, newURL, changeToArchived: true);
+                        await webinarService.setWebinarStatus(
+                            post.webinarID, newURL,
+                            changeToArchived: true);
                         Navigator.pop(context);
                       } else {
                         setState(() {
-                          isValidURL = false; // Set isValidURL to false to trigger error
+                          isValidURL =
+                              false; // Set isValidURL to false to trigger error
                         });
                       }
                     } else {
                       setState(() {
-                        isValidURL = true; // Reset isValidURL when the text field is empty
+                        isValidURL =
+                            true; // Reset isValidURL when the text field is empty
                       });
                     }
                   },
@@ -179,25 +230,33 @@ class WebinarCard extends StatelessWidget {
 
   // allows admin to change webinar card from upcoming to live
   void _showLiveDialog(BuildContext context) {
+    // Store the context in a variable
+    BuildContext dialogContext = context;
     showDialog(
-      context: context,
-      builder: (context) {
+      context: dialogContext,
+      builder: (dialogContext) {
         return AlertDialog(
           title: const Text('Move to Live'),
-          content: const Text('Are you sure you want to move this webinar to live?'),
+          content:
+              const Text('Are you sure you want to move this webinar to live?'),
           actions: [
             TextButton(
               onPressed: () {
                 // if the user cancels the operation, nothing happens
-                Navigator.pop(context);
+                Navigator.pop(dialogContext); // Use the stored dialogContext
               },
               child: const Text('Cancel'),
             ),
-            ElevatedButton(
+            TextButton(
               onPressed: () async {
-                // update database with new information and pop dialog box off the screen
-                await webinarService.setWebinarStatus(post.webinarID, post.youtubeURL, changeToLive: true);
-                Navigator.pop(context);
+                // Check if the widget associated with the context is mounted
+                if (Navigator.of(dialogContext).canPop()) {
+                  // update database with new information and pop dialog box off the screen
+                  await webinarService.setWebinarStatus(
+                      post.webinarID, post.youtubeURL,
+                      changeToLive: true);
+                  Navigator.pop(dialogContext); // Use the stored dialogContext
+                }
               },
               child: const Text('Confirm'),
             ),
@@ -219,7 +278,8 @@ class WebinarCard extends StatelessWidget {
             children: [
               Text('This webinar is scheduled to start at $startTime.'),
               const SizedBox(height: 20),
-              const Text('Please come back at the scheduled time to join the webinar.'),
+              const Text(
+                  'Please come back at the scheduled time to join the webinar.'),
             ],
           ),
           actions: [

@@ -2,7 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:info_hub_app/topics/topics_card.dart';
+import 'package:info_hub_app/topics/view_topic/helpers/topics_card.dart';
+import 'package:info_hub_app/topics/create_topic/model/topic_model.dart';
 
 class SavedPage extends StatefulWidget {
   final FirebaseFirestore firestore;
@@ -20,7 +21,7 @@ class SavedPage extends StatefulWidget {
 }
 
 class _SavedPageState extends State<SavedPage> {
-  List<Object> _topicsList = [];
+  List<Topic> _topicsList = [];
 
   @override
   void initState() {
@@ -78,7 +79,7 @@ class _SavedPageState extends State<SavedPage> {
               widget.firestore,
               widget.auth,
               widget.storage,
-              _topicsList[topicIndex] as QueryDocumentSnapshot<Object>,
+              _topicsList[topicIndex] as Topic,
             );
           }
         },
@@ -111,7 +112,8 @@ class _SavedPageState extends State<SavedPage> {
               .get();
           if (mounted) {
             setState(() {
-              _topicsList = List.from(data.docs);
+              _topicsList =
+                  data.docs.map((doc) => Topic.fromSnapshot(doc)).toList();
             });
           }
         } else {

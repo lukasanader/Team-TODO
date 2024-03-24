@@ -2,7 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:info_hub_app/topics/topics_card.dart';
+import 'package:info_hub_app/topics/view_topic/helpers/topics_card.dart';
+import 'package:info_hub_app/topics/create_topic/model/topic_model.dart';
 
 class DraftsPage extends StatefulWidget {
   final FirebaseFirestore firestore;
@@ -20,7 +21,7 @@ class DraftsPage extends StatefulWidget {
 }
 
 class _DraftsPageState extends State<DraftsPage> {
-  List<Object> _draftsList = [];
+  List<Topic> _draftsList = [];
 
   @override
   void initState() {
@@ -69,7 +70,7 @@ class _DraftsPageState extends State<DraftsPage> {
             widget.firestore,
             widget.auth,
             widget.storage,
-            _draftsList[index] as QueryDocumentSnapshot<Object>,
+            _draftsList[index] as Topic,
           );
         },
       );
@@ -93,20 +94,21 @@ class _DraftsPageState extends State<DraftsPage> {
         List<String> draftedTopics =
             List<String>.from(userData['draftedTopics']);
 
-        // Check if savedTopics is not empty
+        // Check if draftedTopics is not empty
         if (draftedTopics.isNotEmpty) {
-          // Query topics using savedTopics
+          // Query topics using draftedTopics
           QuerySnapshot data = await widget.firestore
               .collection('topicDrafts')
               .where(FieldPath.documentId, whereIn: draftedTopics)
               .get();
           if (mounted) {
             setState(() {
-              _draftsList = List.from(data.docs);
+              _draftsList =
+                  data.docs.map((doc) => Topic.fromSnapshot(doc)).toList();
             });
           }
         } else {
-          // If savedTopics is empty, set _topicsList to an empty list
+          // If draftedTopics is empty, set _draftsList to an empty list
           if (mounted) {
             setState(() {
               _draftsList = [];
@@ -114,7 +116,7 @@ class _DraftsPageState extends State<DraftsPage> {
           }
         }
       } else {
-        // If "savedTopics" field is null or not found, set _topicsList to an empty list
+        // If "draftedTopics" field is null or not found, set _draftsList to an empty list
         if (mounted) {
           setState(() {
             _draftsList = [];
@@ -122,7 +124,7 @@ class _DraftsPageState extends State<DraftsPage> {
         }
       }
     } else {
-      // If user document doesn't exist, set _topicsList to an empty list
+      // If user document doesn't exist, set _draftsList to an empty list
       if (mounted) {
         setState(() {
           _draftsList = [];

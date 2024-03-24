@@ -2,18 +2,21 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:info_hub_app/analytics/topics/analytics_view_topic.dart';
+import 'package:info_hub_app/controller/activity_controller.dart';
 import 'package:info_hub_app/main.dart';
+import 'package:info_hub_app/model/model.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
-import 'view_topic.dart';
+import '../view/topic_view.dart';
 import 'package:info_hub_app/services/database.dart';
-import 'create_topic.dart';
+import '../../create_topic/view/topic_creation_view.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
 import 'dart:typed_data';
+import 'package:info_hub_app/topics/create_topic/model/topic_model.dart';
 
 class TopicCard extends StatelessWidget {
-  final QueryDocumentSnapshot _topic;
+  final Topic _topic;
   final FirebaseFirestore firestore;
   final FirebaseStorage storage;
 
@@ -24,21 +27,14 @@ class TopicCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, dynamic>? topicData =
-        _topic.data() as Map<String, dynamic>?;
+    final date = _topic.date;
 
-    final date = (topicData != null && topicData.containsKey('date'))
-        ? (topicData['date'] as Timestamp).toDate()
-        : null;
+    final mediaList = _topic.media as List<dynamic>;
 
-    final mediaList = (topicData != null && topicData.containsKey('media'))
-        ? topicData['media'] as List<dynamic>
-        : null;
-    final media = mediaList?.isNotEmpty ?? false ? mediaList!.first : null;
+    final media = mediaList.isNotEmpty ? mediaList.first : null;
     final mediaUrl = media != null ? media['url'] as String? : null;
     final mediaType = media != null ? media['mediaType'] as String? : null;
-    bool containsVideo = mediaList != null &&
-        mediaList.isNotEmpty &&
+    bool containsVideo = mediaList.isNotEmpty &&
         mediaList.any((element) => element['mediaType'] == 'video');
 
     Widget mediaWidget = const SizedBox.shrink();
@@ -48,7 +44,7 @@ class TopicCard extends StatelessWidget {
         future: _getVideoThumbnail(mediaUrl),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CircularProgressIndicator();
+            return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return const Text('Error loading thumbnail');
           } else {
@@ -74,8 +70,11 @@ class TopicCard extends StatelessWidget {
 
     return GestureDetector(
       onTap: () {
-        DatabaseService(auth: auth, uid: auth.currentUser!.uid, firestore: firestore)
-            .addTopicActivity(_topic);
+        ActivityController(auth: auth, firestore: firestore)
+            .addActivity(_topic.id!, 'topics');
+        DatabaseService(
+                auth: auth, uid: auth.currentUser!.uid, firestore: firestore)
+            .incrementView(_topic);
         PersistentNavBarNavigator.pushNewScreen(
           context,
           screen: ViewTopicScreen(
@@ -99,7 +98,7 @@ class TopicCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      _topic['title'] as String? ?? '',
+                      _topic.title ?? '',
                       style: const TextStyle(
                         fontSize: 16,
                         color: Colors.black,
@@ -171,7 +170,7 @@ class TopicCard extends StatelessWidget {
 // for demo. will be refactored
 
 class AdminTopicCard extends StatelessWidget {
-  final QueryDocumentSnapshot _topic;
+  final Topic _topic;
   final FirebaseFirestore firestore;
   final FirebaseStorage storage;
 
@@ -179,21 +178,14 @@ class AdminTopicCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, dynamic>? topicData =
-        _topic.data() as Map<String, dynamic>?;
+    final date = _topic.date;
 
-    final date = (topicData != null && topicData.containsKey('date'))
-        ? (topicData['date'] as Timestamp).toDate()
-        : null;
+    final mediaList = _topic.media as List<dynamic>;
 
-    final mediaList = (topicData != null && topicData.containsKey('media'))
-        ? topicData['media'] as List<dynamic>
-        : null;
-    final media = mediaList?.isNotEmpty ?? false ? mediaList!.first : null;
+    final media = mediaList.isNotEmpty ? mediaList.first : null;
     final mediaUrl = media != null ? media['url'] as String? : null;
     final mediaType = media != null ? media['mediaType'] as String? : null;
-    bool containsVideo = mediaList != null &&
-        mediaList.isNotEmpty &&
+    bool containsVideo = mediaList.isNotEmpty &&
         mediaList.any((element) => element['mediaType'] == 'video');
 
     Widget mediaWidget = const SizedBox.shrink();
@@ -203,7 +195,7 @@ class AdminTopicCard extends StatelessWidget {
         future: _getVideoThumbnail(mediaUrl),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CircularProgressIndicator();
+            return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return const Text('Error loading thumbnail');
           } else {
@@ -252,7 +244,7 @@ class AdminTopicCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      _topic['title'] as String? ?? '',
+                      _topic.title ?? '',
                       style: const TextStyle(
                         fontSize: 16,
                         color: Colors.black,
@@ -322,7 +314,7 @@ class AdminTopicCard extends StatelessWidget {
 }
 
 class TopicDraftCard extends StatelessWidget {
-  final QueryDocumentSnapshot _draft;
+  final Topic _draft;
   final FirebaseFirestore firestore;
   final FirebaseStorage storage;
 
@@ -333,22 +325,14 @@ class TopicDraftCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, dynamic>? topicData =
-        _draft.data() as Map<String, dynamic>?;
+    final date = _draft.date;
 
-    final date = (topicData != null && topicData.containsKey('date'))
-        ? (topicData['date'] as Timestamp).toDate()
-        : null;
+    final mediaList = _draft.media as List<dynamic>;
 
-    final mediaList = (topicData != null && topicData.containsKey('media'))
-        ? topicData['media'] as List<dynamic>
-        : null;
-    final media =
-        mediaList != null && mediaList.isNotEmpty ? mediaList.first : null;
+    final media = mediaList.isNotEmpty ? mediaList.first : null;
     final mediaUrl = media != null ? media['url'] as String? : null;
     final mediaType = media != null ? media['mediaType'] as String? : null;
-    bool containsVideo = mediaList != null &&
-        mediaList.isNotEmpty &&
+    bool containsVideo = mediaList.isNotEmpty &&
         mediaList.any((element) => element['mediaType'] == 'video');
 
     Widget mediaWidget = const SizedBox.shrink();
@@ -358,7 +342,7 @@ class TopicDraftCard extends StatelessWidget {
         future: _getVideoThumbnail(mediaUrl),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CircularProgressIndicator();
+            return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return const Text('Error loading thumbnail');
           } else {
@@ -407,7 +391,7 @@ class TopicDraftCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      _draft['title'] as String? ?? '',
+                      _draft.title ?? '',
                       style: const TextStyle(
                         fontSize: 16,
                         color: Colors.black,
@@ -478,7 +462,7 @@ class TopicDraftCard extends StatelessWidget {
 }
 
 class LargeTopicCard extends StatelessWidget {
-  final QueryDocumentSnapshot _topic;
+  final Topic _topic;
   final FirebaseFirestore firestore;
   final FirebaseStorage storage;
   final FirebaseAuth auth;
@@ -493,21 +477,15 @@ class LargeTopicCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, dynamic>? topicData =
-        _topic.data() as Map<String, dynamic>?;
+    final date = _topic.date;
 
-    final date = (topicData != null && topicData.containsKey('date'))
-        ? (topicData['date'] as Timestamp).toDate()
-        : null;
+    final mediaList = _topic.media as List<dynamic>;
 
-    final mediaList = (topicData != null && topicData.containsKey('media'))
-        ? topicData['media'] as List<dynamic>
-        : null;
-    final media = mediaList?.isNotEmpty == true ? mediaList!.first : null;
+    final media = mediaList.isNotEmpty == true ? mediaList.first : null;
     final mediaUrl = media != null ? media['url'] as String? : null;
     final mediaType = media != null ? media['mediaType'] as String? : null;
 
-    Widget mediaWidget = SizedBox.shrink();
+    Widget mediaWidget = const SizedBox.shrink();
 
     if (mediaType == 'video') {
       mediaWidget = FutureBuilder<Uint8List>(
@@ -516,7 +494,7 @@ class LargeTopicCard extends StatelessWidget {
             : Future.value(Uint8List(0)),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CircularProgressIndicator();
+            return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError || snapshot.data == null) {
             return const Text('Error loading thumbnail');
           } else {
@@ -544,8 +522,11 @@ class LargeTopicCard extends StatelessWidget {
 
     return GestureDetector(
       onTap: () {
-        DatabaseService(auth: auth, uid: auth.currentUser!.uid, firestore: firestore)
-            .addTopicActivity(_topic);
+        ActivityController(auth: auth, firestore: firestore)
+            .addActivity(_topic.id!, 'topics');
+        DatabaseService(
+                auth: auth, uid: auth.currentUser!.uid, firestore: firestore)
+            .incrementView(_topic);
         PersistentNavBarNavigator.pushNewScreen(
           context,
           screen: ViewTopicScreen(
@@ -579,7 +560,7 @@ class LargeTopicCard extends StatelessWidget {
                         ),
                       if (mediaUrl != null) const SizedBox(height: 4),
                       Text(
-                        topicData?['title'] ?? '',
+                        _topic.title ?? '',
                         style: const TextStyle(
                           fontSize: 14,
                           color: Colors.black,
@@ -630,3 +611,5 @@ class LargeTopicCard extends StatelessWidget {
     return uint8list!;
   }
 }
+
+

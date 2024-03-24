@@ -4,7 +4,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:info_hub_app/registration/user_model.dart';
+import 'package:info_hub_app/model/user_model.dart';
 import 'package:info_hub_app/notifications/manage_notifications.dart';
 import 'package:info_hub_app/services/database.dart';
 import 'package:info_hub_app/threads/threads.dart';
@@ -48,8 +48,11 @@ class _TestViewState extends State<TestView> {
                     firestore: widget.firestore,
                     auth: widget.auth,
                     uid: widget.auth.currentUser!.uid)
-                .createNotification('Test Notification',
-                    'This is a test notification', DateTime.now());
+                .createNotification(
+                    'Test Notification',
+                    'This is a test notification',
+                    DateTime.now(),
+                    '/notifications');
           },
           child: const Text('Create Test Notification'),
         ),

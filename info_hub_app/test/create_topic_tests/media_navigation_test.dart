@@ -3,7 +3,7 @@ import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:info_hub_app/main.dart';
-import 'package:info_hub_app/topics/create_topic.dart';
+import 'package:info_hub_app/topics/create_topic/view/topic_creation_view.dart';
 import 'package:http/http.dart' as http;
 import 'package:chewie/chewie.dart';
 import 'package:video_player_platform_interface/video_player_platform_interface.dart';
@@ -13,6 +13,7 @@ import '../mock_classes.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:mocktail_image_network/mocktail_image_network.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:info_hub_app/topics/create_topic/model/topic_model.dart';
 
 void main() async {
   late MockFirebaseAuth auth;
@@ -66,11 +67,11 @@ void main() async {
     await defineUserAndStorage(tester);
     CollectionReference topicCollectionRef = firestore.collection('topics');
 
-    await topicCollectionRef.add({
-      'title': 'multimedia topic',
-      'description': 'Test Description',
-      'articleLink': 'https://www.javatpoint.com/heap-sort',
-      'media': [
+    Topic topic = Topic(
+      title: 'multimedia topic',
+      description: 'Test Description',
+      articleLink: 'https://www.javatpoint.com/heap-sort',
+      media: [
         {'url': 'http://via.placeholder.com/350x150', 'mediaType': 'image'},
         {
           'url':
@@ -83,16 +84,17 @@ void main() async {
           'mediaType': 'image'
         }
       ],
-      'likes': 0,
-      'tags': ['Patient'],
-      'views': 0,
-      'quizId': "",
-      'dislikes': 0,
-      'categories': ['Sports'],
-      'date': DateTime.now()
-    });
+      likes: 0,
+      tags: ['Patient'],
+      views: 0,
+      quizID: "",
+      dislikes: 0,
+      categories: ['Sports'],
+      date: DateTime.now(),
+    );
 
-    QuerySnapshot data = await topicCollectionRef.orderBy('title').get();
+    // Add the topic to Firestore
+    await topicCollectionRef.add(topic.toJson());
 
     // Pass a valid URL when creating the VideoPlayerController instance
     await mockNetworkImages(() async => await tester.pumpWidget(MaterialApp(
@@ -100,7 +102,7 @@ void main() async {
             auth: auth,
             firestore: firestore,
             storage: mockStorage,
-            topic: data.docs[0],
+            topic: topic,
             themeManager: themeManager,
           ),
         )));
@@ -178,25 +180,27 @@ void main() async {
     topicCollectionRef = firestore.collection('topics');
     await defineUserAndStorage(tester);
 
-    await topicCollectionRef.add({
-      'title': 'Test Topic',
-      'description': 'Test Description',
-      'articleLink': '',
-      'media': [
-        {
-          'url':
-              'https://firebasestorage.googleapis.com/v0/b/team-todo-38f76.appspot.com/o/videos%2F2024-02-27%2022%3A09%3A02.035911.mp4?alt=media&token=ea6b51e9-9e9f-4d2e-a014-64fc3631e321',
-          'mediaType': 'video'
-        },
-      ],
-      'likes': 0,
-      'tags': ['Patient'],
-      'views': 0,
-      'dislikes': 0,
-      'categories': ['Sports'],
-      'date': DateTime.now(),
-      'quizID': ''
-    });
+    Topic topic = Topic(
+        title: 'Test Topic',
+        description: 'Test Description',
+        articleLink: '',
+        media: [
+          {
+            'url':
+                'https://firebasestorage.googleapis.com/v0/b/team-todo-38f76.appspot.com/o/videos%2F2024-02-27%2022%3A09%3A02.035911.mp4?alt=media&token=ea6b51e9-9e9f-4d2e-a014-64fc3631e321',
+            'mediaType': 'video'
+          },
+        ],
+        likes: 0,
+        tags: ['Patient'],
+        views: 0,
+        dislikes: 0,
+        categories: ['Sports'],
+        date: DateTime.now(),
+        quizID: '');
+
+    DocumentReference topicRef = await topicCollectionRef.add(topic.toJson());
+    topic.id = topicRef.id;
 
     const url =
         'https://firebasestorage.googleapis.com/v0/b/team-todo-38f76.appspot.com/o/videos%2F2024-02-27%2022%3A09%3A02.035911.mp4?alt=media&token=ea6b51e9-9e9f-4d2e-a014-64fc3631e321';
@@ -217,7 +221,7 @@ void main() async {
     await tester.pumpWidget(MaterialApp(
       home: CreateTopicScreen(
         auth: auth,
-        topic: data.docs[0] as QueryDocumentSnapshot<Object>,
+        topic: topic,
         firestore: firestore,
         storage: mockStorage,
         themeManager: themeManager,
@@ -242,7 +246,6 @@ void main() async {
     final ListResult result = await mockStorage.ref().child('media').listAll();
     expect(result.items.length, 1);
   });
-
   testWidgets('media can be cleared and navigates to media in front correctly',
       (WidgetTester tester) async {
     await defineUserAndStorage(tester);

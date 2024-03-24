@@ -131,10 +131,46 @@ void main() {
     expect(find.text('FAQs'), findsOneWidget);
   });
 
-  testWidgets('FAQs information should be displayed', (WidgetTester tester) async {
+  testWidgets('FAQs first question should be displayed', (WidgetTester tester) async {
     await tester.pumpWidget(const MaterialApp(
       home: HelpPage(),
     ));
-    expect(find.text('FAQs information goes here.'), findsOneWidget);
+    expect(find.text('What are the common symptoms of liver disease?'), findsOneWidget);
   });
+
+  testWidgets('FAQs first answer should be displayed', (WidgetTester tester) async {
+    await tester.pumpWidget(const MaterialApp(
+      home: HelpPage(),
+    ));
+    expect(find.text('Common symptoms of liver disease include jaundice, abdominal pain and swelling, nausea, vomiting, fatigue, and dark urine. However, symptoms may vary depending on the specific liver condition and its severity.'), findsOneWidget);
+  });
+
+    testWidgets('FAQs second question should be displayed', (WidgetTester tester) async {
+    await tester.pumpWidget(const MaterialApp(
+      home: HelpPage(),
+    ));
+    expect(find.text('How is liver disease diagnosed?'), findsOneWidget);
+  });
+
+    testWidgets('FAQs second answer should be displayed', (WidgetTester tester) async {
+    await tester.pumpWidget(const MaterialApp(
+      home: HelpPage(),
+    ));
+    expect(find.text('Liver disease is diagnosed through a combination of medical history, physical examination, blood tests, imaging studies (such as ultrasound or MRI), and sometimes liver biopsy. These tests help determine the cause, severity, and extent of liver damage.'), findsOneWidget);
+  });
+
+      testWidgets('FAQs third question should be displayed', (WidgetTester tester) async {
+    await tester.pumpWidget(const MaterialApp(
+      home: HelpPage(),
+    ));
+    expect(find.text('What are some lifestyle changes recommended for managing liver disease?'), findsOneWidget);
+  });
+
+        testWidgets('FAQs third answer should be displayed', (WidgetTester tester) async {
+    await tester.pumpWidget(const MaterialApp(
+      home: HelpPage(),
+    ));
+    expect(find.text( "Lifestyle changes that may help manage liver disease include maintaining a healthy diet low in fat and processed foods, avoiding alcohol and tobacco, exercising regularly, managing stress, and following prescribed treatment plans. It's essential to consult healthcare professionals for personalized recommendations based on individual health conditions."), findsOneWidget);
+  });
+
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:info_hub_app/notifications/notification.dart' as custom;
+import 'package:info_hub_app/main.dart';
+import 'package:info_hub_app/notifications/notification_model.dart' as custom;
 import 'package:timeago/timeago.dart' as timeago;
 
 class NotificationCard extends StatelessWidget {
@@ -11,24 +12,65 @@ class NotificationCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final timeAgo = timeago.format(notification.timestamp);
 
-    return Padding(
-      padding: const EdgeInsets.only(top: 0.0, bottom: 5.0),
-      child: Card(
-        margin: const EdgeInsets.fromLTRB(20.0, 6.0, 20.0, 0.0),
-        child: ListTile(
-          title: Text(notification.title),
-          subtitle: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(notification.body),
-              Text(
-                timeAgo,
-                style: const TextStyle(fontSize: 12.0, color: Colors.grey),
-              ),
-            ],
+    return GestureDetector(
+      onTap: () {
+        showNotificationDetails(context);
+      },
+      child: Padding(
+        padding: const EdgeInsets.only(top: 8.0),
+        child: Card(
+          margin: const EdgeInsets.fromLTRB(20.0, 6.0, 20.0, 0.0),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15.0),
+            side: BorderSide(color: Color.fromARGB(255, 255, 87, 87)),
+          ),
+          child: ListTile(
+            title: Text(notification.title),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  timeAgo,
+                  style: const TextStyle(fontSize: 12.0, color: Colors.grey),
+                ),
+              ],
+            ),
           ),
         ),
       ),
+    );
+  }
+
+  void showNotificationDetails(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(notification.title),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text(notification.body),
+                SizedBox(height: 10),
+                ElevatedButton(
+                  onPressed: () {
+                    navigatorKey.currentState!.pushNamed(notification.route);
+                  },
+                  child: Text('View Details'),
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Close'),
+            ),
+          ],
+        );
+      },
     );
   }
 }

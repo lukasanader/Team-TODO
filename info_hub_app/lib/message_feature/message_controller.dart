@@ -1,17 +1,17 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:info_hub_app/message_feature/message_model.dart';
 import 'package:info_hub_app/message_feature/message_room/message_room_controller.dart';
-import 'package:info_hub_app/registration/user_controller.dart';
+import 'package:info_hub_app/controller/user_controller.dart';
+import 'package:info_hub_app/model/user_model.dart';
 import 'package:info_hub_app/threads/name_generator.dart';
 
-class MessageService extends ChangeNotifier {
+class MessageController extends ChangeNotifier {
   final FirebaseAuth _firebaseAuth;
   final FirebaseFirestore _firestore;
 
-  MessageService(
+  MessageController(
     this._firebaseAuth,
     this._firestore,
   );
@@ -39,10 +39,10 @@ class MessageService extends ChangeNotifier {
     //checks if room is initialised, if not creates it
     DocumentSnapshot chatRoomDocument = await _firestore.collection('message_rooms').doc(chatRoomId).get();  
     if (!chatRoomDocument.exists) {
-      DocumentSnapshot receiverUser = await UserController(_firebaseAuth, _firestore).getUser(receiverId);
+      UserModel receiverUser = await UserController(_firebaseAuth, _firestore).getUser(receiverId);
 
       //will display the patients email as the card name
-      String adminDisplayName = receiverUser['email'];
+      String adminDisplayName = receiverUser.email;
 
       //will display the admins username as the card name
       String patientDisplayName = generateUniqueName(currentUserId);

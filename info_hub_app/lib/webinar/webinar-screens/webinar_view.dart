@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:info_hub_app/registration/user_model.dart';
+import 'package:info_hub_app/helpers/helper_widgets.dart';
+import 'package:info_hub_app/model/user_model.dart';
 import 'package:info_hub_app/webinar/models/livestream.dart';
 import 'package:info_hub_app/webinar/service/webinar_service.dart';
 import 'package:info_hub_app/webinar/webinar-screens/webinar_card.dart';
@@ -11,11 +12,11 @@ class WebinarView extends StatefulWidget {
   final WebinarService webinarService;
 
   const WebinarView({
-    Key? key,
+    super.key,
     required this.firestore,
     required this.user,
     required this.webinarService,
-  }) : super(key: key);
+  });
 
   @override
   State<WebinarView> createState() => _WebinarViewState();
@@ -31,7 +32,7 @@ class _WebinarViewState extends State<WebinarView> {
         title: const Text("Webinars"),
       ),
       body: Padding(
-        padding: const EdgeInsets.only(bottom: 16.0), // Adjust the padding as needed
+        padding: const EdgeInsets.only(bottom: 16.0),
         child: Column(
           children: [
             Expanded(
@@ -39,15 +40,18 @@ class _WebinarViewState extends State<WebinarView> {
                 child: Column(
                   children: [
                     if (!_showArchivedWebinars) ...[
-                      const Text("Currently Live"),
-                      const SizedBox(height: 20),
+                      Text(
+                        "Currently Live",
+                        style: Theme.of(context).textTheme.headlineSmall,
+                      ),
                       StreamBuilder<QuerySnapshot>(
                         stream: widget.firestore
                             .collection('Webinar')
                             .where('status', isEqualTo: 'Live')
                             .snapshots(),
                         builder: (context, snapshot) {
-                          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                          if (!snapshot.hasData ||
+                              snapshot.data!.docs.isEmpty) {
                             return const Text(
                               "None of our trusted NHS doctors are live right now \nPlease check later!",
                               textAlign: TextAlign.center,
@@ -56,47 +60,88 @@ class _WebinarViewState extends State<WebinarView> {
                           return ListView.builder(
                             physics: const NeverScrollableScrollPhysics(),
                             shrinkWrap: true,
-                            itemCount: snapshot.data?.docs.length ?? 0,
+                            // Adjust itemCount to account for both Livestream posts and separators.
+                            itemCount:
+                                (snapshot.data?.docs.length ?? 0) * 2 - 1,
                             itemBuilder: (context, index) {
-                              Livestream post = Livestream.fromMap(
-                                snapshot.data!.docs[index].data() as Map<String, dynamic>,
-                              );
-                              return WebinarCard(
-                                post: post,
-                                firestore: widget.firestore,
-                                user: widget.user,
-                                webinarService: widget.webinarService,
-                              );
+                              if (index.isOdd) {
+                                // Add Padding and Container between WebinarCards as a separator.
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 16),
+                                  child: Container(
+                                    height: 1,
+                                    color: Colors.grey,
+                                  ),
+                                );
+                              } else {
+                                // Calculate the actual index of the Livestream post.
+                                final postIndex = index ~/ 2;
+                                Livestream post = Livestream.fromMap(
+                                  snapshot.data!.docs[postIndex].data()
+                                      as Map<String, dynamic>,
+                                );
+                                return WebinarCard(
+                                  post: post,
+                                  firestore: widget.firestore,
+                                  user: widget.user,
+                                  webinarService: widget.webinarService,
+                                );
+                              }
                             },
                           );
                         },
                       ),
-                      const SizedBox(height: 20),
-                      const Text("Upcoming Webinars"),
+                      addVerticalSpace(10),
+                      Text(
+                        "Upcoming Webinars",
+                        style: Theme.of(context).textTheme.headlineSmall,
+                      ),
+                      addVerticalSpace(10),
                       StreamBuilder<QuerySnapshot>(
                         stream: widget.firestore
                             .collection('Webinar')
                             .where('status', isEqualTo: 'Upcoming')
                             .snapshots(),
                         builder: (context, snapshot) {
-                          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                            return const Text("Seems like all of our trusted doctors are busy \nCheck regularly to see if there have been any changes",
-                            textAlign: TextAlign.center,);
+                          if (!snapshot.hasData ||
+                              snapshot.data!.docs.isEmpty) {
+                            return const Text(
+                              "Seems like all of our trusted doctors are busy \nCheck regularly to see if there have been any changes",
+                              textAlign: TextAlign.center,
+                            );
                           }
                           return ListView.builder(
                             physics: const NeverScrollableScrollPhysics(),
                             shrinkWrap: true,
-                            itemCount: snapshot.data?.docs.length ?? 0,
+                            itemCount:
+                                (snapshot.data?.docs.length ?? 0) * 2 - 1,
                             itemBuilder: (context, index) {
-                              Livestream post = Livestream.fromMap(
-                                snapshot.data!.docs[index].data() as Map<String, dynamic>,
-                              );
-                              return WebinarCard(
-                                post: post,
-                                firestore: widget.firestore,
-                                user: widget.user,
-                                webinarService: widget.webinarService,
-                              );
+                              // Check if the index is for a separator.
+                              if (index.isOdd) {
+                                // Return a separator widget.
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 16),
+                                  child: Container(
+                                    height: 1,
+                                    color: Colors.grey,
+                                  ),
+                                );
+                              } else {
+                                // Calculate the index for actual Livestream posts.
+                                int postIndex = index ~/ 2;
+                                Livestream post = Livestream.fromMap(
+                                  snapshot.data!.docs[postIndex].data()
+                                      as Map<String, dynamic>,
+                                );
+                                return WebinarCard(
+                                  post: post,
+                                  firestore: widget.firestore,
+                                  user: widget.user,
+                                  webinarService: widget.webinarService,
+                                );
+                              }
                             },
                           );
                         },
@@ -104,30 +149,53 @@ class _WebinarViewState extends State<WebinarView> {
                     ],
                     const SizedBox(height: 20),
                     if (_showArchivedWebinars) ...[
-                      const Text("Archived Webinars"),
+                      Text(
+                        "Archived Webinars",
+                        style: Theme.of(context).textTheme.headlineSmall,
+                      ),
+                      addVerticalSpace(10),
                       StreamBuilder<QuerySnapshot>(
                         stream: widget.firestore
                             .collection('Webinar')
                             .where('status', isEqualTo: 'Archived')
                             .snapshots(),
                         builder: (context, snapshot) {
-                          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                            return const Text("Check back here to see any webinars you may have missed!");
+                          if (!snapshot.hasData ||
+                              snapshot.data!.docs.isEmpty) {
+                            return const Text(
+                                "Check back here to see any webinars you may have missed!");
                           }
                           return ListView.builder(
                             physics: const NeverScrollableScrollPhysics(),
                             shrinkWrap: true,
-                            itemCount: snapshot.data?.docs.length ?? 0,
+                            itemCount:
+                                (snapshot.data?.docs.length ?? 0) * 2 - 1,
                             itemBuilder: (context, index) {
-                              Livestream post = Livestream.fromMap(
-                                snapshot.data!.docs[index].data() as Map<String, dynamic>,
-                              );
-                              return WebinarCard(
-                                post: post,
-                                firestore: widget.firestore,
-                                user: widget.user,
-                                webinarService: widget.webinarService,
-                              );
+                              // Check if the index is for a separator.
+                              if (index.isOdd) {
+                                // Return a separator widget.
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 16),
+                                  child: Container(
+                                    height: 1,
+                                    color: Colors.grey,
+                                  ),
+                                );
+                              } else {
+                                // Calculate the index for actual Livestream posts.
+                                int postIndex = index ~/ 2;
+                                Livestream post = Livestream.fromMap(
+                                  snapshot.data!.docs[postIndex].data()
+                                      as Map<String, dynamic>,
+                                );
+                                return WebinarCard(
+                                  post: post,
+                                  firestore: widget.firestore,
+                                  user: widget.user,
+                                  webinarService: widget.webinarService,
+                                );
+                              }
                             },
                           );
                         },
@@ -144,7 +212,9 @@ class _WebinarViewState extends State<WebinarView> {
                 });
               },
               child: Text(
-                _showArchivedWebinars ? 'Show Live and Upcoming Webinars' : 'Archived Webinars',
+                _showArchivedWebinars
+                    ? 'Show Live and Upcoming Webinars'
+                    : 'Archived Webinars',
               ),
             ),
           ],

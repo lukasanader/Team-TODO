@@ -1,19 +1,14 @@
+// ignore_for_file: library_private_types_in_public_api, use_build_context_synchronously
+
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:info_hub_app/change_profile/change_profile_controller.dart';
 
 class ChangeProfile extends StatefulWidget {
-  final FirebaseFirestore firestore;
-  final FirebaseAuth auth;
+  final ChangeProfileController controller;
 
-  const ChangeProfile({
-    super.key,
-    required this.firestore,
-    required this.auth,
-  });
+  const ChangeProfile({super.key, required this.controller});
 
   @override
-  // ignore: library_private_types_in_public_api
   _ChangeProfileState createState() => _ChangeProfileState();
 }
 
@@ -29,11 +24,6 @@ class _ChangeProfileState extends State<ChangeProfile> {
   bool _obscureNewPasswordText = true;
   bool _obscureConfirmPasswordText = true;
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-  }
-
   void newPasswordToggle() {
     setState(() {
       _obscureNewPasswordText = !_obscureNewPasswordText;
@@ -44,6 +34,67 @@ class _ChangeProfileState extends State<ChangeProfile> {
     setState(() {
       _obscureConfirmPasswordText = !_obscureConfirmPasswordText;
     });
+  }
+
+  void _saveChanges() async {
+    setState(() {
+      // Reset error text
+      _firstNameErrorText = '';
+      _lastNameErrorText = '';
+      _passwordErrorText = '';
+    });
+
+    // Validation logic
+    if (!widget.controller.validateInputs(
+        _firstNameController,
+        _lastNameController,
+        _newPasswordController,
+        _confirmPasswordController)) {
+      if (!widget.controller.isAlpha(_firstNameController.text)) {
+        setState(() {
+          _firstNameErrorText = 'First name must consist of letters only';
+        });
+      }
+
+      if (!widget.controller.isAlpha(_lastNameController.text)) {
+        setState(() {
+          _lastNameErrorText = 'Last name must consist of letters only';
+        });
+      }
+
+      if (!widget.controller.passwordMatch(
+          _newPasswordController.text, _confirmPasswordController.text)) {
+        setState(() {
+          _passwordErrorText = 'Passwords do not match';
+        });
+      }
+
+      if (!widget.controller.isPasswordValid(_newPasswordController.text)) {
+        setState(() {
+          _passwordErrorText = 'Password must contain:\n'
+              '- At least one lowercase letter\n'
+              '- One uppercase letter\n'
+              '- One number\n'
+              '- One special character';
+        });
+      }
+
+      return;
+    }
+
+    await widget.controller.updateProfile(
+        _firstNameController, _lastNameController, _newPasswordController);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'Changes saved',
+          textAlign: TextAlign.center,
+        ),
+        duration: Duration(seconds: 5),
+      ),
+    );
+    Navigator.pop(context, true);
   }
 
   @override
@@ -60,6 +111,7 @@ class _ChangeProfileState extends State<ChangeProfile> {
               controller: _firstNameController,
               decoration: InputDecoration(
                 labelText: 'First Name',
+                border: const UnderlineInputBorder(),
                 errorText:
                     _firstNameErrorText.isNotEmpty ? _firstNameErrorText : null,
               ),
@@ -69,6 +121,7 @@ class _ChangeProfileState extends State<ChangeProfile> {
               controller: _lastNameController,
               decoration: InputDecoration(
                 labelText: 'Last Name',
+                border: const UnderlineInputBorder(),
                 errorText:
                     _lastNameErrorText.isNotEmpty ? _lastNameErrorText : null,
               ),
@@ -87,10 +140,7 @@ class _ChangeProfileState extends State<ChangeProfile> {
                         : Icons.visibility_off,
                   ),
                   padding: const EdgeInsets.only(top: 15.0),
-                  style: ButtonStyle(
-                    overlayColor: MaterialStateProperty.all(Colors.transparent),
-                    splashFactory: NoSplash.splashFactory,
-                  ),
+                  splashRadius: 24,
                 ),
               ),
             ),
@@ -110,126 +160,18 @@ class _ChangeProfileState extends State<ChangeProfile> {
                         : Icons.visibility_off,
                   ),
                   padding: const EdgeInsets.only(top: 15.0),
-                  style: ButtonStyle(
-                    overlayColor: MaterialStateProperty.all(Colors.transparent),
-                    splashFactory: NoSplash.splashFactory,
-                  ),
+                  splashRadius: 24,
                 ),
               ),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () async {
-                setState(() {
-                  // Reset error text
-                  _firstNameErrorText = '';
-                  _lastNameErrorText = '';
-                  _passwordErrorText = '';
-                });
-
-                // Validation logic
-                if (!_validateInputs()) {
-                  return;
-                }
-
-                // Update profile
-                await _updateProfile();
-                // ignore: use_build_context_synchronously
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text(
-                      'Changes saved',
-                      textAlign: TextAlign.center,
-                    ),
-                    duration: Duration(seconds: 5),
-                  ),
-                );
-
-                // Navigate and show success message
-                // ignore: use_build_context_synchronously
-                Navigator.pop(context, true);
-              },
-              child: const Text(
-                'Save Changes',
-              ),
+              onPressed: _saveChanges,
+              child: const Text('Save Changes'),
             ),
           ],
         ),
       ),
     );
-  }
-
-  bool _validateInputs() {
-    bool isValid = true;
-
-    // Check first name
-    if (!_isAlpha(_firstNameController.text)) {
-      setState(() {
-        _firstNameErrorText = 'First name must consist of letters only';
-      });
-      isValid = false;
-    }
-
-    // Check last name
-    if (!_isAlpha(_lastNameController.text)) {
-      setState(() {
-        _lastNameErrorText = 'Last name must consist of letters only';
-      });
-      isValid = false;
-    }
-
-    // Check password match
-    if (_newPasswordController.text != _confirmPasswordController.text) {
-      setState(() {
-        _passwordErrorText = 'Passwords do not match';
-      });
-      isValid = false;
-    }
-
-    // Check password requirements
-    if (!_isPasswordValid(_newPasswordController.text)) {
-      setState(() {
-        _passwordErrorText = 'Password must contain:\n'
-            '- At least one lowercase letter\n'
-            '- One uppercase letter\n'
-            '- One number\n'
-            '- One special character';
-      });
-      isValid = false;
-    }
-
-    return isValid;
-  }
-
-  bool _isAlpha(String text) {
-    final alphaRegExp = RegExp(r'^[a-zA-Z]+$');
-    return alphaRegExp.hasMatch(text);
-  }
-
-  bool _isPasswordValid(String password) {
-    final passwordRegExp =
-        RegExp(r'^(?=.*?[a-z])(?=.*?[A-Z])(?=.*?[0-9])(?=.*?[!@#$%^&*])');
-    return passwordRegExp.hasMatch(password);
-  }
-
-  Future<void> _updateProfile() async {
-    final user = widget.auth.currentUser;
-
-    if (user != null) {
-      // Update first name and last name in Firestore
-      final docRef = widget.firestore.collection('Users');
-
-      final querySnapshot = await docRef.get();
-      final userDoc =
-          querySnapshot.docs.firstWhere((doc) => doc.id == user.uid);
-
-      await docRef.doc(userDoc.id).update({
-        'firstName': _firstNameController.text,
-        'lastName': _lastNameController.text,
-      });
-
-      // Update password
-      await user.updatePassword(_newPasswordController.text);
-    }
   }
 }

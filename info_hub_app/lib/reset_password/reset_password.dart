@@ -1,31 +1,21 @@
-import 'package:firebase_auth/firebase_auth.dart';
+// ignore_for_file: library_private_types_in_public_api
+
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'reset_password_controller.dart';
 
 class ResetPassword extends StatefulWidget {
-  final FirebaseFirestore firestore;
-  final FirebaseAuth auth;
+  final ResetPasswordController controller;
 
   const ResetPassword({
     super.key,
-    required this.firestore,
-    required this.auth,
+    required this.controller,
   });
 
   @override
-  // ignore: library_private_types_in_public_api
   _ResetPasswordState createState() => _ResetPasswordState();
 }
 
 class _ResetPasswordState extends State<ResetPassword> {
-  final TextEditingController _emailController = TextEditingController();
-  String _errorText = '';
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -39,7 +29,7 @@ class _ResetPasswordState extends State<ResetPassword> {
           children: [
             const SizedBox(height: 10),
             TextField(
-              controller: _emailController,
+              controller: widget.controller.emailController,
               decoration: const InputDecoration(
                 labelText: 'Email',
               ),
@@ -48,13 +38,14 @@ class _ResetPasswordState extends State<ResetPassword> {
             Center(
               child: ElevatedButton(
                 onPressed: () async {
-                  if (!_isEmailValid(_emailController.text)) {
+                  final email = widget.controller.emailController.text;
+                  if (!widget.controller.isEmailValid(email)) {
                     setState(() {
-                      _errorText = 'Invalid email address';
+                      widget.controller.errorText = 'Invalid email address';
                     });
                     return;
                   }
-                  await _sendPasswordResetEmail(_emailController.text);
+                  await widget.controller.sendPasswordResetEmail(context);
                 },
                 child: const Text(
                   'Send Email',
@@ -64,7 +55,7 @@ class _ResetPasswordState extends State<ResetPassword> {
             ),
             const SizedBox(height: 10),
             Text(
-              _errorText,
+              widget.controller.errorText,
               style: const TextStyle(color: Colors.red),
             ),
           ],
@@ -72,40 +63,7 @@ class _ResetPasswordState extends State<ResetPassword> {
       ),
     );
   }
-
-  bool _isEmailValid(String email) {
-    final emailRegExp = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-    return emailRegExp.hasMatch(email);
-  }
-
-  Future<void> _sendPasswordResetEmail(String email) async {
-    final QuerySnapshot<Map<String, dynamic>> result = await widget.firestore
-        .collection('Users')
-        .where('email', isEqualTo: email)
-        .get();
-
-    if (result.docs.isEmpty) {
-      // ignore: use_build_context_synchronously
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Email does not exist'),
-          duration: Duration(seconds: 3),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
-    }
-    await widget.auth.sendPasswordResetEmail(email: email);
-
-    // ignore: use_build_context_synchronously
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Email sent'),
-        duration: Duration(seconds: 3),
-        backgroundColor: Colors.green,
-      ),
-    );
-    // ignore: use_build_context_synchronously
-    Navigator.pop(context);
-  }
 }
+
+
+

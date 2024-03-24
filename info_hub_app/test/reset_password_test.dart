@@ -3,14 +3,25 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:info_hub_app/reset_password/reset_password.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
+import 'package:info_hub_app/reset_password/reset_password_controller.dart';
 
 
 void main() {
+
+    testWidgets('Test if Reset Password Header is visible', (WidgetTester tester) async {
+    final firestore = FakeFirebaseFirestore();
+    final auth = MockFirebaseAuth();
+    await tester.runAsync(() async {
+      await tester.pumpWidget(MaterialApp(home: ResetPassword(controller: ResetPasswordController(firestore: firestore, auth: auth))));
+      expect(find.text('Reset Password'), findsOneWidget);
+    });
+  });
+  
   testWidgets('Test if Email TextField is present', (WidgetTester tester) async {
     final firestore = FakeFirebaseFirestore();
     final auth = MockFirebaseAuth();
     await tester.runAsync(() async {
-      await tester.pumpWidget(MaterialApp(home: ResetPassword(firestore: firestore, auth: auth)));
+      await tester.pumpWidget(MaterialApp(home: ResetPassword(controller: ResetPasswordController(firestore: firestore, auth: auth))));
       final emailField = find.ancestor(
         of: find.text('Email'),
         matching: find.byType(TextField),
@@ -24,7 +35,7 @@ testWidgets('Test if valid email input does not display error message', (WidgetT
   final firestore = FakeFirebaseFirestore();
   final auth = MockFirebaseAuth();
   await tester.runAsync(() async {
-    await tester.pumpWidget(MaterialApp(home: ResetPassword(firestore: firestore, auth: auth)));
+    await tester.pumpWidget(MaterialApp(home: ResetPassword(controller: ResetPasswordController(firestore: firestore, auth: auth))));
 
     final emailField = find.widgetWithText(TextField, 'Email');
     await tester.enterText(emailField, 'valid_email@gmail.com');
@@ -43,7 +54,7 @@ testWidgets('Test if error message is displayed for invalid email', (WidgetTeste
   final auth = MockFirebaseAuth();
 
   await tester.runAsync(() async {
-    await tester.pumpWidget(MaterialApp(home: ResetPassword(firestore: firestore, auth: auth)));
+    await tester.pumpWidget(MaterialApp(home: ResetPassword(controller: ResetPasswordController(firestore: firestore, auth: auth))));
 
     final emailField = find.widgetWithText(TextField, 'Email');
     await tester.enterText(emailField, 'invalid_email_address');
@@ -64,7 +75,7 @@ testWidgets('Test if "Email does not exist" error message is displayed', (Widget
   final auth = MockFirebaseAuth();
 
   await tester.runAsync(() async {
-    await tester.pumpWidget(MaterialApp(home: ResetPassword(firestore: firestore, auth: auth)));
+    await tester.pumpWidget(MaterialApp(home: ResetPassword(controller: ResetPasswordController(firestore: firestore, auth: auth))));
 
     final emailField = find.widgetWithText(TextField, 'Email');
     await tester.enterText(emailField, 'nonexistent_email@gmail.com');
@@ -80,7 +91,7 @@ testWidgets('Test if "Email does not exist" error message is displayed', (Widget
     final firestore = FakeFirebaseFirestore();
     final auth = MockFirebaseAuth();
     await tester.runAsync(() async {
-      await tester.pumpWidget(MaterialApp(home: ResetPassword(firestore: firestore, auth: auth)));
+      await tester.pumpWidget(MaterialApp(home: ResetPassword(controller: ResetPasswordController(firestore: firestore, auth: auth))));
       final resetPasswordButton = find.ancestor(
         of: find.text('Send Email'),
         matching: find.byType(ElevatedButton),
@@ -97,7 +108,7 @@ testWidgets('Test if "Email sent" green notification is displayed', (WidgetTeste
     await firestore.collection('Users').add({'email': 'john.doe@example.org'});
 
     await tester.runAsync(() async {
-      await tester.pumpWidget(MaterialApp(home: ResetPassword(firestore: firestore, auth: auth)));
+      await tester.pumpWidget(MaterialApp(home: ResetPassword(controller: ResetPasswordController(firestore: firestore, auth: auth))));
 
       final emailField = find.widgetWithText(TextField, 'Email');
       await tester.enterText(emailField, 'john.doe@example.org');
@@ -110,6 +121,7 @@ testWidgets('Test if "Email sent" green notification is displayed', (WidgetTeste
   });
 
 }
+
 
 
 
