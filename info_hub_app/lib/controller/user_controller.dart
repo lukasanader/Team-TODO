@@ -42,4 +42,13 @@ class UserController {
     return userList;
   }
 
+  Future<void> addAdmins(List<UserModel> selectedUsers) async {
+     for (int i = 0; i < selectedUsers.length; i++) {
+      await _firestore
+          .collection('Users')
+          .doc(selectedUsers[i].uid)
+          .update({'roleType': 'admin'});
+    }
+  }
+
 }
