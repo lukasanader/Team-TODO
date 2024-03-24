@@ -393,7 +393,6 @@ void main() {
   });
 
     testWidgets('Test Admin can cancel delete webinar operation', (WidgetTester tester) async {
-    await provideMockedNetworkImages(() async {
       addLiveFirestoreDocument();
 
       await tester.pumpWidget(webinarViewScreen);
@@ -416,6 +415,5 @@ void main() {
       expect(find.text('Are you sure you want to delete this webinar?'),findsNothing);
       DocumentSnapshot result = await fakeFirestore.collection('Webinar').doc('id').get();
       expect(result.exists, equals(true));
-    });
   });
 }

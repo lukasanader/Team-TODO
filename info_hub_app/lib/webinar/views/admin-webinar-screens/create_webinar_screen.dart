@@ -1,10 +1,10 @@
+import 'package:info_hub_app/model/user_model.dart';
 import 'package:info_hub_app/theme/theme_constants.dart';
 import 'package:info_hub_app/webinar/controllers/create_webinar_controller.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:dotted_border/dotted_border.dart';
-import 'package:info_hub_app/registration/user_model.dart';
 import 'package:info_hub_app/webinar/service/webinar_service.dart';
 
 class CreateWebinarScreen extends StatefulWidget {

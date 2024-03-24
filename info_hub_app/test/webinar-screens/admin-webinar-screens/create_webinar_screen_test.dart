@@ -164,7 +164,16 @@ void main() {
     await tester.pumpWidget(createWebinarScreen);
     await tester.ensureVisible(find.text('Schedule Webinar'));
     await tester.tap(find.text('Schedule Webinar'));
-    await tester.pump();
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('31'));
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+    var centre = tester.getCenter(find.byKey(const ValueKey<String>('time-picker-dial')));
+    await tester.tapAt(Offset(centre.dx - 10, centre.dy));
+    await tester.pumpAndSettle();
+    await tester.tapAt(Offset(centre.dx - 10, centre.dy));
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
     expect(find.text('Please check if you have uploaded a thumbnail or selected a role.'),findsOneWidget);
   });
 
