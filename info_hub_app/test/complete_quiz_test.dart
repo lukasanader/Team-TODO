@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
@@ -110,5 +111,66 @@ void main() {
     final quizDoc = querySnapshot.docs.first.data(); // Check topicID
     expect(quizDoc['uid'], auth.currentUser?.uid); // Check uID
     expect(quizDoc['score'], "1/2");
+  });
+
+   testWidgets('Test retry quiz', (WidgetTester tester) async {
+    await tester.pumpWidget(quizWidget);
+    await tester.pumpAndSettle();
+
+    expect(find.text('QUIZ!!'), findsOneWidget);
+    await tester.tap(find.text('QUIZ!!'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(CompleteQuiz), findsOne);
+
+    //Ensure all questions and answers are there
+
+    expect(find.text('1. What is a liver?'), findsOne);
+    expect(find.text('2. What is a hospital?'), findsOne);
+
+    //Finds 8 possible answers 4 for each question
+    expect(find.byType(AnswerCard), findsExactly(8));
+
+    //answer correctly
+    await tester.tap(find.textContaining('An organ'));
+    //answer incorrectly
+    await tester.ensureVisible(find.textContaining('A car'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.textContaining('A car'));
+
+    await tester.ensureVisible(find.text('Done'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Done'));
+    await tester.pumpAndSettle();
+   
+    await tester.ensureVisible(find.text('Reset'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Reset'));
+    await tester.pumpAndSettle();
+    expect(find.text('Your old score is 1/2'), findsOne);
+
+    await tester.tap(find.textContaining('An organ'));
+    //answer incorrectly
+    await tester.ensureVisible(find.textContaining('A building'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.textContaining('A building'));
+
+    await tester.ensureVisible(find.text('Done'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Done'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Your new score is 2 out of 2'), findsOne);
+    final querySnapshot = await firestore.collection('Quiz').get();
+
+    // Check if the retrieved document has the expected values
+    expect(querySnapshot.docs.length, 1); // Expecting one document
+    final quizDoc = querySnapshot.docs.first.data(); // Check topicID
+    expect(quizDoc['uid'], auth.currentUser?.uid); // Check uID
+    expect(quizDoc['score'], "2/2");
+    
   });
 }

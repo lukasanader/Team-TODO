@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:info_hub_app/controller/activity_controller.dart';
+import 'package:info_hub_app/controller/quiz_controller.dart';
+import 'package:info_hub_app/model/quiz_model.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:info_hub_app/topics/create_topic/helpers/quiz/complete_quiz.dart';
@@ -194,7 +197,8 @@ class TopicViewState extends State<TopicView> {
                                 );
                               },
                             ),
-                            // Complete quiz button
+                            // complete quiz
+                            if (widget.topic.quizID!='')
                             TextButton(
                               onPressed: () {
                                 Navigator.push(
@@ -206,8 +210,10 @@ class TopicViewState extends State<TopicView> {
                                           auth: widget.auth)),
                                 );
                               },
-                              child: const Text('QUIZ!!'),
+                              child:
+                                const Text('QUIZ!!'),
                             ),
+                            
                           ],
                         ),
                       ],
@@ -283,7 +289,6 @@ class TopicViewState extends State<TopicView> {
     );
   }
 
-  /// Checks if the user exists and if the user's roleType is 'admin'
   Future<void> _isAdmin() async {
     User? user = widget.auth.currentUser;
 
