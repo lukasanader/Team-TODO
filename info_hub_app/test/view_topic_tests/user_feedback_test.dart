@@ -86,7 +86,7 @@ void main() {
     auth = MockFirebaseAuth(mockUser: mockUser, signedIn: true);
 
     await tester.pumpWidget(MaterialApp(
-      home: ViewTopicScreen(
+      home: TopicView(
         firestore: firestore,
         storage: storage,
         topic: topic,
@@ -118,7 +118,7 @@ void main() {
     auth = MockFirebaseAuth(mockUser: mockUser, signedIn: true);
 
     await tester.pumpWidget(MaterialApp(
-      home: ViewTopicScreen(
+      home: TopicView(
         firestore: firestore,
         storage: storage,
         topic: topic,
@@ -149,9 +149,9 @@ void main() {
 
     auth = MockFirebaseAuth(mockUser: mockUser, signedIn: true);
 
-    // Create the ViewTopicScreen widget with the test topic
+    // Create the TopicView widget with the test topic
     await tester.pumpWidget(MaterialApp(
-      home: ViewTopicScreen(
+      home: TopicView(
         firestore: firestore,
         storage: storage,
         topic: topic,
@@ -200,7 +200,7 @@ void main() {
     auth = MockFirebaseAuth(mockUser: mockUser, signedIn: true);
 
     await tester.pumpWidget(MaterialApp(
-      home: ViewTopicScreen(
+      home: TopicView(
         firestore: firestore,
         storage: storage,
         topic: topic,
@@ -245,7 +245,7 @@ void main() {
     auth = MockFirebaseAuth(mockUser: mockUser, signedIn: true);
 
     await tester.pumpWidget(MaterialApp(
-      home: ViewTopicScreen(
+      home: TopicView(
         firestore: firestore,
         storage: storage,
         topic: topic,
@@ -288,7 +288,7 @@ void main() {
     auth = MockFirebaseAuth(mockUser: mockUser, signedIn: true);
 
     await tester.pumpWidget(MaterialApp(
-      home: ViewTopicScreen(
+      home: TopicView(
         firestore: firestore,
         storage: storage,
         topic: topic,

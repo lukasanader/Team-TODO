@@ -8,7 +8,7 @@ import 'package:chewie/chewie.dart';
 /// Widget for displaying Media Previews and navigation buttons
 class MediaDisplayWidget extends StatelessWidget {
   final MediaUploadController mediaUploadController;
-  final CreateTopicScreenState screen;
+  final TopicCreationViewState screen;
 
   const MediaDisplayWidget({
     Key? key,

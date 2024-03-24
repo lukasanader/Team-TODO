@@ -38,7 +38,7 @@ void main() async {
     });
 
     basicWidget = MaterialApp(
-      home: CreateTopicScreen(
+      home: TopicCreationView(
         firestore: firestore,
         storage: mockStorage,
         auth: auth,
@@ -59,7 +59,7 @@ void main() async {
     expect(tester.testTextInput.isVisible, true);
     final outsideGestureDetectorFinder = find.descendant(
       of: find.byType(
-          CreateTopicScreen), // Change this to the appropriate type of your widget
+          TopicCreationView), // Change this to the appropriate type of your widget
       matching: find.byType(GestureDetector),
     );
     await tester.tap(outsideGestureDetectorFinder.first);

@@ -1,5 +1,7 @@
 import 'package:chips_choice/chips_choice.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:info_hub_app/topics/create_topic/helpers/categories/category_dialogs.dart';
 import '../../controllers/form_controller.dart';
 
 import 'package:info_hub_app/topics/create_topic/view/topic_creation_view.dart';
@@ -7,12 +9,14 @@ import 'package:info_hub_app/topics/create_topic/view/topic_creation_view.dart';
 /// Widget responsible for showing form details
 class TopicFormWidget extends StatelessWidget {
   final FormController formController;
-  final CreateTopicScreenState screen;
+  final TopicCreationViewState screen;
+  final FirebaseFirestore firestore;
 
   TopicFormWidget({
     Key? key,
     required this.formController,
     required this.screen,
+    required this.firestore,
   }) : super(key: key);
 
   @override
@@ -59,12 +63,16 @@ class TopicFormWidget extends StatelessWidget {
             children: [
               IconButton(
                   onPressed: () {
-                    screen.createNewCategoryDialog(context);
+                    CategoryDialogManager(firestore, screen.categoriesOptions,
+                            screen.getCategoryList)
+                        .createNewCategoryDialog(context);
                   },
                   icon: const Icon(Icons.add)),
               IconButton(
                   onPressed: () {
-                    screen.deleteCategoryDialog(context);
+                    CategoryDialogManager(firestore, screen.categoriesOptions,
+                            screen.getCategoryList)
+                        .deleteCategoryDialog(context);
                   },
                   icon: const Icon(Icons.close)),
               if (screen.categoriesOptions.isEmpty)

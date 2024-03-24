@@ -3,7 +3,7 @@ import 'package:info_hub_app/topics/create_topic/view/topic_creation_view.dart';
 import 'package:info_hub_app/topics/create_topic/helpers/quiz/create_quiz.dart';
 
 class AddQuizWidget extends StatelessWidget {
-  final CreateTopicScreenState screen;
+  final TopicCreationViewState screen;
 
   const AddQuizWidget({
     required this.screen,

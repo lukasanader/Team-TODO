@@ -88,7 +88,7 @@ void main() {
 
     await tester.tap(find.byType(Card).first);
     await tester.pumpAndSettle();
-    expect(find.byType(ViewTopicScreen), findsOne);
+    expect(find.byType(TopicView), findsOne);
   });
 
   testWidgets(
