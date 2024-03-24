@@ -400,6 +400,7 @@ class _ThreadAppState extends State<ThreadApp> {
             itemCount: snapshot.data!.docs.length,
             itemBuilder: (context, int index) {
               var threadDoc = snapshot.data!.docs[index];
+              var roleType = threadDoc['roleType'] ?? 'Unknown';
               var creatorId = threadDoc['creator'];
 
               return FutureBuilder<DocumentSnapshot>(
@@ -425,6 +426,7 @@ class _ThreadAppState extends State<ThreadApp> {
                     auth: widget.auth,
                     userProfilePhoto: profilePhoto,
                     onEditCompleted: _refreshData,
+                    roleType: roleType,
                   );
                 },
               );

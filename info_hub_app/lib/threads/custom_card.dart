@@ -321,6 +321,7 @@ class CustomCard extends StatefulWidget {
   final FirebaseAuth auth;
   final String userProfilePhoto;
   final Function onEditCompleted;
+  final String roleType;
 
   const CustomCard({
     Key? key,
@@ -330,6 +331,7 @@ class CustomCard extends StatefulWidget {
     required this.auth,
     required this.userProfilePhoto,
     required this.onEditCompleted,
+    required this.roleType,
   }) : super(key: key);
 
   @override
@@ -408,6 +410,22 @@ class _CustomCardState extends State<CustomCard> {
         borderRadius: BorderRadius.all(Radius.circular(4.0)),
       ),
     );
+
+    IconData _getRoleIcon(String roleType) {
+      switch (roleType) {
+        case 'Patient':
+          return Icons.local_hospital; // Example icon for Patient
+        case 'Healthcare Professional':
+          return Icons
+              .medical_services; // Example icon for Healthcare Professional
+        case 'Parent':
+          return Icons.family_restroom; // Example icon for Parent
+        case 'Admin':
+          return Icons.admin_panel_settings; // Example icon for Admin
+        default:
+          return Icons.help_outline; // Example icon for Unknown or other roles
+      }
+    }
 
     return Column(
       children: <Widget>[
@@ -504,15 +522,38 @@ class _CustomCardState extends State<CustomCard> {
                               _showDialog(context, docId);
                             },
                             child: Column(
-                              children: const <Widget>[
+                              children: <Widget>[
                                 Icon(Icons.edit),
                                 Padding(
                                   padding: EdgeInsets.symmetric(vertical: 2.0),
                                 ),
-                                Text('Edit Post'),
+                                Text(
+                                  'Edit Post',
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                )
                               ],
                             ),
                           ),
+                        Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            Icon(
+                              _getRoleIcon(widget
+                                  .roleType), // Determines the icon based on the roleType
+                              //size: 24.0, // Adjust the size as needed
+                            ),
+                            Padding(
+                              padding: EdgeInsets.symmetric(vertical: 2.0),
+                            ),
+                            Text(
+                              widget.roleType,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall, // Display the roleType text
+                              // Adjust the text style as needed
+                            ),
+                          ],
+                        ),
                         if (currentUserId == creator)
                           TextButton(
                             style: flatButtonStyle,
@@ -538,12 +579,15 @@ class _CustomCardState extends State<CustomCard> {
                                   .delete();
                             },
                             child: Column(
-                              children: const <Widget>[
+                              children: <Widget>[
                                 Icon(Icons.delete),
                                 Padding(
                                   padding: EdgeInsets.symmetric(vertical: 2.0),
                                 ),
-                                Text('Delete Post'),
+                                Text(
+                                  'Delete Post',
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
                               ],
                             ),
                           ),
