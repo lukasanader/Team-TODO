@@ -12,23 +12,22 @@ class WebinarService {
 
   WebinarService({required this.firestore, required this.storage});
     
-  Future<String> startLiveStream(String title, String url, Uint8List? image, String name, String startTime, String streamStatus) async {
+  Future<String> startLiveStream(String title, String url, Uint8List? image, String name, String startTime, String streamStatus, List<String> selectedTags) async {
     // assign random integer as document name
-    String collectionId = (Random().nextInt(4294967296) + 100000).toString();
+    String webinarID = const Uuid().v1();
     String result = ""; // Variable to store the result
 
     if (title.isNotEmpty && image != null) {
       // check if any document already exists with the set url or with the random id
       CollectionReference webinarRef = firestore.collection('Webinar');
-      bool idExists = await checkURLExists(webinarRef, collectionId);
       bool webinarExists = await checkURLExists(webinarRef, url);
 
-      if (!webinarExists && !idExists) {
-        String thumbnailUrl = await uploadImageToStorage('webinar-thumbnails', image, collectionId);
-        DocumentReference docRef = webinarRef.doc(collectionId);
+      if (!webinarExists) {
+        String thumbnailUrl = await uploadImageToStorage('webinar-thumbnails', image, webinarID);
+        DocumentReference docRef = webinarRef.doc(webinarID);
 
         await docRef.set({
-          'id': collectionId,
+          'id': webinarID,
           'title': title,
           'url': url,
           'thumbnail': thumbnailUrl,
@@ -38,9 +37,10 @@ class WebinarService {
           'dateStarted': startTime,
           'status': streamStatus,
           'chatenabled' : true,
+          'selectedtags' : selectedTags,
         });
 
-        result = collectionId; // Assign the collectionId to the result
+        result = webinarID; // Assign the collectionId to the result
       }
     }
     return result; // Return the result variable
@@ -51,13 +51,6 @@ class WebinarService {
     QuerySnapshot querySnapshot = await ref.where('url', isEqualTo: url).get();
     // If there are documents in the query result, it means the uid already exists
     return querySnapshot.docs.isNotEmpty;
-  }
-
-  // Checks if randomly assigned document ID exists
-  Future<bool> checkIDExists(CollectionReference ref, String id) async {
-      DocumentSnapshot docSnapshot = await ref.doc(id).get();
-      // If there are documents in the query result, it means the uid already exists
-      return docSnapshot.exists;
   }
 
   // Uploads image to storage
@@ -157,14 +150,14 @@ class WebinarService {
       .doc(webinarID)
       .collection('comments')
       .get();
-
+    
     for (int i = 0; i < snap.docs.length; i++) {
       await firestore
         .collection('Webinar')
         .doc(webinarID)
         .collection('comments')
         .doc(
-          ((snap.docs[i].data()! as dynamic)['uid'])
+          ((snap.docs[i].data()! as dynamic)['commentId']),
         )
         .delete();  
     }

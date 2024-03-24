@@ -204,7 +204,7 @@ class _ChatState extends State<Chat> {
                           border: OutlineInputBorder(),
                           // Disable interaction with the disabled input field
                           enabled: false,
-                          fillColor: Colors.grey[200], // Customize background color
+                          fillColor: Colors.grey[200],
                           filled: true,
                         ),
                       ),

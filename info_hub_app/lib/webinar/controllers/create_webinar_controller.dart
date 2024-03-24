@@ -55,6 +55,7 @@ class CreateWebinarController {
     String title,
     String url,
     Uint8List? image,
+    List<String> selectedTags,
     {bool isScheduled = false}) async {
       if (state!.validate()) {
         time ??= DateTime.now();
@@ -66,7 +67,8 @@ class CreateWebinarController {
             image,
             ("${user.firstName} ${user.lastName}"),
             formatter.format(time).toString(),
-            statusText);
+            statusText,
+            selectedTags);
         if (webinarID.isNotEmpty) {
           if (!isScheduled) {
             webinarService.updateViewCount(webinarID, true);

@@ -73,19 +73,15 @@ void main() {
     );
   });
 
-  testWidgets('Test Image Picker is present', (WidgetTester tester) async {
+  testWidgets('Test all widgets are present', (WidgetTester tester) async {
     await tester.pumpWidget(createWebinarScreen);
     expect(find.text('Select a thumbnail'), findsOneWidget);
-  });
-
-  testWidgets('Test Title Text is present', (WidgetTester tester) async {
-    await tester.pumpWidget(createWebinarScreen);
     expect(find.text('Title'), findsOneWidget);
-  });
-
-  testWidgets('Test Start Webinar button is present', (WidgetTester tester) async {
-    await tester.pumpWidget(createWebinarScreen);
+    expect(find.text('Schedule Webinar'), findsOneWidget);    
     expect(find.text('Start Webinar'), findsOneWidget);
+    expect(find.text('Patients'),findsOneWidget);
+    expect(find.text('Parents'),findsOneWidget);
+    expect(find.text('Healthcare Professionals'),findsOneWidget);
   });
 
   testWidgets('Test Admin requires input to proceed', (WidgetTester tester) async {
@@ -148,6 +144,7 @@ void main() {
 
   testWidgets('Test select scheduled date appears', (WidgetTester tester) async {
     await tester.pumpWidget(createWebinarScreen);
+    await tester.ensureVisible(find.text('Schedule Webinar'));
     final titleField = find.ancestor(
       of: find.text('Title'),
       matching: find.byType(TextFormField),
@@ -165,6 +162,7 @@ void main() {
 
   testWidgets('Test admin can select date and time', (WidgetTester tester) async {
     await tester.pumpWidget(createWebinarScreen);
+    await tester.ensureVisible(find.text('Schedule Webinar'));
     final titleField = find.ancestor(
       of: find.text('Title'),
       matching: find.byType(TextFormField),
@@ -275,7 +273,7 @@ void main() {
     expect(find.byType(Image), findsOneWidget);
   });
 
-  testWidgets('Test Admin input all valid information and chooses to start live webinar works', (WidgetTester tester) async {
+  testWidgets('Test Admin input all valid information with tags and chooses to start live webinar works', (WidgetTester tester) async {
     await provideMockedNetworkImages(() async {
       mockFilePicker();
       await tester.pumpWidget(createWebinarScreen);
@@ -313,6 +311,12 @@ void main() {
       );
       await tester.enterText(titleField, 'test');
       await tester.pump();
+      await tester.tap(find.text('Patients'));
+      await tester.pump();
+      await tester.tap(find.text('Parents'));
+      await tester.pump();
+      await tester.tap(find.text('Healthcare Professionals'));
+      await tester.pump();
       await tester.tap(find.text('Start Webinar'));
       await tester.pump();
       final querySnapshot = await firestore
@@ -322,4 +326,6 @@ void main() {
       expect(querySnapshot.docs.length, greaterThan(0));
     });
   });
+
+
 }

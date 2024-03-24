@@ -28,12 +28,18 @@ class _CreateWebinarScreenState extends State<CreateWebinarScreen> {
   final TextEditingController _urlController = TextEditingController();
   late CreateWebinarController controller;
   Uint8List? image;
+  List<String> selectedTags = [];
+
+  bool isPatientSelected = false;
+  bool isParentSelected = false;
+  bool isHealthcareProfessionalSelected = false;
 
   @override
   void initState() {
     super.initState();
     controller = CreateWebinarController(webinarService: widget.webinarService, firestore: widget.firestore, user: widget.user);
     _urlController.addListener(_removeFeatureShared);
+    selectedTags.clear();
   }
 
   @override
@@ -41,6 +47,7 @@ class _CreateWebinarScreenState extends State<CreateWebinarScreen> {
     _titleController.dispose();
     _urlController.dispose();
     super.dispose();
+    selectedTags.clear();
   }
 
   void _removeFeatureShared() {
@@ -72,6 +79,8 @@ class _CreateWebinarScreenState extends State<CreateWebinarScreen> {
           pickedTime.hour,
           pickedTime.minute,
         );
+        populateTags();
+        selectedTags.add('admin');
         controller.goLiveWebinar(
           context,
           selectedDateTime,
@@ -79,11 +88,30 @@ class _CreateWebinarScreenState extends State<CreateWebinarScreen> {
           _titleController.text,
           _urlController.text,
           image,
+          selectedTags,
           isScheduled: true
         );
+        selectedTags.clear();
       }
     }
   }
+
+  void populateTags() {
+    if (isPatientSelected) {
+      selectedTags.add('Patient');
+    }
+    if (isParentSelected) {
+      selectedTags.add('Parent');
+    }
+    if (isHealthcareProfessionalSelected) {
+      selectedTags.add('Healthcare Professional');
+    }
+  }
+
+  bool isAnyRoleSelected() {
+    return isPatientSelected || isParentSelected || isHealthcareProfessionalSelected;
+  }
+
 
   // Creates the instruction dialog for how to create a webinar and seed the database from the user side
   void showWebinarStartingHelpDialogue(BuildContext context) {
@@ -269,9 +297,92 @@ class _CreateWebinarScreenState extends State<CreateWebinarScreen> {
                     ],
                   ),
                   const SizedBox(height: 20),
+                  Text('This webinar is for:',                 
+                        style: TextStyle(
+                          fontSize: 15,
+                          color: COLOR_SECONDARY_GREY_LIGHT_DARKER,
+                        ),
+                        textAlign: TextAlign.left,
+                      ),
+                  const SizedBox(height: 20),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              isPatientSelected = !isPatientSelected;
+                            });
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: isPatientSelected ? Colors.red : null,
+                          ),
+                          child: Text(
+                            'Patients',
+                            style: TextStyle(
+                              color: isPatientSelected ? Colors.white : null,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 5,),
+                        ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              isParentSelected = !isParentSelected;
+                            });
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: isParentSelected ? Colors.red : null,
+                          ),
+                          child: Text(
+                            'Parents',
+                            style: TextStyle(
+                              color: isParentSelected ? Colors.white : null,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 5,),
+                        ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              isHealthcareProfessionalSelected =
+                                  !isHealthcareProfessionalSelected;
+                            });
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: isHealthcareProfessionalSelected
+                                ? Colors.red
+                                : null,
+                          ),
+                          child: Text(
+                            'Healthcare Professionals',
+                            style: TextStyle(
+                              color: isHealthcareProfessionalSelected
+                                  ? Colors.white
+                                  : null,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
                   ElevatedButton(
                     onPressed: () async {
-                      await controller.goLiveWebinar(context, null, _formKey.currentState, _titleController.text, _urlController.text, image);
+                      if (_formKey.currentState!.validate() && image != null && isAnyRoleSelected()) {
+                        populateTags();
+                        selectedTags.add('admin');
+                        await controller.goLiveWebinar(context, null, _formKey.currentState, _titleController.text, _urlController.text, image, selectedTags);
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Please check if you have uploaded a thumbnail or selected a role.'),
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                      }
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red,
@@ -287,6 +398,7 @@ class _CreateWebinarScreenState extends State<CreateWebinarScreen> {
                       ),
                     ),
                   ),
+
                   const SizedBox(height: 20),
                   Padding(
                     padding: const EdgeInsets.only(bottom: 10),

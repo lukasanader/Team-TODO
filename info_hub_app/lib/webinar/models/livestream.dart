@@ -10,6 +10,7 @@ class Livestream {
   final String startTime;
   final String status;
   final bool chatEnabled;
+  final List<String> selectedTags;
 
   Livestream({
     required this.webinarID,
@@ -21,6 +22,7 @@ class Livestream {
     required this.startTime,
     required this.status,
     required this.chatEnabled,
+    required this.selectedTags,
   });
 
   factory Livestream.fromMap(Map<String, dynamic> map) {
@@ -34,6 +36,7 @@ class Livestream {
       viewers: map['views'] ?? '',
       status: map['status'] ?? '',
       chatEnabled: map['chatenabled'] ?? false,
+      selectedTags: List<String>.from(map['selectedtags'] ?? []),
     );
   }
 }

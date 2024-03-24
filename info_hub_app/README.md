@@ -26,3 +26,5 @@ Accessible through:
 
 https://github.com/pichillilorenzo/flutter_inappwebview/issues/2019 (Testing purposes)  
 https://github.com/sarbagyastha/youtube_player_flutter/blob/master/packages/youtube_player_flutter/test/youtube_player_flutter_test.dart (Testing purposes)  
+https://www.youtube.com/watch?v=mBBycL0EtBQ&t=1760s  (Chat function)  
+https://www.youtube.com/watch?v=ZfR3PxB_tRY&list=PL_D-RntzgLva81jFzO0KK9A7nQT7CV7-E&index=10 (Model making process)  

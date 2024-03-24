@@ -48,6 +48,7 @@ class _WebinarViewState extends State<WebinarView> {
                         stream: widget.firestore
                             .collection('Webinar')
                             .where('status', isEqualTo: 'Live')
+                            .where('selectedtags', arrayContains: widget.user.roleType)
                             .snapshots(),
                         builder: (context, snapshot) {
                           if (!snapshot.hasData ||
@@ -102,6 +103,7 @@ class _WebinarViewState extends State<WebinarView> {
                         stream: widget.firestore
                             .collection('Webinar')
                             .where('status', isEqualTo: 'Upcoming')
+                            .where('selectedtags', arrayContains: widget.user.roleType)
                             .snapshots(),
                         builder: (context, snapshot) {
                           if (!snapshot.hasData ||
@@ -158,6 +160,7 @@ class _WebinarViewState extends State<WebinarView> {
                         stream: widget.firestore
                             .collection('Webinar')
                             .where('status', isEqualTo: 'Archived')
+                            .where('selectedtags', arrayContains: widget.user.roleType)
                             .snapshots(),
                         builder: (context, snapshot) {
                           if (!snapshot.hasData ||

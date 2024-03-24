@@ -32,6 +32,7 @@ void main() {
         'views' : 0,
         'dateStarted' : DateTime.now().toString(),
         'status' : 'Live',
+        'chatenabled' : true,
     });
     await mockWebViewDependencies.init();
     
@@ -54,7 +55,8 @@ void main() {
         currentUser: testUser,
         title: 'Test',
         webinarService: webinarService,
-        status: "Live"
+        status: "Live",
+        chatEnabled: true,
       ),
     );
 
