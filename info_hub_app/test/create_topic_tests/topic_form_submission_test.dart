@@ -165,7 +165,7 @@ void main() async {
     }
     await tester.pumpAndSettle();
     await tester.tap(find.text('Smoking'));
-
+    await tester.ensureVisible(find.text('PUBLISH TOPIC'));
     await tester.tap(find.text('PUBLISH TOPIC'));
 
     await tester.pumpAndSettle();
@@ -294,7 +294,7 @@ void main() async {
     await tester.pumpWidget(basicWidget!);
 
     await tester.enterText(find.byKey(const Key('titleField')), 'Test title');
-
+    await tester.ensureVisible(find.text('PUBLISH TOPIC'));
     await tester.tap(find.text('PUBLISH TOPIC'));
 
     await tester.pumpAndSettle();
@@ -313,7 +313,7 @@ void main() async {
     await tester.pumpWidget(basicWidget!);
 
     await tester.enterText(find.byKey(const Key('titleField')), 'Test title');
-
+    await tester.ensureVisible(find.text('PUBLISH TOPIC'));
     await tester.tap(find.text('PUBLISH TOPIC'));
 
     await tester.enterText(
@@ -337,6 +337,7 @@ void main() async {
     await fillRequiredFields(tester);
 
     await tester.enterText(find.byKey(const Key('linkField')), 'invalidLink');
+    await tester.ensureVisible(find.text('PUBLISH TOPIC'));
 
     await tester.tap(find.text('PUBLISH TOPIC'));
 
@@ -355,7 +356,7 @@ void main() async {
     await fillRequiredFields(tester);
     await tester.enterText(find.byKey(const Key('linkField')),
         'https://pub.dev/packages?q=cloud_firestore_mocks');
-
+    await tester.ensureVisible(find.text('PUBLISH TOPIC'));
     await tester.tap(find.text('PUBLISH TOPIC'));
     await tester.pumpAndSettle();
     final QuerySnapshot<Map<String, dynamic>> querySnapshot =

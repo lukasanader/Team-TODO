@@ -113,7 +113,7 @@ void main() async {
     }
 
     expect(find.byType(Chewie), findsOneWidget);
-
+    await tester.ensureVisible(find.text('PUBLISH TOPIC'));
     await tester.tap(find.text('PUBLISH TOPIC'));
     await tester.pumpAndSettle();
 
@@ -153,7 +153,7 @@ void main() async {
     }
 
     expect(find.byType(Image), findsOneWidget);
-
+    await tester.ensureVisible(find.text('PUBLISH TOPIC'));
     await tester.tap(find.text('PUBLISH TOPIC'));
     await tester.pumpAndSettle();
 
