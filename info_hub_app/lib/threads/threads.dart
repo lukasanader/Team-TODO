@@ -415,6 +415,7 @@ class _ThreadAppState extends State<ThreadApp> {
                       userSnapshot.data?.data() as Map<String, dynamic>?;
                   var profilePhoto = userDocData?['selectedProfilePhoto'] ??
                       'default_profile_photo.png';
+                  //var roleType = userDocData?['roleType'] ?? 'Missing Role';
 
                   return CustomCard(
                     key: ObjectKey(threadDoc.id),
@@ -535,7 +536,7 @@ class _ThreadAppState extends State<ThreadApp> {
 
                   */
                 TextButton(
-                  onPressed: () {
+                  onPressed: () async {
                     setState(() {
                       showErrorTitle = titleInputController.text.isEmpty;
                       showErrorDescription =
@@ -546,6 +547,12 @@ class _ThreadAppState extends State<ThreadApp> {
                       String docId = widget.auth.currentUser!.uid;
                       String authorName = generateUniqueName(docId);
 
+                      DocumentSnapshot userDoc = await widget.firestore
+                          .collection('Users')
+                          .doc(docId)
+                          .get();
+                      var userDocData = userDoc.data() as Map<String, dynamic>?;
+                      var roleType = userDocData?['roleType'] ?? 'Missing Role';
                       widget.firestore.collection("thread").add({
                         "author": authorName, // Using logged in user details
                         "title": titleInputController.text,
@@ -555,6 +562,7 @@ class _ThreadAppState extends State<ThreadApp> {
                         "topicId": widget.topicId,
                         "topicTitle": widget.topicTitle,
                         "isEdited": false,
+                        "roleType": roleType,
                       }).then((response) {
                         titleInputController.clear();
                         descriptionInputController.clear();

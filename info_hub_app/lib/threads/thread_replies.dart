@@ -324,6 +324,7 @@ class _ThreadRepliesState extends State<ThreadReplies> {
       "threadTitle": threadTitle,
       "timestamp": DateTime.now(),
       "isEdited": false,
+      "roleType": userData['roleType'],
     };
 
     setState(() => localReplies.add(newReply));

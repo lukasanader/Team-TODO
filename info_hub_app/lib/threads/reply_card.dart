@@ -218,6 +218,7 @@ class _ReplyCardState extends State<ReplyCard> {
 */
 
 import 'package:chewie/chewie.dart';
+import 'package:expansion_tile_card/expansion_tile_card.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
@@ -295,6 +296,7 @@ class _ReplyCardState extends State<ReplyCard> {
         ? DateFormat("dd-MMM-yyyy 'at' HH:mm").format(timestamp)
         : 'Timestamp not available';
 
+    /*
     return Column(
       children: <Widget>[
         SizedBox(
@@ -383,6 +385,112 @@ class _ReplyCardState extends State<ReplyCard> {
             ),
           ),
         ),
+      ],
+    ); */
+    return Column(
+      children: <Widget>[
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12.0),
+          child: ExpansionTileCard(
+            baseColor: Colors.white, // You can adjust the base color
+            expandedColor: Colors.white, // And the expanded color
+            elevation: 5,
+            leading: CircleAvatar(
+              radius: 30,
+              backgroundImage: widget.userProfilePhoto.startsWith('http')
+                  ? NetworkImage(widget.userProfilePhoto)
+                      as ImageProvider<Object>
+                  : AssetImage('assets/${widget.userProfilePhoto}')
+                      as ImageProvider<Object>,
+            ),
+            title: Text(
+              widget.authorName,
+              style: TextStyle(
+                fontSize: 18.0,
+                fontWeight: FontWeight.bold,
+              ),
+              //overflow: TextOverflow.ellipsis,
+            ),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Text(
+                  content,
+                  style: const TextStyle(fontSize: 18),
+                  //overflow: TextOverflow.ellipsis,
+                  //maxLines: 3,
+                ),
+                SizedBox(height: 4),
+                Text(
+                  formatter,
+                  style: const TextStyle(fontSize: 12),
+                ),
+                if (isEdited)
+                  Text(
+                    " (edited)",
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Color.fromARGB(255, 255, 0, 0),
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+              ],
+            ),
+            children: <Widget>[
+              ButtonBar(
+                alignment: MainAxisAlignment.spaceAround,
+                buttonHeight: 52.0,
+                buttonMinWidth: 90.0,
+                children: <Widget>[
+                  if (currentUserId == creator)
+                    TextButton(
+                      onPressed: () {
+                        _showDialog(context, docId);
+                      },
+                      child: Column(
+                        children: const <Widget>[
+                          Icon(Icons.edit),
+                          Padding(
+                            padding: EdgeInsets.symmetric(vertical: 2.0),
+                          ),
+                          Text('Edit'),
+                        ],
+                      ),
+                    ),
+                  if (currentUserId == creator)
+                    TextButton(
+                      onPressed: () async {
+                        if (!mounted) return;
+                        await widget.firestore
+                            .collection('replies')
+                            .doc(docId)
+                            .delete();
+                      },
+                      child: Column(
+                        children: const <Widget>[
+                          Icon(Icons.delete),
+                          Padding(
+                            padding: EdgeInsets.symmetric(vertical: 2.0),
+                          ),
+                          Text('Delete'),
+                        ],
+                      ),
+                    ),
+                  // Add more buttons or logic for user role as needed
+                ],
+              ),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(
+              left: 50.0, right: 50.0), // Adjust the padding as needed
+          child: Divider(
+            color: Colors.grey, // Change color as needed
+            height: 1,
+          ),
+        )
       ],
     );
   }
