@@ -160,6 +160,14 @@ void main() {
     expect(find.text('OK'), findsOneWidget);
   });
 
+  testWidgets('Test admin can not schedule without image or tag', (WidgetTester tester) async {
+    await tester.pumpWidget(createWebinarScreen);
+    await tester.ensureVisible(find.text('Schedule Webinar'));
+    await tester.tap(find.text('Schedule Webinar'));
+    await tester.pump();
+    expect(find.text('Please check if you have uploaded a thumbnail or selected a role.'),findsOneWidget);
+  });
+
   testWidgets('Test admin can select date and time', (WidgetTester tester) async {
     await tester.pumpWidget(createWebinarScreen);
     await tester.ensureVisible(find.text('Schedule Webinar'));
@@ -224,6 +232,8 @@ void main() {
       );
       await tester.enterText(titleField, 'test');
       await tester.pump();
+      await tester.tap(find.text('Patients'));
+      await tester.pump();
       await tester.tap(find.text('Schedule Webinar'));
       await tester.pump();
       await tester.tap(find.text('31'));
@@ -272,6 +282,15 @@ void main() {
 
     expect(find.byType(Image), findsOneWidget);
   });
+
+    testWidgets('Test Admin not uploading image or selecting tag leads to error prompt', (WidgetTester tester) async {
+    await tester.pumpWidget(createWebinarScreen);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Start Webinar'));
+    await tester.pump();
+    expect(find.text('Please check if you have uploaded a thumbnail or selected a role.'),findsOneWidget);
+  });
+
 
   testWidgets('Test Admin input all valid information with tags and chooses to start live webinar works', (WidgetTester tester) async {
     await provideMockedNetworkImages(() async {

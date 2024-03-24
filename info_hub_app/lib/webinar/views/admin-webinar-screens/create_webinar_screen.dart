@@ -79,23 +79,35 @@ class _CreateWebinarScreenState extends State<CreateWebinarScreen> {
           pickedTime.hour,
           pickedTime.minute,
         );
-        populateTags();
-        selectedTags.add('admin');
-        controller.goLiveWebinar(
-          context,
-          selectedDateTime,
-          _formKey.currentState,
-          _titleController.text,
-          _urlController.text,
-          image,
-          selectedTags,
-          isScheduled: true
-        );
-        selectedTags.clear();
+        if (isAnyRoleSelected() && image != null) {
+          populateTags();
+          selectedTags.add('admin');
+          controller.goLiveWebinar(
+            context,
+            selectedDateTime,
+            _formKey.currentState,
+            _titleController.text,
+            _urlController.text,
+            image,
+            selectedTags,
+            isScheduled: true
+          );
+          selectedTags.clear();
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Please check if you have uploaded a thumbnail or selected a role.'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+        }
+
       }
     }
   }
 
+
+  
   void populateTags() {
     if (isPatientSelected) {
       selectedTags.add('Patient');
