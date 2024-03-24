@@ -16,6 +16,7 @@ import 'widgets/add_quiz_widget.dart';
 import 'widgets/media_upload_widget.dart';
 import 'widgets/media_display_widget.dart';
 import 'package:info_hub_app/topics/create_topic/helpers/categories/category_controller.dart';
+import 'package:info_hub_app/topics/create_topic/helpers/categories/category_model.dart';
 
 /// View Responsible for Topic creation
 class CreateTopicScreen extends StatefulWidget {
@@ -131,6 +132,7 @@ class CreateTopicScreenState extends State<CreateTopicScreen> {
                       TopicFormWidget(
                         formController: formController,
                         screen: this,
+                        firestore: widget.firestore,
                       ),
                       const SizedBox(height: 10.0),
                       AddQuizWidget(screen: this),
@@ -304,115 +306,15 @@ class CreateTopicScreenState extends State<CreateTopicScreen> {
     );
   }
 
-  void createNewCategoryDialog(context) {
-    newCategoryNameController.clear();
-    CategoryController categoryController =
-        CategoryController(widget.firestore, this);
-    showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text("Create a new category"),
-            content: TextField(
-              controller: newCategoryNameController,
-            ),
-            actions: [
-              ElevatedButton(
-                onPressed: () async {
-                  if (!categoriesOptions
-                          .contains(newCategoryNameController.text) &&
-                      newCategoryNameController.text.isNotEmpty) {
-                    categoryController
-                        .addCategory(newCategoryNameController.text);
-                    getCategoryList();
-                    Navigator.of(context).pop();
-                  } else {
-                    return showDialog<void>(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return const AlertDialog(
-                          title: Text('Warning!'),
-                          content: Text(
-                              "Make sure category names are different/not blank!"),
-                        );
-                      },
-                    );
-                  }
-                },
-                child: const Text("OK"),
-              ),
-            ],
-          );
-        });
-  }
-
   Future getCategoryList() async {
-    QuerySnapshot data =
-        await widget.firestore.collection('categories').orderBy('name').get();
-
-    List<Object> dataList = List.from(data.docs);
+    List<Category> categoryList = await CategoryController(widget.firestore).getCategoryList();
     List<String> tempList = [];
 
-    for (dynamic category in dataList) {
-      tempList.add(category['name']);
+    for (Category category in categoryList) {
+      tempList.add(category.name.toString());
     }
 
     categoriesOptions = tempList;
     updateState();
-  }
-
-  void deleteCategoryDialog(context) {
-    showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return StatefulBuilder(
-              builder: (BuildContext context, StateSetter setState) {
-            return AlertDialog(
-              title: const Text("Delete a category"),
-              content: SizedBox(
-                height: 300,
-                width: 200,
-                child: ListView.builder(
-                  itemCount: categoriesOptions.length,
-                  itemBuilder: (context, index) {
-                    return ListTile(
-                      title: Text(categoriesOptions[index]),
-                      onTap: () {
-                        deleteCategoryConfirmation(
-                            categoriesOptions[index], context);
-                      },
-                    );
-                  },
-                ),
-              ),
-            );
-          });
-        });
-  }
-
-  Future<void> deleteCategoryConfirmation(String categoryName, context) async {
-    CategoryController categoryController =
-        CategoryController(widget.firestore, this);
-    return showDialog<void>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Warning!'),
-          content: const Text("Are you sure you want to delete?"),
-          actions: [
-            ElevatedButton(
-              onPressed: () async {
-                categoryController.deleteCategory(categoryName);
-                categoriesOptions.remove(categoryName);
-                getCategoryList();
-                Navigator.of(context).pop();
-                Navigator.of(context).pop();
-              },
-              child: const Text("OK"),
-            ),
-          ],
-        );
-      },
-    );
   }
 }

@@ -4,9 +4,8 @@ import 'package:info_hub_app/topics/create_topic/view/topic_creation_view.dart';
 
 class CategoryController {
   final FirebaseFirestore _firestore;
-  final CreateTopicScreenState screen;
 
-  CategoryController(this._firestore, this.screen);
+  CategoryController(this._firestore);
 
   void addCategory(String name) async {
     Category newCategory = Category();
