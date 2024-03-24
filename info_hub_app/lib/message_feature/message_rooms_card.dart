@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:info_hub_app/message_feature/message_room/message_room_model.dart';
 import 'package:info_hub_app/message_feature/messaging_room_view.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class MessageRoomCard extends StatelessWidget {
-  final dynamic _chat;
+  final MessageRoom _chat;
   final FirebaseFirestore firestore;
   final FirebaseAuth auth;
 
   const MessageRoomCard(this.firestore, this.auth, this._chat, {super.key});
 
   bool isAdmin() {
-    return _chat['adminId'] == auth.currentUser!.uid;
+    return _chat.adminId == auth.currentUser!.uid;
   }
 
   @override
@@ -21,11 +22,11 @@ class MessageRoomCard extends StatelessWidget {
     String receiverId;
 
     if (isAdmin()) {
-      senderId = _chat['adminId'];
-      receiverId = _chat['patientId'];
+      senderId = _chat.adminId.toString();
+      receiverId = _chat.patientId.toString();
     } else {
-      senderId = _chat['patientId'];
-      receiverId = _chat['adminId'];
+      senderId = _chat.patientId.toString();
+      receiverId = _chat.adminId.toString();
     }
 
     return GestureDetector(
@@ -46,8 +47,8 @@ class MessageRoomCard extends StatelessWidget {
           child: Padding(
               padding: const EdgeInsets.all(12.0),
               child: isAdmin()
-                  ? Text(_chat['adminDisplayName'])
-                  : Text(_chat['patientDisplayName'])),
+                  ? Text(_chat.adminDisplayName.toString())
+                  : Text(_chat.patientDisplayName.toString())),
         ));
   }
 }

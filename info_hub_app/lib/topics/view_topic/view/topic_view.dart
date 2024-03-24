@@ -69,11 +69,11 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
         _videoURL = updatedTopic.media![currentIndex]['url'];
         _imageUrl = null;
 
-        await _initializeVideoPlayer();
+        await initializeVideoPlayer();
       } else {
         _imageUrl = updatedTopic.media![currentIndex]['url'];
         _videoURL = null;
-        await _initializeImage();
+        await initializeImage();
       }
     }
     final user = widget.auth.currentUser;
@@ -184,7 +184,7 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
     });
   }
 
-  Future<void> _initializeVideoPlayer() async {
+  Future<void> initializeVideoPlayer() async {
     bool isLoading = true; // Initialize isLoading to true
 
     // Show loading indicator
@@ -412,7 +412,7 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
                                       updatedTopic.media![currentIndex]['url'];
                                   _imageUrl = null;
                                   setState(() {});
-                                  await _initializeVideoPlayer();
+                                  await initializeVideoPlayer();
                                   setState(() {});
                                 } else if (updatedTopic.media![currentIndex]
                                         ['mediaType'] ==
@@ -421,7 +421,7 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
                                       updatedTopic.media![currentIndex]['url'];
                                   _videoURL = null;
                                   setState(() {});
-                                  await _initializeImage();
+                                  await initializeImage();
                                   setState(() {});
                                 }
                               }
@@ -444,7 +444,7 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
                                       updatedTopic.media![currentIndex]['url'];
                                   _imageUrl = null;
                                   setState(() {});
-                                  await _initializeVideoPlayer();
+                                  await initializeVideoPlayer();
                                   setState(() {});
                                 } else if (updatedTopic.media![currentIndex]
                                         ['mediaType'] ==
@@ -453,7 +453,7 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
                                       updatedTopic.media![currentIndex]['url'];
                                   _videoURL = null;
                                   setState(() {});
-                                  await _initializeImage();
+                                  await initializeImage();
                                   setState(() {});
                                 }
                               }
@@ -596,7 +596,7 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
     );
   }
 
-  Future<void> _initializeImage() async {
+  Future<void> initializeImage() async {
     if (_imageUrl != null && _imageUrl!.isNotEmpty) {
       setState(() {});
     }

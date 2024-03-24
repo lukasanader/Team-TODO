@@ -90,7 +90,7 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
   Widget _buildExperienceList(List<Experience> experiences) {
     return experiences.isEmpty
         ? _isLoading
-            ? CircularProgressIndicator()
+            ? const CircularProgressIndicator()
             : const Text("No experiences available")
         : ListView.builder(
             physics: const NeverScrollableScrollPhysics(),

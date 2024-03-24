@@ -6,8 +6,8 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:info_hub_app/profile_view/profile_view.dart';
+import 'package:info_hub_app/model/user_model.dart';
 import 'package:info_hub_app/profile_view/profile_view_controller.dart';
-import 'package:info_hub_app/registration/user_model.dart';
 import 'package:info_hub_app/notifications/manage_notifications.dart';
 import 'package:info_hub_app/screens/activity_view.dart';
 import 'package:info_hub_app/services/database.dart';
@@ -62,16 +62,6 @@ class _SettingsViewState extends State<SettingsView> {
           children: [
             ListTile(
               title: const Text("Account"),
-              // onTap: () {
-              //   Navigator.push(
-              //     context,
-              //     CupertinoPageRoute(
-              //         builder: (context) => ProfileView(
-              //               firestore: widget.firestore,
-              //               auth: widget.auth,
-              //             )),
-              //   );
-              // },
               onTap: () {
                 PersistentNavBarNavigator.pushNewScreen(
                   context,
@@ -87,16 +77,6 @@ class _SettingsViewState extends State<SettingsView> {
             ),
             ListTile(
               title: const Text("General"),
-              // onTap: () {
-              //   Navigator.push(
-              //     context,
-              //     CupertinoPageRoute(
-              //       builder: (context) => GeneralSettings(
-              //         themeManager: widget.themeManager,
-              //       ),
-              //     ),
-              //   );
-              // },
               onTap: () {
                 PersistentNavBarNavigator.pushNewScreen(
                   context,
@@ -109,15 +89,6 @@ class _SettingsViewState extends State<SettingsView> {
             ),
             ListTile(
               title: const Text("Notifications"),
-              // onTap: () {
-              //   Navigator.push(
-              //     context,
-              //     CupertinoPageRoute(
-              //       builder: (context) => ManageNotifications(
-              //           firestore: widget.firestore, auth: widget.auth),
-              //     ),
-              //   );
-              // },
               onTap: () {
                 PersistentNavBarNavigator.pushNewScreen(
                   context,
@@ -131,15 +102,6 @@ class _SettingsViewState extends State<SettingsView> {
             ),
             ListTile(
               title: const Text('History'),
-              // onTap: () {
-              //   Navigator.push(
-              //     context,
-              //     CupertinoPageRoute(
-              //       builder: (context) => ActivityView(
-              //           firestore: widget.firestore, auth: widget.auth),
-              //     ),
-              //   );
-              // }
               onTap: () {
                 PersistentNavBarNavigator.pushNewScreen(
                   context,
@@ -154,14 +116,6 @@ class _SettingsViewState extends State<SettingsView> {
             ),
             ListTile(
               title: const Text("Privacy"),
-              // onTap: () {
-              //   Navigator.push(
-              //     context,
-              //     CupertinoPageRoute(
-              //       builder: (context) => const PrivacyPage(),
-              //     ),
-              //   );
-              // },
               onTap: () {
                 PersistentNavBarNavigator.pushNewScreen(
                   context,
@@ -172,18 +126,6 @@ class _SettingsViewState extends State<SettingsView> {
             ),
             ListTile(
               title: const Text('Saved Topics'),
-              // onTap: () {
-              //   // Navigate to the saved topics page when tapped
-              //   Navigator.push(
-              //     context,
-              //     CupertinoPageRoute(
-              //         builder: (context) => SavedPage(
-              //               auth: widget.auth,
-              //               firestore: widget.firestore,
-              //               storage: widget.storage,
-              //             )),
-              //   );
-              // },
               onTap: () {
                 PersistentNavBarNavigator.pushNewScreen(
                   context,
@@ -200,18 +142,6 @@ class _SettingsViewState extends State<SettingsView> {
               ListTile(
                 key: const Key("drafts_tile"),
                 title: const Text('Topic Drafts'),
-                // onTap: () {
-                //   // Navigate to the saved topics page when tapped
-                //   Navigator.push(
-                //     context,
-                //     CupertinoPageRoute(
-                //         builder: (context) => DraftsPage(
-                //               auth: widget.auth,
-                //               firestore: widget.firestore,
-                //               storage: widget.storage,
-                //             )),
-                //   );
-                // },
                 onTap: () {
                   PersistentNavBarNavigator.pushNewScreen(
                     context,
