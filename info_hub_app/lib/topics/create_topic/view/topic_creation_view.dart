@@ -312,10 +312,12 @@ class TopicCreationViewState extends State<TopicCreationView> {
     );
   }
 
+
   /// Retreieve the list of categories
   Future getCategoryList() async {
     List<Category> categoryList =
         await CategoryController(widget.firestore).getCategoryList();
+
     List<String> tempList = [];
 
     for (Category category in categoryList) {

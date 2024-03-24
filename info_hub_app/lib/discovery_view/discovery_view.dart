@@ -11,7 +11,6 @@ import 'package:info_hub_app/topics/view_topic/helpers/topics_card.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:info_hub_app/topics/create_topic/model/topic_model.dart';
-import '../controller/topic_question_controller.dart';
 
 class DiscoveryView extends StatefulWidget {
   final FirebaseFirestore firestore;

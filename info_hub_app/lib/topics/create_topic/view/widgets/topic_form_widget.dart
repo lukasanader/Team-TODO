@@ -63,16 +63,20 @@ class TopicFormWidget extends StatelessWidget {
             children: [
               IconButton(
                   onPressed: () {
-                    CategoryDialogManager(firestore, screen.categoriesOptions,
-                            screen.getCategoryList)
-                        .createNewCategoryDialog(context);
+                    CategoryDialogManager(
+                      firestore, 
+                      screen.categoriesOptions, 
+                      screen.getCategoryList)
+                      .createNewCategoryDialog(context);
                   },
                   icon: const Icon(Icons.add)),
               IconButton(
                   onPressed: () {
-                    CategoryDialogManager(firestore, screen.categoriesOptions,
-                            screen.getCategoryList)
-                        .deleteCategoryDialog(context);
+                    CategoryDialogManager(
+                      firestore, 
+                      screen.categoriesOptions, 
+                      screen.getCategoryList)
+                      .deleteCategoryDialog(context);
                   },
                   icon: const Icon(Icons.close)),
               if (screen.categoriesOptions.isEmpty)
