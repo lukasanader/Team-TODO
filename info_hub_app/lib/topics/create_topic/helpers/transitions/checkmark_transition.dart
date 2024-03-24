@@ -11,6 +11,7 @@ class CheckmarkAnimationScreen extends StatefulWidget {
       _CheckmarkAnimationScreenState();
 }
 
+/// Class responsible for transition while a topic is uploaded
 class _CheckmarkAnimationScreenState extends State<CheckmarkAnimationScreen> {
   @override
   void initState() {
