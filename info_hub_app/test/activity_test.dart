@@ -1,12 +1,8 @@
-import 'dart:math';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_inappwebview_platform_interface/flutter_inappwebview_platform_interface.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:info_hub_app/helpers/activity_card.dart';
 import 'package:info_hub_app/home_page/home_page.dart';
 import 'package:info_hub_app/main.dart';
 import 'package:info_hub_app/screens/activity_view.dart';
@@ -19,13 +15,15 @@ void main() {
   late MockFirebaseStorage storage = MockFirebaseStorage();
   late FirebaseFirestore firestore;
   late MockFirebaseAuth auth = MockFirebaseAuth();
-  late Widget activityWidget;
 
   setUp(() async {
+    // Setup FakeFirestore and MockFirebaseAuth
     firestore = FakeFirebaseFirestore();
     auth.createUserWithEmailAndPassword(
         email: 'test@email.com',
         password: 'Password123!'); //Signs in automatically
+
+    // Add user data to firestore
     await firestore.collection('Users').doc(auth.currentUser!.uid).set({
       'email': 'test@email.com',
       'firstName': 'John',
@@ -36,13 +34,8 @@ void main() {
       'savedTopics': [],
       'hasOptedOutOfUserExpierence': false,
     });
-    activityWidget = MaterialApp(
-      home: ActivityView(
-        firestore: firestore,
-        auth: auth,
-        storage: storage,
-      ),
-    );
+
+    // Add topics to firestore
     CollectionReference topicCollectionRef = firestore.collection('topics');
     topicCollectionRef.doc('1').set({
       'title': 'test 1',
@@ -72,18 +65,20 @@ void main() {
     });
   });
 
-  testWidgets('Test topic likes and history tracker',
-      (WidgetTester tester) async {
-    //Create an activity
+  testWidgets('Test topic likes and history tracker', (WidgetTester tester) async {
+    // Pump the HomePage widget and navigate to a topic
     await tester.pumpWidget(MaterialApp(
-        home: HomePage(
-      firestore: firestore,
-      auth: auth,
-      storage: storage,
-    )));
+      home: HomePage(
+        firestore: firestore,
+        auth: auth,
+        storage: storage,
+      ),
+    ));
     await tester.pumpAndSettle();
     await tester.tap(find.text('test 1'));
     await tester.pumpAndSettle();
+
+    // Like the topic and navigate back
     await tester.tap(find.byIcon(Icons.thumb_up));
     await tester.pumpAndSettle();
     await tester.tap(find.byType(BackButton));
@@ -95,12 +90,11 @@ void main() {
     await tester.tap(find.text('test 1'));
     await tester.pumpAndSettle();
 
-    //Check if activity is recorded
+    // Check if activity is recorded
     final QuerySnapshot<Map<String, dynamic>> querySnapshot =
         await firestore.collection("activity").get();
     final List<DocumentSnapshot<Map<String, dynamic>>> documents =
         querySnapshot.docs;
-    // Check if the collection contains a document with the type of activity
     expect(
       documents.any(
         (doc) => doc.data()?['type'] == 'topics',
@@ -108,14 +102,14 @@ void main() {
       isTrue,
     );
 
-    await tester.pumpWidget(
-        MaterialApp(home: ActivityView(firestore: firestore, auth: auth, storage: storage,)));
+    // Navigate to ActivityView and verify the presence of test 1 topic
+    await tester.pumpWidget(MaterialApp(home: ActivityView(firestore: firestore, auth: auth, storage: storage,)));
     await tester.pumpAndSettle();
     expect(find.text('test 1'), findsOneWidget);
-  
   });
 
   testWidgets('Test thread history tracker', (WidgetTester tester) async {
+    // Create thread data in firestore
     final threadId = await firestore.collection('thread').add({
       'title': 'Thread 1',
       'description': 'Test Description',
@@ -124,7 +118,7 @@ void main() {
       'topicId': '1',
     }).then((doc) => doc.id);
 
-    // Add some replies to the thread
+    // Add replies to the thread
     await firestore.collection('replies').add({
       'content': 'Reply 1',
       'threadId': threadId,
@@ -138,12 +132,12 @@ void main() {
       'topicId': '1',
     }).then((doc) => doc.id);
 
-    // Add some replies to the thread
     await firestore.collection('replies').add({
       'content': 'Reply 1',
       'threadId': newThreadId,
     });
 
+    // Add thread activity
     await firestore.collection('activity').add({
       'type': 'thread',
       'aid': threadId,
@@ -158,12 +152,15 @@ void main() {
       'date': DateTime.now()
     });
 
+    // Navigate to ActivityView and verify threads are displayed
     await tester.pumpWidget(
         MaterialApp(home: ActivityView(firestore: firestore, auth: auth, storage: storage,)));
     await tester.pumpAndSettle();
 
     expect(find.textContaining('Thread 1'), findsOne);
     expect(find.textContaining('Thread 2'), findsOne);
+
+    // Tap on Thread 1 and verify navigation to ThreadApp
     await tester.ensureVisible(find.textContaining('Thread 1'));
     await tester.pumpAndSettle();
     await tester.tap(find.textContaining('Thread 1'));
