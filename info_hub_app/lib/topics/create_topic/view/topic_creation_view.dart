@@ -19,7 +19,7 @@ import 'package:info_hub_app/topics/create_topic/helpers/categories/category_con
 import 'package:info_hub_app/topics/create_topic/helpers/categories/category_model.dart';
 
 /// View Responsible for Topic creation
-class CreateTopicScreen extends StatefulWidget {
+class TopicCreationView extends StatefulWidget {
   final FirebaseFirestore firestore;
   final FirebaseStorage storage;
   Topic? topic;
@@ -28,7 +28,7 @@ class CreateTopicScreen extends StatefulWidget {
   List<PlatformFile>? selectedFiles;
   final ThemeManager themeManager;
 
-  CreateTopicScreen({
+  TopicCreationView({
     Key? key,
     required this.firestore,
     required this.storage,
@@ -40,10 +40,10 @@ class CreateTopicScreen extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<CreateTopicScreen> createState() => CreateTopicScreenState();
+  State<TopicCreationView> createState() => TopicCreationViewState();
 }
 
-class CreateTopicScreenState extends State<CreateTopicScreen> {
+class TopicCreationViewState extends State<TopicCreationView> {
   late GlobalKey<FormState> topicFormKey = GlobalKey<FormState>();
   int currentIndex = 0;
   List<dynamic> questions = [];
@@ -63,6 +63,7 @@ class CreateTopicScreenState extends State<CreateTopicScreen> {
   @override
   void dispose() {
     super.dispose();
+    // Dispose video controllers
     mediaUploadController.videoController?.dispose();
     mediaUploadController.chewieController?.dispose();
   }
@@ -77,6 +78,7 @@ class CreateTopicScreenState extends State<CreateTopicScreen> {
   void initState() {
     super.initState();
     updatedTopicDoc = null;
+    // Initialize form and media upload controllers
     formController = FormController(
         widget.auth, widget.firestore, widget.topic, widget.draft, this, null);
     formController.initializeData();
@@ -105,6 +107,7 @@ class CreateTopicScreenState extends State<CreateTopicScreen> {
                   color: Colors.white, fontWeight: FontWeight.bold),
             ),
             actions: <Widget>[
+              // Save as draft button (visible only when not editing or publishing a draft)
               if (!editing && !drafting)
                 TextButton(
                   key: const Key('draft_btn'),
@@ -140,6 +143,7 @@ class CreateTopicScreenState extends State<CreateTopicScreen> {
                       MediaUploadWidget(
                           mediaUploadController: mediaUploadController),
                       const SizedBox(height: 10.0),
+                      // Shows preview of selected media
                       MediaDisplayWidget(
                           mediaUploadController: mediaUploadController,
                           screen: this),
@@ -149,12 +153,13 @@ class CreateTopicScreenState extends State<CreateTopicScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Container(
-                              width: 200, // Adjust the width as needed
+                              width: 200,
                               child: OutlinedButton(
                                 style: OutlinedButton.styleFrom(
                                   backgroundColor: Colors.red,
                                 ),
                                 onPressed: () async {
+                                  // Check if the form's current state is valid and Publish the topic
                                   if (topicFormKey.currentState!.validate() &&
                                       formController.tags.isNotEmpty) {
                                     Navigator.push(
@@ -205,11 +210,12 @@ class CreateTopicScreenState extends State<CreateTopicScreen> {
     );
   }
 
-  // Refreshes the screen
+  /// Refreshes the screen
   void updateState() {
     setState(() {});
   }
 
+  /// Shows questions related to topic and allows for their deletion
   Future<void> _showDeleteQuestionDialog(
       BuildContext context, String title) async {
     final controller =
@@ -306,8 +312,12 @@ class CreateTopicScreenState extends State<CreateTopicScreen> {
     );
   }
 
+
+  /// Retreieve the list of categories
   Future getCategoryList() async {
-    List<Category> categoryList = await CategoryController(widget.firestore).getCategoryList();
+    List<Category> categoryList =
+        await CategoryController(widget.firestore).getCategoryList();
+
     List<String> tempList = [];
 
     for (Category category in categoryList) {

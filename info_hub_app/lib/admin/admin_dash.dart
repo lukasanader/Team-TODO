@@ -83,7 +83,7 @@ class _AdminHomepageState extends State<AdminHomepage> {
                 onPressed: () {
                   PersistentNavBarNavigator.pushNewScreen(
                     context,
-                    screen: CreateTopicScreen(
+                    screen: TopicCreationView(
                       firestore: widget.firestore,
                       auth: widget.auth,
                       storage: widget.storage,
@@ -251,7 +251,7 @@ class _AdminHomepageState extends State<AdminHomepage> {
             ElevatedButton(
               onPressed: () async {
                 UserModel currentAdmin = await _userController
-                  .getUser(widget.auth.currentUser!.uid.toString());
+                    .getUser(widget.auth.currentUser!.uid.toString());
                 WebinarService webService = WebinarService(
                     firestore: widget.firestore, storage: widget.storage);
                 PersistentNavBarNavigator.pushNewScreen(
@@ -340,14 +340,12 @@ class _AdminHomepageState extends State<AdminHomepage> {
         });
   }
 
-
   Future getUserList() async {
     List<UserModel> tempList;
     List<UserModel> allHealthcareProfessionalsList = await _userController
-      .getUserListBasedOnRoleType('Healthcare Professional');
+        .getUserListBasedOnRoleType('Healthcare Professional');
 
     String search = _searchController.text.toLowerCase();
-
 
     if (search.isNotEmpty) {
       tempList = allHealthcareProfessionalsList.where((user) {
@@ -362,7 +360,6 @@ class _AdminHomepageState extends State<AdminHomepage> {
       selected = List<bool>.filled(_userList.length, false);
     });
   }
-
 
   void addAdmins() async {
     List<int> indicesToRemove = [];

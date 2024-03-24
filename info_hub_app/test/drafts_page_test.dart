@@ -88,6 +88,6 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byType(Card).first);
     await tester.pumpAndSettle();
-    expect(find.byType(CreateTopicScreen), findsOne);
+    expect(find.byType(TopicCreationView), findsOne);
   });
 }

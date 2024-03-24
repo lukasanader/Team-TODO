@@ -29,7 +29,7 @@ Future<void> main() async {
         MockFirebaseAuth(signedIn: true, mockUser: MockUser(uid: 'adminUser'));
 
     quizWidget = MaterialApp(
-      home: CreateTopicScreen(
+      home: TopicCreationView(
         firestore: firestore,
         storage: mockStorage,
         auth: auth,
@@ -127,7 +127,7 @@ Future<void> main() async {
 
     await tester.tap(find.text('Yes'));
     await tester.pumpAndSettle();
-    expect(find.byType(CreateTopicScreen), findsOne);
+    expect(find.byType(TopicCreationView), findsOne);
   });
 
   testWidgets('Test quiz questions saved correctly',
@@ -175,7 +175,7 @@ Future<void> main() async {
     await tester.pumpAndSettle();
     await tester.tap(saveQuizButton);
     await tester.pumpAndSettle();
-    expect(find.byType(CreateTopicScreen), findsOne);
+    expect(find.byType(TopicCreationView), findsOne);
     bool correctAnswers = false;
     bool wrongAnswers = false;
     final querySnapshot = await firestore.collection('quizQuestions').get();
@@ -229,7 +229,7 @@ Future<void> main() async {
     });
     data = await topicCollectionRef.get();
     await tester.pumpWidget(MaterialApp(
-      home: CreateTopicScreen(
+      home: TopicCreationView(
         topic: topic,
         auth: auth,
         firestore: firestore,
