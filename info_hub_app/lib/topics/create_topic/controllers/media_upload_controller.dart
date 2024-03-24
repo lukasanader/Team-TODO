@@ -1,25 +1,18 @@
 import 'dart:io';
-import 'package:chips_choice/chips_choice.dart';
-import 'package:flutter/material.dart';
-import 'package:info_hub_app/controller/topic_question_controller.dart';
-import 'package:info_hub_app/model/model.dart';
-import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:video_player/video_player.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:chewie/chewie.dart';
 import 'package:flutter/services.dart';
-import 'package:info_hub_app/topics/create_topic/helpers/quiz/create_quiz.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:path/path.dart';
 import 'package:path/path.dart' as path;
-import 'package:info_hub_app/ask_question/question_card.dart';
-import '../helpers/transitions/checkmark_transition.dart';
 import '../model/topic_model.dart';
 import '../controllers/form_controller.dart';
 import 'package:info_hub_app/topics/create_topic/view/topic_creation_view.dart';
 
+/// Controller class responsible for managing media upload operations.
 class MediaUploadController {
   final FirebaseAuth auth;
   final FirebaseFirestore firestore;
@@ -39,7 +32,10 @@ class MediaUploadController {
   Topic? topic;
   Topic? draft;
   bool changingMedia = false;
+  VideoPlayerController? videoController;
+  ChewieController? chewieController;
 
+  // Initializes the media data based on whether the form is for editing a topic or creating a new one from a draft.
   void initializeData() {
     topic = formController.topic;
     draft = formController.draft;
@@ -64,6 +60,7 @@ class MediaUploadController {
     }
   }
 
+  /// Initializes the URLs for the media files.
   Future<void> initializeUrls() async {
     topic = formController.topic;
     draft = formController.draft;
@@ -74,15 +71,16 @@ class MediaUploadController {
         videoURL = mediaData[screen.currentIndex]['url']!;
         imageURL = null;
 
-        await screen.initializeVideoPlayer();
+        await initializeVideoPlayer();
       } else {
         imageURL = mediaData[screen.currentIndex]['url']!;
         videoURL = null;
-        await screen.initializeImage();
+        await initializeImage();
       }
     }
   }
 
+  /// Picks media files from the device.
   Future<void> pickFromDevice(String type) async {
     List<String> extensions = type == "image"
         ? ['jpg', 'jpeg', 'png']
@@ -97,12 +95,13 @@ class MediaUploadController {
         : null;
 
     if (result != null) {
-      handleNavigation(result, null, type);
+      await handleNavigation(result, null, type);
     } else {
-      handleNavigation(null, screen.widget.selectedFiles, type);
+      await handleNavigation(null, screen.widget.selectedFiles, type);
     }
   }
 
+  /// Handles navigation after picking media files.
   Future<void> handleNavigation(FilePickerResult? result,
       List<PlatformFile>? selection, String type) async {
     List<PlatformFile>? data =
@@ -133,13 +132,14 @@ class MediaUploadController {
     }
     if (data != null && data.isNotEmpty) {
       if (type == 'image') {
-        await screen.initializeImage();
+        await initializeImage();
       } else {
-        await screen.initializeVideoPlayer();
+        await initializeVideoPlayer();
       }
     }
   }
 
+  /// Filters picked files based on their type (image or video)
   List<PlatformFile> filterFiles(List<PlatformFile> files, String type) {
     return files.where((file) {
       // Get the file extension
@@ -161,39 +161,44 @@ class MediaUploadController {
     }).toList();
   }
 
+  /// Clears the media file currenly on screen.
   void clearSelection() {
     List<Map<String, dynamic>> oldMediaUrls = [...mediaUrls];
 
     if (mediaUrls[screen.currentIndex]['mediaType'] == 'video') {
-      screen.disposeVideoPlayer();
+      disposeVideoPlayer();
     }
     if (mediaUrls.length == 1) {
       screen.currentIndex = 0;
+      screen.updateState();
     }
     mediaUrls.removeAt(screen.currentIndex);
     if (mediaUrls.isNotEmpty) {
       if (screen.currentIndex - 1 >= 0) {
         screen.currentIndex -= 1;
+        screen.updateState();
       } else {
         screen.currentIndex += 1;
+        screen.updateState();
       }
       if (oldMediaUrls[screen.currentIndex]['mediaType'] == 'video') {
         videoURL = oldMediaUrls[screen.currentIndex]['url'];
 
         imageURL = null;
         screen.updateState;
-        screen.initializeVideoPlayer();
+        initializeVideoPlayer();
         screen.updateState();
       } else if (oldMediaUrls[screen.currentIndex]['mediaType'] == 'image') {
         imageURL = oldMediaUrls[screen.currentIndex]['url'];
         videoURL = null;
         screen.updateState;
-        screen.initializeImage();
+        initializeImage();
 
         screen.updateState();
       }
       if (mediaUrls.length == 1) {
         screen.currentIndex = 0;
+        screen.updateState();
       }
     } else {
       if (oldMediaUrls[screen.currentIndex]['mediaType'] == 'video') {
@@ -205,17 +210,62 @@ class MediaUploadController {
     }
   }
 
+  /// Uploads a media file to Firebase Storage.
   Future<String> uploadMediaToStorage(String url) async {
     Reference ref = storage.ref().child('media/${basename(url)}');
     await ref.putFile(File(url));
     return await ref.getDownloadURL();
   }
 
+  /// Deletes a media file from Firebase Storage.
   Future<void> deleteMediaFromStorage(String url) async {
     // get reference to the file
     Reference ref = storage.refFromURL(url);
 
     // Delete the file
     await ref.delete();
+  }
+
+  /// Initializes the video player.
+  Future<void> initializeVideoPlayer() async {
+    disposeVideoPlayer();
+    if (videoURL != null && videoURL!.isNotEmpty) {
+      if (!networkUrls.contains(videoURL)) {
+        videoController = VideoPlayerController.file(File(videoURL!));
+      } else {
+        videoController =
+            VideoPlayerController.networkUrl(Uri.parse(videoURL!));
+      }
+
+      await videoController!.initialize();
+
+      chewieController = ChewieController(
+        videoPlayerController: videoController!,
+        autoInitialize: true,
+        looping: false,
+        aspectRatio: 16 / 9,
+        deviceOrientationsAfterFullScreen: [DeviceOrientation.portraitUp],
+        allowedScreenSleep: false,
+      );
+      screen.updateState();
+    }
+  }
+
+  /// Disposes the current video player.
+  void disposeVideoPlayer() {
+    videoController?.pause();
+    videoController?.dispose();
+    videoController = null;
+
+    chewieController?.pause();
+    chewieController?.dispose();
+    chewieController = null;
+  }
+
+  // Initialize image by forcing screen refresh with up-to-date image url
+  Future<void> initializeImage() async {
+    if (imageURL != null && imageURL!.isNotEmpty) {
+      screen.updateState();
+    }
   }
 }

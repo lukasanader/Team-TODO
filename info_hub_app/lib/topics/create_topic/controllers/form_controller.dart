@@ -5,6 +5,7 @@ import '../model/topic_model.dart';
 import 'package:info_hub_app/topics/create_topic/view/topic_creation_view.dart';
 import 'media_upload_controller.dart';
 
+/// Controller class responsible for managing the form data and actions in the topic creation process.
 class FormController {
   final FirebaseAuth auth;
   final FirebaseFirestore firestore;
@@ -20,16 +21,18 @@ class FormController {
   TextEditingController descriptionController = TextEditingController();
   TextEditingController articleLinkController = TextEditingController();
   String appBarTitle = "";
-
+  String? downloadURL;
   bool editing = false;
   bool drafting = false;
   List<dynamic> tags = [];
   List<dynamic> categories = [];
 
+  /// Initializes form data based on whether the form is for editing an existing topic or creating a new one.
   void initializeData() {
     editing = topic != null;
     drafting = draft != null;
     appBarTitle = "Create a Topic";
+    // if editing the topic or drafting, form fields should be initialized to their previous value
     if (editing) {
       appBarTitle = "Edit Topic";
       String prevTitle = topic!.title!;
@@ -39,6 +42,7 @@ class FormController {
       descriptionController = TextEditingController(text: prevDescription);
       articleLinkController = TextEditingController(text: prevArticleLink);
       tags = topic!.tags!;
+      screen.updatedTopicDoc = topic!;
     } else if (drafting) {
       appBarTitle = "Draft";
       String prevTitle = draft!.title!;
@@ -52,7 +56,9 @@ class FormController {
     }
   }
 
-  // Validation functions
+  // Form Validation functions
+
+  /// Validates the title field.
   String? validateTitle(String? value) {
     if (value == null || value.isEmpty) {
       return 'Please enter a Title.';
@@ -60,6 +66,7 @@ class FormController {
     return null;
   }
 
+  /// Validates the article link field.
   String? validateArticleLink(String? value) {
     if (value != null && value.isNotEmpty) {
       final url = Uri.tryParse(value);
@@ -70,6 +77,7 @@ class FormController {
     return null;
   }
 
+  /// Validates the description field.
   String? validateDescription(String? value) {
     if (value == null || value.isEmpty) {
       return 'Please enter a Description';
@@ -77,6 +85,7 @@ class FormController {
     return null;
   }
 
+  /// Uploads the topic to Firestore, either as a draft or for publishing.
   Future<void> uploadTopic(context, bool saveAsDraft) async {
     List<Map<String, String>> mediaList = [];
     Topic newTopic = Topic();
@@ -85,14 +94,13 @@ class FormController {
       String mediaType = item['mediaType']!;
 
       if (mediaUploadController!.networkUrls.contains(url)) {
-        screen.downloadURL = url;
+        downloadURL = url;
       } else {
-        screen.downloadURL =
-            await mediaUploadController!.uploadMediaToStorage(url);
+        downloadURL = await mediaUploadController!.uploadMediaToStorage(url);
       }
 
       Map<String, String> uploadData = {
-        'url': screen.downloadURL!,
+        'url': downloadURL!,
         'mediaType': mediaType,
       };
 
@@ -168,6 +176,7 @@ class FormController {
     }
   }
 
+  /// Deletes the current draft from Firestore.
   void deleteDraft() async {
     final user = auth.currentUser;
     if (user != null) {
