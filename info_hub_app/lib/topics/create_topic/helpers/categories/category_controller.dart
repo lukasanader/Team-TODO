@@ -20,14 +20,32 @@ class CategoryController {
     await db.add(newCategory.toJson());
   }
 
-  void deleteCategory(String categoryName) async {
-    QuerySnapshot categoryToDelete = await _firestore
+  void deleteCategory(Category category) async {
+    await _firestore.collection('categories').doc(category.id).delete();
+
+    QuerySnapshot topicsWithCategory = await _firestore
+      .collection('topics')
+      .where('categories', arrayContains: category.name)
+      .get();
+    
+    for (QueryDocumentSnapshot topic in topicsWithCategory.docs) {
+      final topicReference = topic.reference;
+      await topicReference.update({
+        'categories': FieldValue.arrayRemove([category.name])
+      });
+    }
+  }
+
+  Future<Category> getCategoryFromName(String categoryName) async {
+    QuerySnapshot querySnapshot = await _firestore
         .collection('categories')
         .where('name', isEqualTo: categoryName)
         .get();
 
-    QueryDocumentSnapshot category = categoryToDelete.docs[0];
-    await _firestore.collection('categories').doc(category.id).delete();
+    QueryDocumentSnapshot queryDocumentSnapshot = querySnapshot.docs[0];
+    Category category = Category.fromSnapshot(queryDocumentSnapshot);
+
+    return category;
   }
 
   Future<List<Category>> getCategoryList() async {
