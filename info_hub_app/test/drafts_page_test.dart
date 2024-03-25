@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:info_hub_app/settings/drafts/drafts_page.dart';
-import 'package:info_hub_app/topics/create_topic.dart';
+import 'package:info_hub_app/topics/create_topic/view/topic_creation_view.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
@@ -88,6 +88,6 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byType(Card).first);
     await tester.pumpAndSettle();
-    expect(find.byType(CreateTopicScreen), findsOne);
+    expect(find.byType(TopicCreationView), findsOne);
   });
 }

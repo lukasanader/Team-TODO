@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:info_hub_app/main.dart';
 import 'package:info_hub_app/services/auth.dart';
-import 'package:info_hub_app/registration/user_model.dart';
+import 'package:info_hub_app/model/user_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:info_hub_app/legal_agreements/terms_of_services.dart';
@@ -308,6 +308,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         ),
       ),
     );
+    
   }
 
   Widget buildTextFormField(

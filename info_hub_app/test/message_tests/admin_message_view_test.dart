@@ -1,23 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:info_hub_app/admin/admin_dash.dart';
 import 'package:info_hub_app/message_feature/admin_message_view.dart';
 import 'package:info_hub_app/message_feature/message_bubble.dart';
-import 'package:info_hub_app/message_feature/message_model.dart';
 import 'package:info_hub_app/message_feature/message_rooms_card.dart';
 import 'package:info_hub_app/message_feature/messaging_room_view.dart';
-import 'package:info_hub_app/patient_experience/admin_experience_view.dart';
 import 'package:info_hub_app/threads/name_generator.dart';
-import 'package:info_hub_app/topics/create_topic.dart';
-import 'package:info_hub_app/ask_question/question_view.dart';
-import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
-import 'package:mockito/mockito.dart';
-
-import '../mock.dart';
 
 void main() {
   late MockFirebaseAuth auth;
@@ -139,9 +129,9 @@ void main() {
         'Sorry there are no patients matching this email.');
     expect(tester.widget<Text>(textFinder).data,
         'Sorry there are no patients matching this email.');
-  });testWidgets('Can message correct patient through dialogue', (WidgetTester tester) async {
-
-
+  });
+  
+  testWidgets('Can message correct patient through dialogue', (WidgetTester tester) async {
     // Build our app and trigger a frame.
     await tester.pumpWidget(adminMessageViewWidget);
     await tester.pumpAndSettle();
@@ -158,9 +148,7 @@ void main() {
     expect(find.text(userName), findsOneWidget);
     expect(find.byType(MessageRoomView), findsOne);
 
-  })
-
-  ;
+  });
 
   testWidgets('Pressing onto existing chat leads to correct message room view', (WidgetTester tester) async {
     
@@ -195,6 +183,30 @@ void main() {
 
   testWidgets('Delete button deletes message room',
       (WidgetTester tester) async {
+
+    firestore
+      .collection('message_rooms')
+      .doc('1')
+      .collection('messages')
+      .add({
+        'senderId' : auth.currentUser!.uid,
+        'receiverId' : '1',
+        'message' : 'Hello world',
+        'timestamp' : DateTime.now(),
+      });
+    
+
+    //verify there is a message in the database
+    QuerySnapshot messages = await firestore
+      .collection('message_rooms')
+      .doc('1')
+      .collection('messages')
+      .get();
+
+    expect(messages.docs.isNotEmpty, true);
+
+
+
     // Build our app and trigger a frame.
     await tester.pumpWidget(adminMessageViewWidget);
     await tester.pumpAndSettle();
@@ -212,15 +224,95 @@ void main() {
     await tester.tap(find.text('OK'));
     await tester.pumpAndSettle();
 
-    QuerySnapshot messages = await firestore
+    messages = await firestore
       .collection('message_rooms')
       .doc('1')
       .collection('messages')
       .get();
 
+
+    //verify that the message is also now deleted
     expect(messages.docs.isEmpty, true);
+
 
     expect(find.text('user@gmail.com'), findsNothing);    
   });
+
+
+  testWidgets('Can create message room and delete message room', (WidgetTester tester) async {
+    // Build our app and trigger a frame.
+    await tester.pumpWidget(adminMessageViewWidget);
+    await tester.pumpAndSettle();
+    // Trigger the _showUser method
+
+    //process to enter a message room
+    await tester.tap(find.text('Message new patient'));
+    await tester.pump();
+
+    expect(find.text('user2@gmail.com'), findsOneWidget);
+    
+    String userName = generateUniqueName('2');
+
+    await tester.tap(find.text('user2@gmail.com'));
+    await tester.pumpAndSettle();
+    expect(find.text(userName), findsOneWidget);
+    expect(find.byType(MessageRoomView), findsOne);
+
+
+    //process to send a message which should create a message room
+    final textBox = find.byType(TextField);
+    await tester.enterText(textBox, 'hello world!');
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byIcon(Icons.arrow_upward));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(MessageBubble), findsOneWidget);
+    expect(find.text('hello world!'), findsOneWidget);
+
+
+    //process to check if message room exists
+    await tester.tap(find.byIcon(Icons.arrow_back));
+    await tester.pumpAndSettle();
+
+    Finder cardFinder = find.byType(MessageRoomCard);
+
+    expect(cardFinder, findsNWidgets(2));
+    expect(find.byType(MessageView), findsOneWidget);
+    expect(find.text('user2@gmail.com'), findsOneWidget);
+
+
+    //process to delete the message room
+    Finder deleteButton = find.byIcon(Icons.delete).last;
+
+    await tester.ensureVisible(deleteButton);
+    await tester.tap(deleteButton);
+    await tester.pumpAndSettle();
+
+    expect(find.byType(AlertDialog), findsOneWidget);
+
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+
+    //process to check room and messages are deleted
+    expect(find.text('user2@gmail.com'), findsNothing);
+    await tester.tap(find.text('Message new patient'));
+    await tester.pump();
+
+    expect(find.text('user2@gmail.com'), findsOneWidget);
+    
+
+    await tester.tap(find.text('user2@gmail.com'));
+    await tester.pumpAndSettle();
+    expect(find.text(userName), findsOneWidget);
+    expect(find.byType(MessageRoomView), findsOne);
+
+    //expect the message to have deleted
+    expect(find.text('hello world!'), findsNothing);
+
+    
+
+  });
+
 
 }

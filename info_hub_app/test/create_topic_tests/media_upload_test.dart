@@ -3,7 +3,7 @@ import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:info_hub_app/main.dart';
-import 'package:info_hub_app/topics/create_topic.dart';
+import 'package:info_hub_app/topics/create_topic/view/topic_creation_view.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:chewie/chewie.dart';
 import 'package:video_player_platform_interface/video_player_platform_interface.dart';
@@ -12,6 +12,7 @@ import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import '../mock_classes.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:info_hub_app/topics/create_topic/model/topic_model.dart';
 
 void main() async {
   late MockFirebaseAuth auth;
@@ -74,7 +75,7 @@ void main() async {
     });
 
     basicWidget = MaterialApp(
-      home: CreateTopicScreen(
+      home: TopicCreationView(
         firestore: firestore,
         storage: mockStorage,
         auth: auth,
@@ -112,7 +113,7 @@ void main() async {
     }
 
     expect(find.byType(Chewie), findsOneWidget);
-
+    await tester.ensureVisible(find.text('PUBLISH TOPIC'));
     await tester.tap(find.text('PUBLISH TOPIC'));
     await tester.pumpAndSettle();
 
@@ -152,7 +153,7 @@ void main() async {
     }
 
     expect(find.byType(Image), findsOneWidget);
-
+    await tester.ensureVisible(find.text('PUBLISH TOPIC'));
     await tester.tap(find.text('PUBLISH TOPIC'));
     await tester.pumpAndSettle();
 
@@ -163,37 +164,35 @@ void main() async {
 
   testWidgets('edited topic with valid fields updates',
       (WidgetTester tester) async {
-    CollectionReference topicCollectionRef;
-    QuerySnapshot data;
-
-    topicCollectionRef = firestore.collection('topics');
     await defineUserAndStorage(tester);
 
-    await topicCollectionRef.add({
-      'title': 'Test Topic',
-      'description': 'Test Description',
-      'articleLink': '',
-      'media': [
+    Topic topic = Topic(
+      title: 'Test Topic',
+      description: 'Test Description',
+      articleLink: '',
+      media: [
         {
           'url':
               'https://fastly.picsum.photos/id/629/200/300.jpg?hmac=YTSnJIQbXgJTOWUeXAqVeQYHZDodXXFFJxd5RTKs7yU',
           'mediaType': 'image'
         }
       ],
-      'tags': ['Patient'],
-      'likes': 0,
-      'views': 0,
-      'dislikes': 0,
-      'categories': ['Sports'],
-      'date': DateTime.now(),
-      'quizID': '1'
-    });
+      tags: ['Patient'],
+      likes: 0,
+      views: 0,
+      dislikes: 0,
+      categories: ['Sports'],
+      date: DateTime.now(),
+      quizID: '1',
+    );
+    CollectionReference topicCollectionRef = firestore.collection('topics');
 
-    data = await topicCollectionRef.orderBy('title').get();
+    DocumentReference topicRef = await topicCollectionRef.add(topic.toJson());
+    topic.id = topicRef.id;
 
     await tester.pumpWidget(MaterialApp(
-      home: CreateTopicScreen(
-        topic: data.docs[0] as QueryDocumentSnapshot<Object>,
+      home: TopicCreationView(
+        topic: topic,
         auth: auth,
         firestore: firestore,
         storage: mockStorage,

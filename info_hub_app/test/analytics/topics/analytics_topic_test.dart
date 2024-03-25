@@ -1,4 +1,5 @@
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
+import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -8,19 +9,34 @@ import 'package:intl/intl.dart';
 
 void main() {
   late FakeFirebaseFirestore firestore;
+  late MockFirebaseAuth auth;
   late MockFirebaseStorage storage;
   late Widget analyticsTopicPageWidget;
 
-  setUp(() {
+  setUp(() async {
+    auth = MockFirebaseAuth();
     firestore = FakeFirebaseFirestore();
     storage = MockFirebaseStorage();
+
+    await auth.createUserWithEmailAndPassword(
+        email: 'test@tested.org', password: 'Password123!');
+    String uid = auth.currentUser!.uid;
+    await firestore.collection('Users').doc(uid).set({
+      'email': 'test@tested.org',
+      'firstName': 'James',
+      'lastName': 'Doe',
+      'roleType': 'admin'
+    });
+
     CollectionReference topicCollectionRef = firestore.collection('topics');
     // Add mock topics to the collection
     topicCollectionRef.add({
       'title': 'topic with most views',
       'description': 'this is a test',
       'articleLink': '',
-      'videoUrl': '',
+      'media': [],
+      'categories': [],
+      'tags': [],
       'views': 100,
       'date': DateTime.now(),
       'likes': 20,
@@ -30,7 +46,9 @@ void main() {
       'title': 'topic with least views',
       'description': 'this is a test',
       'articleLink': '',
-      'videoUrl': '',
+      'media': [],
+      'categories': [],
+      'tags': [],
       'views': 0,
       'date': DateTime.now(),
       'likes': 0,
@@ -40,7 +58,9 @@ void main() {
       'title': 'topic with most likes',
       'description': 'this is a test',
       'articleLink': '',
-      'videoUrl': '',
+      'media': [],
+      'categories': [],
+      'tags': [],
       'views': 5,
       'date': DateTime.now(),
       'likes': 100,
@@ -50,7 +70,9 @@ void main() {
       'title': 'topic with most dislikes',
       'description': 'this is a test',
       'articleLink': '',
-      'videoUrl': '',
+      'media': [],
+      'categories': [],
+      'tags': [],
       'views': 20,
       'date': DateTime.now(),
       'likes': 15,
@@ -60,7 +82,9 @@ void main() {
       'title': 'alphabetically first topic',
       'description': 'this is a test',
       'articleLink': '',
-      'videoUrl': '',
+      'media': [],
+      'categories': [],
+      'tags': [],
       'views': 15,
       'date': DateTime.now(),
       'likes': 10,
@@ -70,7 +94,9 @@ void main() {
       'title': 'z topic',
       'description': 'this is a test',
       'articleLink': '',
-      'videoUrl': '',
+      'media': [],
+      'categories': [],
+      'tags': [],
       'views': 8,
       'date': DateTime.now(),
       'likes': 5,
@@ -79,7 +105,7 @@ void main() {
 
     // Create the widget
     analyticsTopicPageWidget = MaterialApp(
-      home: AnalyticsTopicView(storage: storage, firestore: firestore),
+      home: AnalyticsTopicView(auth: auth, storage: storage, firestore: firestore),
     );
   });
 

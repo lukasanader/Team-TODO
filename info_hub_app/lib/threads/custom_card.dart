@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:info_hub_app/controller/activity_controller.dart';
 import 'package:intl/intl.dart';
 import 'package:info_hub_app/threads/thread_replies.dart';
 import 'package:flutter/cupertino.dart';
@@ -134,7 +135,7 @@ class _CustomCardState extends State<CustomCard> {
                         }
 
                         await batch.commit();
-
+                        await ActivityController(firestore: widget.firestore,auth: widget.auth).deleteActivity(docId);
                         await widget.firestore
                             .collection("thread")
                             .doc(docId)

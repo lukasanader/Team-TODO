@@ -3,7 +3,8 @@ import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:info_hub_app/main.dart';
-import 'package:info_hub_app/topics/create_topic.dart';
+import 'package:info_hub_app/topics/create_topic/model/topic_model.dart';
+import 'package:info_hub_app/topics/create_topic/view/topic_creation_view.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 
@@ -38,7 +39,7 @@ void main() async {
     });
 
     basicWidget = MaterialApp(
-      home: CreateTopicScreen(
+      home: TopicCreationView(
         firestore: firestore,
         storage: mockStorage,
         auth: auth,
@@ -59,7 +60,7 @@ void main() async {
     expect(tester.testTextInput.isVisible, true);
     final outsideGestureDetectorFinder = find.descendant(
       of: find.byType(
-          CreateTopicScreen), // Change this to the appropriate type of your widget
+          TopicCreationView), // Change this to the appropriate type of your widget
       matching: find.byType(GestureDetector),
     );
     await tester.tap(outsideGestureDetectorFinder.first);
@@ -165,7 +166,7 @@ void main() async {
     }
     await tester.pumpAndSettle();
     await tester.tap(find.text('Smoking'));
-
+    await tester.ensureVisible(find.text('PUBLISH TOPIC'));
     await tester.tap(find.text('PUBLISH TOPIC'));
 
     await tester.pumpAndSettle();
@@ -261,6 +262,65 @@ void main() async {
     expect(find.text('Gym'), findsNothing);
   });
 
+  testWidgets('Deleting category removes category from existing topics', (WidgetTester tester) async {
+    await defineUserAndStorage(tester);
+
+    await firestore.collection('categories').add({'name': 'Testing category'});
+
+    Topic topic = Topic(
+        title: 'Test Topic',
+        description: 'Test Description',
+        articleLink: '',
+        media: [
+          {
+            'url':
+                'https://firebasestorage.googleapis.com/v0/b/team-todo-38f76.appspot.com/o/videos%2F2024-02-27%2022%3A09%3A02.035911.mp4?alt=media&token=ea6b51e9-9e9f-4d2e-a014-64fc3631e321',
+            'mediaType': 'video'
+          },
+        ],
+        likes: 0,
+        tags: ['Patient'],
+        views: 0,
+        dislikes: 0,
+        categories: ['Testing category'],
+        date: DateTime.now(),
+        quizID: '');
+
+    DocumentReference topicRef = await firestore
+      .collection('topics')
+      .add(topic.toJson());
+
+    topic.id = topicRef.id;
+
+
+
+    await tester.pumpWidget(basicWidget!);
+    await fillRequiredFields(tester);
+
+    await tester.ensureVisible(find.text('Testing category'));
+    expect(find.text('Testing category'), findsOne);
+
+    //steps to remove Testing category
+    await tester.tap(find.byIcon(Icons.close));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Testing category').last);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Testing category'), findsNothing);
+
+    //verifies that the topic no longer contains the category Testing category
+    DocumentSnapshot topicSnapshot = await firestore.collection('topics').doc(topic.id).get();
+    expect(topicSnapshot['categories'], isEmpty);
+
+
+
+  });
+
+
   testWidgets('Topic with no title does not save', (WidgetTester tester) async {
     await defineUserAndStorage(tester);
     await tester.pumpWidget(basicWidget!);
@@ -294,7 +354,7 @@ void main() async {
     await tester.pumpWidget(basicWidget!);
 
     await tester.enterText(find.byKey(const Key('titleField')), 'Test title');
-
+    await tester.ensureVisible(find.text('PUBLISH TOPIC'));
     await tester.tap(find.text('PUBLISH TOPIC'));
 
     await tester.pumpAndSettle();
@@ -313,7 +373,7 @@ void main() async {
     await tester.pumpWidget(basicWidget!);
 
     await tester.enterText(find.byKey(const Key('titleField')), 'Test title');
-
+    await tester.ensureVisible(find.text('PUBLISH TOPIC'));
     await tester.tap(find.text('PUBLISH TOPIC'));
 
     await tester.enterText(
@@ -337,6 +397,7 @@ void main() async {
     await fillRequiredFields(tester);
 
     await tester.enterText(find.byKey(const Key('linkField')), 'invalidLink');
+    await tester.ensureVisible(find.text('PUBLISH TOPIC'));
 
     await tester.tap(find.text('PUBLISH TOPIC'));
 
@@ -355,7 +416,7 @@ void main() async {
     await fillRequiredFields(tester);
     await tester.enterText(find.byKey(const Key('linkField')),
         'https://pub.dev/packages?q=cloud_firestore_mocks');
-
+    await tester.ensureVisible(find.text('PUBLISH TOPIC'));
     await tester.tap(find.text('PUBLISH TOPIC'));
     await tester.pumpAndSettle();
     final QuerySnapshot<Map<String, dynamic>> querySnapshot =

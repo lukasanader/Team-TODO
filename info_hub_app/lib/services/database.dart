@@ -5,11 +5,12 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:info_hub_app/main.dart';
-import 'package:info_hub_app/notifications/notification.dart' as custom;
+import 'package:info_hub_app/notifications/notification_model.dart' as custom;
 import 'package:info_hub_app/push_notifications/push_notifications.dart';
-import 'package:info_hub_app/registration/user_model.dart';
-import 'package:info_hub_app/notifications/preferences.dart';
+import 'package:info_hub_app/model/user_model.dart';
+import 'package:info_hub_app/notifications/preferences_model.dart';
 import 'package:http/http.dart' as http;
+import 'package:info_hub_app/topics/create_topic/model/topic_model.dart';
 
 class DatabaseService {
   final FirebaseAuth auth;
@@ -20,7 +21,7 @@ class DatabaseService {
       {required this.auth, required this.uid, required this.firestore});
 
   Future<String> createNotification(
-      String title, String body, DateTime timestamp) async {
+      String title, String body, DateTime timestamp, String route) async {
     CollectionReference notificationsCollection =
         firestore.collection('notifications');
     var docRef = await notificationsCollection.add({
@@ -28,6 +29,7 @@ class DatabaseService {
       'title': title,
       'body': body,
       'timestamp': timestamp,
+      'route': route,
     });
 
     // Send push notification to all device tokens
@@ -50,7 +52,7 @@ class DatabaseService {
               auth: auth,
               firestore: firestore,
               messaging: FirebaseMessaging.instance,
-              navigatorKey: navigatorKey,
+              nav: navigatorKey,
               http: client,
               localnotificationsplugin: plugin)
           .sendNotificationToDevice(token, title, body);
@@ -86,6 +88,7 @@ class DatabaseService {
         title: doc.get('title') ?? '',
         body: doc.get('body') ?? '',
         timestamp: doc.get('timestamp').toDate() ?? DateTime.now(),
+        route: doc.get('route') ?? '',
       );
     }).toList();
 
@@ -134,26 +137,9 @@ class DatabaseService {
     });
   }
 
-  List<UserModel> userListFromSnapshot(QuerySnapshot snapshot) {
-    return snapshot.docs.map((doc) {
-      return UserModel(
-        uid: doc.id,
-        firstName: doc.get('firstName') ?? '',
-        lastName: doc.get('lastName') ?? '',
-        email: doc.get('email') ?? '',
-        roleType: doc.get('roleType') ?? '',
-        likedTopics: doc.get('likedTopics') ?? [],
-        dislikedTopics: doc.get('dislikedTopics') ?? [],
-        hasOptedOutOfExperienceExpectations:
-            doc.get('hasOptedOutOfExperienceExpectations') ?? false,
-      );
-    }).toList();
-  }
 
-  Stream<List<UserModel>> get users {
-    CollectionReference usersCollectionRef = firestore.collection('Users');
-    return usersCollectionRef.snapshots().map(userListFromSnapshot);
-  }
+
+
 
   Future<void> createPreferences() async {
     CollectionReference prefCollection = firestore.collection('preferences');
@@ -195,60 +181,4 @@ class DatabaseService {
     return preferences;
   }
 
-    Future addTopicActivity(QueryDocumentSnapshot topic) async{
-    QuerySnapshot data = await firestore.collection('activity').where('aid', isEqualTo: topic.id).where('uid', isEqualTo: uid).get();
-    if(data.docs.isEmpty){
-      CollectionReference activityCollectionRef = firestore.collection('activity');
-      await activityCollectionRef.add({
-        'uid': uid,
-        'aid': topic.id,
-        'type': 'topics',
-        'date': DateTime.now()
-      });
-    }
-  }
-  Future addThreadActivity(String threadId) async{
-    QuerySnapshot data = await firestore.collection('activity').where('aid', isEqualTo: threadId).where('uid', isEqualTo: uid).get();
-    if(data.docs.isEmpty){
-      CollectionReference activityCollectionRef = firestore.collection('activity');
-      await activityCollectionRef.add({
-        'uid': uid,
-        'aid': threadId,
-        'type': 'thread',
-        'date': DateTime.now()
-      });
-    }
-  }
-  
-  Future<List<dynamic>> getActivityList(String activity) async {
-  QuerySnapshot data = await firestore.collection('activity').where('type', isEqualTo: activity).where('uid', isEqualTo: uid).get();
-  List<dynamic> activities = List.from(data.docs);
-  List<dynamic> userActivity = [];
-
-  for (int index = 0; index < activities.length; index++) {
-    String activityID = activities[index]['aid'];
-    DocumentSnapshot snapshot = await firestore.collection(activity).doc(activityID).get();
-    Map<String, dynamic> temp = snapshot.data() as Map<String, dynamic>;
-    temp['viewDate'] = activities[index]['date'];
-    userActivity.add(temp);
-  }
-  return userActivity;
 }
-
-Future<List<dynamic>> getLikedTopics() async {
-  DocumentSnapshot snapshot = await firestore.collection('Users').doc(uid).get();
-    Map<String, dynamic> temp = snapshot.data() as Map<String, dynamic>;
-    List<dynamic> userTopics = temp['likedTopics'];
-    (userTopics);
-    
-    List<dynamic> likedTopics =[];
-    for(int index = 0; index < userTopics.length; index++){
-      DocumentSnapshot doc = await firestore.collection('topics').doc(userTopics[index]).get();
-      Map<String, dynamic> temp = doc.data() as Map<String, dynamic>;
-      likedTopics.add(temp);
-    } 
-    return likedTopics;
-}
-
-}
-

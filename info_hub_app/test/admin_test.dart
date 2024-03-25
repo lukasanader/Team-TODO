@@ -11,9 +11,10 @@ import 'package:info_hub_app/main.dart';
 import 'package:info_hub_app/message_feature/admin_message_view.dart';
 
 import 'package:info_hub_app/patient_experience/admin_experience_view.dart';
-import 'package:info_hub_app/topics/create_topic.dart';
+import 'package:info_hub_app/topics/create_topic/view/topic_creation_view.dart';
 import 'package:info_hub_app/ask_question/question_view.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
+import 'package:info_hub_app/webinar/views/admin-webinar-screens/admin_webinar_dashboard.dart';
 
 void main() {
   late FirebaseFirestore firestore = FakeFirebaseFirestore();
@@ -34,17 +35,36 @@ void main() {
     );
   });
 
+  testWidgets('Add/view webinar test', (WidgetTester tester) async {
+    await auth.createUserWithEmailAndPassword(
+        email: 'admin@gmail.com', password: 'Admin123!');
+    String uid = auth.currentUser!.uid;
+    await firestore.collection('Users').doc(uid).set({
+      'email': 'admin@gmail.com',
+      'firstName': 'John',
+      'lastName': 'Doe',
+      'roleType': 'admin',
+      'likedTopics': [],
+      'dislikedTopics': [],
+    });
+    await tester.pumpWidget(adminWidget);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Manage Webinar'));
+    await tester.pumpAndSettle();
+    expect(find.byType(WebinarDashboard), findsOneWidget);
+  });
+
   testWidgets('Test create topic button', (WidgetTester tester) async {
     await tester.pumpWidget(adminWidget);
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Create Topic'));
+    await tester.tap(find.text('Add Topic'));
     await tester.pumpAndSettle();
-    expect(find.byType(CreateTopicScreen), findsOneWidget);
+    expect(find.byType(TopicCreationView), findsOneWidget);
   });
 
   testWidgets('Test view questions button', (WidgetTester tester) async {
     await tester.pumpWidget(adminWidget);
-    await tester.tap(find.text('View Questions'));
+    await tester.tap(find.text('Topic Questions'));
     await tester.pumpAndSettle();
     expect(find.byType(ViewQuestionPage), findsOneWidget);
     //test back arrow
@@ -55,21 +75,21 @@ void main() {
 
   testWidgets('Test view thread button', (WidgetTester tester) async {
     await tester.pumpWidget(adminWidget);
-    await tester.tap(find.text('View Thread'));
+    await tester.tap(find.text('Threads'));
     await tester.pumpAndSettle();
-    //expect(find.byType(CreateTopicScreen), findsOneWidget);
+    //expect(find.byType(TopicCreationView), findsOneWidget);
   });
 
   testWidgets('Test view experiences button', (WidgetTester tester) async {
     await tester.pumpWidget(adminWidget);
-    await tester.tap(find.text('View Experiences'));
+    await tester.tap(find.text('Experiences'));
     await tester.pumpAndSettle();
     expect(find.byType(AdminExperienceView), findsOneWidget);
   });
 
   testWidgets('Test view analytics button', (WidgetTester tester) async {
     await tester.pumpWidget(adminWidget);
-    await tester.tap(find.text('View Analytics'));
+    await tester.tap(find.text('Analytics'));
     await tester.pumpAndSettle();
     expect(find.byType(AnalyticsBase), findsOneWidget);
   });
@@ -86,7 +106,7 @@ void main() {
     });
 
     await tester.pumpWidget(adminWidget);
-    await tester.tap(find.text('Message Users'));
+    await tester.tap(find.text('Message User'));
     await tester.pumpAndSettle();
     expect(find.byType(MessageView), findsOneWidget);
   });
@@ -119,6 +139,7 @@ void main() {
     expect(tester.widget<Text>(textFinder).data, 'test@nhs.com');
     //Select user
     await tester.tap(textFinder.first);
+    await tester.pumpAndSettle();
     //Tap the submit button
     await tester.tap(find.text('OK'));
     await tester.pumpAndSettle();

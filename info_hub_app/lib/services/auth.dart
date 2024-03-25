@@ -6,7 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:info_hub_app/push_notifications/push_notifications.dart';
-import 'package:info_hub_app/registration/user_model.dart';
+import 'package:info_hub_app/model/user_model.dart';
 import 'package:info_hub_app/services/database.dart';
 import 'package:info_hub_app/notifications/manage_notifications.dart';
 
@@ -42,11 +42,7 @@ class AuthService {
         dislikedTopics: dislikedTopics,
         hasOptedOutOfExperienceExpectations: false);
   }
-
-  Stream<User?> get user {
-    return auth.authStateChanges();
-  }
-
+  
   // register user
   Future registerUser(
     String firstName,
@@ -88,9 +84,6 @@ class AuthService {
             likedTopics, dislikedTopics, hasOptedOutOfExperienceExpectations);
       }
     } catch (e) {
-      if (kDebugMode) {
-        print(e.toString());
-      }
       return null;
     }
   }
@@ -110,9 +103,6 @@ class AuthService {
         return user;
       }
     } catch (e) {
-      if (kDebugMode) {
-        print(e.toString());
-      }
       return null;
     }
   }

@@ -1,79 +1,100 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:english_words/english_words.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:info_hub_app/model/model.dart'; // Import your model class
+import 'package:info_hub_app/model/model.dart';
 
 class TopicQuestionController {
-  FirebaseFirestore firestore;
-  FirebaseAuth auth;
-  TopicQuestionController({required this.firestore,required this.auth});
+  final FirebaseFirestore firestore;
+  final FirebaseAuth auth;
 
+  TopicQuestionController({
+    required this.firestore,
+    required this.auth,
+  });
+
+  // Handle a new question by creating a TopicQuestion object and adding it to Firestore
   void handleQuestion(String questionText) {
-    // Create a new TopicQuestion object based on the user input
-    TopicQuestion question = TopicQuestion(
-      id: '', 
-      uid: auth.currentUser!.uid, 
+    final TopicQuestion question = TopicQuestion(
+      id: '',
+      uid: auth.currentUser!.uid,
       question: questionText,
-      date: DateTime.now().toString(), 
+      date: DateTime.now().toString(),
     );
 
-    // Add the question to Firestore
     addQuestion(question);
   }
 
+  // Add a TopicQuestion to the 'questions' collection in Firestore
+  Future<void> addQuestion(TopicQuestion question) async {
+    await firestore.collection('questions').add({
+      'uid': question.uid,
+      'question': question.question,
+      'date': question.date,
+    });
+  }
 
-    Future<void> addQuestion(TopicQuestion question) async{
-      await firestore.collection('questions').add({
-                      'uid': question.uid,
-                      'question': question.question,
-                      'date': question.date,
-                    });
-    }
-
-    Future<List<TopicQuestion>> getQuestionList() async {
-    QuerySnapshot snapshot = await firestore.collection('questions').orderBy('question').get();
-    List<TopicQuestion> questions = snapshot.docs.map((doc) => TopicQuestion.fromSnapshot(doc)).toList();
+  // Get a list of all TopicQuestions ordered by question text
+  Future<List<TopicQuestion>> getQuestionList() async {
+    final QuerySnapshot snapshot =
+        await firestore.collection('questions').orderBy('question').get();
+    final List<TopicQuestion> questions =
+        snapshot.docs.map((doc) => TopicQuestion.fromSnapshot(doc)).toList();
     return questions;
-  } 
+  }
 
-  Future<List<TopicQuestion>> getRelevantQuestions(String title) async{
-    QuerySnapshot data = await firestore.collection('questions').get();
-    List<dynamic> questionList=List.from(data.docs);
-    List<String> keywords =[];
-    List<String> titleWords = title.split(' ');
-    for(int index=0; index<titleWords.length; index++){
-      if(nouns.contains(titleWords[index])){
-        keywords.add(titleWords[index]);
+  // Get a list of TopicQuestions relevant to the given title
+  Future<List<TopicQuestion>> getRelevantQuestions(String title) async {
+    final String cleanedTitle =
+        title.replaceAll("?", "").replaceAll(".", "").toLowerCase();
+    final QuerySnapshot data = await firestore.collection('questions').get();
+    final List<dynamic> questionList = List.from(data.docs);
+    final List<String> keywords = [];
+    final List<String> titleWords = cleanedTitle.split(' ');
+
+    for (final word in titleWords) {
+      if (nouns.contains(word)) {
+        keywords.add(word);
       }
     }
-    List<dynamic> tempQuestions =[];
-    for(int i=0; i<questionList.length; i++){
-      List<String> questionWords = questionList[i]['question'].split(' ');
-      for(int j=0; j<questionWords.length; j++){
-        if(keywords.contains(questionWords[j])){
-          tempQuestions.add(questionList[i]);
+
+    final List<dynamic> tempQuestions = [];
+    for (final question in questionList) {
+      final List<String> questionWords = question['question']
+          .replaceAll("?", "")
+          .replaceAll(".", "")
+          .toLowerCase()
+          .split(' ');
+
+      for (final word in questionWords) {
+        if (keywords.contains(word)) {
+          tempQuestions.add(question);
+          break;
         }
       }
     }
-    List<TopicQuestion> questions = tempQuestions.map((doc) => TopicQuestion.fromSnapshot(doc)).toList();
+
+    final List<TopicQuestion> questions =
+        tempQuestions.map((doc) => TopicQuestion.fromSnapshot(doc)).toList();
     return questions;
-    
   }
 
+  // Delete all TopicQuestions from the 'questions' collection
   Future<void> deleteAllQuestions(List<TopicQuestion> questions) async {
-    for(int i=0; i< questions.length; i++){
-      await firestore.collection('questions').doc(questions[i].id).delete();
+    for (final question in questions) {
+      await firestore.collection('questions').doc(question.id).delete();
     }
   }
-  
-  Future deleteQuestion(TopicQuestion question) async {
-     CollectionReference questionCollectionRef = firestore.collection('questions');
-     await questionCollectionRef.doc(question.id).delete();
+
+  // Delete a single TopicQuestion from the 'questions' collection
+  Future<void> deleteQuestion(TopicQuestion question) async {
+    final CollectionReference questionCollectionRef =
+        firestore.collection('questions');
+    await questionCollectionRef.doc(question.id).delete();
   }
 
-  String calculateDaysAgo(String questionDate){
-    DateTime date =DateTime.parse(questionDate);
+  // Calculate the number of days ago a question was asked
+  String calculateDaysAgo(String questionDate) {
+    final DateTime date = DateTime.parse(questionDate);
     return DateTime.now().difference(date).inDays.toString();
   }
-  
-  }
+}

@@ -1,13 +1,18 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:info_hub_app/model/model.dart';
+import 'package:info_hub_app/discovery_view/discovery_view_dialogs.dart';
 import 'package:info_hub_app/helpers/helper_widgets.dart';
-import 'package:info_hub_app/registration/user_controller.dart';
-import 'package:info_hub_app/topics/topics_card.dart';
+import 'package:info_hub_app/controller/user_controller.dart';
+import 'package:info_hub_app/topics/create_topic/controllers/topic_controller.dart';
+import 'package:info_hub_app/topics/create_topic/helpers/categories/category_controller.dart';
+import 'package:info_hub_app/topics/create_topic/helpers/categories/category_model.dart';
+
+import 'package:info_hub_app/topics/view_topic/helpers/topics_card.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
-import '../controller/topic_question_controller.dart';
+import 'package:info_hub_app/topics/create_topic/model/topic_model.dart';
 
 class DiscoveryView extends StatefulWidget {
   final FirebaseFirestore firestore;
@@ -19,32 +24,34 @@ class DiscoveryView extends StatefulWidget {
       required this.auth,
       required this.storage,
       required this.firestore});
+
   @override
-  _DiscoveryViewState createState() => _DiscoveryViewState();
+  State<DiscoveryView> createState() => _DiscoveryViewState();
 }
 
 class _DiscoveryViewState extends State<DiscoveryView> {
-  final TextEditingController _questionController = TextEditingController();
   final TextEditingController _searchController = TextEditingController();
-  List<Object> _topicsList = [];
-  int topicLength = 0;
+  List<Topic> _topicsList = [];
+  List<Topic> _displayedTopicsList = [];
 
   late List<bool> isSelected = [];
   List<Widget> _categoriesWidget = [];
   List<String> _categories = [];
   List<String> categoriesSelected = [];
 
-  List<Object> _displayedTopicsList = [];
+  late StreamSubscription<QuerySnapshot<Object?>> _topicsSubscription;
 
   @override
   void initState() {
     super.initState();
-    getCategoryList();
-    getAllTopicsList().then((_) {
-      setState(() {
-        _displayedTopicsList = _topicsList;
-      });
-    });
+    initializeData();
+    widget.firestore.collection('categories').snapshots().listen(_updateCategoryList);
+  }
+
+  @override
+  void dispose() {
+    _topicsSubscription.cancel();
+    super.dispose();
   }
 
   @override
@@ -133,8 +140,7 @@ class _DiscoveryViewState extends State<DiscoveryView> {
                               widget.firestore,
                               widget.auth,
                               widget.storage,
-                              _displayedTopicsList[topicIndex]
-                                  as QueryDocumentSnapshot<Object>,
+                              _displayedTopicsList[topicIndex],
                             );
                           }
                         }
@@ -148,7 +154,7 @@ class _DiscoveryViewState extends State<DiscoveryView> {
           ),
           ElevatedButton(
             onPressed: () {
-              addQuestionDialog();
+              addQuestionDialog(context, widget.firestore, widget.auth);
             },
             child: const Text("Ask a question!"),
           ),
@@ -158,116 +164,40 @@ class _DiscoveryViewState extends State<DiscoveryView> {
     );
   }
 
-  Future<void> addQuestionDialog() async {
-    // Show dialog to get user input
-    await showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Ask a question'),
-          content: TextField(
-            controller: _questionController,
-            decoration: const InputDecoration(
-              labelText: 'Enter your question...',
-            ),
-          ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                // Get the entered question text
-                String questionText = _questionController.text.trim();
 
-                // Validate question text
-                if (questionText.isNotEmpty) {
-                  TopicQuestionController(
-                          firestore: widget.firestore, auth: widget.auth)
-                      .handleQuestion(questionText);
-                  // Clear the text field
-                  _questionController.clear();
-                  // Close the dialog
-                  Navigator.of(context).pop();
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return AlertDialog(
-                        title: const Text('Message'),
-                        content: const Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.check_circle,
-                              color: Colors.green,
-                              size: 50,
-                            ),
-                            SizedBox(height: 10),
-                            Text(
-                              'Thank you!',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            SizedBox(height: 10),
-                            Text(
-                              'Your question has been submitted.\n'
-                              'An admin will get back to you shortly.',
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
-                        ),
-                        actions: <Widget>[
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                            child: const Text('OK'),
-                          ),
-                        ],
-                      );
-                    },
-                  );
+  Future<void> initializeData() async {
+    getCategoryList();
+    await getAllTopicsList().then((_) {
+      setState(() {
+        _displayedTopicsList = _topicsList;
+      });
+    });
 
-                  // Show success message
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Question submitted successfully!'),
-                    ),
-                  );
-                } else {
-                  // Show error message if question is empty
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Please enter a question.'),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
-                }
-              },
-              child: const Text('Submit'),
-            ),
-          ],
-        );
-      },
-    );
+    String role =
+        await UserController(widget.auth, widget.firestore).getUserRoleType();
+    Query<Object?> topicsQuery;
+
+    if (role == 'admin') {
+      topicsQuery = widget.firestore.collection('topics').orderBy('title');
+    } else {
+      topicsQuery = widget.firestore
+          .collection('topics')
+          .where('tags', arrayContains: role)
+          .orderBy('title');
+    }
+
+    _topicsSubscription = topicsQuery.snapshots().listen(_updateTopicsList);
   }
 
   void _searchData(String query) {
     updateTopicListBasedOnCategory(categoriesSelected);
 
     if (query.isNotEmpty) {
-      List<QueryDocumentSnapshot<Object?>> tempList = [];
-
+      List<Topic> tempList = [];
       for (int i = 0; i < _displayedTopicsList.length; i++) {
-        QueryDocumentSnapshot topic =
-            _displayedTopicsList[i] as QueryDocumentSnapshot<Object?>;
-        if (topic['title'] != null) {
-          String title = topic['title'].toString().toLowerCase();
+        Topic topic = _displayedTopicsList[i];
+        if (topic.title != null) {
+          String title = topic.title.toString().toLowerCase();
           if (title.contains(query.toLowerCase())) {
             tempList.add(topic);
           }
@@ -281,21 +211,8 @@ class _DiscoveryViewState extends State<DiscoveryView> {
   }
 
   Future getAllTopicsList() async {
-    String role =
-        await UserController(widget.auth, widget.firestore).getUserRoleType();
-    late QuerySnapshot data;
-
-    if (role == 'admin') {
-      data = await widget.firestore.collection('topics').orderBy('title').get();
-    } else {
-      data = await widget.firestore
-          .collection('topics')
-          .where('tags', arrayContains: role)
-          .orderBy('title')
-          .get();
-    }
-
-    List<Object> tempList = List.from(data.docs);
+    List<Topic> tempList = await TopicController(auth: widget.auth, firestore: widget.firestore)
+      .getTopicList();
 
     setState(() {
       _topicsList = tempList;
@@ -304,12 +221,10 @@ class _DiscoveryViewState extends State<DiscoveryView> {
 
   Future updateTopicListBasedOnCategory(List<String> categories) async {
     if (categories.isNotEmpty) {
-      List<Object> categoryTopicList = [];
-
-      for (dynamic topic in _topicsList) {
-        var data = topic.data();
-        if (data != null && data.containsKey('categories')) {
-          if (categories.every((item) => data['categories'].contains(item))) {
+      List<Topic> categoryTopicList = [];
+      for (var topic in _topicsList) {
+        if (topic.categories != null) {
+          if (categories.every((item) => topic.categories!.contains(item))) {
             categoryTopicList.add(topic);
           }
         }
@@ -326,16 +241,15 @@ class _DiscoveryViewState extends State<DiscoveryView> {
   }
 
   Future getCategoryList() async {
-    QuerySnapshot data =
-        await widget.firestore.collection('categories').orderBy('name').get();
-
-    List<Object> dataList = List.from(data.docs);
     List<String> tempStringList = [];
     List<Widget> tempWidgetList = [];
 
-    for (dynamic category in dataList) {
-      tempStringList.add(category['name']);
-      tempWidgetList.add(Text(category['name']));
+    List<Category> categories = await CategoryController(widget.firestore)
+      .getCategoryList();
+
+    for (Category category in categories) {
+      tempStringList.add(category.name!);
+      tempWidgetList.add(Text(category.name!));
     }
 
     setState(() {
@@ -344,4 +258,22 @@ class _DiscoveryViewState extends State<DiscoveryView> {
       isSelected = List<bool>.filled(_categoriesWidget.length, false);
     });
   }
+
+  void _updateTopicsList(QuerySnapshot<Object?> snapshot) {
+    final List<QueryDocumentSnapshot<Object?>> topics = snapshot.docs;
+    final List<Topic> topicList =
+        topics.map((doc) => Topic.fromSnapshot(doc)).toList();
+    setState(() {
+      _topicsList = topicList;
+      _displayedTopicsList = List.from(_topicsList);
+    });
+    updateTopicListBasedOnCategory(categoriesSelected);
+  }
+
+  void _updateCategoryList(QuerySnapshot<Map<String, dynamic>> snapshot) {
+    categoriesSelected = [];
+    getCategoryList();
+    updateTopicListBasedOnCategory(categoriesSelected);
+  }
+
 }

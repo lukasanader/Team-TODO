@@ -12,119 +12,83 @@ class WebinarService {
 
   WebinarService({required this.firestore, required this.storage});
     
-  Future<String> startLiveStream(String title,String url, Uint8List? image,String name, String startTime, String streamStatus) async {
+  Future<String> startLiveStream(String title, String url, Uint8List? image, String name, String startTime, String streamStatus, List<String> selectedTags) async {
     // assign random integer as document name
-    String collectionId = (Random().nextInt(4294967296) + 100000).toString();
-    try {
-      if (title.isNotEmpty && image != null) {
-        // check if any document already exists with the set url or with the random id
-        CollectionReference webinarRef = firestore.collection('Webinar');
-        bool idExists = await checkURLExists(webinarRef, collectionId);
-        bool webinarExists = await checkURLExists(webinarRef, url);
-        if (!webinarExists && !idExists) {
+    String webinarID = const Uuid().v1();
+    String result = ""; // Variable to store the result
 
-          String thumbnailUrl = await uploadImageToStorage('webinar-thumbnails', image, collectionId);
+    if (title.isNotEmpty && image != null) {
+      // check if any document already exists with the set url or with the random id
+      CollectionReference webinarRef = firestore.collection('Webinar');
+      bool webinarExists = await checkURLExists(webinarRef, url);
 
-          DocumentReference docRef = webinarRef.doc(collectionId);
+      if (!webinarExists) {
+        String thumbnailUrl = await uploadImageToStorage('webinar-thumbnails', image, webinarID);
+        DocumentReference docRef = webinarRef.doc(webinarID);
 
-          await docRef.set({
-            'id': collectionId,
-            'title': title,
-            'url': url,
-            'thumbnail': thumbnailUrl,
-            'webinarleadname' : name,
-            'startTime' : startTime,
-            'views': 0,
-            'dateStarted' : startTime,
-            'status': streamStatus,
-          });
+        await docRef.set({
+          'id': webinarID,
+          'title': title,
+          'url': url,
+          'thumbnail': thumbnailUrl,
+          'webinarleadname': name,
+          'startTime': startTime,
+          'views': 0,
+          'dateStarted': startTime,
+          'status': streamStatus,
+          'chatenabled' : true,
+          'selectedtags' : selectedTags,
+        });
 
-        } else {
-          return "";
-        }
-      } else {
-        return "";
+        result = webinarID; // Assign the collectionId to the result
       }
-    } catch (e) {
-      return "";
     }
-    return collectionId;
+    return result; // Return the result variable
   }
 
+  // Checks if admin is uploading an already existing URL
   Future<bool> checkURLExists(CollectionReference ref, String url) async {
-    try {
-      QuerySnapshot querySnapshot = await ref.where('url', isEqualTo: url).get();
-      // If there are documents in the query result, it means the uid already exists
-      return querySnapshot.docs.isNotEmpty;
-    } catch (e) {
-      // Handle any errors during the query
-      if (kDebugMode) {
-        print('Error checking uid existence: $e');
-      }
-      return false;
-    }
+    QuerySnapshot querySnapshot = await ref.where('url', isEqualTo: url).get();
+    // If there are documents in the query result, it means the uid already exists
+    return querySnapshot.docs.isNotEmpty;
   }
 
-  Future<bool> checkRandomNumberExists(CollectionReference ref, String id) async {
-    try {
-      DocumentSnapshot docSnapshot = await ref.doc(id).get();
-      // If there are documents in the query result, it means the uid already exists
-      return docSnapshot.exists;
-    } catch (e) {
-      // Handle any errors during the query
-      if (kDebugMode) {
-        print('Error checking document existence: $e');
-      }
-      return false;
-    }
-  }
-
+  // Uploads image to storage
   Future<String> uploadImageToStorage(String childName, Uint8List file, String uid) async {
-    // final tempDir = await getTemporaryDirectory();
-    // final tempFile = File('${tempDir.path}/temp_image.jpg');
-
-    // await tempFile.writeAsBytes(file);
-    
     Reference ref = storage.ref().child(childName).child(uid);
     UploadTask uploadTask = ref.putData(file);
-    
     TaskSnapshot snapshot = await uploadTask;
     String downloadUrl = await snapshot.ref.getDownloadURL();
-    // await tempFile.delete();
     return downloadUrl;
   }
 
+  // Increments or decrements live viewer count on a specific document
   Future<void> updateViewCount(String id, bool isIncrease) async {
-    try {
-      await firestore.collection('Webinar').doc(id).update({
-        'views': FieldValue.increment(isIncrease? 1: -1),
-      });
-    } catch (e) {
-      debugPrint(e.toString());
-    }
+    await firestore
+          .collection('Webinar')
+          .doc(id)
+          .update(
+            {'views': FieldValue.increment(isIncrease? 1: -1),}
+          );
   }
 
+  // Adds a comment into the chat feature
   Future<void> chat(String text, String id,String roleType,String userID) async {
-    try {
-      String commentId = const Uuid().v1();
-      await firestore.collection('Webinar')
-      .doc(id)
-      .collection('comments')
-      .doc(commentId)
-      .set({
-        'message' : text,
-        'createdAt' : DateTime.now(),
-        'commentId' : commentId,
-        'roleType' : roleType,
-        'uid' : userID,
-
-      });
-
-    } on FirebaseException catch(e) {
-      debugPrint(e.toString());
-    }
+    String commentId = const Uuid().v1();
+    await firestore.collection('Webinar')
+    .doc(id)
+    .collection('comments')
+    .doc(commentId)
+    .set({
+      'message' : text,
+      'createdAt' : DateTime.now(),
+      'commentId' : commentId,
+      'roleType' : roleType,
+      'uid' : userID,
+    });
   }
 
+  // Returns number of live webinars
   Future<String> getNumberOfLiveWebinars() async {
     QuerySnapshot snap = await firestore
       .collection('Webinar')
@@ -132,7 +96,8 @@ class WebinarService {
       .get();
     return snap.docs.length.toString();
   }
-
+  
+  // Returns number of upcoming webinars
   Future<String> getNumberOfUpcomingWebinars() async {
     QuerySnapshot snap = await firestore
       .collection('Webinar')
@@ -141,6 +106,7 @@ class WebinarService {
     return snap.docs.length.toString();
   }
 
+  // Returns number of currently live viewers
   Future<String> getNumberOfLiveViewers() async {
     int totalViews = 0;
     QuerySnapshot snap = await firestore
@@ -153,6 +119,7 @@ class WebinarService {
     return totalViews.toString();
   }
 
+  // Returns number of archived webinars
   Future<String> getNumberOfArchivedWebinars() async {
     QuerySnapshot snap = await firestore
       .collection('Webinar')
@@ -160,7 +127,8 @@ class WebinarService {
       .get();
     return snap.docs.length.toString();
   }
-
+  
+  // Alters webinar status from live to archived or upcoming to live
   Future<void> setWebinarStatus(String webinarID, String url, {bool changeToLive = false, changeToArchived = false}) async {
     Map<String, dynamic> dataToUpdate = {
       'url': url,
@@ -170,8 +138,29 @@ class WebinarService {
       dataToUpdate['status'] = "Live";
     } else if (changeToArchived) {
       dataToUpdate['status'] = "Archived";
+      dataToUpdate['chatenabled'] = false;
     }
-
     await firestore.collection('Webinar').doc(webinarID).update(dataToUpdate);
+  }
+
+  // Removes webinar document off the database
+  Future<void> deleteWebinar(String webinarID) async {
+    QuerySnapshot snap = await firestore
+      .collection('Webinar')
+      .doc(webinarID)
+      .collection('comments')
+      .get();
+    
+    for (int i = 0; i < snap.docs.length; i++) {
+      await firestore
+        .collection('Webinar')
+        .doc(webinarID)
+        .collection('comments')
+        .doc(
+          ((snap.docs[i].data()! as dynamic)['commentId']),
+        )
+        .delete();  
+    }
+    await firestore.collection('Webinar').doc(webinarID).delete();  
   }
 }

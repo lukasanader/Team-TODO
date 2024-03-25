@@ -1,22 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:info_hub_app/helpers/base.dart';
-import 'package:info_hub_app/theme/theme_manager.dart';
+import 'package:info_hub_app/welcome_message/welcome_message_controller.dart';
 
 class WelcomePage extends StatelessWidget {
-  final FirebaseFirestore firestore;
-  final FirebaseAuth auth;
-  final FirebaseStorage storage;
-  final ThemeManager themeManager;
+  final WelcomeMessageController controller;
 
   const WelcomePage({
     super.key,
-    required this.firestore,
-    required this.auth,
-    required this.storage,
-    required this.themeManager,
+    required this.controller,
   });
 
   @override
@@ -190,20 +180,72 @@ class WelcomePage extends StatelessWidget {
                   child: ExpansionTile(
                     title: const Text(
                       'FAQs',
+                      key: Key('faq_expansion_tile'),
                       style: TextStyle(
                         fontSize: 20,
                         color: Colors.black,
                       ),
                     ),
                     children: <Widget>[
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16.0, vertical: 8.0),
-                        child: Text(
-                          'FAQs information goes here.',
+                      ListTile(
+                        title: const Text(
+                          'What are the common symptoms of liver disease?',
                           style: TextStyle(
                             fontSize: 18,
-                            color: Colors.grey[800],
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                        subtitle: Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Text(
+                            'Common symptoms of liver disease include jaundice, abdominal pain and swelling, nausea, vomiting, fatigue, and dark urine. However, symptoms may vary depending on the specific liver condition and its severity.',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey[800],
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      ListTile(
+                        title: const Text(
+                          'How is liver disease diagnosed?',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                        subtitle: Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Text(
+                            'Liver disease is diagnosed through a combination of medical history, physical examination, blood tests, imaging studies (such as ultrasound or MRI), and sometimes liver biopsy. These tests help determine the cause, severity, and extent of liver damage.',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey[800],
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      ListTile(
+                        title: const Text(
+                          'What are some lifestyle changes recommended for managing liver disease?',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                                               subtitle: Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Text(
+                            "Lifestyle changes that may help manage liver disease include maintaining a healthy diet low in fat and processed foods, avoiding alcohol and tobacco, exercising regularly, managing stress, and following prescribed treatment plans. It's essential to consult healthcare professionals.",
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey[800],
+                            ),
                           ),
                         ),
                       ),
@@ -215,23 +257,7 @@ class WelcomePage extends StatelessWidget {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () async {
-                      String uid = auth.currentUser!.uid;
-                      DocumentSnapshot user =
-                          await firestore.collection('Users').doc(uid).get();
-                      String roleType = user['roleType'];
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => Base(
-                            auth: auth,
-                            storage: storage,
-                            firestore: firestore,
-                            themeManager: themeManager,
-                            roleType: roleType,
-                          ),
-                        ),
-                        (Route<dynamic> route) => false,
-                      );
+                      await controller.navigateToBase(context);
                     },
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.all(16.0),
@@ -258,3 +284,19 @@ class WelcomePage extends StatelessWidget {
     );
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
