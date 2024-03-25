@@ -149,7 +149,7 @@ void main() {
 
     await tester.tap(find.text('Reset'));
     await tester.pumpAndSettle();
-    expect(find.text('Your old score is 1/2'), findsOne);
+    expect(find.text('your old score is 1/2'), findsOne);
 
     await tester.tap(find.textContaining('An organ'));
     //answer incorrectly

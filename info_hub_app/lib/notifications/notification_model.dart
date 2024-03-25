@@ -5,6 +5,7 @@ class Notification {
   final String body;
   final DateTime timestamp;
   final String route;
+  bool deleted;
 
   Notification({
     required this.id,
@@ -13,5 +14,6 @@ class Notification {
     required this.body,
     required this.timestamp,
     required this.route,
+    required this.deleted,
   });
 }

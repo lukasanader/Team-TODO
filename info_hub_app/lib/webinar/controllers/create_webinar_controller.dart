@@ -49,6 +49,7 @@ class CreateWebinarController {
     return null;
   }
 
+  // Routes user to new screen
   Future<void> goLiveWebinar(BuildContext context,
     DateTime? time,
     FormState? state, 
@@ -100,6 +101,7 @@ class CreateWebinarController {
       }
   }
 
+  // Builds the dialog for how to setup a webinar
   Widget buildStep({required int stepNumber, required String stepDescription}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -117,5 +119,35 @@ class CreateWebinarController {
       ),
     );
   }
+
+  // Checks if any role has been selected for the webinar
+  bool isAnyRoleSelected(bool isPatientSelected, bool isParentSelected,bool isHealthcareProfessionalSelected) {
+    return isPatientSelected || isParentSelected || isHealthcareProfessionalSelected;
+  }
+
+  // Sets the adequate tags to be displayed
+  List<String> populateTags(bool isPatientSelected, bool isParentSelected,bool isHealthcareProfessionalSelected) {
+    List<String> selectedTags = [];
+    if (isPatientSelected) {
+      selectedTags.add('Patient');
+    }
+    if (isParentSelected) {
+      selectedTags.add('Parent');
+    }
+    if (isHealthcareProfessionalSelected) {
+      selectedTags.add('Healthcare Professional');
+    }
+    selectedTags.add('admin');
+    return selectedTags;
+  }
   
+  void showThumbnailAndRoleError(BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Please check if you have uploaded a thumbnail or selected a role.'),
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+
 }

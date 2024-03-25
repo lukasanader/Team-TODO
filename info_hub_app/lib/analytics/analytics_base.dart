@@ -3,6 +3,7 @@
  * This page contains a grid view of all the analytics pages.
  */
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/analytics/topics/analytics_topic.dart';
@@ -10,11 +11,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
 class AnalyticsBase extends StatefulWidget {
+  final FirebaseAuth auth;
   final FirebaseFirestore firestore;
   final FirebaseStorage storage;
 
   const AnalyticsBase(
-      {super.key, required this.firestore, required this.storage});
+      {super.key, required this.auth,required this.firestore, required this.storage});
 
   @override
   State<AnalyticsBase> createState() => _AnalyticsTopicView();
@@ -38,6 +40,7 @@ class _AnalyticsTopicView extends State<AnalyticsBase> {
                         CupertinoPageRoute(
                           builder: (BuildContext context) {
                             return AnalyticsTopicView(
+                              auth: widget.auth,
                               storage: widget.storage,
                               firestore: widget.firestore,
                             );

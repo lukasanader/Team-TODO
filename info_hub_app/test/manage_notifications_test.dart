@@ -4,8 +4,9 @@ import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:info_hub_app/notifications/preferences_model.dart';
-import 'package:info_hub_app/notifications/manage_notifications.dart';
+import 'package:info_hub_app/notifications/manage_notifications_model.dart';
+import 'package:info_hub_app/notifications/manage_notifications_view.dart';
+import 'package:info_hub_app/notifications/preferences_service.dart';
 import 'package:info_hub_app/services/database.dart';
 import 'package:provider/provider.dart';
 
@@ -22,14 +23,11 @@ Future<void> main() async {
   group('Manage Notifications Tests', () {
     late FakeFirebaseFirestore firestore;
     late MockFirebaseAuth auth;
-    late ManageNotifications manageNotifications;
-    late DatabaseService databaseService;
+    late PreferencesService preferencesService;
     setUp(() {
       firestore = FakeFirebaseFirestore();
       auth = MockFirebaseAuth(signedIn: true);
-      manageNotifications =
-          ManageNotifications(auth: auth, firestore: firestore);
-      databaseService = DatabaseService(
+      preferencesService = PreferencesService(
           auth: auth, uid: auth.currentUser!.uid, firestore: firestore);
     });
 
@@ -46,7 +44,7 @@ Future<void> main() async {
       await tester.pumpWidget(
         MaterialApp(
           home: StreamProvider<List<Preferences>>(
-            create: (_) => DatabaseService(
+            create: (_) => PreferencesService(
                     firestore: firestore,
                     auth: auth,
                     uid: auth.currentUser!.uid)
@@ -76,7 +74,7 @@ Future<void> main() async {
       await tester.pumpWidget(
         MaterialApp(
           home: StreamProvider<List<Preferences>>(
-            create: (_) => DatabaseService(
+            create: (_) => PreferencesService(
                     firestore: firestore,
                     auth: auth,
                     uid: auth.currentUser!.uid)
@@ -101,7 +99,7 @@ Future<void> main() async {
     });
 
     test('createPreferences adds preferences to Firestore', () async {
-      await databaseService.createPreferences();
+      await preferencesService.createPreferences();
       QuerySnapshot querySnapshot =
           await firestore.collection(PreferenceCollection).get();
 
@@ -119,21 +117,22 @@ Future<void> main() async {
           await firestore.collection(PreferenceCollection).get();
 
       List<Preferences> preferences =
-          databaseService.prefListFromSnapshot(querySnapshot);
+          preferencesService.prefListFromSnapshot(querySnapshot);
 
       expect(preferences.length, 1);
     });
 
     test('getPreferences returns list of preferences from Firestore', () async {
-      await databaseService.createPreferences();
-      List<Preferences> preferences = await databaseService.getPreferences();
+      await preferencesService.createPreferences();
+      List<Preferences> preferences = await preferencesService.getPreferences();
 
       expect(preferences.length, 1);
     });
 
     test('get preferences stream returns list of preferences', () async {
-      await databaseService.createPreferences();
-      Stream<List<Preferences>> preferencesStream = databaseService.preferences;
+      await preferencesService.createPreferences();
+      Stream<List<Preferences>> preferencesStream =
+          preferencesService.preferences;
 
       expect(preferencesStream, isA<Stream<List<Preferences>>>());
     });

@@ -3,10 +3,12 @@ import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:info_hub_app/main.dart';
+import 'package:info_hub_app/topics/create_topic/model/topic_model.dart';
 import 'package:info_hub_app/topics/create_topic/view/topic_creation_view.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 
+/// This test file is responsible for testing the create topic form submission
 void main() async {
   late MockFirebaseAuth auth;
   late FakeFirebaseFirestore firestore;
@@ -259,6 +261,60 @@ void main() async {
     await tester.pumpAndSettle();
 
     expect(find.text('Gym'), findsNothing);
+  });
+
+  testWidgets('Deleting category removes category from existing topics',
+      (WidgetTester tester) async {
+    await defineUserAndStorage(tester);
+
+    await firestore.collection('categories').add({'name': 'Testing category'});
+
+    Topic topic = Topic(
+        title: 'Test Topic',
+        description: 'Test Description',
+        articleLink: '',
+        media: [
+          {
+            'url':
+                'https://firebasestorage.googleapis.com/v0/b/team-todo-38f76.appspot.com/o/videos%2F2024-02-27%2022%3A09%3A02.035911.mp4?alt=media&token=ea6b51e9-9e9f-4d2e-a014-64fc3631e321',
+            'mediaType': 'video'
+          },
+        ],
+        likes: 0,
+        tags: ['Patient'],
+        views: 0,
+        dislikes: 0,
+        categories: ['Testing category'],
+        date: DateTime.now(),
+        quizID: '');
+
+    DocumentReference topicRef =
+        await firestore.collection('topics').add(topic.toJson());
+
+    topic.id = topicRef.id;
+
+    await tester.pumpWidget(basicWidget!);
+    await fillRequiredFields(tester);
+
+    await tester.ensureVisible(find.text('Testing category'));
+    expect(find.text('Testing category'), findsOne);
+
+    //steps to remove Testing category
+    await tester.tap(find.byIcon(Icons.close));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Testing category').last);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Testing category'), findsNothing);
+
+    //verifies that the topic no longer contains the category Testing category
+    DocumentSnapshot topicSnapshot =
+        await firestore.collection('topics').doc(topic.id).get();
+    expect(topicSnapshot['categories'], isEmpty);
   });
 
   testWidgets('Topic with no title does not save', (WidgetTester tester) async {

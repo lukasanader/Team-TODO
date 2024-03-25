@@ -21,7 +21,7 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
   late ExperienceController _experienceController;
   List<Experience> _verifiedExperienceList = [];
   List<Experience> _unverifiedExperienceList = [];
-  bool _isLoading = false;
+  final bool _isLoading = false;
 
   @override
   void initState() {
@@ -48,14 +48,11 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
           children: [
             const Text("Verified experiences"),
             FutureBuilder<List<Experience>>(
-              future: _experienceController.getVerifiedExperienceList(),
+              future: _experienceController.getAllExperienceListBasedOnVerification(true),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   // Return a loading indicator while data is being fetched
                   return CircularProgressIndicator();
-                } else if (snapshot.hasError) {
-                  // Handle error if data fetching fails
-                  return Text('Error: ${snapshot.error}');
                 } else {
                   // Data fetching is successful, update the UI with the fetched data
                   _verifiedExperienceList = snapshot.data ?? [];
@@ -66,14 +63,11 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
             const SizedBox(height: 30),
             const Text("Unverified experiences"),
             FutureBuilder<List<Experience>>(
-              future: _experienceController.getUnverifiedExperienceList(),
+              future: _experienceController.getAllExperienceListBasedOnVerification(false),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   // Return a loading indicator while data is being fetched
                   return CircularProgressIndicator();
-                } else if (snapshot.hasError) {
-                  // Handle error if data fetching fails
-                  return Text('Error: ${snapshot.error}');
                 } else {
                   // Data fetching is successful, update the UI with the fetched data
                   _unverifiedExperienceList = snapshot.data ?? [];
@@ -128,6 +122,14 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
                 fontWeight: FontWeight.bold
               ),
             ),
+            const Spacer(),
+            Text (
+              experience.userRoleType.toString(),
+              style: const TextStyle(
+                fontWeight: FontWeight.bold
+              ),
+            ),
+            const SizedBox(width: 10,)
           ],
         ),
         const SizedBox(height: 10,),
@@ -183,8 +185,11 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
 
 
   Future updateExperiencesList() async {
-    List<Experience> verifiedExperiences = await _experienceController.getVerifiedExperienceList();
-    List<Experience> unverifiedExperiences = await _experienceController.getUnverifiedExperienceList();
+    List<Experience> verifiedExperiences = await _experienceController
+      .getAllExperienceListBasedOnVerification(true);
+
+    List<Experience> unverifiedExperiences = await _experienceController
+      .getAllExperienceListBasedOnVerification(false);
 
     setState(() {
       _verifiedExperienceList = verifiedExperiences;

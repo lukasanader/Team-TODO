@@ -7,18 +7,17 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:info_hub_app/admin/admin_dash.dart';
-import 'package:info_hub_app/discovery_view/discovery_view.dart';
 import 'package:info_hub_app/helpers/base.dart';
 import 'package:info_hub_app/home_page/home_page.dart';
-import 'package:info_hub_app/push_notifications/push_notifications.dart';
+import 'package:info_hub_app/notifications/notification_service.dart';
+import 'package:info_hub_app/push_notifications/push_notifications_controller.dart';
 import 'package:info_hub_app/theme/theme_constants.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
 import 'notifications/notification_model.dart' as custom;
 import 'registration/start_page.dart';
 import 'package:provider/provider.dart';
 import 'package:info_hub_app/services/database.dart';
-import 'package:info_hub_app/notifications/notifications_view.dart';
+import 'package:info_hub_app/notifications/notification_view.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:intl/date_symbol_data_local.dart';
@@ -39,7 +38,10 @@ Future<void> main() async {
       localnotificationsplugin: FlutterLocalNotificationsPlugin());
 
   FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-    navigatorKey.currentState!.pushNamed('/notifications');
+    navigatorKey.currentState!
+      ..popUntil((route) => false)
+      ..pushNamed('/base')
+      ..pushNamed('/notifications');
   });
 
   pushNotifications.init();
@@ -59,8 +61,11 @@ Future<void> main() async {
       await FirebaseMessaging.instance.getInitialMessage();
 
   if (message != null) {
-    Future.delayed(Duration(seconds: 1), () {
-      navigatorKey.currentState!.pushNamed("/notifications");
+    Future.delayed(const Duration(seconds: 1), () {
+      navigatorKey.currentState!
+        ..popUntil((route) => false)
+        ..pushNamed('/base')
+        ..pushNamed('/notifications');
     });
   }
 
@@ -115,7 +120,7 @@ class _MyAppState extends State<MyApp> {
     return MultiProvider(
       providers: [
         StreamProvider<List<custom.Notification>>(
-          create: (_) => DatabaseService(
+          create: (_) => NotificationService(
             auth: widget.auth,
             firestore: widget.firestore,
             uid: widget.auth.currentUser!.uid,
@@ -170,6 +175,27 @@ class _MyAppState extends State<MyApp> {
                 auth: widget.auth,
                 firestore: widget.firestore,
               ),
+          '/home': (context) => HomePage(
+                auth: widget.auth,
+                firestore: widget.firestore,
+                storage: widget.storage,
+              ),
+          '/base': (context) => FutureBuilder<Base>(
+                future: checkUser().then((roleType) => Base(
+                      auth: widget.auth,
+                      firestore: widget.firestore,
+                      storage: widget.storage,
+                      themeManager: themeManager,
+                      roleType: roleType,
+                    )),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return CircularProgressIndicator();
+                  } else {
+                    return snapshot.data!;
+                  }
+                },
+              ),
         },
         theme: lightTheme,
         darkTheme: darkTheme,
@@ -180,24 +206,18 @@ class _MyAppState extends State<MyApp> {
 
   // Function to check user's role
   Future<String> checkUser() async {
-    // Check if user is authenticated
     if (widget.auth.currentUser != null) {
-      // Retrieve user data from Firestore to determine role
       DocumentSnapshot snapshot = await widget.firestore
           .collection('Users')
           .doc(widget.auth.currentUser!.uid)
           .get();
       Map<String, dynamic> userData = snapshot.data() as Map<String, dynamic>;
-      // Check if user is an admin
       if (userData['roleType'] == 'admin') {
-        print('Role: admin');
         return 'admin';
       } else {
-        print('Role: user');
         return 'user';
       }
     } else {
-      print('Logged in: false');
       return 'guest';
     }
   }

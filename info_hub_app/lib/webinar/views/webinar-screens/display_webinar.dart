@@ -1,5 +1,3 @@
-// ignore_for_file: unused_field
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/webinar/views/webinar-screens/chat.dart';
