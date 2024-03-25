@@ -45,7 +45,7 @@ class _ThreadAppState extends State<ThreadApp> {
         .snapshots();
     titleInputController = TextEditingController();
     descriptionInputController = TextEditingController();
-    initializeStream();
+    //initializeStream();
   }
 
   void refreshData() {
@@ -64,10 +64,10 @@ class _ThreadAppState extends State<ThreadApp> {
     super.dispose();
   }
 
-  Future<void> initializeStream() async {
+  /*Future<void> initializeStream() async {
     // Initialize your firestoreDb stream here
-    firestoreDb = widget.firestore.collection('threads').snapshots();
-  }
+    firestoreDb = widget.firestore.collection('thread').snapshots();
+  }  */
 
   @override
   Widget build(BuildContext context) {
@@ -115,12 +115,10 @@ class _ThreadAppState extends State<ThreadApp> {
         stream: firestoreDb,
         builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (!snapshot.hasData) return const CircularProgressIndicator();
-          print('Snapshot item count: ${snapshot.data?.docs.length}');
           return ListView.builder(
             //itemCount: 1,
             itemCount: snapshot.data!.docs.length,
             itemBuilder: (context, int index) {
-              print('ListView.builder index: $index');
               var threadDoc = snapshot.data!.docs[index];
               var roleType = threadDoc['roleType'] ?? 'Unknown';
               var creatorId = threadDoc['creator'];
@@ -139,8 +137,6 @@ class _ThreadAppState extends State<ThreadApp> {
                   var profilePhoto = userDocData?['selectedProfilePhoto'] ??
                       'default_profile_photo.png';
                   //var roleType = userDocData?['roleType'] ?? 'Missing Role';
-                  print(
-                      'Creating CustomCard for role $roleType with ObjectKey: ${threadDoc.id}');
 
                   return CustomCard(
                     key: ObjectKey(threadDoc.id),

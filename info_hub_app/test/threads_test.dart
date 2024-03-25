@@ -39,7 +39,7 @@ void main() {
     firestore = FakeFirebaseFirestore();
     mockAuth = MockFirebaseAuth();
 
-    await firestore.collection('threads').add({
+    await firestore.collection('thread').add({
       'title': 'Test Title 1',
       'description': 'Test Description 1',
       'creator': 'dummyUid',
@@ -48,7 +48,7 @@ void main() {
       'roleType': 'Patient',
     });
 
-    await firestore.collection('threads').add({
+    await firestore.collection('thread').add({
       'title': 'Test Title 2',
       'description': 'Test Description 2',
       'creator': 'dummyUid',
@@ -57,7 +57,7 @@ void main() {
       'roleType': 'Patient',
     });
 
-    await firestore.collection('threads').add({
+    await firestore.collection('thread').add({
       'title': 'Test Title 3',
       'description': 'Test Description 3',
       'creator': 'dummyUid',
@@ -66,7 +66,7 @@ void main() {
       'roleType': 'Healthcare Professional',
     });
 
-    await firestore.collection('threads').add({
+    await firestore.collection('thread').add({
       'title': 'Test Title 4',
       'description': 'Test Description 4',
       'creator': 'dummyUid',
@@ -75,7 +75,7 @@ void main() {
       'roleType': 'Unknown',
     });
 
-    await firestore.collection('threads').add({
+    await firestore.collection('thread').add({
       'title': 'Test Title 5',
       'description': 'Test Description 5',
       'creator': 'dummyUid',
@@ -95,7 +95,7 @@ void main() {
 
   group('ThreadApp and CustomCard Tests', () {
     testWidgets('CustomCard displays thread data', (WidgetTester tester) async {
-      await firestore.collection('threads').add({
+      await firestore.collection('thread').add({
         'title': 'Test Title',
         'description': 'Test Description',
         'creator': 'dummyUid',
@@ -104,7 +104,7 @@ void main() {
         'roleType': 'Admin',
       });
 
-      final snapshot = await firestore.collection('threads').get();
+      final snapshot = await firestore.collection('thread').get();
 
       await tester.pumpWidget(createTestWidget(CustomCard(
         snapshot: snapshot,
@@ -213,7 +213,7 @@ void main() {
     await tester.pumpAndSettle();
 
     // Fetch the threads directly from the mock Firestore to know their IDs.
-    final snapshot = await firestore.collection('threads').get();
+    final snapshot = await firestore.collection('thread').get();
 
     expect(find.byType(ListView), findsOneWidget);
 
@@ -234,6 +234,210 @@ void main() {
 
     final docId4 = snapshot.docs[4].id;
     expect(find.byKey(ObjectKey(docId4)), findsOneWidget);
+  });
+
+  testWidgets('Dialog appears when FloatingActionButton is tapped',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(createTestWidget(ThreadApp(
+      firestore: firestore,
+      auth: mockAuth,
+      topicId: 'testTopicId',
+      topicTitle: 'testTopicTitle',
+    )));
+
+    // Tap the floating action button to trigger the dialog
+    await tester.tap(find.byType(FloatingActionButton));
+    await tester.pump(); // Rebuild the widget with the new state
+
+    // Check if the AlertDialog is displayed
+    expect(find.byType(AlertDialog), findsOneWidget);
+  });
+
+  testWidgets('Error messages appear for empty inputs',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(createTestWidget(ThreadApp(
+      firestore: firestore,
+      auth: mockAuth,
+      topicId: 'testTopicId',
+      topicTitle: 'testTopicTitle',
+    )));
+
+    // Trigger the dialog
+    await tester.tap(find.byType(FloatingActionButton));
+    await tester.pump();
+
+    // Attempt to submit without filling the fields
+    await tester.tap(find.widgetWithText(TextButton, 'Submit'));
+    await tester.pump();
+
+    // Check for error messages
+    expect(find.text('Please enter a title'), findsOneWidget);
+    expect(find.text('Please enter a description'), findsOneWidget);
+  });
+
+  testWidgets('Dialog closes when Cancel is pressed',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(createTestWidget(ThreadApp(
+      firestore: firestore,
+      auth: mockAuth,
+      topicId: 'testTopicId',
+      topicTitle: 'testTopicTitle',
+    )));
+
+    // Trigger the dialog
+    await tester.tap(find.byType(FloatingActionButton));
+    await tester.pump();
+
+    // Press the Cancel button
+    await tester.tap(find.widgetWithText(TextButton, 'Cancel'));
+    await tester.pump();
+
+    // Check if the dialog is closed
+    expect(find.byType(AlertDialog), findsNothing);
+  });
+
+  testWidgets('Ensure ThreadApp are rendered', (WidgetTester tester) async {
+    final firestore = FakeFirebaseFirestore();
+    final auth = MockFirebaseAuth();
+
+    await firestore.collection('Users').doc('dummyUid').set({
+      'selectedProfilePhoto': 'profile_photo_1.png',
+    });
+
+    await tester.pumpWidget(MaterialApp(
+      home: ThreadApp(
+        firestore: firestore,
+        auth: auth,
+        topicId: 'testTopicId',
+        topicTitle: 'testTopicTitle',
+      ),
+    ));
+
+    await tester.pumpAndSettle();
+
+    // Check if the ThreadApp is rendered
+    expect(find.byType(ThreadApp), findsOneWidget);
+  });
+
+  testWidgets('Profile photo is displayed correctly in CircleAvatar',
+      (WidgetTester tester) async {
+    // Set up your test data
+
+    await tester.pumpWidget(createTestWidget(ThreadApp(
+      firestore: firestore,
+      auth: mockAuth,
+      topicId: 'testTopicId',
+      topicTitle: 'testTopicTitle',
+    )));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(CustomCard), findsWidgets);
+
+    if (find.byType(CustomCard).evaluate().isNotEmpty) {
+      expect(find.byType(CircleAvatar), findsWidgets);
+    } else {
+      print('CustomCard widgets not found in the widget tree');
+    }
+  });
+
+  testWidgets('Create thread when title and description are provided',
+      (WidgetTester tester) async {
+    // Build our app and trigger a frame.
+    await tester.pumpWidget(createTestWidget(ThreadApp(
+      firestore: firestore,
+      auth: mockAuth,
+      topicId: testTopicId,
+      topicTitle: testTopicTitle,
+    )));
+
+    // Open the dialog to create a new thread
+    await tester.tap(find.byType(FloatingActionButton));
+    await tester.pumpAndSettle();
+
+    // Enter 'Test Title' into the title TextField.
+    await tester.enterText(find.byKey(const Key('Title')), 'Test Title');
+
+    // Enter 'Test Description' into the description TextField.
+    await tester.enterText(
+        find.byKey(const Key('Description')), 'Test Description');
+
+    // Tap the 'Submit' button to trigger the creation of the thread.
+    await tester.tap(find.widgetWithText(TextButton, 'Submit'));
+    await tester.pump();
+
+    // Here you should ideally check if the document has been added to Firestore.
+    // Since we're using a FakeFirebaseFirestore instance, we simulate this check.
+    final snapshot = await firestore
+        .collection('thread')
+        .where('title', isEqualTo: 'Test Title')
+        .get();
+
+    // Verify that the thread has been added to Firestore.
+    expect(snapshot.docs.length, equals(1));
+    expect(snapshot.docs.first.get('description'), 'Test Description');
+  });
+
+  testWidgets('Create thread checks roleType from user data',
+      (WidgetTester tester) async {
+    // Add a user document with a specified roleType
+    await firestore.collection('Users').doc('dummyUid').set({
+      'roleType': 'Test Role',
+    });
+
+    await tester.pumpWidget(createTestWidget(ThreadApp(
+      firestore: firestore,
+      auth: mockAuth,
+      topicId: testTopicId,
+      topicTitle: testTopicTitle,
+    )));
+
+    // Trigger the dialog to create a new thread
+    await tester.tap(find.byType(FloatingActionButton));
+    await tester.pumpAndSettle();
+
+    // Fill in the title and description fields
+    await tester.enterText(
+        find.byKey(const Key('Title')), 'Test Title with Role');
+    await tester.enterText(
+        find.byKey(const Key('Description')), 'Test Description with Role');
+
+    // Submit the form
+    await tester.tap(find.widgetWithText(TextButton, 'Submit'));
+    await tester.pump();
+
+    // Check if the thread has the correct roleType from the user's data
+    final snapshotWithRole = await firestore
+        .collection('thread')
+        .where('title', isEqualTo: 'Test Title with Role')
+        .get();
+    expect(snapshotWithRole.docs.first.get('roleType'), equals('Test Role'));
+
+    // Now test the fallback to 'Missing Role'
+    await firestore.collection('Users').doc('dummyUid').update({
+      'roleType': FieldValue.delete(),
+    });
+
+    // Trigger the dialog again
+    await tester.tap(find.byType(FloatingActionButton));
+    await tester.pumpAndSettle();
+
+    // Fill in new title and description
+    await tester.enterText(
+        find.byKey(const Key('Title')), 'Test Title Missing Role');
+    await tester.enterText(
+        find.byKey(const Key('Description')), 'Test Description Missing Role');
+
+    // Submit the form
+    await tester.tap(find.widgetWithText(TextButton, 'Submit'));
+    await tester.pump();
+
+    // Check if the thread has the fallback roleType
+    final snapshotMissingRole = await firestore
+        .collection('thread')
+        .where('title', isEqualTo: 'Test Title Missing Role')
+        .get();
+    expect(
+        snapshotMissingRole.docs.first.get('roleType'), equals('Missing Role'));
   });
 }
 

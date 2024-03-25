@@ -44,7 +44,6 @@ class _CustomCardState extends State<CustomCard> {
   @override
   void initState() {
     super.initState();
-    print('CustomCard role with key: ${widget.roleType}');
     titleInputController = TextEditingController();
     descriptionInputController = TextEditingController();
     var docData =
@@ -107,12 +106,10 @@ class _CustomCardState extends State<CustomCard> {
           padding: const EdgeInsets.symmetric(horizontal: 12.0),
           child: ExpansionTileCard(
             leading: CircleAvatar(
+              key: Key('profilePhoto_${widget.index}'),
               radius: 30,
-              backgroundImage: widget.userProfilePhoto.startsWith('http')
-                  ? NetworkImage(widget.userProfilePhoto)
-                      as ImageProvider<Object>
-                  : AssetImage('assets/${widget.userProfilePhoto}')
-                      as ImageProvider<Object>,
+              backgroundImage: AssetImage('assets/${widget.userProfilePhoto}')
+                  as ImageProvider<Object>,
             ),
             title: Row(
               children: <Widget>[

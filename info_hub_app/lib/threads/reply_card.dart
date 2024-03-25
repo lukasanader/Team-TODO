@@ -97,11 +97,8 @@ class _ReplyCardState extends State<ReplyCard> {
             elevation: 5,
             leading: CircleAvatar(
               radius: 30,
-              backgroundImage: widget.userProfilePhoto.startsWith('http')
-                  ? NetworkImage(widget.userProfilePhoto)
-                      as ImageProvider<Object>
-                  : AssetImage('assets/${widget.userProfilePhoto}')
-                      as ImageProvider<Object>,
+              backgroundImage: AssetImage('assets/${widget.userProfilePhoto}')
+                  as ImageProvider<Object>,
             ),
             title: Text(
               widget.authorName,

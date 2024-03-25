@@ -159,13 +159,9 @@ class _ViewThreadsState extends State<ViewThreads> {
                   elevation: 5,
                   child: ListTile(
                     leading: CircleAvatar(
-                      backgroundImage: data['userProfilePhoto'] != null &&
-                              data['userProfilePhoto'].startsWith('http')
-                          ? NetworkImage(data['userProfilePhoto'])
-                              as ImageProvider<Object>
-                          : AssetImage(
-                                  'assets/${data['userProfilePhoto'] ?? 'default_profile_photo.png'}')
-                              as ImageProvider<Object>,
+                      backgroundImage: AssetImage(
+                              'assets/${data['userProfilePhoto'] ?? 'default_profile_photo.png'}')
+                          as ImageProvider<Object>,
                       radius: 38,
                     ),
                     title: Row(
