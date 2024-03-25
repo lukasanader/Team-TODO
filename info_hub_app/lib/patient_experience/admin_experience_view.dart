@@ -122,6 +122,14 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
                 fontWeight: FontWeight.bold
               ),
             ),
+            const Spacer(),
+            Text (
+              experience.userRoleType.toString(),
+              style: const TextStyle(
+                fontWeight: FontWeight.bold
+              ),
+            ),
+            const SizedBox(width: 10,)
           ],
         ),
         const SizedBox(height: 10,),
