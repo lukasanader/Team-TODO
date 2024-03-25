@@ -77,7 +77,7 @@ void main() {
     localAuth = MockFirebaseAuth(mockUser: mockUser, signedIn: true);
     // Pass a valid URL when creating the VideoPlayerController instance
     topicWithVideo = MaterialApp(
-      home: ViewTopicScreen(
+      home: TopicView(
           firestore: firestore,
           storage: storage,
           topic: topic,
@@ -163,7 +163,7 @@ void main() {
     topic.id = topicRef.id;
 
     await tester.pumpWidget(MaterialApp(
-      home: ViewTopicScreen(
+      home: TopicView(
         firestore: firestore,
         storage: storage,
         topic: topic,
@@ -188,11 +188,11 @@ void main() {
 
     expect(fakeVideoPlayerPlatform.calls.contains('pause'), true);
 
-    expect(find.byType(CreateTopicScreen), findsOneWidget);
+    expect(find.byType(TopicCreationView), findsOneWidget);
     await tester.ensureVisible(find.text("UPDATE TOPIC"));
     await tester.tap(find.text("UPDATE TOPIC"));
     await tester.pumpAndSettle();
-    expect(find.byType(ViewTopicScreen), findsOneWidget);
+    expect(find.byType(TopicView), findsOneWidget);
   });
   testWidgets('Test navigation to ThreadApp screen',
       (WidgetTester tester) async {
@@ -221,7 +221,7 @@ void main() {
     DocumentReference topicRef = await topicCollectionRef.add(topic.toJson());
     topic.id = topicRef.id;
     await tester.pumpWidget(MaterialApp(
-      home: ViewTopicScreen(
+      home: TopicView(
         firestore: firestore,
         storage: storage,
         topic: topic,
@@ -264,7 +264,7 @@ void main() {
         firestore.collection('Users').doc('adminUser');
 
     await tester.pumpWidget(MaterialApp(
-      home: ViewTopicScreen(
+      home: TopicView(
         firestore: firestore,
         storage: storage,
         topic: topic,

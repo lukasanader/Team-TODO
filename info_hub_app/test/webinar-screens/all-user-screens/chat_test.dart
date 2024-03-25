@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -5,20 +6,22 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:info_hub_app/model/user_model.dart';
 import 'package:info_hub_app/webinar/service/webinar_service.dart';
-import 'package:info_hub_app/webinar/webinar-screens/chat.dart';
+import 'package:info_hub_app/webinar/views/webinar-screens/chat.dart';
 
 void main() {
   late FakeFirebaseFirestore firestore;
   late Widget chatScreenWidget;
   late MockFirebaseStorage mockStorage;
+  late WebinarService webService;
   late UserModel user;
 
   setUp(() {
     firestore = FakeFirebaseFirestore();
     mockStorage = MockFirebaseStorage();
-    WebinarService webService = WebinarService(
+    webService = WebinarService(
       firestore: firestore,
-      storage: mockStorage);
+      storage: mockStorage
+    );
     user = UserModel(
       uid: 'mockUid',
       firstName: 'John',
@@ -28,14 +31,35 @@ void main() {
       likedTopics: [],
       dislikedTopics: [],
     );
-    chatScreenWidget = MaterialApp(
-      home: Chat(firestore: firestore,
-      user: user, webinarID: 'test',
-      webinarService: webService)
-    );
+
   });
 
+  void enableChat() {
+    chatScreenWidget = MaterialApp(
+      home: Chat(
+        firestore: firestore,
+        user: user,
+        webinarID: 'test',
+        webinarService: webService,
+        chatEnabled: true,
+        )
+    );
+  }
+
+  void disableChat() {
+    chatScreenWidget = MaterialApp(
+      home: Chat(
+        firestore: firestore,
+        user: user,
+        webinarID: 'test',
+        webinarService: webService,
+        chatEnabled: false,
+        )
+    );
+  }
+
   testWidgets('Chat Widget Test - Loading State', (WidgetTester tester) async {
+    enableChat();
     await tester.pumpWidget(chatScreenWidget);
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
   });
@@ -48,6 +72,7 @@ void main() {
       'createdAt': DateTime.now(),
     });
 
+    enableChat();
     await tester.pumpWidget(chatScreenWidget);
     await tester.pumpAndSettle();
 
@@ -62,6 +87,7 @@ void main() {
       'createdAt': DateTime.now(),
     });
 
+    enableChat();
     await tester.pumpWidget(chatScreenWidget);
     await tester.pumpAndSettle();
 
@@ -76,6 +102,7 @@ void main() {
       'createdAt': DateTime.now(),
     });
 
+    enableChat();
     await tester.pumpWidget(chatScreenWidget);
     await tester.pumpAndSettle();
 
@@ -90,6 +117,7 @@ void main() {
       'createdAt': DateTime.now(),
     });
 
+    enableChat();
     await tester.pumpWidget(chatScreenWidget);
     await tester.pumpAndSettle();
 
@@ -97,6 +125,7 @@ void main() {
   });
 
   testWidgets('Test User can not write profanities in their messages', (WidgetTester tester) async {
+    enableChat();
     await tester.pumpWidget(chatScreenWidget);
     await tester.pumpAndSettle();
 
@@ -117,6 +146,7 @@ void main() {
   });
 
   testWidgets('Test User can not write their name in their messages', (WidgetTester tester) async {
+    enableChat();
     await tester.pumpWidget(chatScreenWidget);
     await tester.pumpAndSettle();
     
@@ -138,6 +168,7 @@ void main() {
   });
 
   testWidgets('Test User can type and send message', (WidgetTester tester) async {
+    enableChat();
     await tester.pumpWidget(chatScreenWidget);
     await tester.pumpAndSettle();
     final enterMessageField = find.ancestor(
@@ -154,4 +185,29 @@ void main() {
                             .get();
     expect(querySnapshot.docs.length,greaterThan(0));
   });
+
+  testWidgets('Test User can not type and send message if chat is disabled', (WidgetTester tester) async {
+    await firestore.collection('Webinar').doc('test').collection('comments').add({
+      'uid': 'mockUid',
+      'roleType': 'Healthcare Professional',
+      'message': 'Test message',
+      'createdAt': DateTime.now(),
+    });
+
+    disableChat();
+    await tester.pumpWidget(chatScreenWidget);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Chat Disabled - No Longer Live'), findsOneWidget);
+
+    // attempt to send a message regardless of chat being disabled
+    await tester.tap(find.byIcon(Icons.send));
+    await tester.pumpAndSettle();
+
+    QuerySnapshot result = await firestore.collection('Webinar').doc('test').collection('comments').get();
+
+    // Assert that the result only contains one item
+    expect(result.docs.length, equals(1));
+  });
+  
 }

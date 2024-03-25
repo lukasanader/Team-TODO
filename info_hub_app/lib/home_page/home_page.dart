@@ -16,9 +16,10 @@ import 'package:info_hub_app/model/user_model.dart';
 import 'package:info_hub_app/notifications/notifications_view.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:info_hub_app/topics/create_topic/controllers/topic_controller.dart';
 import 'package:info_hub_app/topics/view_topic/helpers/topics_card.dart';
 import 'package:info_hub_app/webinar/service/webinar_service.dart';
-import 'package:info_hub_app/webinar/webinar-screens/webinar_view.dart';
+import 'package:info_hub_app/webinar/views/webinar-screens/webinar_view.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:info_hub_app/topics/create_topic/model/topic_model.dart';
 
@@ -41,7 +42,6 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   List<Object> _topicsList = [];
-  List<Object> _FiltList = [];
   int topicLength = 0;
 
   @override
@@ -225,23 +225,13 @@ class _HomePageState extends State<HomePage> {
 
 
   Future getTopicsList() async {
-    //added this line to prevent null error
-
     if (widget.auth.currentUser == null) {
       return;
     }
-    String uid = widget.auth.currentUser!.uid;
-    DocumentSnapshot user =
-        await widget.firestore.collection('Users').doc(uid).get();
-    String role = user['roleType'];
-    QuerySnapshot data = await widget.firestore
-        .collection('topics')
-        .where('tags', arrayContains: role)
-        .get();
-
+    QuerySnapshot temp = await TopicController(auth: widget.auth, firestore: widget.firestore).getTopicList();
     if (mounted) {
       setState(() {
-        _topicsList = data.docs.map((doc) => Topic.fromSnapshot(doc)).toList();
+        _topicsList = temp.docs.map((doc) => Topic.fromSnapshot(doc)).toList();
         _topicsList.sort((b, a) =>
             getTrending(a as Topic).compareTo(getTrending(b as Topic)));
         topicLength = _topicsList.length;

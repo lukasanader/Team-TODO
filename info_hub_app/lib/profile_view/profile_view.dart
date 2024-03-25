@@ -117,7 +117,9 @@ class _ProfileViewState extends State<ProfileView> {
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
       margin: const EdgeInsets.symmetric(vertical: 6),
       decoration: BoxDecoration(
-        color: COLOR_SECONDARY_GREY_LIGHT,
+        color: Theme.of(context).brightness == Brightness.light
+            ? COLOR_SECONDARY_GREY_LIGHT
+            : COLOR_SECONDARY_GREY_DARK,
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
