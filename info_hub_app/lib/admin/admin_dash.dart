@@ -261,8 +261,7 @@ class _AdminHomepageState extends State<AdminHomepage> {
                   const Icon(Icons.camera),
                   addVerticalSpace(5),
                   const Text(
-                    'Add/View Webinar',
-                    style: TextStyle(color: Colors.black),
+                    'Manage Webinars',
                     textAlign: TextAlign.center,
                   ),
                 ],
