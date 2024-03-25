@@ -11,7 +11,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:info_hub_app/legal_agreements/terms_of_services.dart';
 import 'package:info_hub_app/legal_agreements/privacy_policy.dart';
+import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:info_hub_app/welcome_message/welcome_message.dart';
+import 'package:info_hub_app/email_verification/email_verification_screen.dart';
 
 class RegistrationScreen extends StatefulWidget {
   final FirebaseFirestore firestore;
@@ -273,12 +275,14 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         false);
 
                     if (userModel != null) {
-                      // Registration was successful, navigate to the main application page
-                      Widget nextPage = WelcomePage(
-                        auth: widget.auth,
-                        storage: widget.storage,
+                      // Registration was successful, navigate to the verify email page
+                      Widget nextPage = EmailVerificationScreen(
                         firestore: widget.firestore,
-                        themeManager: themeManager,
+                        auth: widget.auth,
+                        messaging: widget.messaging,
+                        localnotificationsplugin: widget.localnotificationsplugin,
+                        storage: widget.storage,
+                        themeManager: ThemeManager(),
                       );
                       Navigator.pushAndRemoveUntil(
                         context,
