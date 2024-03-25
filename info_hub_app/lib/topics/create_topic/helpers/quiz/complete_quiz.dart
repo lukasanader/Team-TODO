@@ -68,7 +68,7 @@ class _CompleteQuizState extends State<CompleteQuiz> {
             ),
             if (_quizCompleted)
               Text('Your new score is $_score out of $_questionListLength'),
-            if (_quizCompletedBefore) Text('Your old score is $_oldScore'),
+            if (_quizCompletedBefore) Text('your old score is $_oldScore'),
             ElevatedButton(
               onPressed: () async {
                 _calculateScore();
@@ -117,11 +117,12 @@ class _CompleteQuizState extends State<CompleteQuiz> {
         _correctQuestions[index] = true;
         _score = _correctQuestions.where((element) => element == true).length;
       });
-      widget.quizController!.handleQuizCompletion(
+    }
+    _score = _correctQuestions.where((element) => element == true).length;
+    widget.quizController!.handleQuizCompletion(
         widget.topic,
         "$_score/$_questionListLength",
       );
-    }
   }
 
   // Calculate the final score
