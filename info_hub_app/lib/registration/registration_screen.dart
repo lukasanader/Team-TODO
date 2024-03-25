@@ -12,6 +12,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:info_hub_app/legal_agreements/terms_of_services.dart';
 import 'package:info_hub_app/legal_agreements/privacy_policy.dart';
 import 'package:info_hub_app/welcome_message/welcome_message.dart';
+import 'package:info_hub_app/welcome_message/welcome_message_controller.dart';
 
 class RegistrationScreen extends StatefulWidget {
   final FirebaseFirestore firestore;
@@ -273,13 +274,15 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         false);
 
                     if (userModel != null) {
-                      // Registration was successful, navigate to the main application page
                       Widget nextPage = WelcomePage(
-                        auth: widget.auth,
-                        storage: widget.storage,
-                        firestore: widget.firestore,
-                        themeManager: themeManager,
-                      );
+                          controller: WelcomeMessageController(
+                            firestore: widget.firestore,
+                            auth: widget.auth,
+                            storage: widget.storage,
+                            themeManager: themeManager,
+                          ),
+                        );
+                    
                       Navigator.pushAndRemoveUntil(
                         context,
                         MaterialPageRoute(builder: (context) => nextPage),
@@ -304,6 +307,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         ),
       ),
     );
+    
   }
 
   Widget buildTextFormField(
