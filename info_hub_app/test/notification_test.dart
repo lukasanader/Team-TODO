@@ -164,7 +164,8 @@ Future<void> main() async {
       await tester.pumpAndSettle();
     });
 
-    testWidgets('delete notification on dismiss', (WidgetTester tester) async {
+    testWidgets('delete notification on delete button',
+        (WidgetTester tester) async {
       await firestore.collection(notificationCollection).add({
         'uid': auth.currentUser!.uid,
         'title': 'Test Title',
@@ -195,14 +196,70 @@ Future<void> main() async {
       );
 
       await tester.idle();
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       expect(find.text('Test Title'), findsOneWidget);
 
-      await tester.drag(find.text('Test Title'), const Offset(500.0, 0.0));
+      await tester.drag(find.text('Test Title'), const Offset(-500.0, 0.0));
       await tester.pumpAndSettle();
 
+      expect(find.byIcon(Icons.delete), findsOneWidget);
+      await tester.tap(find.byIcon(Icons.delete));
+      await tester.pumpAndSettle();
       expect(find.text('Test Title'), findsNothing);
+    });
+
+    testWidgets('delete all notifications on delete all button',
+        (WidgetTester tester) async {
+      await firestore.collection(notificationCollection).add({
+        'uid': auth.currentUser!.uid,
+        'title': 'Test Title1',
+        'body': 'Test Body1',
+        'timestamp': Timestamp.now(),
+        'route': 'Test Route1',
+      }).then((doc) => doc.id);
+
+      await firestore.collection(notificationCollection).add({
+        'uid': auth.currentUser!.uid,
+        'title': 'Test Title2',
+        'body': 'Test Body2',
+        'timestamp': Timestamp.now(),
+        'route': 'Test Route2',
+      }).then((doc) => doc.id);
+
+      await tester.pumpWidget(
+        MultiProvider(
+          providers: [
+            StreamProvider<List<custom.Notification>>(
+              create: (_) => DatabaseService(
+                      auth: auth,
+                      firestore: firestore,
+                      uid: auth.currentUser!.uid)
+                  .notifications,
+              initialData: const [],
+            ),
+          ],
+          child: MaterialApp(
+            home: Notifications(
+              auth: auth,
+              firestore: firestore,
+            ),
+          ),
+        ),
+      );
+
+      await tester.idle();
+      await tester.pumpAndSettle();
+
+      expect(find.text('Test Title1'), findsOneWidget);
+      expect(find.text('Test Title2'), findsOneWidget);
+      expect(find.byIcon(Icons.delete_forever), findsOneWidget);
+
+      await tester.tap(find.byIcon(Icons.delete_forever));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Test Title1'), findsNothing);
+      expect(find.text('Test Title2'), findsNothing);
     });
 
     testWidgets('show notification details button routes correctly',
@@ -262,6 +319,7 @@ Future<void> main() async {
         body: 'Test Body',
         timestamp: DateTime.now(),
         route: 'Test Route',
+        deleted: false,
       );
 
       await tester.pumpWidget(

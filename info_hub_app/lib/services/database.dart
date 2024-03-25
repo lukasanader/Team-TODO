@@ -89,6 +89,7 @@ class DatabaseService {
         body: doc.get('body') ?? '',
         timestamp: doc.get('timestamp').toDate() ?? DateTime.now(),
         route: doc.get('route') ?? '',
+        deleted: false,
       );
     }).toList();
 

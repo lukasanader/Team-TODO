@@ -4,10 +4,12 @@ import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
+import 'package:info_hub_app/home_page/home_page.dart';
 import 'package:info_hub_app/main.dart';
 import 'package:info_hub_app/notifications/notification_model.dart' as custom;
 import 'package:info_hub_app/notifications/notifications_view.dart';
@@ -107,6 +109,7 @@ Future<void> main() async {
     late FakeFirebaseFirestore firestore;
     late MockFirebaseAuth auth;
     late PushNotifications pushNotifications;
+    late MockFirebaseStorage storage;
     late MockFlutterLocalNotificationsPlugin
         mockFlutterLocalNotificationsPlugin;
     late FakeFirebaseMessaging firebaseMessaging;
@@ -117,6 +120,7 @@ Future<void> main() async {
       firestore = FakeFirebaseFirestore();
       auth = MockFirebaseAuth(signedIn: true);
       firebaseMessaging = FakeFirebaseMessaging();
+      storage = MockFirebaseStorage();
       mockNavigatorKey = navigatorKey;
       mockClient = MockClient();
       mockFlutterLocalNotificationsPlugin =
@@ -175,6 +179,14 @@ Future<void> main() async {
 
     testWidgets('handle tap on local notification in foreground',
         (WidgetTester tester) async {
+      firestore.collection(UsersCollection).doc(auth.currentUser!.uid).set({
+        'firstName': 'Test',
+        'lastName': 'User',
+        'email': 'test@example.org',
+        'roleType': 'Patient',
+        'likedTopics': [],
+        'dislikedTopics': [],
+      });
       await tester.pumpWidget(MultiProvider(
         providers: [
           StreamProvider<List<custom.Notification>>(
@@ -193,6 +205,11 @@ Future<void> main() async {
             '/notifications': (context) => Notifications(
                   auth: auth,
                   firestore: firestore,
+                ),
+            '/home': (context) => HomePage(
+                  auth: auth,
+                  firestore: firestore,
+                  storage: storage,
                 ),
           },
         ),
@@ -267,6 +284,11 @@ Future<void> main() async {
             '/notifications': (context) => Notifications(
                   auth: auth,
                   firestore: firestore,
+                ),
+            '/home': (context) => HomePage(
+                  auth: auth,
+                  firestore: firestore,
+                  storage: storage,
                 ),
           },
         ),
