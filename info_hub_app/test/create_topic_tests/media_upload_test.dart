@@ -75,7 +75,7 @@ void main() async {
     });
 
     basicWidget = MaterialApp(
-      home: CreateTopicScreen(
+      home: TopicCreationView(
         firestore: firestore,
         storage: mockStorage,
         auth: auth,
@@ -191,7 +191,7 @@ void main() async {
     topic.id = topicRef.id;
 
     await tester.pumpWidget(MaterialApp(
-      home: CreateTopicScreen(
+      home: TopicCreationView(
         topic: topic,
         auth: auth,
         firestore: firestore,

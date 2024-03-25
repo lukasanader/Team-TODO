@@ -9,7 +9,7 @@ import 'package:info_hub_app/topics/create_topic/view/topic_creation_view.dart';
 /// Widget responsible for showing form details
 class TopicFormWidget extends StatelessWidget {
   final FormController formController;
-  final CreateTopicScreenState screen;
+  final TopicCreationViewState screen;
   final FirebaseFirestore firestore;
 
   TopicFormWidget({

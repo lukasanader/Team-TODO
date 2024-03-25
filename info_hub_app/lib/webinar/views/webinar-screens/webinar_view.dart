@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:info_hub_app/helpers/helper_widgets.dart';
 import 'package:info_hub_app/model/user_model.dart';
+import 'package:info_hub_app/theme/theme_constants.dart';
 import 'package:info_hub_app/webinar/models/livestream.dart';
 import 'package:info_hub_app/webinar/service/webinar_service.dart';
-import 'package:info_hub_app/webinar/webinar-screens/webinar_card.dart';
+import 'package:info_hub_app/webinar/views/webinar-screens/webinar_card.dart';
 
 class WebinarView extends StatefulWidget {
   final FirebaseFirestore firestore;
@@ -48,14 +49,16 @@ class _WebinarViewState extends State<WebinarView> {
                         stream: widget.firestore
                             .collection('Webinar')
                             .where('status', isEqualTo: 'Live')
+                            .where('selectedtags',
+                                arrayContains: widget.user.roleType)
                             .snapshots(),
                         builder: (context, snapshot) {
                           if (!snapshot.hasData ||
                               snapshot.data!.docs.isEmpty) {
-                            return const Text(
-                              "None of our trusted NHS doctors are live right now \nPlease check later!",
-                              textAlign: TextAlign.center,
-                            );
+                            return messageCard(
+                                "Right now, we don't have any live videos streaming. We encourage you to explore other resources available in the app while you wait for the next live event.",
+                                'no_live_webinars',
+                                context);
                           }
                           return ListView.builder(
                             physics: const NeverScrollableScrollPhysics(),
@@ -102,14 +105,16 @@ class _WebinarViewState extends State<WebinarView> {
                         stream: widget.firestore
                             .collection('Webinar')
                             .where('status', isEqualTo: 'Upcoming')
+                            .where('selectedtags',
+                                arrayContains: widget.user.roleType)
                             .snapshots(),
                         builder: (context, snapshot) {
                           if (!snapshot.hasData ||
                               snapshot.data!.docs.isEmpty) {
-                            return const Text(
-                              "Seems like all of our trusted doctors are busy \nCheck regularly to see if there have been any changes",
-                              textAlign: TextAlign.center,
-                            );
+                            return messageCard(
+                                "At the moment, there aren't any webinars lined up for viewing. We're working on bringing you more informative sessions soon. Thank you for your patience.",
+                                'no_upcoming_webinars',
+                                context);
                           }
                           return ListView.builder(
                             physics: const NeverScrollableScrollPhysics(),
@@ -158,12 +163,16 @@ class _WebinarViewState extends State<WebinarView> {
                         stream: widget.firestore
                             .collection('Webinar')
                             .where('status', isEqualTo: 'Archived')
+                            .where('selectedtags',
+                                arrayContains: widget.user.roleType)
                             .snapshots(),
                         builder: (context, snapshot) {
                           if (!snapshot.hasData ||
                               snapshot.data!.docs.isEmpty) {
-                            return const Text(
-                                "Check back here to see any webinars you may have missed!");
+                            return messageCard(
+                                "Missed a webinar? No worries! Keep an eye on this space for any webinars you might have missed. We'll make sure you have access to all the valuable information at your convenience.",
+                                'no_archived_webinars',
+                                context);
                           }
                           return ListView.builder(
                             physics: const NeverScrollableScrollPhysics(),

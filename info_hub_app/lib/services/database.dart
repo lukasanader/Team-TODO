@@ -137,26 +137,9 @@ class DatabaseService {
     });
   }
 
-  List<UserModel> userListFromSnapshot(QuerySnapshot snapshot) {
-    return snapshot.docs.map((doc) {
-      return UserModel(
-        uid: doc.id,
-        firstName: doc.get('firstName') ?? '',
-        lastName: doc.get('lastName') ?? '',
-        email: doc.get('email') ?? '',
-        roleType: doc.get('roleType') ?? '',
-        likedTopics: doc.get('likedTopics') ?? [],
-        dislikedTopics: doc.get('dislikedTopics') ?? [],
-        hasOptedOutOfExperienceExpectations:
-            doc.get('hasOptedOutOfExperienceExpectations') ?? false,
-      );
-    }).toList();
-  }
 
-  Stream<List<UserModel>> get users {
-    CollectionReference usersCollectionRef = firestore.collection('Users');
-    return usersCollectionRef.snapshots().map(userListFromSnapshot);
-  }
+
+
 
   Future<void> createPreferences() async {
     CollectionReference prefCollection = firestore.collection('preferences');
@@ -198,18 +181,4 @@ class DatabaseService {
     return preferences;
   }
 
-  Future<void> incrementView(Topic topic) async {
-    DocumentReference docRef = firestore.collection('topics').doc(topic.id);
-    // Run the transaction
-    await firestore.runTransaction((transaction) async {
-      // Get the latest snapshot of the document
-      DocumentSnapshot snapshot = await transaction.get(docRef);
-      int currentViews =
-          (snapshot.data() as Map<String, dynamic>)['views'] ?? 0;
-      // Increment the views by one
-      int newViews = currentViews + 1;
-      // Update the 'views' field in Firestore
-      transaction.update(docRef, {'views': newViews});
-    });
-  }
 }

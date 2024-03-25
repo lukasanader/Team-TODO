@@ -1,9 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:info_hub_app/controller/activity_controller.dart';
+import 'package:info_hub_app/services/database.dart';
+import 'package:info_hub_app/threads/threads.dart';
+import 'package:info_hub_app/topics/create_topic/controllers/topic_controller.dart';
 
 class ActivityCard extends StatelessWidget {
-  final Map<String, dynamic> _activity;
+  final dynamic _activity;
   final FirebaseFirestore firestore;
   final FirebaseAuth auth;
 
@@ -12,16 +16,25 @@ class ActivityCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Widget childWidget;
-    if (_activity.containsKey('viewDate')) {
       childWidget = Text(
         '${_activity['title']} : ${calculateDaysAgo(_activity['viewDate'])} days ago',
       );
-    } else {
-      childWidget = Text(_activity['title']);
-    }
-
     return GestureDetector(
-      onTap: () {},
+      onTap: () async{
+        String topicTitle= await TopicController(auth: auth, firestore: firestore).getTopicTitle(_activity['topicId']);
+         // ignore: use_build_context_synchronously
+         Navigator.push(
+                                  context,
+      MaterialPageRoute(
+          builder: (context) => ThreadApp(
+          firestore: firestore,
+          auth: auth,
+          topicId: _activity['topicId'],
+          topicTitle: topicTitle,
+          ),
+        )
+         );
+      },
       child: Container(
         child: Card(
           child: Padding(

@@ -151,7 +151,6 @@ void main() {
     final loginButton = find.text('Login');
     await test.tap(loginButton);
     await test.pumpAndSettle();
-
     expect(find.text('Email or password is incorrect. Please try again'),
         findsNothing);
   });

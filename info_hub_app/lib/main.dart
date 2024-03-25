@@ -1,3 +1,5 @@
+// coverage:ignore-file
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -127,7 +129,11 @@ class _MyAppState extends State<MyApp> {
           future: checkUser(),
           builder: (context, AsyncSnapshot<String> snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return CircularProgressIndicator();
+              return const Scaffold(
+                body: Center(
+                  child: CircularProgressIndicator(),
+                ),
+              );
             } else {
               switch (snapshot.data) {
                 case 'admin':

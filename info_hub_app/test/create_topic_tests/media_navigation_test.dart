@@ -98,7 +98,7 @@ void main() async {
 
     // Pass a valid URL when creating the VideoPlayerController instance
     await mockNetworkImages(() async => await tester.pumpWidget(MaterialApp(
-          home: CreateTopicScreen(
+          home: TopicCreationView(
             auth: auth,
             firestore: firestore,
             storage: mockStorage,
@@ -134,7 +134,7 @@ void main() async {
   testWidgets('Selected media can be replaced', (WidgetTester tester) async {
     await defineUserAndStorage(tester);
     await tester.pumpWidget(MaterialApp(
-      home: CreateTopicScreen(
+      home: TopicCreationView(
         auth: auth,
         firestore: firestore,
         storage: mockStorage,
@@ -219,7 +219,7 @@ void main() async {
     data = await topicCollectionRef.orderBy('title').get();
 
     await tester.pumpWidget(MaterialApp(
-      home: CreateTopicScreen(
+      home: TopicCreationView(
         auth: auth,
         topic: topic,
         firestore: firestore,
@@ -252,7 +252,7 @@ void main() async {
     List<PlatformFile> media = [videoFile, imageFile];
 
     await tester.pumpWidget(MaterialApp(
-      home: CreateTopicScreen(
+      home: TopicCreationView(
         auth: auth,
         firestore: firestore,
         storage: mockStorage,
@@ -321,7 +321,7 @@ void main() async {
     List<PlatformFile> media = [videoFile, imageFile];
 
     await tester.pumpWidget(MaterialApp(
-      home: CreateTopicScreen(
+      home: TopicCreationView(
         auth: auth,
         firestore: firestore,
         storage: mockStorage,
