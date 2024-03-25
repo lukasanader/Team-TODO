@@ -16,7 +16,7 @@ import 'package:info_hub_app/model/user_model.dart';
 import 'package:info_hub_app/notifications/notifications_view.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:info_hub_app/topics/create_topic/controllers/topic_controller.dart';
+import 'package:info_hub_app/topics/create_topic/controllers/topic_info_controller.dart';
 import 'package:info_hub_app/topics/view_topic/helpers/topics_card.dart';
 import 'package:info_hub_app/webinar/service/webinar_service.dart';
 import 'package:info_hub_app/webinar/views/webinar-screens/webinar_view.dart';

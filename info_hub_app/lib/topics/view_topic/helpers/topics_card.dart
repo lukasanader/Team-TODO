@@ -5,7 +5,7 @@ import 'package:info_hub_app/analytics/topics/analytics_view_topic.dart';
 import 'package:info_hub_app/controller/activity_controller.dart';
 import 'package:info_hub_app/main.dart';
 import 'package:info_hub_app/model/model.dart';
-import 'package:info_hub_app/topics/create_topic/controllers/topic_controller.dart';
+import 'package:info_hub_app/topics/create_topic/controllers/topic_info_controller.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import '../view/topic_view.dart';
 import 'package:info_hub_app/services/database.dart';

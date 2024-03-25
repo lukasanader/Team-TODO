@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:info_hub_app/controller/activity_controller.dart';
 import 'package:info_hub_app/services/database.dart';
 import 'package:info_hub_app/threads/threads.dart';
-import 'package:info_hub_app/topics/create_topic/controllers/topic_controller.dart';
+import 'package:info_hub_app/topics/create_topic/controllers/topic_info_controller.dart';
 
 class ActivityCard extends StatelessWidget {
   final dynamic _activity;

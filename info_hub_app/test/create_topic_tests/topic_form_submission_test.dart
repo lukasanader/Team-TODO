@@ -7,6 +7,7 @@ import 'package:info_hub_app/topics/create_topic/view/topic_creation_view.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 
+/// This test file is responsible for testing the create topic form submission
 void main() async {
   late MockFirebaseAuth auth;
   late FakeFirebaseFirestore firestore;
@@ -47,7 +48,7 @@ void main() async {
     );
   }
 
-  testWidgets('Topic with title,description, category and tag save',
+  testWidgets('Topic with title,description, category and tag gets published',
       (WidgetTester tester) async {
     await defineUserAndStorage(tester);
 
@@ -124,7 +125,8 @@ void main() async {
     expect(documents.length, 1);
   });
 
-  testWidgets('Topic with title,description and multiple category save',
+  testWidgets(
+      'Topic with title,description and multiple categories gets published',
       (WidgetTester tester) async {
     await defineUserAndStorage(tester);
 

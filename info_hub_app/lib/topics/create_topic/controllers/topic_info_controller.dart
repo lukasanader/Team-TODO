@@ -6,18 +6,17 @@ class TopicController {
   final FirebaseAuth auth;
   final FirebaseFirestore firestore;
 
-  TopicController(
-      {required this.auth, required this.firestore});
+  TopicController({required this.auth, required this.firestore});
 
   Future<String> getTopicTitle(String topicID) async {
-    DocumentSnapshot snapshot = await firestore.collection('topics').doc(topicID).get();
+    DocumentSnapshot snapshot =
+        await firestore.collection('topics').doc(topicID).get();
     return snapshot['title'];
   }
 
   Future<QuerySnapshot> getTopicList() async {
-     String uid = auth.currentUser!.uid;
-    DocumentSnapshot user =
-        await firestore.collection('Users').doc(uid).get();
+    String uid = auth.currentUser!.uid;
+    DocumentSnapshot user = await firestore.collection('Users').doc(uid).get();
     String role = user['roleType'];
     QuerySnapshot data = await firestore
         .collection('topics')
@@ -27,6 +26,7 @@ class TopicController {
     return data;
   }
 
+  // Increments the view count for a topic
   Future<void> incrementView(Topic topic) async {
     DocumentReference docRef = firestore.collection('topics').doc(topic.id);
     // Run the transaction
@@ -41,5 +41,4 @@ class TopicController {
       transaction.update(docRef, {'views': newViews});
     });
   }
-
 }

@@ -11,6 +11,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import '../mock_classes.dart';
 import 'package:info_hub_app/topics/create_topic/model/topic_model.dart';
 
+/// This test file is responsible for testing thedeletion of topics by admins
 void main() {
   late FakeFirebaseFirestore firestore;
 
@@ -123,7 +124,7 @@ void main() {
   });
 
   testWidgets(
-      'Test delete topic button removes topic from user disliked topics',
+      'Test tapping delete topic button removes topic from user disliked topics',
       (WidgetTester tester) async {
     CollectionReference topicCollectionRef = firestore.collection('topics');
 

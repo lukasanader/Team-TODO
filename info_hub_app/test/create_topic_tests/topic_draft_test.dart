@@ -12,6 +12,7 @@ import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:info_hub_app/topics/create_topic/model/topic_model.dart';
 
+/// This test file is responsible for testing topic drafts
 void main() async {
   late MockFirebaseAuth auth;
   late FakeFirebaseFirestore firestore;
@@ -20,8 +21,6 @@ void main() async {
   late PlatformFile videoFile;
   late List<PlatformFile> mediaFileList;
   setUp(() {
-    mockFilePicker();
-
     String videoPath = 'info_hub_app/assets/sample-5s.mp4';
     String imagePath = 'assets/blank_pfp.png';
 
