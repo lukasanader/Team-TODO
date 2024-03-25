@@ -3,6 +3,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:info_hub_app/notifications/notification_model.dart' as custom;
+import 'package:info_hub_app/notifications/notification_service.dart';
 import 'package:info_hub_app/services/database.dart';
 import 'package:info_hub_app/notifications/notification_card_view.dart';
 import 'package:provider/provider.dart';
@@ -64,7 +65,7 @@ class _NotificationsState extends State<Notifications> {
           return AnimatedOpacity(
             onEnd: () {
               if (isDeletedList[index]) {
-                DatabaseService(
+                NotificationService(
                         uid: widget.auth.currentUser!.uid,
                         auth: widget.auth,
                         firestore: widget.firestore)

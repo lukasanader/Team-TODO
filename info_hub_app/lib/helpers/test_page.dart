@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:info_hub_app/model/user_model.dart';
 import 'package:info_hub_app/notifications/manage_notifications_view.dart';
+import 'package:info_hub_app/notifications/notification_service.dart';
 import 'package:info_hub_app/services/database.dart';
 import 'package:info_hub_app/threads/threads.dart';
 import 'package:provider/provider.dart';
@@ -46,7 +47,7 @@ class _TestViewState extends State<TestView> {
               child: Column(children: [
         ElevatedButton(
           onPressed: () async {
-            await DatabaseService(
+            await NotificationService(
                     firestore: widget.firestore,
                     auth: widget.auth,
                     uid: widget.auth.currentUser!.uid)

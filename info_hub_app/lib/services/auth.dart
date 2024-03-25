@@ -5,6 +5,8 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:info_hub_app/notifications/notification_service.dart';
+import 'package:info_hub_app/notifications/preferences_service.dart';
 import 'package:info_hub_app/push_notifications/push_notifications_controller.dart';
 import 'package:info_hub_app/model/user_model.dart';
 import 'package:info_hub_app/services/database.dart';
@@ -69,7 +71,8 @@ class AuthService {
           dislikedTopics,
           hasOptedOutOfExperienceExpectations,
         );
-        await DatabaseService(firestore: firestore, auth: auth, uid: user.uid)
+        await PreferencesService(
+                firestore: firestore, auth: auth, uid: user.uid)
             .createPreferences();
 
         await PushNotifications(

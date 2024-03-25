@@ -10,8 +10,7 @@ class PreferencesService {
   PreferencesService(
       {required this.auth, required this.uid, required this.firestore});
 
-  static Future<void> createPreferences(
-      FirebaseAuth auth, FirebaseFirestore firestore) async {
+  Future<void> createPreferences() async {
     CollectionReference prefCollection = firestore.collection('preferences');
     await prefCollection.add({
       'uid': auth.currentUser!.uid,
@@ -19,13 +18,18 @@ class PreferencesService {
     });
   }
 
-  static List<Preferences> prefListFromSnapshot(QuerySnapshot snapshot) {
+  List<Preferences> prefListFromSnapshot(QuerySnapshot snapshot) {
     return snapshot.docs.map((doc) {
       return Preferences(
-        uid: doc.get('uid'),
+        uid: auth.currentUser!.uid,
         push_notifications: doc.get('push_notifications') ?? true,
       );
     }).toList();
+  }
+
+  Stream<List<Preferences>> get preferences {
+    CollectionReference prefCollectionRef = firestore.collection('preferences');
+    return prefCollectionRef.snapshots().map(prefListFromSnapshot);
   }
 
   Future<List<Preferences>> getPreferences() async {
@@ -44,10 +48,5 @@ class PreferencesService {
         .toList();
 
     return preferences;
-  }
-
-  Stream<List<Preferences>> get preferences {
-    CollectionReference prefCollectionRef = firestore.collection('preferences');
-    return prefCollectionRef.snapshots().map(prefListFromSnapshot);
   }
 }

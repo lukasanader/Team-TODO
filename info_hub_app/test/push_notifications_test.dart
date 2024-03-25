@@ -14,6 +14,7 @@ import 'package:info_hub_app/helpers/base.dart';
 import 'package:info_hub_app/home_page/home_page.dart';
 import 'package:info_hub_app/main.dart';
 import 'package:info_hub_app/notifications/notification_model.dart' as custom;
+import 'package:info_hub_app/notifications/notification_service.dart';
 import 'package:info_hub_app/notifications/notification_view.dart';
 import 'package:info_hub_app/push_notifications/push_notifications_controller.dart';
 import 'package:info_hub_app/services/database.dart';
@@ -210,7 +211,7 @@ Future<void> main() async {
       await tester.pumpWidget(MultiProvider(
         providers: [
           StreamProvider<List<custom.Notification>>(
-            create: (_) => DatabaseService(
+            create: (_) => NotificationService(
                     auth: auth,
                     firestore: firestore,
                     uid: auth.currentUser!.uid)
@@ -305,7 +306,7 @@ Future<void> main() async {
       await tester.pumpWidget(MultiProvider(
         providers: [
           StreamProvider<List<custom.Notification>>(
-            create: (_) => DatabaseService(
+            create: (_) => NotificationService(
                     auth: auth,
                     firestore: firestore,
                     uid: auth.currentUser!.uid)
@@ -357,12 +358,12 @@ Future<void> main() async {
       });
 
       await pushNotifications.storeDeviceToken();
-      DatabaseService databaseService = DatabaseService(
+      NotificationService notificationService = NotificationService(
           auth: auth, firestore: firestore, uid: auth.currentUser!.uid);
       const title = 'Test Title';
       const body = 'Test Body';
 
-      await databaseService.sendNotificationToDevices(
+      await notificationService.sendNotificationToDevices(
           title, body, mockClient, mockFlutterLocalNotificationsPlugin);
 
       expect(mockClient.postCalled, isTrue);

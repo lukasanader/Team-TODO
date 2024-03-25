@@ -7,6 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:info_hub_app/main.dart';
 import 'package:info_hub_app/notifications/notification_card_view.dart';
 import 'package:info_hub_app/notifications/notification_model.dart' as custom;
+import 'package:info_hub_app/notifications/notification_service.dart';
 import 'package:info_hub_app/notifications/notification_view.dart';
 import 'package:info_hub_app/services/database.dart';
 import 'package:provider/provider.dart';
@@ -51,7 +52,7 @@ Future<void> main() async {
         MultiProvider(
           providers: [
             StreamProvider<List<custom.Notification>>(
-              create: (_) => DatabaseService(
+              create: (_) => NotificationService(
                 auth: auth,
                 firestore: firestore,
                 uid: auth.currentUser!.uid,
@@ -98,7 +99,7 @@ Future<void> main() async {
         MultiProvider(
           providers: [
             StreamProvider<List<custom.Notification>>(
-              create: (_) => DatabaseService(
+              create: (_) => NotificationService(
                 uid: auth.currentUser!.uid,
                 auth: auth,
                 firestore: firestore,
@@ -130,7 +131,7 @@ Future<void> main() async {
               children: [
                 ElevatedButton(
                   onPressed: () async {
-                    String notificationId = await DatabaseService(
+                    String notificationId = await NotificationService(
                       auth: auth,
                       firestore: firestore,
                       uid: auth.currentUser!.uid,
@@ -139,7 +140,7 @@ Future<void> main() async {
 
                     expect(notificationId, isNotEmpty);
 
-                    await DatabaseService(
+                    await NotificationService(
                             auth: auth,
                             firestore: firestore,
                             uid: auth.currentUser!.uid)
@@ -178,7 +179,7 @@ Future<void> main() async {
         MultiProvider(
           providers: [
             StreamProvider<List<custom.Notification>>(
-              create: (_) => DatabaseService(
+              create: (_) => NotificationService(
                       auth: auth,
                       firestore: firestore,
                       uid: auth.currentUser!.uid)
@@ -231,7 +232,7 @@ Future<void> main() async {
         MultiProvider(
           providers: [
             StreamProvider<List<custom.Notification>>(
-              create: (_) => DatabaseService(
+              create: (_) => NotificationService(
                       auth: auth,
                       firestore: firestore,
                       uid: auth.currentUser!.uid)
@@ -276,7 +277,7 @@ Future<void> main() async {
         MultiProvider(
           providers: [
             StreamProvider<List<custom.Notification>>(
-              create: (_) => DatabaseService(
+              create: (_) => NotificationService(
                       auth: auth,
                       firestore: firestore,
                       uid: auth.currentUser!.uid)
@@ -356,7 +357,7 @@ Future<void> main() async {
         MultiProvider(
           providers: [
             StreamProvider<List<custom.Notification>>(
-              create: (_) => DatabaseService(
+              create: (_) => NotificationService(
                       auth: auth,
                       firestore: firestore,
                       uid: auth.currentUser!.uid)
