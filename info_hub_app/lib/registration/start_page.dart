@@ -48,7 +48,6 @@ class StartPage extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 24.0,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black,
                 ),
               ),
               const SizedBox(height: 250.0),
@@ -88,7 +87,7 @@ class StartPage extends StatelessWidget {
               const SizedBox(height: 20.0),
               SizedBox(
                 width: 250.0,
-                child: OutlinedButton(
+                child: ElevatedButton(
                   onPressed: () {
                     Navigator.push(
                       context,
@@ -104,17 +103,13 @@ class StartPage extends StatelessWidget {
                               )),
                     );
                   },
-                  style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: Colors.red),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                  ),
                   child: const Padding(
                     padding: EdgeInsets.all(10.0),
                     child: Text(
                       'Login',
-                      style: TextStyle(fontSize: 16, color: Colors.black),
+                      style: TextStyle(
+                        fontSize: 16,
+                      ),
                     ),
                   ),
                 ),

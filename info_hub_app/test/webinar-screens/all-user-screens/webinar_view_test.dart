@@ -15,13 +15,15 @@ void main() {
   late MockFirebaseStorage mockFirebaseStorage;
   late WebinarService webinarService;
   late Widget webinarViewScreen;
-  final MockWebViewDependencies mockWebViewDependencies = MockWebViewDependencies();
+  final MockWebViewDependencies mockWebViewDependencies =
+      MockWebViewDependencies();
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   setUp(() async {
     fakeFirestore = FakeFirebaseFirestore();
     mockFirebaseStorage = MockFirebaseStorage();
-    webinarService = WebinarService(firestore: fakeFirestore, storage: mockFirebaseStorage);
+    webinarService =
+        WebinarService(firestore: fakeFirestore, storage: mockFirebaseStorage);
     await mockWebViewDependencies.init();
     testUser = UserModel(
       uid: 'mockUid',
@@ -54,7 +56,7 @@ void main() {
       'dateStarted': DateTime.now().toString(),
       'status': 'Upcoming',
       'chatenabled': true,
-      'selectedtags' : ['admin'],
+      'selectedtags': ['admin'],
     });
   }
 
@@ -69,26 +71,120 @@ void main() {
       'views': 5,
       'dateStarted': DateTime.now().toString(),
       'status': 'Live',
-      'chatenabled' : true,
-      'selectedtags' : ['admin'],
+      'chatenabled': true,
+      'selectedtags': ['admin'],
     });
   }
 
-  testWidgets('Test all widgets appear as expected when nothing is found on the database', (WidgetTester tester) async {
+  addArchiveFirestoreDocument() async {
+    await fakeFirestore.collection('Webinar').doc('id').set({
+      'id': 'id',
+      'title': 'Test Title',
+      'url': 'https://www.youtube.com/watch?v=tSXZ8hervgY',
+      'thumbnail': 'https://picsum.photos/250?image=9',
+      'webinarleadname': 'John Doe',
+      'startTime': DateTime.now().toString(),
+      'views': 5,
+      'dateStarted': DateTime.now().toString(),
+      'status': 'Archived',
+      'chatenabled': true,
+      'selectedtags': ['admin'],
+    });
+  }
+
+  testWidgets(
+      'Test all widgets appear as expected when nothing is found on the database',
+      (WidgetTester tester) async {
     await tester.pumpWidget(webinarViewScreen);
     expect(find.text('Webinars'), findsOneWidget);
     expect(find.text('Currently Live'), findsOneWidget);
-    expect(find.text('None of our trusted NHS doctors are live right now \nPlease check later!'),findsOneWidget);
+    expect(find.byKey(const Key('no_live_webinars')), findsOneWidget);
     expect(find.text('Upcoming Webinars'), findsOneWidget);
-    expect(find.text('Seems like all of our trusted doctors are busy \nCheck regularly to see if there have been any changes'),findsOneWidget);
+    expect(find.byKey(const Key('no_upcoming_webinars')), findsOneWidget);
     expect(find.text('Archived Webinars'), findsOneWidget);
     await tester.tap(find.text('Archived Webinars'));
     await tester.pumpAndSettle();
-    expect(find.text('Check back here to see any webinars you may have missed!'),findsOneWidget);
+    expect(find.byKey(const Key('no_archived_webinars')), findsOneWidget);
     expect(find.text('Show Live and Upcoming Webinars'), findsOneWidget);
   });
 
-  testWidgets('Test adding a live webinar displays correctly and removes placeholder text', (WidgetTester tester) async {
+  testWidgets(
+      'Test padding is visible when two live webinars are displayed on the screen',
+      (WidgetTester tester) async {
+    await provideMockedNetworkImages(() async {
+      await tester.pumpWidget(webinarViewScreen);
+      addLiveFirestoreDocument();
+      await fakeFirestore.collection('Webinar').doc('id_2').set({
+        'id': 'id_2',
+        'title': 'Test Title 2',
+        'url': 'https://www.youtube.com/watch?v=tSXZ8hervgY',
+        'thumbnail': 'https://picsum.photos/250?image=9',
+        'webinarleadname': 'John Doe 2',
+        'startTime': DateTime.now().toString(),
+        'views': 5,
+        'dateStarted': DateTime.now().toString(),
+        'status': 'Live',
+        'chatenabled': true,
+        'selectedtags': ['admin'],
+      });
+      await tester.pumpAndSettle();
+      expect(find.byType(Padding), findsWidgets);
+    });
+  });
+
+  testWidgets(
+      'Test padding is visible when two upcoming webinars are displayed on the screen',
+      (WidgetTester tester) async {
+    await provideMockedNetworkImages(() async {
+      await tester.pumpWidget(webinarViewScreen);
+      addUpcomingFirestoreDocument();
+      await fakeFirestore.collection('Webinar').doc('id_2').set({
+        'id': 'id_2',
+        'title': 'Test Title 2',
+        'url': 'https://www.youtube.com/watch?v=tSXZ8hervgY',
+        'thumbnail': 'https://picsum.photos/250?image=9',
+        'webinarleadname': 'John Doe 2',
+        'startTime': DateTime.now().toString(),
+        'views': 5,
+        'dateStarted': DateTime.now().toString(),
+        'status': 'Upcoming',
+        'chatenabled': true,
+        'selectedtags': ['admin'],
+      });
+      await tester.pumpAndSettle();
+      expect(find.byType(Padding), findsWidgets);
+    });
+  });
+
+  testWidgets(
+      'Test padding is visible when two archived webinars are displayed on the screen',
+      (WidgetTester tester) async {
+    await provideMockedNetworkImages(() async {
+      await tester.pumpWidget(webinarViewScreen);
+      addArchiveFirestoreDocument();
+      await fakeFirestore.collection('Webinar').doc('id_2').set({
+        'id': 'id_2',
+        'title': 'Test Title 2',
+        'url': 'https://www.youtube.com/watch?v=tSXZ8hervgY',
+        'thumbnail': 'https://picsum.photos/250?image=9',
+        'webinarleadname': 'John Doe 2',
+        'startTime': DateTime.now().toString(),
+        'views': 5,
+        'dateStarted': DateTime.now().toString(),
+        'status': 'Archived',
+        'chatenabled': true,
+        'selectedtags': ['admin'],
+      });
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Archived Webinars'));
+      await tester.pumpAndSettle();
+      expect(find.byType(Padding), findsWidgets);
+    });
+  });
+
+  testWidgets(
+      'Test adding a live webinar displays correctly and removes placeholder text',
+      (WidgetTester tester) async {
     await provideMockedNetworkImages(() async {
       addLiveFirestoreDocument();
       await tester.pumpWidget(webinarViewScreen);
@@ -97,11 +193,16 @@ void main() {
       expect(find.text('Test Title'), findsOne);
       expect(find.text('John Doe'), findsOne);
       expect(find.text('5 watching'), findsOne);
-      expect(find.text('None of our trusted NHS doctors are live right now \nPlease check later!'),findsNothing);
+      expect(
+          find.text(
+              'None of our trusted NHS doctors are live right now \nPlease check later!'),
+          findsNothing);
     });
   });
 
-  testWidgets('Test adding an upcoming webinar displays correctly and removes placeholder text',(WidgetTester tester) async {
+  testWidgets(
+      'Test adding an upcoming webinar displays correctly and removes placeholder text',
+      (WidgetTester tester) async {
     await provideMockedNetworkImages(() async {
       addUpcomingFirestoreDocument();
       await tester.pumpWidget(webinarViewScreen);
@@ -110,11 +211,16 @@ void main() {
       expect(find.text('Test Title'), findsOne);
       expect(find.text('John Doe'), findsOne);
       expect(find.text('0 watching'), findsOne);
-      expect(find.text('Seems like all of our trusted doctors are busy \nCheck regularly to see if there have been any changes'),findsNothing);
+      expect(
+          find.text(
+              'Seems like all of our trusted doctors are busy \nCheck regularly to see if there have been any changes'),
+          findsNothing);
     });
   });
 
-  testWidgets('Test adding an archived webinar displays correctly and removes placeholder text', (WidgetTester tester) async {
+  testWidgets(
+      'Test adding an archived webinar displays correctly and removes placeholder text',
+      (WidgetTester tester) async {
     await provideMockedNetworkImages(() async {
       await fakeFirestore.collection('Webinar').doc('id').set({
         'id': 'id',
@@ -126,7 +232,7 @@ void main() {
         'views': 0,
         'dateStarted': DateTime.now().toString(),
         'status': 'Archived',
-        'selectedtags' : ['admin'],
+        'selectedtags': ['admin'],
       });
       await tester.pumpWidget(webinarViewScreen);
       await tester.pumpAndSettle();
@@ -136,11 +242,15 @@ void main() {
       expect(find.text('Test Title'), findsOne);
       expect(find.text('John Doe'), findsOne);
       expect(find.text('0 watching'), findsOne);
-      expect(find.text('Check back here to see any webinars you may have missed!'),findsNothing);
+      expect(
+          find.text('Check back here to see any webinars you may have missed!'),
+          findsNothing);
     });
   });
 
-  testWidgets('Test pressing upcoming webinar should prompt dialog about when it will be available', (WidgetTester tester) async {
+  testWidgets(
+      'Test pressing upcoming webinar should prompt dialog about when it will be available',
+      (WidgetTester tester) async {
     await provideMockedNetworkImages(() async {
       addUpcomingFirestoreDocument();
       await tester.pumpWidget(webinarViewScreen);
@@ -148,11 +258,16 @@ void main() {
       await tester.tap(find.text('Test Title'));
       await tester.pumpAndSettle();
       expect(find.text('Webinar Not Available Yet'), findsOneWidget);
-      expect(find.text('Please come back at the scheduled time to join the webinar.'),findsOneWidget);
+      expect(
+          find.text(
+              'Please come back at the scheduled time to join the webinar.'),
+          findsOneWidget);
     });
   });
 
-  testWidgets('Test pressing button on upcoming webinar dialog should remove dialog from screen',(WidgetTester tester) async {
+  testWidgets(
+      'Test pressing button on upcoming webinar dialog should remove dialog from screen',
+      (WidgetTester tester) async {
     await provideMockedNetworkImages(() async {
       addUpcomingFirestoreDocument();
       await tester.pumpWidget(webinarViewScreen);
@@ -160,15 +275,22 @@ void main() {
       await tester.tap(find.text('Test Title'));
       await tester.pumpAndSettle();
       expect(find.text('Webinar Not Available Yet'), findsOneWidget);
-      expect(find.text('Please come back at the scheduled time to join the webinar.'),findsOneWidget);
+      expect(
+          find.text(
+              'Please come back at the scheduled time to join the webinar.'),
+          findsOneWidget);
       await tester.tap(find.text('OK'));
       await tester.pumpAndSettle();
       expect(find.text('Webinar Not Available Yet'), findsNothing);
-      expect(find.text('Please come back at the scheduled time to join the webinar.'),findsNothing);
+      expect(
+          find.text(
+              'Please come back at the scheduled time to join the webinar.'),
+          findsNothing);
     });
   });
 
-  testWidgets('Test Admin can change webinar from upcoming to live', (WidgetTester tester) async {
+  testWidgets('Test Admin can change webinar from upcoming to live',
+      (WidgetTester tester) async {
     await provideMockedNetworkImages(() async {
       addUpcomingFirestoreDocument();
 
@@ -182,14 +304,16 @@ void main() {
       await tester.tap(find.text('Move to Live'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Are you sure you want to move this webinar to live?'),findsOneWidget);
+      expect(find.text('Are you sure you want to move this webinar to live?'),
+          findsOneWidget);
       expect(find.text('Cancel'), findsOneWidget);
       expect(find.text('Confirm'), findsOneWidget);
 
       await tester.tap(find.text('Confirm'));
       await tester.pumpAndSettle();
 
-      DocumentSnapshot result = await fakeFirestore.collection('Webinar').doc('id').get();
+      DocumentSnapshot result =
+          await fakeFirestore.collection('Webinar').doc('id').get();
       Map<String, dynamic>? data = result.data() as Map<String, dynamic>?;
       String? status = data?['status'];
 
@@ -197,28 +321,32 @@ void main() {
     });
   });
 
-  testWidgets('Test Admin can cancel change webinar from upcoming to live', (WidgetTester tester) async {
+  testWidgets('Test Admin can cancel change webinar from upcoming to live',
+      (WidgetTester tester) async {
     await provideMockedNetworkImages(() async {
       addUpcomingFirestoreDocument();
-      
+
       await tester.pumpWidget(webinarViewScreen);
       await tester.pumpAndSettle();
       await tester.tap(find.byType(IconButton));
-      
+
       await tester.pumpAndSettle();
       expect(find.text('Move to Live'), findsOneWidget);
-      
+
       await tester.tap(find.text('Move to Live'));
       await tester.pumpAndSettle();
-      
-      expect(find.text('Are you sure you want to move this webinar to live?'), findsOneWidget);
+
+      expect(find.text('Are you sure you want to move this webinar to live?'),
+          findsOneWidget);
       expect(find.text('Cancel'), findsOneWidget);
       expect(find.text('Confirm'), findsOneWidget);
       await tester.tap(find.text('Cancel'));
       await tester.pumpAndSettle();
-      expect(find.text('Are you sure you want to move this webinar to live?'), findsNothing);
+      expect(find.text('Are you sure you want to move this webinar to live?'),
+          findsNothing);
 
-      DocumentSnapshot result = await fakeFirestore.collection('Webinar').doc('id').get();
+      DocumentSnapshot result =
+          await fakeFirestore.collection('Webinar').doc('id').get();
       Map<String, dynamic>? data = result.data() as Map<String, dynamic>?;
       String? status = data?['status'];
 
@@ -226,7 +354,8 @@ void main() {
     });
   });
 
-  testWidgets('Test Admin can change webinar from live to archive', (WidgetTester tester) async {
+  testWidgets('Test Admin can change webinar from live to archive',
+      (WidgetTester tester) async {
     await provideMockedNetworkImages(() async {
       addLiveFirestoreDocument();
 
@@ -240,7 +369,10 @@ void main() {
       await tester.tap(find.text('Move to Archive'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Are you sure you want to move this webinar to the archive?'),findsOneWidget);
+      expect(
+          find.text(
+              'Are you sure you want to move this webinar to the archive?'),
+          findsOneWidget);
       expect(find.text('Cancel'), findsOneWidget);
       expect(find.text('Confirm'), findsOneWidget);
 
@@ -248,13 +380,18 @@ void main() {
         of: find.text('Enter new YouTube video URL'),
         matching: find.byType(TextField),
       );
-      await tester.enterText(urlField, "https://www.youtube.com/watch?v=tSXZ8hervgY");
+      await tester.enterText(
+          urlField, "https://www.youtube.com/watch?v=tSXZ8hervgY");
       await tester.tap(find.text('Confirm'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Are you sure you want to move this webinar to the archive?'),findsNothing);
+      expect(
+          find.text(
+              'Are you sure you want to move this webinar to the archive?'),
+          findsNothing);
 
-      DocumentSnapshot result = await fakeFirestore.collection('Webinar').doc('id').get();
+      DocumentSnapshot result =
+          await fakeFirestore.collection('Webinar').doc('id').get();
       Map<String, dynamic>? data = result.data() as Map<String, dynamic>?;
       String? status = data?['status'];
       bool? chatEnabled = data?['chatenabled'];
@@ -264,7 +401,9 @@ void main() {
     });
   });
 
-  testWidgets('Test Admin can not change webinar from live to archive using no link or invalid link', (WidgetTester tester) async {
+  testWidgets(
+      'Test Admin can not change webinar from live to archive using no link or invalid link',
+      (WidgetTester tester) async {
     await provideMockedNetworkImages(() async {
       addLiveFirestoreDocument();
 
@@ -278,7 +417,10 @@ void main() {
       await tester.tap(find.text('Move to Archive'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Are you sure you want to move this webinar to the archive?'),findsOneWidget);
+      expect(
+          find.text(
+              'Are you sure you want to move this webinar to the archive?'),
+          findsOneWidget);
       expect(find.text('Cancel'), findsOneWidget);
       expect(find.text('Confirm'), findsOneWidget);
 
@@ -308,7 +450,9 @@ void main() {
     });
   });
 
-  testWidgets('Test Admin can not change webinar from live to archive using no link or invalid link', (WidgetTester tester) async {
+  testWidgets(
+      'Test Admin can not change webinar from live to archive using no link or invalid link',
+      (WidgetTester tester) async {
     await provideMockedNetworkImages(() async {
       addLiveFirestoreDocument();
 
@@ -322,28 +466,36 @@ void main() {
       await tester.tap(find.text('Move to Archive'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Are you sure you want to move this webinar to the archive?'),findsOneWidget);
+      expect(
+          find.text(
+              'Are you sure you want to move this webinar to the archive?'),
+          findsOneWidget);
       expect(find.text('Cancel'), findsOneWidget);
       expect(find.text('Confirm'), findsOneWidget);
 
       await tester.tap(find.text('Cancel'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Are you sure you want to move this webinar to the archive?'),findsNothing);
+      expect(
+          find.text(
+              'Are you sure you want to move this webinar to the archive?'),
+          findsNothing);
       expect(find.text('Cancel'), findsNothing);
       expect(find.text('Confirm'), findsNothing);
     });
   });
 
-  testWidgets('Test pressing card leads to showing webinar screen', (WidgetTester tester) async {
+  testWidgets('Test pressing card leads to showing webinar screen',
+      (WidgetTester tester) async {
     await provideMockedNetworkImages(() async {
       addLiveFirestoreDocument();
       await tester.pumpWidget(webinarViewScreen);
       await tester.pumpAndSettle();
       await tester.tap(find.text('Test Title'));
       await tester.pump();
-      
-      DocumentSnapshot result =await fakeFirestore.collection('Webinar').doc('id').get();
+
+      DocumentSnapshot result =
+          await fakeFirestore.collection('Webinar').doc('id').get();
       Map<String, dynamic>? data = result.data() as Map<String, dynamic>?;
       int? status = data?['views'];
 
@@ -355,17 +507,17 @@ void main() {
     await provideMockedNetworkImages(() async {
       addLiveFirestoreDocument();
       await fakeFirestore
-      .collection('Webinar')
-      .doc('id')
-      .collection('comments')
-      .doc('hahah')
-      .set({
-        'message' : 'test',
-        'createdAt' : DateTime.now(),
-        'commentID' : 'hahah',
-        'roleType' : 'admin',
-        'uid' : 'randomuid',
-        });
+          .collection('Webinar')
+          .doc('id')
+          .collection('comments')
+          .doc('hahah')
+          .set({
+        'message': 'test',
+        'createdAt': DateTime.now(),
+        'commentID': 'hahah',
+        'roleType': 'admin',
+        'uid': 'randomuid',
+      });
 
       await tester.pumpWidget(webinarViewScreen);
       await tester.pumpAndSettle();
@@ -377,43 +529,55 @@ void main() {
       await tester.tap(find.text('Delete Webinar'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Are you sure you want to delete this webinar?'),findsOneWidget);
+      expect(find.text('Are you sure you want to delete this webinar?'),
+          findsOneWidget);
       expect(find.text('Cancel'), findsOneWidget);
       expect(find.text('Confirm'), findsOneWidget);
 
       await tester.tap(find.text('Confirm'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Are you sure you want to delete this webinar?'),findsNothing);
-      DocumentSnapshot chatResult = await fakeFirestore.collection('Webinar').doc('id').collection('comments').doc('1').get();
-      expect(chatResult.exists,equals(false));
-      DocumentSnapshot result = await fakeFirestore.collection('Webinar').doc('id').get();
+      expect(find.text('Are you sure you want to delete this webinar?'),
+          findsNothing);
+      DocumentSnapshot chatResult = await fakeFirestore
+          .collection('Webinar')
+          .doc('id')
+          .collection('comments')
+          .doc('1')
+          .get();
+      expect(chatResult.exists, equals(false));
+      DocumentSnapshot result =
+          await fakeFirestore.collection('Webinar').doc('id').get();
       expect(result.exists, equals(false));
     });
   });
 
-    testWidgets('Test Admin can cancel delete webinar operation', (WidgetTester tester) async {
-      addLiveFirestoreDocument();
+  testWidgets('Test Admin can cancel delete webinar operation',
+      (WidgetTester tester) async {
+    addLiveFirestoreDocument();
 
-      await tester.pumpWidget(webinarViewScreen);
-      await tester.pumpAndSettle();
-      await tester.tap(find.byType(IconButton));
-      await tester.pumpAndSettle();
+    await tester.pumpWidget(webinarViewScreen);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(IconButton));
+    await tester.pumpAndSettle();
 
-      expect(find.text('Delete Webinar'), findsOneWidget);
+    expect(find.text('Delete Webinar'), findsOneWidget);
 
-      await tester.tap(find.text('Delete Webinar'));
-      await tester.pumpAndSettle();
+    await tester.tap(find.text('Delete Webinar'));
+    await tester.pumpAndSettle();
 
-      expect(find.text('Are you sure you want to delete this webinar?'),findsOneWidget);
-      expect(find.text('Cancel'), findsOneWidget);
-      expect(find.text('Confirm'), findsOneWidget);
+    expect(find.text('Are you sure you want to delete this webinar?'),
+        findsOneWidget);
+    expect(find.text('Cancel'), findsOneWidget);
+    expect(find.text('Confirm'), findsOneWidget);
 
-      await tester.tap(find.text('Cancel'));
-      await tester.pumpAndSettle();
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
 
-      expect(find.text('Are you sure you want to delete this webinar?'),findsNothing);
-      DocumentSnapshot result = await fakeFirestore.collection('Webinar').doc('id').get();
-      expect(result.exists, equals(true));
+    expect(find.text('Are you sure you want to delete this webinar?'),
+        findsNothing);
+    DocumentSnapshot result =
+        await fakeFirestore.collection('Webinar').doc('id').get();
+    expect(result.exists, equals(true));
   });
 }

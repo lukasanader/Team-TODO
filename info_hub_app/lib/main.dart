@@ -129,7 +129,11 @@ class _MyAppState extends State<MyApp> {
           future: checkUser(),
           builder: (context, AsyncSnapshot<String> snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return CircularProgressIndicator();
+              return const Scaffold(
+                body: Center(
+                  child: CircularProgressIndicator(),
+                ),
+              );
             } else {
               switch (snapshot.data) {
                 case 'admin':
