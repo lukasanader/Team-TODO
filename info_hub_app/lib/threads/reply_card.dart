@@ -102,6 +102,7 @@ class _ReplyCardState extends State<ReplyCard> {
             ),
             title: Text(
               widget.authorName,
+              key: Key('authorText_0'),
               style: TextStyle(
                 fontSize: 18.0,
                 fontWeight: FontWeight.bold,
@@ -114,6 +115,7 @@ class _ReplyCardState extends State<ReplyCard> {
               children: <Widget>[
                 Text(
                   content,
+                  key: Key('Content'),
                   style: const TextStyle(fontSize: 18),
                   //overflow: TextOverflow.ellipsis,
                   //maxLines: 3,
@@ -142,6 +144,7 @@ class _ReplyCardState extends State<ReplyCard> {
                 children: <Widget>[
                   if (currentUserId == creator)
                     TextButton(
+                      key: Key('editButton_0'),
                       style: flatButtonStyle,
                       onPressed: () {
                         _showDialog(context, docId);
@@ -195,6 +198,7 @@ class _ReplyCardState extends State<ReplyCard> {
 
                   if (currentUserId == creator)
                     TextButton(
+                      key: Key('deleteButton_0'),
                       style: flatButtonStyle,
                       onPressed: () async {
                         if (!mounted) return;
@@ -205,7 +209,9 @@ class _ReplyCardState extends State<ReplyCard> {
                       },
                       child: Column(
                         children: <Widget>[
-                          Icon(Icons.delete),
+                          Icon(
+                            Icons.delete,
+                          ),
                           Padding(
                             padding: EdgeInsets.symmetric(vertical: 2.0),
                           ),
@@ -277,6 +283,7 @@ class _ReplyCardState extends State<ReplyCard> {
               child: const Text('Cancel'),
             ),
             TextButton(
+              key: Key('updateButtonText'),
               onPressed: () async {
                 if (contentController.text.isNotEmpty) {
                   String updatedContent = contentController.text;

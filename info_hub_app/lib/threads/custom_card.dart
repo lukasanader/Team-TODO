@@ -61,8 +61,7 @@ class _CustomCardState extends State<CustomCard> {
 
   @override
   Widget build(BuildContext context) {
-    print(
-        'Building CustomCard widget for index: ${widget.index}, isEdited: $isEdited');
+    //print('Building CustomCard widget for index: ${widget.index}, isEdited: $isEdited');
 
     var docData =
         widget.snapshot!.docs[widget.index].data() as Map<String, dynamic>;

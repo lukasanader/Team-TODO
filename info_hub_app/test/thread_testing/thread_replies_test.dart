@@ -3,6 +3,7 @@ import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:info_hub_app/threads/reply_card.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:info_hub_app/threads/thread_replies.dart';
 
@@ -15,17 +16,18 @@ class MockFirebaseAuth extends Mock implements FirebaseAuth {
 
 class MockUser extends Mock implements User {
   @override
-  String get uid => 'uniqueUserId';
+  String get uid => 'dummyUid';
   @override
-  String? get email => 'user@example.com';
+  String? get email => 'dummyemail@test.com';
   @override
-  String? get displayName => 'Test User';
+  String? get displayName => 'Dummy User';
 }
 
 void main() {
   late FakeFirebaseFirestore firestore;
   late FirebaseAuth mockAuth;
   final String testThreadId = "testThreadId";
+  final String replyId = "replyId";
 
   setUp(() async {
     firestore = FakeFirebaseFirestore();
@@ -34,19 +36,18 @@ void main() {
     await firestore.collection('thread').doc(testThreadId).set({
       'title': 'Test Thread Title',
       'description': 'Test Thread Description',
-      'creator': 'uniqueUserId',
+      'creator': 'dummyUid',
       'timestamp': Timestamp.now(),
     });
-    firestore.collection('Users').doc('uniqueUserId').set({
-      'name': 'Test User',
+    firestore.collection('Users').doc('dummyUid').set({
+      'name': 'Dummy User',
       'selectedProfilePhoto': 'default_profile_photo.png',
       'roleType': 'Test Role',
     });
 
-    // Optionally, add initial replies to the thread
-    await firestore.collection('replies').add({
+    await firestore.collection('replies').doc(replyId).set({
       'content': 'Initial reply content',
-      'creator': 'uniqueUserId',
+      'creator': 'dummyUid',
       'threadId': testThreadId,
       'timestamp': Timestamp.now(),
     });
@@ -88,6 +89,69 @@ void main() {
       // Check if the new reply's content matches 'Test Reply'
       expect(snapshot.docs.isNotEmpty, true);
       expect(snapshot.docs.first.get('content'), 'Test Reply');
+    });
+  });
+  group('ReplyCard Tests', () {
+    testWidgets('Editing reply updates Firestore', (WidgetTester tester) async {
+      // Render the ReplyCard widget within the test environment
+      String dummyDocId = 'dummyDocId';
+      await firestore.collection('replies').doc(dummyDocId).set({
+        'content': 'Original content',
+      });
+
+      final snapshot = await firestore
+          .collection('replies')
+          .where('creator', isEqualTo: 'dummyUid')
+          .get();
+
+      await tester.pumpWidget(createTestWidget(ReplyCard(
+        reply: {
+          'index': 0,
+          'id': replyId,
+          'content': 'Initial reply content',
+          'creator': 'dummyUid',
+          'timestamp': Timestamp.fromMillisecondsSinceEpoch(1629900000000),
+          'threadId': testThreadId,
+        },
+        firestore: firestore,
+        auth: mockAuth,
+        userProfilePhoto: 'default_profile_photo.png',
+        authorName: 'Dummy User',
+        roleType: 'Test Role',
+      )));
+
+      final expansionTriggerFinder = find.byKey(Key('authorText_0'));
+      await tester.tap(expansionTriggerFinder);
+      await tester.pumpAndSettle();
+
+      // Trigger the edit dialog by tapping the edit button
+      final editButtonFinder = find.byKey(Key('editButton_0'));
+      expect(editButtonFinder, findsOneWidget);
+      await tester.tap(editButtonFinder);
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.byKey(Key('Content')), 'Updated Reply');
+      final updateButtonFinder = find.byKey(Key('updateButtonText'));
+      await tester.tap(updateButtonFinder);
+      await tester.pumpAndSettle();
+
+      await tester.tap(expansionTriggerFinder);
+      await tester.pumpAndSettle();
+
+      // Re-expand the card to access the edit dialog again
+      await tester.tap(expansionTriggerFinder);
+      await tester.pumpAndSettle();
+
+      // Reopen the edit dialog
+      await tester.tap(editButtonFinder);
+      await tester.pumpAndSettle();
+
+      final contentTextField = find.byKey(Key('Content'));
+      expect(find.text('Updated Reply'), findsOneWidget);
+
+      final cancelButtonFinder = find.text('Cancel');
+      await tester.tap(cancelButtonFinder);
+      await tester.pumpAndSettle();
     });
   });
 }
