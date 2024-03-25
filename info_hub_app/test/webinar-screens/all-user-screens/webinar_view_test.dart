@@ -385,10 +385,10 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Are you sure you want to delete this webinar?'),findsNothing);
-      DocumentSnapshot chatResult = await fakeFirestore.collection('Webinar').doc('id').collection('comments').doc('1').get();
-      expect(chatResult.exists,equals(false));
       DocumentSnapshot result = await fakeFirestore.collection('Webinar').doc('id').get();
       expect(result.exists, equals(false));
+      QuerySnapshot chatResult = await fakeFirestore.collection('Webinar').doc('id').collection('comments').get();
+      expect(chatResult.docs.length,equals(0));
     });
   });
 
