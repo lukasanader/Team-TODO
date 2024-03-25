@@ -14,16 +14,18 @@ class _ExperienceCardState extends State<ExperienceCard> {
   Widget build(BuildContext context) {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(12.0),
+        padding: const EdgeInsets.symmetric(horizontal: 10.0),
         child: Column(children: [
           Row(
             children: [
-              Padding(
-                  padding: const EdgeInsets.only(bottom: 10.0),
-                  child: Text(
-                    widget._experience.title.toString(),
-                    style: Theme.of(context).textTheme.titleSmall,
-                  ))
+              Center(
+                child: Padding(
+                    padding: const EdgeInsets.only(bottom: 10.0),
+                    child: Text(
+                      widget._experience.title.toString(),
+                      style: Theme.of(context).textTheme.titleSmall,
+                    )),
+              )
             ],
           ),
           Row(
