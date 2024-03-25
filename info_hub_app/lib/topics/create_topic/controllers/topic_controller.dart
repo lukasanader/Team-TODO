@@ -14,17 +14,30 @@ class TopicController {
     return snapshot['title'];
   }
 
-  Future<QuerySnapshot> getTopicList() async {
+  Future<List<Topic>> getTopicList() async {
      String uid = auth.currentUser!.uid;
     DocumentSnapshot user =
         await firestore.collection('Users').doc(uid).get();
     String role = user['roleType'];
-    QuerySnapshot data = await firestore
-        .collection('topics')
-        .where('tags', arrayContains: role)
-        .get();
+    QuerySnapshot data;
 
-    return data;
+    if (role == 'admin') {
+      data = await firestore
+          .collection('topics')
+          .orderBy('title')        
+          .get();
+    } else {
+      data = await firestore
+          .collection('topics')
+          .where('tags', arrayContains: role)
+          .orderBy('title')
+          .get();
+    }
+
+
+    List<Topic> topicList = List.from(data.docs.map((doc) => Topic.fromSnapshot(doc)));
+
+    return topicList;
   }
 
   Future<void> incrementView(Topic topic) async {

@@ -1,4 +1,5 @@
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
+import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -8,12 +9,25 @@ import 'package:intl/intl.dart';
 
 void main() {
   late FakeFirebaseFirestore firestore;
+  late MockFirebaseAuth auth;
   late MockFirebaseStorage storage;
   late Widget analyticsTopicPageWidget;
 
-  setUp(() {
+  setUp(() async {
+    auth = MockFirebaseAuth();
     firestore = FakeFirebaseFirestore();
     storage = MockFirebaseStorage();
+
+    await auth.createUserWithEmailAndPassword(
+        email: 'test@tested.org', password: 'Password123!');
+    String uid = auth.currentUser!.uid;
+    await firestore.collection('Users').doc(uid).set({
+      'email': 'test@tested.org',
+      'firstName': 'James',
+      'lastName': 'Doe',
+      'roleType': 'admin'
+    });
+
     CollectionReference topicCollectionRef = firestore.collection('topics');
     // Add mock topics to the collection
     topicCollectionRef.add({
@@ -91,7 +105,7 @@ void main() {
 
     // Create the widget
     analyticsTopicPageWidget = MaterialApp(
-      home: AnalyticsTopicView(storage: storage, firestore: firestore),
+      home: AnalyticsTopicView(auth: auth, storage: storage, firestore: firestore),
     );
   });
 

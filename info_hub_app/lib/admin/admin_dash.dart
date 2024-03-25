@@ -187,6 +187,7 @@ class _AdminHomepageState extends State<AdminHomepage> {
                 PersistentNavBarNavigator.pushNewScreen(
                   context,
                   screen: AnalyticsBase(
+                    auth: widget.auth,
                     firestore: widget.firestore,
                     storage: widget.storage,
                   ),
