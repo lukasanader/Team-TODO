@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -9,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
+import 'package:info_hub_app/helpers/base.dart';
 import 'package:info_hub_app/home_page/home_page.dart';
 import 'package:info_hub_app/main.dart';
 import 'package:info_hub_app/notifications/notification_model.dart' as custom;
@@ -179,6 +181,24 @@ Future<void> main() async {
 
     testWidgets('handle tap on local notification in foreground',
         (WidgetTester tester) async {
+      Future<String> checkUser() async {
+        if (auth.currentUser != null) {
+          DocumentSnapshot snapshot = await firestore
+              .collection('Users')
+              .doc(auth.currentUser!.uid)
+              .get();
+          Map<String, dynamic> userData =
+              snapshot.data() as Map<String, dynamic>;
+          if (userData['roleType'] == 'admin') {
+            return 'admin';
+          } else {
+            return 'user';
+          }
+        } else {
+          return 'guest';
+        }
+      }
+
       firestore.collection(UsersCollection).doc(auth.currentUser!.uid).set({
         'firstName': 'Test',
         'lastName': 'User',
@@ -210,6 +230,22 @@ Future<void> main() async {
                   auth: auth,
                   firestore: firestore,
                   storage: storage,
+                ),
+            '/base': (context) => FutureBuilder<Base>(
+                  future: checkUser().then((roleType) => Base(
+                        auth: auth,
+                        firestore: firestore,
+                        storage: storage,
+                        themeManager: themeManager,
+                        roleType: roleType,
+                      )),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return CircularProgressIndicator();
+                    } else {
+                      return snapshot.data!;
+                    }
+                  },
                 ),
           },
         ),

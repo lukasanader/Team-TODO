@@ -296,6 +296,7 @@ Future<void> main() async {
                     firestore: firestore,
                   ),
               '/home': (_) => const Scaffold(),
+              '/base': (_) => const Scaffold(),
             },
           ),
         ),

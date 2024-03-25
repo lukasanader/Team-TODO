@@ -56,7 +56,7 @@ class PushNotifications {
   static void onNotificationTap(NotificationResponse notificationResponse) {
     navigatorKey.currentState!
       ..popUntil((route) => false)
-      ..pushNamed('/home')
+      ..pushNamed('/base')
       ..pushNamed('/notifications');
   }
 

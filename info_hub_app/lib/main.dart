@@ -167,6 +167,22 @@ class _MyAppState extends State<MyApp> {
                 firestore: widget.firestore,
                 storage: widget.storage,
               ),
+          '/base': (context) => FutureBuilder<Base>(
+                future: checkUser().then((roleType) => Base(
+                      auth: widget.auth,
+                      firestore: widget.firestore,
+                      storage: widget.storage,
+                      themeManager: themeManager,
+                      roleType: roleType,
+                    )),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return CircularProgressIndicator();
+                  } else {
+                    return snapshot.data!;
+                  }
+                },
+              ),
         },
         theme: lightTheme,
         darkTheme: darkTheme,
@@ -177,15 +193,12 @@ class _MyAppState extends State<MyApp> {
 
   // Function to check user's role
   Future<String> checkUser() async {
-    // Check if user is authenticated
     if (widget.auth.currentUser != null) {
-      // Retrieve user data from Firestore to determine role
       DocumentSnapshot snapshot = await widget.firestore
           .collection('Users')
           .doc(widget.auth.currentUser!.uid)
           .get();
       Map<String, dynamic> userData = snapshot.data() as Map<String, dynamic>;
-      // Check if user is an admin
       if (userData['roleType'] == 'admin') {
         return 'admin';
       } else {
