@@ -144,7 +144,7 @@ flutter:
     - assets/profile_photo_1.png
     - assets/profile_photo_2.png
     - assets/profile_photo_3.png
-    
+    - assets/sample-5s.mp4
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
 

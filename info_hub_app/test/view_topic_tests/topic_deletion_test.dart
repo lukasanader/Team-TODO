@@ -11,6 +11,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import '../mock_classes.dart';
 import 'package:info_hub_app/topics/create_topic/model/topic_model.dart';
 
+/// This test file is responsible for testing the deletion of topics by admins
 void main() {
   late FakeFirebaseFirestore firestore;
 
