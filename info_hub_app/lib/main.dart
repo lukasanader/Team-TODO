@@ -38,7 +38,10 @@ Future<void> main() async {
       localnotificationsplugin: FlutterLocalNotificationsPlugin());
 
   FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-    navigatorKey.currentState!.pushNamed('/notifications');
+    navigatorKey.currentState!
+      ..popUntil((route) => false)
+      ..pushNamed('/base')
+      ..pushNamed('/notifications');
   });
 
   pushNotifications.init();
@@ -59,7 +62,10 @@ Future<void> main() async {
 
   if (message != null) {
     Future.delayed(const Duration(seconds: 1), () {
-      navigatorKey.currentState!.pushNamed("/notifications");
+      navigatorKey.currentState!
+        ..popUntil((route) => false)
+        ..pushNamed('/base')
+        ..pushNamed('/notifications');
     });
   }
 
