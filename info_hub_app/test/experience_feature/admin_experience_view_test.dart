@@ -20,18 +20,21 @@ void main() {
     topicsCollectionRef.add({
       'title': 'Example 1',
       'description': 'Example experience',
-      'userEmail' : 'test@example.org',
+      'userEmail': 'test@example.org',
       'verified': true
     });
     topicsCollectionRef.add({
       'title': 'Example 2',
       'description': 'Example experience',
-      'userEmail' : 'test2@example.org',
+      'userEmail': 'test2@example.org',
       'verified': false
     });
 
     experienceViewWidget = MaterialApp(
-      home: AdminExperienceView(firestore: firestore, auth: auth,),
+      home: AdminExperienceView(
+        firestore: firestore,
+        auth: auth,
+      ),
     );
   });
 
@@ -44,24 +47,20 @@ void main() {
     expect(listViewFinder, findsNWidgets(2));
   });
 
-  testWidgets('Displays verified experiences',
-      (WidgetTester tester) async {
+  testWidgets('Displays verified experiences', (WidgetTester tester) async {
     // Build our app and trigger a frame.
     await tester.pumpWidget(experienceViewWidget);
     await tester.pumpAndSettle();
 
     expect(find.text('Example 1'), findsOneWidget);
-
   });
 
-  testWidgets('Displays unverified experiences',
-      (WidgetTester tester) async {
+  testWidgets('Displays unverified experiences', (WidgetTester tester) async {
     // Build our app and trigger a frame.
     await tester.pumpWidget(experienceViewWidget);
     await tester.pumpAndSettle();
 
     expect(find.text('Example 2'), findsOneWidget);
-
   });
 
   testWidgets('Button can verify experience correctly',
@@ -70,7 +69,7 @@ void main() {
     await tester.pumpWidget(experienceViewWidget);
     await tester.pumpAndSettle();
 
-    Finder checkButton = find.byIcon(Icons.check);
+    Finder checkButton = find.byIcon(Icons.check_circle_outline);
 
     await tester.ensureVisible(checkButton);
     await tester.tap(checkButton.first);
@@ -94,7 +93,7 @@ void main() {
     await tester.pumpWidget(experienceViewWidget);
     await tester.pumpAndSettle();
 
-    Finder checkButton = find.byIcon(Icons.close);
+    Finder checkButton = find.byIcon(Icons.highlight_off_outlined);
 
     await tester.ensureVisible(checkButton);
     await tester.tap(checkButton.first);
@@ -117,7 +116,7 @@ void main() {
     await tester.pumpWidget(experienceViewWidget);
     await tester.pumpAndSettle();
 
-    Finder deleteButton = find.byIcon(Icons.delete).first;
+    Finder deleteButton = find.byIcon(Icons.delete_outline).first;
 
     await tester.ensureVisible(deleteButton);
     await tester.tap(deleteButton);
@@ -125,10 +124,30 @@ void main() {
 
     expect(find.byType(AlertDialog), findsOneWidget);
 
-    await tester.tap(find.text('OK'));
+    await tester.tap(find.text('Delete'));
     await tester.pumpAndSettle();
 
     expect(find.text('Example 1'), findsNothing);
+  });
+
+  testWidgets('Cancel button does not remove an experience from verified list',
+      (WidgetTester tester) async {
+    // Build our app and trigger a frame.
+    await tester.pumpWidget(experienceViewWidget);
+    await tester.pumpAndSettle();
+
+    Finder deleteButton = find.byIcon(Icons.delete_outline).first;
+
+    await tester.ensureVisible(deleteButton);
+    await tester.tap(deleteButton);
+    await tester.pumpAndSettle();
+
+    expect(find.byType(AlertDialog), findsOneWidget);
+
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Example 1'), findsOneWidget);
   });
 
   testWidgets('Delete button removes an experience from unverified list',
@@ -137,7 +156,7 @@ void main() {
     await tester.pumpWidget(experienceViewWidget);
     await tester.pumpAndSettle();
 
-    Finder deleteButton = find.byIcon(Icons.delete).last;
+    Finder deleteButton = find.byIcon(Icons.delete_outline).last;
 
     await tester.ensureVisible(deleteButton);
     await tester.tap(deleteButton);
@@ -145,10 +164,30 @@ void main() {
 
     expect(find.byType(AlertDialog), findsOneWidget);
 
-    await tester.tap(find.text('OK'));
+    await tester.tap(find.text('Delete'));
     await tester.pumpAndSettle();
 
     expect(find.text('Example 2'), findsNothing);
   });
 
+  testWidgets(
+      'Cancel button does not remove an experience from unverified list',
+      (WidgetTester tester) async {
+    // Build our app and trigger a frame.
+    await tester.pumpWidget(experienceViewWidget);
+    await tester.pumpAndSettle();
+
+    Finder deleteButton = find.byIcon(Icons.delete_outline).last;
+
+    await tester.ensureVisible(deleteButton);
+    await tester.tap(deleteButton);
+    await tester.pumpAndSettle();
+
+    expect(find.byType(AlertDialog), findsOneWidget);
+
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Example 2'), findsOneWidget);
+  });
 }

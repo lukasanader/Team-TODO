@@ -175,16 +175,16 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
           content: const Text("Are you sure you want to delete?"),
           actions: [
             TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text("Cancel"),
-            ),
-            ElevatedButton(
               onPressed: () async {
                 _experienceController.deleteExperience(experience);
                 updateExperiencesList();
                 Navigator.of(context).pop();
               },
               child: const Text("Delete"),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text("Cancel"),
             ),
           ],
         );
