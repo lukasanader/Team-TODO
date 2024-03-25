@@ -5,15 +5,16 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:info_hub_app/main.dart';
-import 'package:info_hub_app/notifications/notification_card.dart';
+import 'package:info_hub_app/notifications/notification_card_view.dart';
 import 'package:info_hub_app/notifications/notification_model.dart' as custom;
-import 'package:info_hub_app/notifications/notifications_view.dart';
+import 'package:info_hub_app/notifications/notification_service.dart';
+import 'package:info_hub_app/notifications/notification_view.dart';
 import 'package:info_hub_app/services/database.dart';
 import 'package:provider/provider.dart';
 
 import 'mock.dart';
 
-const NotificationCollection = 'notifications';
+const notificationCollection = 'notifications';
 
 Future<void> main() async {
   setupFirebaseAuthMocks();
@@ -31,7 +32,7 @@ Future<void> main() async {
     });
 
     tearDown(() async {
-      await firestore.collection(NotificationCollection).get().then((snapshot) {
+      await firestore.collection(notificationCollection).get().then((snapshot) {
         for (var doc in snapshot.docs) {
           doc.reference.delete();
         }
@@ -39,7 +40,7 @@ Future<void> main() async {
     });
 
     testWidgets('shows notifications', (WidgetTester tester) async {
-      await firestore.collection(NotificationCollection).add({
+      await firestore.collection(notificationCollection).add({
         'uid': auth.currentUser!.uid,
         'title': 'title1',
         'body': 'body1',
@@ -51,7 +52,7 @@ Future<void> main() async {
         MultiProvider(
           providers: [
             StreamProvider<List<custom.Notification>>(
-              create: (_) => DatabaseService(
+              create: (_) => NotificationService(
                 auth: auth,
                 firestore: firestore,
                 uid: auth.currentUser!.uid,
@@ -79,14 +80,14 @@ Future<void> main() async {
     testWidgets(
         'ensure padding is visible if more than 2 notifications are present',
         (WidgetTester tester) async {
-      await firestore.collection(NotificationCollection).add({
+      await firestore.collection(notificationCollection).add({
         'uid': auth.currentUser!.uid,
         'title': 'title1',
         'body': 'body1',
         'timestamp': DateTime.now(),
         'route': 'route1',
       });
-      await firestore.collection(NotificationCollection).add({
+      await firestore.collection(notificationCollection).add({
         'uid': auth.currentUser!.uid,
         'title': 'title2',
         'body': 'body2',
@@ -98,7 +99,7 @@ Future<void> main() async {
         MultiProvider(
           providers: [
             StreamProvider<List<custom.Notification>>(
-              create: (_) => DatabaseService(
+              create: (_) => NotificationService(
                 uid: auth.currentUser!.uid,
                 auth: auth,
                 firestore: firestore,
@@ -130,7 +131,7 @@ Future<void> main() async {
               children: [
                 ElevatedButton(
                   onPressed: () async {
-                    String notificationId = await DatabaseService(
+                    String notificationId = await NotificationService(
                       auth: auth,
                       firestore: firestore,
                       uid: auth.currentUser!.uid,
@@ -139,14 +140,14 @@ Future<void> main() async {
 
                     expect(notificationId, isNotEmpty);
 
-                    await DatabaseService(
+                    await NotificationService(
                             auth: auth,
                             firestore: firestore,
                             uid: auth.currentUser!.uid)
                         .deleteNotification(notificationId);
 
                     final notificationAfterDelete = firestore
-                        .collection(NotificationCollection)
+                        .collection(notificationCollection)
                         .doc(notificationId);
                     final snapshot = await notificationAfterDelete.get();
 
@@ -164,8 +165,9 @@ Future<void> main() async {
       await tester.pumpAndSettle();
     });
 
-    testWidgets('delete notification on dismiss', (WidgetTester tester) async {
-      await firestore.collection(NotificationCollection).add({
+    testWidgets('delete notification on delete button',
+        (WidgetTester tester) async {
+      await firestore.collection(notificationCollection).add({
         'uid': auth.currentUser!.uid,
         'title': 'Test Title',
         'body': 'Test Body',
@@ -177,7 +179,7 @@ Future<void> main() async {
         MultiProvider(
           providers: [
             StreamProvider<List<custom.Notification>>(
-              create: (_) => DatabaseService(
+              create: (_) => NotificationService(
                       auth: auth,
                       firestore: firestore,
                       uid: auth.currentUser!.uid)
@@ -195,19 +197,75 @@ Future<void> main() async {
       );
 
       await tester.idle();
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       expect(find.text('Test Title'), findsOneWidget);
 
-      await tester.drag(find.text('Test Title'), const Offset(500.0, 0.0));
+      await tester.drag(find.text('Test Title'), const Offset(-500.0, 0.0));
       await tester.pumpAndSettle();
 
+      expect(find.byIcon(Icons.delete), findsOneWidget);
+      await tester.tap(find.byIcon(Icons.delete));
+      await tester.pumpAndSettle();
       expect(find.text('Test Title'), findsNothing);
+    });
+
+    testWidgets('delete all notifications on delete all button',
+        (WidgetTester tester) async {
+      await firestore.collection(notificationCollection).add({
+        'uid': auth.currentUser!.uid,
+        'title': 'Test Title1',
+        'body': 'Test Body1',
+        'timestamp': Timestamp.now(),
+        'route': 'Test Route1',
+      }).then((doc) => doc.id);
+
+      await firestore.collection(notificationCollection).add({
+        'uid': auth.currentUser!.uid,
+        'title': 'Test Title2',
+        'body': 'Test Body2',
+        'timestamp': Timestamp.now(),
+        'route': 'Test Route2',
+      }).then((doc) => doc.id);
+
+      await tester.pumpWidget(
+        MultiProvider(
+          providers: [
+            StreamProvider<List<custom.Notification>>(
+              create: (_) => NotificationService(
+                      auth: auth,
+                      firestore: firestore,
+                      uid: auth.currentUser!.uid)
+                  .notifications,
+              initialData: const [],
+            ),
+          ],
+          child: MaterialApp(
+            home: Notifications(
+              auth: auth,
+              firestore: firestore,
+            ),
+          ),
+        ),
+      );
+
+      await tester.idle();
+      await tester.pumpAndSettle();
+
+      expect(find.text('Test Title1'), findsOneWidget);
+      expect(find.text('Test Title2'), findsOneWidget);
+      expect(find.byIcon(Icons.delete_forever), findsOneWidget);
+
+      await tester.tap(find.byIcon(Icons.delete_forever));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Test Title1'), findsNothing);
+      expect(find.text('Test Title2'), findsNothing);
     });
 
     testWidgets('show notification details button routes correctly',
         (WidgetTester tester) async {
-      await firestore.collection(NotificationCollection).add({
+      await firestore.collection(notificationCollection).add({
         'uid': auth.currentUser!.uid,
         'title': 'title1',
         'body': 'body1',
@@ -219,7 +277,7 @@ Future<void> main() async {
         MultiProvider(
           providers: [
             StreamProvider<List<custom.Notification>>(
-              create: (_) => DatabaseService(
+              create: (_) => NotificationService(
                       auth: auth,
                       firestore: firestore,
                       uid: auth.currentUser!.uid)
@@ -238,6 +296,8 @@ Future<void> main() async {
                     auth: auth,
                     firestore: firestore,
                   ),
+              '/home': (_) => const Scaffold(),
+              '/base': (_) => const Scaffold(),
             },
           ),
         ),
@@ -261,6 +321,7 @@ Future<void> main() async {
         body: 'Test Body',
         timestamp: DateTime.now(),
         route: 'Test Route',
+        deleted: false,
       );
 
       await tester.pumpWidget(
@@ -284,7 +345,7 @@ Future<void> main() async {
 
     testWidgets('show notification close buttons routes correctly',
         (WidgetTester tester) async {
-      await firestore.collection(NotificationCollection).add({
+      await firestore.collection(notificationCollection).add({
         'uid': auth.currentUser!.uid,
         'title': 'title1',
         'body': 'body1',
@@ -296,7 +357,7 @@ Future<void> main() async {
         MultiProvider(
           providers: [
             StreamProvider<List<custom.Notification>>(
-              create: (_) => DatabaseService(
+              create: (_) => NotificationService(
                       auth: auth,
                       firestore: firestore,
                       uid: auth.currentUser!.uid)

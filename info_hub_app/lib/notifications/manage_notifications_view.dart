@@ -1,10 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'manage_notifications_controller.dart';
 
 class ManageNotifications extends StatefulWidget {
   final FirebaseAuth auth;
-  FirebaseFirestore firestore;
+  final FirebaseFirestore firestore;
   ManageNotifications({Key? key, required this.auth, required this.firestore})
       : super(key: key);
   @override
@@ -14,39 +15,28 @@ class ManageNotifications extends StatefulWidget {
 class _ManageNotificationsState extends State<ManageNotifications> {
   late bool _pushNotificationsEnabled;
   bool _isLoading = true;
+  late ManageNotificationsController _controller;
 
   @override
   void initState() {
     super.initState();
+    _controller = ManageNotificationsController(
+        auth: widget.auth, firestore: widget.firestore);
     _getNotificationPreferences();
   }
 
   Future<void> _getNotificationPreferences() async {
-    final currentUser = widget.auth.currentUser;
-
-    final querySnapshot = await widget.firestore
-        .collection('preferences')
-        .where('uid', isEqualTo: currentUser?.uid)
-        .get();
+    final result = await _controller.getNotificationPreferences();
 
     setState(() {
-      _pushNotificationsEnabled =
-          querySnapshot.docs.first.get('push_notifications');
+      _pushNotificationsEnabled = result;
       _isLoading = false;
     });
   }
 
   Future<void> _updateNotificationPreferences(
       String type, bool newValue) async {
-    final currentUser = widget.auth.currentUser;
-
-    await widget.firestore
-        .collection('preferences')
-        .where('uid', isEqualTo: currentUser?.uid)
-        .get()
-        .then((querySnapshot) {
-      querySnapshot.docs.first.reference.update({type: newValue});
-    });
+    await _controller.updateNotificationPreferences(type, newValue);
   }
 
   @override
