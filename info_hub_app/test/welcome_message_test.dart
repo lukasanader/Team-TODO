@@ -15,14 +15,14 @@ void main() {
     final firestore = FakeFirebaseFirestore();
     final auth = MockFirebaseAuth();
     final storage = MockFirebaseStorage();
-    final ThemeManager themeManager = ThemeManager(); // Create a mock or dummy instance
+    final ThemeManager themeManager = ThemeManager();
     await tester.pumpWidget(MaterialApp(
       home: WelcomePage(
         controller: WelcomeMessageController(
           firestore: firestore,
           auth: auth,
           storage: storage,
-          themeManager: themeManager, // Provide a non-null value here
+          themeManager: themeManager, 
         ),
       ),
     ));
@@ -43,7 +43,7 @@ void main() {
           firestore: firestore,
           auth: auth,
           storage: storage,
-          themeManager: themeManager, // Provide a non-null value here
+          themeManager: themeManager, 
         ),
       ),
     ));
@@ -63,7 +63,7 @@ void main() {
           firestore: firestore,
           auth: auth,
           storage: storage,
-          themeManager: themeManager, // Provide a non-null value here
+          themeManager: themeManager, 
         ),
       ),
     ));
@@ -84,7 +84,7 @@ void main() {
           firestore: firestore,
           auth: auth,
           storage: storage,
-          themeManager: themeManager, // Provide a non-null value here
+          themeManager: themeManager,
         ),
       ),
     ));
@@ -115,7 +115,7 @@ void main() {
           firestore: firestore,
           auth: auth,
           storage: storage,
-          themeManager: themeManager, // Provide a non-null value here
+          themeManager: themeManager, 
         ),
       ),
     ));
@@ -135,7 +135,7 @@ void main() {
           firestore: firestore,
           auth: auth,
           storage: storage,
-          themeManager: themeManager, // Provide a non-null value here
+          themeManager: themeManager, 
         ),
       ),
     ));
@@ -157,7 +157,7 @@ void main() {
           firestore: firestore,
           auth: auth,
           storage: storage,
-          themeManager: themeManager, // Provide a non-null value here
+          themeManager: themeManager, 
         ),
       ),
     ));
@@ -185,7 +185,7 @@ void main() {
           firestore: firestore,
           auth: auth,
           storage: storage,
-          themeManager: themeManager, // Provide a non-null value here
+          themeManager: themeManager, 
         ),
       ),
     ));
@@ -217,7 +217,7 @@ void main() {
           firestore: firestore,
           auth: auth,
           storage: storage,
-          themeManager: themeManager, // Provide a non-null value here
+          themeManager: themeManager, 
         ),
       ),
     ));
@@ -246,7 +246,7 @@ void main() {
           firestore: firestore,
           auth: auth,
           storage: storage,
-          themeManager: themeManager, // Provide a non-null value here
+          themeManager: themeManager, 
         ),
       ),
     ));
@@ -278,7 +278,7 @@ void main() {
           firestore: firestore,
           auth: auth,
           storage: storage,
-          themeManager: themeManager, // Provide a non-null value here
+          themeManager: themeManager, 
         ),
       ),
     ));
@@ -308,7 +308,7 @@ void main() {
           firestore: firestore,
           auth: auth,
           storage: storage,
-          themeManager: themeManager, // Provide a non-null value here
+          themeManager: themeManager, 
         ),
       ),
     ));
@@ -341,7 +341,7 @@ void main() {
           firestore: firestore,
           auth: auth,
           storage: storage,
-          themeManager: themeManager, // Provide a non-null value here
+          themeManager: themeManager, 
         ),
       ),
     ));
@@ -370,7 +370,7 @@ void main() {
           firestore: firestore,
           auth: auth,
           storage: storage,
-          themeManager: themeManager, // Provide a non-null value here
+          themeManager: themeManager, 
         ),
       ),
     ));
@@ -422,7 +422,7 @@ void main() {
           firestore: firestore,
           auth: auth,
           storage: storage,
-          themeManager: themeManager, // Provide a non-null value here
+          themeManager: themeManager, 
         ),
       ),
     ));
@@ -446,7 +446,7 @@ void main() {
           firestore: firestore,
           auth: auth,
           storage: storage,
-          themeManager: themeManager, // Provide a non-null value here
+          themeManager: themeManager, 
         ),
       ),
     ));
@@ -471,7 +471,7 @@ void main() {
           firestore: firestore,
           auth: auth,
           storage: storage,
-          themeManager: themeManager, // Provide a non-null value here
+          themeManager: themeManager, 
         ),
       ),
     ));
@@ -495,7 +495,7 @@ void main() {
           firestore: firestore,
           auth: auth,
           storage: storage,
-          themeManager: themeManager, // Provide a non-null value here
+          themeManager: themeManager, 
         ),
       ),
     ));
@@ -520,7 +520,7 @@ void main() {
           firestore: firestore,
           auth: auth,
           storage: storage,
-          themeManager: themeManager, // Provide a non-null value here
+          themeManager: themeManager, 
         ),
       ),
     ));
@@ -576,7 +576,7 @@ testWidgets('WelcomePage "Get Started" button test if it brings you to the Home 
           firestore: firestore,
           auth: auth,
           storage: storage,
-          themeManager: themeManager, // Provide a non-null value here
+          themeManager: themeManager, 
         ),
       ),
     ));
