@@ -80,7 +80,7 @@ class _ReplyCardState extends State<ReplyCard> {
               .medical_services; // Example icon for Healthcare Professional
         case 'Parent':
           return Icons.family_restroom; // Example icon for Parent
-        case 'Admin':
+        case 'admin':
           return Icons.admin_panel_settings; // Example icon for Admin
         default:
           return Icons.help_outline; // Example icon for Unknown or other roles
@@ -170,13 +170,26 @@ class _ReplyCardState extends State<ReplyCard> {
                       Padding(
                         padding: EdgeInsets.symmetric(vertical: 2.0),
                       ),
-                      Text(
-                        widget.roleType,
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodyMedium, // Display the roleType text
-                        // Adjust the text style as needed
-                      ),
+                      widget.roleType == 'Healthcare Professional'
+                          ? Column(
+                              children: <Widget>[
+                                Text(
+                                  'Healthcare',
+                                  textAlign: TextAlign.center,
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                ),
+                                Text(
+                                  'Professional',
+                                  textAlign: TextAlign.center,
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                ),
+                              ],
+                            )
+                          : Text(
+                              widget.roleType,
+                              textAlign: TextAlign.center,
+                              style: Theme.of(context).textTheme.bodyMedium,
+                            ),
                     ],
                   ),
 

@@ -439,6 +439,95 @@ void main() {
     expect(
         snapshotMissingRole.docs.first.get('roleType'), equals('Missing Role'));
   });
+
+  testWidgets('Tapping InkWell navigates to ThreadReplies',
+      (WidgetTester tester) async {
+    await firestore.collection('thread').add({
+      'title': 'Navigable Title',
+      'description': 'Navigable Description',
+      'creator': 'dummyUid',
+      'timestamp': Timestamp.now(),
+      'topicId': testTopicId,
+      'roleType': 'Admin',
+      'isEdited': false,
+    });
+
+    final snapshot = await firestore.collection('thread').get();
+
+    await tester.pumpWidget(createTestWidget(CustomCard(
+      snapshot: snapshot,
+      index: 0,
+      firestore: firestore,
+      auth: mockAuth,
+      userProfilePhoto: 'default_profile_photo.png',
+      onEditCompleted: () {},
+      roleType: 'Patient',
+    )));
+
+    await tester.pumpAndSettle();
+
+    final inkWellFinder = find.byKey(Key('navigateToThreadReplies_0'));
+    expect(inkWellFinder, findsOneWidget);
+
+    await tester.tap(inkWellFinder);
+    await tester.pumpAndSettle();
+
+    expect(find.byType(ThreadReplies), findsOneWidget);
+  });
+  testWidgets('Update post and check for (edited) text',
+      (WidgetTester tester) async {
+    final snapshot = await firestore.collection('thread').get();
+
+    await tester.pumpWidget(createTestWidget(CustomCard(
+      snapshot: snapshot,
+      index: 0,
+      firestore: firestore,
+      auth: mockAuth,
+      userProfilePhoto: 'default_profile_photo.png',
+      onEditCompleted: () {},
+      roleType: 'Patient',
+    )));
+
+    await tester.pumpAndSettle();
+
+    // Trigger the expansion of the card to reveal the edit button.
+    final expansionTriggerFinder = find.byKey(Key('authorText_0'));
+    expect(expansionTriggerFinder, findsOneWidget);
+    await tester.tap(expansionTriggerFinder);
+    await tester.pumpAndSettle();
+
+    // Initiate the edit operation.
+    final editButtonFinder = find.byKey(Key('editIcon_0'));
+    expect(editButtonFinder, findsOneWidget);
+    await tester.tap(editButtonFinder);
+    await tester.pumpAndSettle(); // Wait for the edit dialog to open.
+
+    // Enter new content and submit the changes.
+    await tester.enterText(find.byKey(Key('Title')), 'Updated Title');
+    await tester.enterText(
+        find.byKey(Key('Description')), 'Updated Description');
+
+    // Confirm the update.
+    final updateButtonFinder = find.byKey(Key('updateButtonText'));
+    expect(updateButtonFinder, findsOneWidget);
+    await tester.tap(updateButtonFinder);
+    await tester.pumpAndSettle();
+    // Wait for the update to be processed.
+    print(
+        find.byType(Text).evaluate().map((e) => e.widget).toList().toString());
+
+// Optionally, you can add a delay to ensure any asynchronous operations have completed.
+    await Future.delayed(
+        Duration(seconds: 1)); // Adjust the duration if necessary.
+    await tester.pumpAndSettle();
+
+    // Re-expand the card to check for the "(edited)" text.
+    await tester.tap(expansionTriggerFinder);
+    await tester.pumpAndSettle(); // Ensure the card has expanded.
+
+    // Verify that the "(edited)" tag is now visible.
+    expect(find.byKey(Key('editedText_0')), findsOneWidget);
+  });
 }
 
 // Create a helper function to wrap your widget in a MaterialApp

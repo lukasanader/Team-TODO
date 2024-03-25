@@ -7,7 +7,6 @@ Dinosaur
 Pirate
 Ninja
 Superhero
-Monster
 Galaxy
 Castle
 Alien
@@ -32,7 +31,6 @@ Bear
 Shark
 Dolphin
 Wizard
-Goblin
 Phoenix
 Griffin
 Minotaur

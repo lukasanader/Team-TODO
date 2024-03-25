@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:info_hub_app/threads/thread_replies.dart';
 import 'package:intl/intl.dart';
 import 'package:info_hub_app/threads/threads.dart';
@@ -116,7 +115,14 @@ class _ViewThreadsState extends State<ViewThreads> {
                         ),
                         SizedBox(height: 4),
                         Text(
-                          "Asked on: ${data['topicTitle']} - ${data['timestamp'] != null ? DateFormat("dd-MMM-yyyy 'at' HH:mm").format(data['timestamp'].toDate()) : "Unknown time"}",
+                          "Topic: ${data['topicTitle']} ",
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                        Text(
+                          "${data['timestamp'] != null ? DateFormat("dd-MMM-yyyy 'at' HH:mm").format(data['timestamp'].toDate()) : "Unknown time"}",
                           style: TextStyle(
                             fontSize: 14,
                             color: Colors.grey[600],
@@ -127,19 +133,6 @@ class _ViewThreadsState extends State<ViewThreads> {
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        IconButton(
-                          icon: Icon(Icons.visibility),
-                          onPressed: () {
-                            Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => ThreadApp(
-                                firestore: widget.firestore,
-                                auth: widget.auth,
-                                topicId: document.id,
-                                topicTitle: data['title'],
-                              ),
-                            ));
-                          },
-                        ),
                         IconButton(
                           icon: const Icon(Icons.delete),
                           onPressed: () => deleteThread(document.id),
@@ -193,12 +186,26 @@ class _ViewThreadsState extends State<ViewThreads> {
                             ),
                           ),
                         ),
+                        const SizedBox(width: 5),
+                        IconButton(
+                            icon: Icon(Icons.visibility),
+                            onPressed: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => ThreadReplies(
+                                    threadId: data['threadId'],
+                                    firestore: widget.firestore,
+                                    auth: widget.auth,
+                                  ),
+                                ),
+                              );
+                            }),
                         const SizedBox(width: 8),
                         /*if (data['authorId'] ==
                             widget.auth.currentUser!
                                 .uid) */ // Use authorId or similar field
                         IconButton(
-                          icon: const Icon(FontAwesomeIcons.trashAlt, size: 15),
+                          icon: Icon(Icons.delete),
                           /*onPressed: () => !isViewingThreads
                               ? deleteThread(document.id)
                               : deleteReply(document.id), */

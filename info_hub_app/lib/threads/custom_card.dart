@@ -61,6 +61,9 @@ class _CustomCardState extends State<CustomCard> {
 
   @override
   Widget build(BuildContext context) {
+    print(
+        'Building CustomCard widget for index: ${widget.index}, isEdited: $isEdited');
+
     var docData =
         widget.snapshot!.docs[widget.index].data() as Map<String, dynamic>;
     var docId = widget.snapshot!.docs[widget.index].id;
@@ -93,7 +96,7 @@ class _CustomCardState extends State<CustomCard> {
               .medical_services; // Example icon for Healthcare Professional
         case 'Parent':
           return Icons.family_restroom; // Example icon for Parent
-        case 'Admin':
+        case 'admin':
           return Icons.admin_panel_settings; // Example icon for Admin
         default:
           return Icons.help_outline; // Example icon for Unknown or other roles
@@ -142,6 +145,8 @@ class _CustomCardState extends State<CustomCard> {
                 Expanded(
                   child: Text(
                     authorName,
+                    key: Key('authorText_${widget.index}'),
+
                     style: const TextStyle(fontSize: 14),
                     //overflow: TextOverflow.ellipsis,
                   ),
@@ -173,9 +178,10 @@ class _CustomCardState extends State<CustomCard> {
                       //overflow: TextOverflow.ellipsis,
                     ),
                     if (isEdited)
-                      const Text(
+                      Text(
                         " (edited)",
-                        style: TextStyle(
+                        key: Key('editedText_${widget.index}'),
+                        style: const TextStyle(
                           fontSize: 12,
                           color: Color.fromARGB(255, 255, 0, 0),
                           fontStyle: FontStyle.italic,
@@ -194,7 +200,8 @@ class _CustomCardState extends State<CustomCard> {
                             },
                             child: Column(
                               children: <Widget>[
-                                Icon(Icons.edit),
+                                Icon(Icons.edit,
+                                    key: Key('editIcon_${widget.index}')),
                                 Padding(
                                   padding: EdgeInsets.symmetric(vertical: 2.0),
                                 ),
@@ -216,13 +223,31 @@ class _CustomCardState extends State<CustomCard> {
                             Padding(
                               padding: EdgeInsets.symmetric(vertical: 2.0),
                             ),
-                            Text(
-                              widget.roleType,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium, // Display the roleType text
-                              // Adjust the text style as needed
-                            ),
+                            widget.roleType == 'Healthcare Professional'
+                                ? Column(
+                                    children: <Widget>[
+                                      Text(
+                                        'Healthcare',
+                                        textAlign: TextAlign.center,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodyMedium,
+                                      ),
+                                      Text(
+                                        'Professional',
+                                        textAlign: TextAlign.center,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodyMedium,
+                                      ),
+                                    ],
+                                  )
+                                : Text(
+                                    widget.roleType,
+                                    textAlign: TextAlign.center,
+                                    style:
+                                        Theme.of(context).textTheme.bodyMedium,
+                                  ),
                           ],
                         ),
                         if (currentUserId == creator)
@@ -251,7 +276,8 @@ class _CustomCardState extends State<CustomCard> {
                             },
                             child: Column(
                               children: <Widget>[
-                                Icon(Icons.delete),
+                                Icon(Icons.delete,
+                                    key: Key('deleteIcon_${widget.index}')),
                                 Padding(
                                   padding: EdgeInsets.symmetric(vertical: 2.0),
                                 ),
@@ -367,7 +393,7 @@ class _CustomCardState extends State<CustomCard> {
                       Navigator.pop(context);
                     }
                   },
-                  child: const Text("Update"),
+                  child: Text("Update", key: Key('updateButtonText')),
                 ),
               ],
             );
