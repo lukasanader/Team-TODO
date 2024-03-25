@@ -73,9 +73,7 @@ class TopicCard extends StatelessWidget {
       onTap: () {
         ActivityController(auth: auth, firestore: firestore)
             .addActivity(_topic.id!, 'topics');
-        TopicController(
-                auth: auth, firestore: firestore)
-            .incrementView(_topic);
+        TopicController(auth: auth, firestore: firestore).incrementView(_topic);
         PersistentNavBarNavigator.pushNewScreen(
           context,
           screen: TopicView(
@@ -102,7 +100,6 @@ class TopicCard extends StatelessWidget {
                       _topic.title ?? '',
                       style: const TextStyle(
                         fontSize: 16,
-                        color: Colors.black,
                       ),
                     ),
                     if (date != null)
@@ -525,9 +522,7 @@ class LargeTopicCard extends StatelessWidget {
       onTap: () {
         ActivityController(auth: auth, firestore: firestore)
             .addActivity(_topic.id!, 'topics');
-        TopicController(
-                auth: auth, firestore: firestore)
-            .incrementView(_topic);
+        TopicController(auth: auth, firestore: firestore).incrementView(_topic);
         PersistentNavBarNavigator.pushNewScreen(
           context,
           screen: TopicView(
