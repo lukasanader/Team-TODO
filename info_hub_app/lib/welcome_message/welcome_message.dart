@@ -1,22 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:info_hub_app/helpers/base.dart';
-import 'package:info_hub_app/theme/theme_manager.dart';
+import 'package:info_hub_app/welcome_message/welcome_message_controller.dart';
 
 class WelcomePage extends StatelessWidget {
-  final FirebaseFirestore firestore;
-  final FirebaseAuth auth;
-  final FirebaseStorage storage;
-  final ThemeManager themeManager;
+  final WelcomeMessageController controller;
 
   const WelcomePage({
     super.key,
-    required this.firestore,
-    required this.auth,
-    required this.storage,
-    required this.themeManager,
+    required this.controller,
   });
 
   @override
@@ -248,7 +238,7 @@ class WelcomePage extends StatelessWidget {
                             color: Colors.black,
                           ),
                         ),
-                        subtitle: Padding(
+                                               subtitle: Padding(
                           padding: const EdgeInsets.only(top: 8.0),
                           child: Text(
                             "Lifestyle changes that may help manage liver disease include maintaining a healthy diet low in fat and processed foods, avoiding alcohol and tobacco, exercising regularly, managing stress, and following prescribed treatment plans. It's essential to consult healthcare professionals.",
@@ -267,24 +257,7 @@ class WelcomePage extends StatelessWidget {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () async {
-                      String uid = auth.currentUser!.uid;
-                      DocumentSnapshot user =
-                          await firestore.collection('Users').doc(uid).get();
-                      String roleType = user['roleType'];
-                      Navigator.pushAndRemoveUntil(
-                        // ignore: use_build_context_synchronously
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => Base(
-                            auth: auth,
-                            storage: storage,
-                            firestore: firestore,
-                            themeManager: themeManager,
-                            roleType: roleType,
-                          ),
-                        ),
-                        (Route<dynamic> route) => false,
-                      );
+                      await controller.navigateToBase(context);
                     },
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.all(16.0),
@@ -311,6 +284,8 @@ class WelcomePage extends StatelessWidget {
     );
   }
 }
+
+
 
 
 
