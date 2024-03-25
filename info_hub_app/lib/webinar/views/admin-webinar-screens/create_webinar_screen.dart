@@ -28,7 +28,6 @@ class _CreateWebinarScreenState extends State<CreateWebinarScreen> {
   final TextEditingController _urlController = TextEditingController();
   late CreateWebinarController controller;
   Uint8List? image;
-  List<String> selectedTags = [];
 
   bool isPatientSelected = false;
   bool isParentSelected = false;
@@ -39,7 +38,6 @@ class _CreateWebinarScreenState extends State<CreateWebinarScreen> {
     super.initState();
     controller = CreateWebinarController(webinarService: widget.webinarService, firestore: widget.firestore, user: widget.user);
     _urlController.addListener(_removeFeatureShared);
-    selectedTags.clear();
   }
 
   @override
@@ -47,22 +45,25 @@ class _CreateWebinarScreenState extends State<CreateWebinarScreen> {
     _titleController.dispose();
     _urlController.dispose();
     super.dispose();
-    selectedTags.clear();
   }
 
+  // Removes YouTube tracking from link copying
   void _removeFeatureShared() {
     setState(() {
-      _urlController.text =
-          _urlController.text.replaceAll('?feature=shared', '');
+      String currentText = _urlController.text;
+      if (currentText.endsWith('?feature=shared')) {
+        _urlController.text = currentText.substring(0, currentText.length - '?feature=shared'.length);
+      }
     });
   }
 
+  // Grants user the ability to schedule their webinar for a later date
   Future<void> _selectDateTime() async {
     DateTime? pickedDate = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
       firstDate: DateTime.now(),
-      lastDate: DateTime(DateTime.now().year + 5),
+      lastDate: DateTime(DateTime.now().year + 2), // Will show time for the next 2 years, change '2' for more or less
     );
 
     if (pickedDate != null) {
@@ -79,49 +80,30 @@ class _CreateWebinarScreenState extends State<CreateWebinarScreen> {
           pickedTime.hour,
           pickedTime.minute,
         );
-        if (isAnyRoleSelected() && image != null) {
-          populateTags();
-          selectedTags.add('admin');
-          controller.goLiveWebinar(
-            context,
-            selectedDateTime,
-            _formKey.currentState,
-            _titleController.text,
-            _urlController.text,
-            image,
-            selectedTags,
-            isScheduled: true
-          );
-          selectedTags.clear();
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Please check if you have uploaded a thumbnail or selected a role.'),
-              duration: Duration(seconds: 2),
-            ),
-          );
+        if (controller.isAnyRoleSelected(
+          isPatientSelected,
+          isParentSelected,
+          isHealthcareProfessionalSelected) 
+          && 
+          image != null) {
+            List<String> selectedTags = controller.populateTags(isPatientSelected, isParentSelected,isHealthcareProfessionalSelected);
+            selectedTags.add('admin');
+            controller.goLiveWebinar(
+              context,
+              selectedDateTime,
+              _formKey.currentState,
+              _titleController.text,
+              _urlController.text,
+              image,
+              selectedTags,
+              isScheduled: true
+            );
+          } else {
+            controller.showThumbnailAndRoleError(context);
         }
 
       }
     }
-  }
-
-
-  
-  void populateTags() {
-    if (isPatientSelected) {
-      selectedTags.add('Patient');
-    }
-    if (isParentSelected) {
-      selectedTags.add('Parent');
-    }
-    if (isHealthcareProfessionalSelected) {
-      selectedTags.add('Healthcare Professional');
-    }
-  }
-
-  bool isAnyRoleSelected() {
-    return isPatientSelected || isParentSelected || isHealthcareProfessionalSelected;
   }
 
 
@@ -383,17 +365,11 @@ class _CreateWebinarScreenState extends State<CreateWebinarScreen> {
                   const SizedBox(height: 20),
                   ElevatedButton(
                     onPressed: () async {
-                      if (_formKey.currentState!.validate() && image != null && isAnyRoleSelected()) {
-                        populateTags();
-                        selectedTags.add('admin');
+                      if (_formKey.currentState!.validate() && image != null && controller.isAnyRoleSelected(isPatientSelected,isParentSelected,isHealthcareProfessionalSelected)) {
+                        List<String> selectedTags = controller.populateTags(isPatientSelected,isParentSelected,isHealthcareProfessionalSelected);
                         await controller.goLiveWebinar(context, null, _formKey.currentState, _titleController.text, _urlController.text, image, selectedTags);
                       } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Please check if you have uploaded a thumbnail or selected a role.'),
-                            duration: Duration(seconds: 2),
-                          ),
-                        );
+                        controller.showThumbnailAndRoleError(context);
                       }
                     },
                     style: ElevatedButton.styleFrom(

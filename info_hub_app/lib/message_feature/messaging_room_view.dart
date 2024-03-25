@@ -10,7 +10,7 @@ class MessageRoomView extends StatefulWidget {
   final FirebaseAuth auth;
   final String senderId;
   final String receiverId;
-  final Function() onNewMessageRoomCreated;
+  final Function()? onNewMessageRoomCreated;
 
   const MessageRoomView(
       {super.key,
@@ -18,7 +18,7 @@ class MessageRoomView extends StatefulWidget {
       required this.auth,
       required this.senderId,
       required this.receiverId,
-      required this.onNewMessageRoomCreated});
+      this.onNewMessageRoomCreated});
 
   @override
   State<MessageRoomView> createState() => _MessageRoomViewState();
@@ -42,7 +42,7 @@ class _MessageRoomViewState extends State<MessageRoomView> {
           widget.receiverId, _messageController.text);
       _messageController.clear();
     }
-    widget.onNewMessageRoomCreated();
+    widget.onNewMessageRoomCreated!();
   }
 
   Future<void> getDisplayName() async {
@@ -53,6 +53,12 @@ class _MessageRoomViewState extends State<MessageRoomView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: const Icon(Icons.arrow_back),
+        ),
         title: displayName,
       ),
       body: Column(

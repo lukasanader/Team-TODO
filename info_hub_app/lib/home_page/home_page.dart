@@ -41,7 +41,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  List<Object> _topicsList = [];
+  List<Topic> _topicsList = [];
   int topicLength = 0;
 
   @override
@@ -226,14 +226,12 @@ class _HomePageState extends State<HomePage> {
     if (widget.auth.currentUser == null) {
       return;
     }
-    QuerySnapshot temp =
+    _topicsList =
         await TopicController(auth: widget.auth, firestore: widget.firestore)
             .getTopicList();
     if (mounted) {
       setState(() {
-        _topicsList = temp.docs.map((doc) => Topic.fromSnapshot(doc)).toList();
-        _topicsList.sort((b, a) =>
-            getTrending(a as Topic).compareTo(getTrending(b as Topic)));
+        _topicsList.sort((b, a) => getTrending(a).compareTo(getTrending(b)));
         topicLength = _topicsList.length;
         if (topicLength > 6) {
           _topicsList.removeRange(6, topicLength);

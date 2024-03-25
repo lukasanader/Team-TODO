@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:info_hub_app/discovery_view/discovery_view_dialogs.dart';
 import 'package:info_hub_app/helpers/helper_widgets.dart';
 import 'package:info_hub_app/controller/user_controller.dart';
+import 'package:info_hub_app/topics/create_topic/controllers/topic_controller.dart';
+import 'package:info_hub_app/topics/create_topic/helpers/categories/category_controller.dart';
 import 'package:info_hub_app/topics/create_topic/helpers/categories/category_model.dart';
 
 import 'package:info_hub_app/topics/view_topic/helpers/topics_card.dart';
@@ -211,22 +213,9 @@ class _DiscoveryViewState extends State<DiscoveryView> {
   }
 
   Future getAllTopicsList() async {
-    String role =
-        await UserController(widget.auth, widget.firestore).getUserRoleType();
-    late QuerySnapshot data;
-
-    if (role == 'admin') {
-      data = await widget.firestore.collection('topics').orderBy('title').get();
-    } else {
-      data = await widget.firestore
-          .collection('topics')
-          .where('tags', arrayContains: role)
-          .orderBy('title')
-          .get();
-    }
-
     List<Topic> tempList =
-        data.docs.map((doc) => Topic.fromSnapshot(doc)).toList();
+        await TopicController(auth: widget.auth, firestore: widget.firestore)
+            .getTopicList();
 
     setState(() {
       _topicsList = tempList;
@@ -258,11 +247,8 @@ class _DiscoveryViewState extends State<DiscoveryView> {
     List<String> tempStringList = [];
     List<Widget> tempWidgetList = [];
 
-    QuerySnapshot<Map<String, dynamic>> snapshot =
-        await widget.firestore.collection('categories').orderBy('name').get();
-
     List<Category> categories =
-        snapshot.docs.map((doc) => Category.fromSnapshot(doc)).toList();
+        await CategoryController(widget.firestore).getCategoryList();
 
     for (Category category in categories) {
       tempStringList.add(category.name!);
