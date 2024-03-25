@@ -48,7 +48,7 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
           children: [
             const Text("Verified experiences"),
             FutureBuilder<List<Experience>>(
-              future: _experienceController.getVerifiedExperienceList(),
+              future: _experienceController.getAllExperienceListBasedOnVerification(true),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   // Return a loading indicator while data is being fetched
@@ -63,7 +63,7 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
             const SizedBox(height: 30),
             const Text("Unverified experiences"),
             FutureBuilder<List<Experience>>(
-              future: _experienceController.getUnverifiedExperienceList(),
+              future: _experienceController.getAllExperienceListBasedOnVerification(false),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   // Return a loading indicator while data is being fetched
@@ -177,8 +177,11 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
 
 
   Future updateExperiencesList() async {
-    List<Experience> verifiedExperiences = await _experienceController.getVerifiedExperienceList();
-    List<Experience> unverifiedExperiences = await _experienceController.getUnverifiedExperienceList();
+    List<Experience> verifiedExperiences = await _experienceController
+      .getAllExperienceListBasedOnVerification(true);
+
+    List<Experience> unverifiedExperiences = await _experienceController
+      .getAllExperienceListBasedOnVerification(false);
 
     setState(() {
       _verifiedExperienceList = verifiedExperiences;

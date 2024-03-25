@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:info_hub_app/controller/user_controller.dart';
 import 'package:info_hub_app/helpers/helper_widgets.dart';
 import 'package:info_hub_app/patient_experience/experience_controller.dart';
 import 'package:info_hub_app/patient_experience/experience_model.dart';
@@ -92,7 +93,7 @@ class _ExperienceViewState extends State<ExperienceView> {
       barrierDismissible: false,
       context: context,
       builder: (BuildContext context) => AlertDialog(
-        title: const Text('Patient Experience Expectations'),
+        title: const Text('Experience Expectations'),
         content: StatefulBuilder(builder:
             (BuildContext context, void Function(void Function()) setState) {
           return SingleChildScrollView(
@@ -104,7 +105,7 @@ class _ExperienceViewState extends State<ExperienceView> {
                 ),
                 const SizedBox(height: 8.0),
                 const Text(
-                  '1. You agree to share your experience with the understanding that it will be shared with other patients.',
+                  '1. You agree to share your experience with the understanding that it will be shared with other users.',
                   style: TextStyle(fontSize: 14.0),
                 ),
                 const SizedBox(height: 8.0),
@@ -273,8 +274,12 @@ class _ExperienceViewState extends State<ExperienceView> {
   }
 
   Future updateExperienceList() async {
+    String roleType = await UserController(widget.auth, widget.firestore)
+      .getUserRoleType();
+
+
     List<Experience> data =
-        await _experienceController.getVerifiedExperienceList();
+        await _experienceController.getVerifiedExperienceListBasedonRole(roleType);
 
     setState(() {
       _experienceList = data;
