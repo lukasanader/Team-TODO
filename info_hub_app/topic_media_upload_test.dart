@@ -8,7 +8,7 @@ import 'package:chewie/chewie.dart';
 import 'package:video_player_platform_interface/video_player_platform_interface.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
-import '../test/mock_classes.dart';
+import 'test/mock_classes.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 
 /// This test file is responsible for testing the media upload using file picker when creating topics.

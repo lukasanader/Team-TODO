@@ -6,8 +6,8 @@ import 'package:info_hub_app/webinar/views/admin-webinar-screens/create_webinar_
 import 'package:info_hub_app/model/user_model.dart';
 import 'package:info_hub_app/webinar/service/webinar_service.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import '../test/mock_classes.dart';
-import '../test/webinar-screens/mock.dart';
+import 'test/mock_classes.dart';
+import 'test/webinar-screens/mock.dart';
 import 'package:integration_test/integration_test.dart';
 
 void main() {
