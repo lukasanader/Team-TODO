@@ -1,15 +1,19 @@
-/*
+import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:expansion_tile_card/expansion_tile_card.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:info_hub_app/threads/custom_card.dart';
 import 'package:info_hub_app/threads/thread_replies.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:info_hub_app/threads/threads.dart';
-import 'package:mockito/mockito.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:mocktail/mocktail.dart';
+import 'package:info_hub_app/main.dart';
+import 'package:info_hub_app/threads/name_generator.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class MockFirebaseAuth extends Mock implements FirebaseAuth {
   @override
@@ -19,209 +23,122 @@ class MockFirebaseAuth extends Mock implements FirebaseAuth {
 class MockUser extends Mock implements User {
   @override
   String get uid => 'dummyUid';
-
   @override
   String? get email => 'dummyemail@test.com';
-
   @override
   String? get displayName => 'Dummy User';
 }
 
 void main() {
   late FakeFirebaseFirestore firestore;
-  late MockFirebaseAuth mockAuth;
+  late FirebaseAuth mockAuth;
   final String testTopicId = "testTopicId";
   final String testTopicTitle = "testTopicTitle";
 
-  setUp(() {
+  setUp(() async {
     firestore = FakeFirebaseFirestore();
     mockAuth = MockFirebaseAuth();
-  });
 
-  Widget createTestWidget(Widget child) {
-    return MaterialApp(
-      home: child,
-    );
-  }
-
-  testWidgets('CustomCard Cancel button clears input and closes the dialog',
-      (WidgetTester tester) async {
-    await firestore.collection('thread').add({
-      'title': 'Test Title',
-      'description': 'Test Description',
+    await firestore.collection('threads').add({
+      'title': 'Test Title 1',
+      'description': 'Test Description 1',
       'creator': 'dummyUid',
       'timestamp': Timestamp.now(),
       'topicId': testTopicId,
-      'topicTitle': testTopicTitle,
+      'roleType': 'Patient',
     });
 
-    final snapshot = await firestore.collection('thread').get();
-
-    await tester.pumpWidget(createTestWidget(CustomCard(
-      snapshot: snapshot,
-      index: 0,
-      firestore: firestore,
-      auth: mockAuth,
-    )));
-
-    await tester.pumpAndSettle();
-
-    // Open the edit dialog
-    await tester.tap(find.byIcon(FontAwesomeIcons.edit));
-    await tester.pumpAndSettle();
-
-    // Cancel the edit
-    await tester.tap(find.text('Cancel'));
-    await tester.pumpAndSettle();
-
-    // Ensure the dialog is closed
-    expect(find.text('Cancel'), findsNothing);
-  });
-
-  testWidgets('CustomCard deletion process with batch delete',
-      (WidgetTester tester) async {
-    // Prepare test data
-    final threadId = await firestore.collection('thread').add({
-      'title': 'Test Title',
-      'description': 'Test Description',
+    await firestore.collection('threads').add({
+      'title': 'Test Title 2',
+      'description': 'Test Description 2',
       'creator': 'dummyUid',
       'timestamp': Timestamp.now(),
-    }).then((doc) => doc.id);
-
-    // Add some replies to the thread
-    await firestore.collection('replies').add({
-      'content': 'Reply 1',
-      'threadId': threadId,
+      'topicId': testTopicId,
+      'roleType': 'Patient',
     });
 
-    await firestore.collection('replies').add({
-      'content': 'Reply 2',
-      'threadId': threadId,
-    });
-
-    final snapshot = await firestore.collection('thread').get();
-
-    await tester.pumpWidget(createTestWidget(CustomCard(
-      snapshot: snapshot,
-      index: 0,
-      firestore: firestore,
-      auth: mockAuth,
-    )));
-
-    await tester.pumpAndSettle();
-
-    // Delete the thread and its replies
-    await tester.tap(find.byIcon(FontAwesomeIcons.trashAlt));
-    await tester.pumpAndSettle();
-
-    // Verify the thread and its replies are deleted
-    final threadSnapshot =
-        await firestore.collection('thread').doc(threadId).get();
-    final repliesSnapshot = await firestore
-        .collection('replies')
-        .where('threadId', isEqualTo: threadId)
-        .get();
-
-    expect(threadSnapshot.exists, isFalse);
-    expect(repliesSnapshot.docs.length, 0);
-  });
-
-  testWidgets('CustomCard InkWell navigation to ThreadReplies',
-      (WidgetTester tester) async {
-    await firestore.collection('thread').add({
-      'title': 'Test Title',
-      'description': 'Test Description',
+    await firestore.collection('threads').add({
+      'title': 'Test Title 3',
+      'description': 'Test Description 3',
       'creator': 'dummyUid',
       'timestamp': Timestamp.now(),
+      'topicId': testTopicId,
+      'roleType': 'Healthcare Professional',
     });
 
-    final snapshot = await firestore.collection('thread').get();
+    await firestore.collection('threads').add({
+      'title': 'Test Title 4',
+      'description': 'Test Description 4',
+      'creator': 'dummyUid',
+      'timestamp': Timestamp.now(),
+      'topicId': testTopicId,
+      'roleType': 'Unknown',
+    });
 
-    await tester.pumpWidget(createTestWidget(CustomCard(
-      snapshot: snapshot,
-      index: 0,
-      firestore: firestore,
-      auth: mockAuth,
-    )));
+    await firestore.collection('threads').add({
+      'title': 'Test Title 5',
+      'description': 'Test Description 5',
+      'creator': 'dummyUid',
+      'timestamp': Timestamp.now(),
+      'topicId': testTopicId,
+      'roleType': 'Patient',
+    });
 
-    await tester.pumpAndSettle();
-
-    // Tap on InkWell to navigate to ThreadReplies
-    await tester.tap(find.byKey(Key('navigateToThreadReplies_0')));
-    await tester.pumpAndSettle();
-
-    // Verify navigation to ThreadReplies
-    expect(find.byType(ThreadReplies), findsOneWidget);
+    // Initialize allNouns and allAdjectives before each test
+    allNouns = await loadWordSet('assets/texts/nouns.txt');
+    allAdjectives = await loadWordSet('assets/texts/adjectives.txt');
   });
 
-  testWidgets('ThreadApp displays the correct AppBar title',
-      (WidgetTester tester) async {
-    await tester.pumpWidget(createTestWidget(ThreadApp(
-      firestore: firestore,
-      auth: mockAuth,
-      topicId: testTopicId,
-      topicTitle: testTopicTitle,
-    )));
+  Widget createTestWidget(Widget child) {
+    return MaterialApp(home: child);
+  }
 
-    expect(find.text(testTopicTitle), findsOneWidget);
+  group('ThreadApp and CustomCard Tests', () {
+    testWidgets('CustomCard displays thread data', (WidgetTester tester) async {
+      await firestore.collection('threads').add({
+        'title': 'Test Title',
+        'description': 'Test Description',
+        'creator': 'dummyUid',
+        'timestamp': Timestamp.now(),
+        'topicId': testTopicId,
+        'roleType': 'Admin',
+      });
+
+      final snapshot = await firestore.collection('threads').get();
+
+      await tester.pumpWidget(createTestWidget(CustomCard(
+        snapshot: snapshot,
+        //indexKey: Key('customCard_0'),
+        index: 0,
+        firestore: firestore,
+        auth: mockAuth,
+        userProfilePhoto: 'default_profile_photo.png',
+        onEditCompleted: () {},
+        roleType: 'Patient',
+      )));
+
+      await tester.pumpAndSettle();
+      final navigateToThreadRepliesKey =
+          find.byKey(Key('navigateToThreadReplies_0'));
+
+      expect(navigateToThreadRepliesKey, findsOneWidget);
+    });
+
+    testWidgets('ThreadApp AppBar title', (WidgetTester tester) async {
+      await tester.pumpWidget(createTestWidget(ThreadApp(
+        firestore: firestore,
+        auth: mockAuth,
+        topicId: testTopicId,
+        topicTitle: testTopicTitle,
+      )));
+
+      expect(find.text(testTopicTitle), findsOneWidget);
+    });
+
+    // Additional tests can be added here
   });
 
-  testWidgets('ThreadApp opens a dialog when FAB is pressed',
-      (WidgetTester tester) async {
-    await tester.pumpWidget(createTestWidget(ThreadApp(
-      firestore: firestore,
-      auth: mockAuth,
-      topicId: testTopicId,
-      topicTitle: testTopicTitle,
-    )));
-
-    await tester.pumpAndSettle();
-    await tester.tap(find.byType(FloatingActionButton));
-    await tester.pumpAndSettle();
-
-    expect(find.byType(AlertDialog), findsOneWidget);
-  });
-
-  testWidgets('ThreadApp closes dialog on cancel', (WidgetTester tester) async {
-    await tester.pumpWidget(createTestWidget(ThreadApp(
-      firestore: firestore,
-      auth: mockAuth,
-      topicId: testTopicId,
-      topicTitle: testTopicTitle,
-    )));
-
-    await tester.pumpAndSettle();
-    await tester.tap(find.byType(FloatingActionButton));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Cancel'));
-    await tester.pumpAndSettle();
-
-    expect(find.byType(AlertDialog), findsNothing);
-  });
-
-  testWidgets('ThreadApp adds a thread on submit', (WidgetTester tester) async {
-    await tester.pumpWidget(createTestWidget(ThreadApp(
-      firestore: firestore,
-      auth: mockAuth,
-      topicId: testTopicId,
-      topicTitle: testTopicTitle,
-    )));
-
-    await tester.pumpAndSettle();
-    await tester.tap(find.byType(FloatingActionButton));
-    await tester.pumpAndSettle();
-
-    await tester.enterText(find.byKey(const Key('Title')), 'New Thread Title');
-    await tester.enterText(
-        find.byKey(const Key('Description')), 'New Thread Description');
-    await tester.tap(find.text('Submit'));
-    await tester.pumpAndSettle();
-
-    // Assert that a new thread was added
-    // Note: You'll need to mock Firestore's response to simulate adding a thread
-  });
-
-  testWidgets('ThreadApp shows error when submitting an incomplete thread',
+  testWidgets('ThreadApp FloatingActionButton interaction',
       (WidgetTester tester) async {
     await tester.pumpWidget(createTestWidget(ThreadApp(
       firestore: firestore,
@@ -231,15 +148,100 @@ void main() {
     )));
 
     await tester.pumpAndSettle();
-    await tester.tap(find.byType(FloatingActionButton));
-    await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Submit'));
+    // Find the FloatingActionButton and tap it.
+    final fab = find.byType(FloatingActionButton);
+    expect(fab, findsOneWidget);
+
+    await tester.tap(fab);
     await tester.pump();
 
-    expect(find.text('Please enter a title'), findsOneWidget);
-    expect(find.text('Please enter a description'), findsOneWidget);
+    // After tapping, you can verify if the dialog is shown or some state is changed.
+    // Adjust the expectation based on the actual behavior of your app.
+  });
+
+  GlobalKey<State<ThreadApp>> threadAppStateKey = GlobalKey<State<ThreadApp>>();
+
+  testWidgets('ThreadApp refreshData functionality',
+      (WidgetTester tester) async {
+    // Create the ThreadApp widget with its key
+    final threadApp = ThreadApp(
+      firestore: firestore,
+      auth: mockAuth,
+      topicId: testTopicId,
+      topicTitle: testTopicTitle,
+    );
+
+    // Pump the widget
+    await tester.pumpWidget(createTestWidget(threadApp));
+
+    // Use the public interface to trigger refreshData
+    threadApp.refreshDataForTesting();
+    await tester.pump();
+
+    // Add assertions to verify the state is updated as expected.
+  });
+
+  testWidgets('StreamBuilder receives data', (WidgetTester tester) async {
+    await tester.pumpWidget(createTestWidget(ThreadApp(
+      firestore: firestore,
+      auth: mockAuth,
+      topicId: 'testTopicId',
+      topicTitle: 'Test Topic',
+    )));
+
+    // Wait for async data to be loaded
+    await tester.pumpAndSettle();
+
+    // Find widgets by key or other identifiers
+    expect(find.text('Test Title 1'), findsOneWidget);
+    //expect(find.text('Test Description'), findsOneWidget);
+    //expect(find.text('Test Topic'), findsOneWidget);
+
+    // Perform more assertions as needed
+  });
+
+  testWidgets('ThreadApp ListView builder with ObjectKey',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(createTestWidget(ThreadApp(
+      firestore: firestore,
+      auth: mockAuth,
+      topicId: testTopicId,
+      topicTitle: testTopicTitle,
+    )));
+
+    await tester.pumpAndSettle();
+
+    // Fetch the threads directly from the mock Firestore to know their IDs.
+    final snapshot = await firestore.collection('threads').get();
+
+    expect(find.byType(ListView), findsOneWidget);
+
+    // Manually check each CustomCard widget corresponding to each document.
+    final docId0 = snapshot.docs[0].id;
+    expect(find.byKey(ObjectKey(docId0)), findsOneWidget);
+    expect(find.text('Test Title 1'), findsOneWidget);
+
+    final docId1 = snapshot.docs[1].id;
+    expect(find.byKey(ObjectKey(docId1)), findsOneWidget);
+    expect(find.text('Test Title 2'), findsOneWidget);
+
+    final docId2 = snapshot.docs[2].id;
+    expect(find.byKey(ObjectKey(docId2)), findsOneWidget);
+
+    final docId3 = snapshot.docs[3].id;
+    expect(find.byKey(ObjectKey(docId3)), findsOneWidget);
+
+    final docId4 = snapshot.docs[4].id;
+    expect(find.byKey(ObjectKey(docId4)), findsOneWidget);
   });
 }
 
-*/
+// Create a helper function to wrap your widget in a MaterialApp
+Widget createTestWidget(Widget child) {
+  return MaterialApp(
+    home: Scaffold(
+      body: child,
+    ),
+  );
+}

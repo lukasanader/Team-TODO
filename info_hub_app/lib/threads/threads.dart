@@ -11,16 +11,23 @@ class ThreadApp extends StatefulWidget {
   final String topicId;
   final String topicTitle;
 
-  const ThreadApp(
-      {Key? key,
-      required this.firestore,
-      required this.auth,
-      required this.topicId,
-      required this.topicTitle})
-      : super(key: key);
+  ThreadApp({
+    Key? key,
+    required this.firestore,
+    required this.auth,
+    required this.topicId,
+    required this.topicTitle,
+  }) : super(key: key);
 
   @override
   _ThreadAppState createState() => _ThreadAppState();
+
+  // Define a GlobalKey within the widget
+  final GlobalKey<_ThreadAppState> key = GlobalKey<_ThreadAppState>();
+
+  void refreshDataForTesting() {
+    key.currentState?.refreshData();
+  }
 }
 
 class _ThreadAppState extends State<ThreadApp> {
@@ -38,9 +45,10 @@ class _ThreadAppState extends State<ThreadApp> {
         .snapshots();
     titleInputController = TextEditingController();
     descriptionInputController = TextEditingController();
+    initializeStream();
   }
 
-  void _refreshData() {
+  void refreshData() {
     setState(() {
       firestoreDb = widget.firestore
           .collection("thread")
@@ -54,6 +62,11 @@ class _ThreadAppState extends State<ThreadApp> {
     titleInputController.dispose();
     descriptionInputController.dispose();
     super.dispose();
+  }
+
+  Future<void> initializeStream() async {
+    // Initialize your firestoreDb stream here
+    firestoreDb = widget.firestore.collection('threads').snapshots();
   }
 
   @override
@@ -102,9 +115,12 @@ class _ThreadAppState extends State<ThreadApp> {
         stream: firestoreDb,
         builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (!snapshot.hasData) return const CircularProgressIndicator();
+          print('Snapshot item count: ${snapshot.data?.docs.length}');
           return ListView.builder(
+            //itemCount: 1,
             itemCount: snapshot.data!.docs.length,
             itemBuilder: (context, int index) {
+              print('ListView.builder index: $index');
               var threadDoc = snapshot.data!.docs[index];
               var roleType = threadDoc['roleType'] ?? 'Unknown';
               var creatorId = threadDoc['creator'];
@@ -123,15 +139,18 @@ class _ThreadAppState extends State<ThreadApp> {
                   var profilePhoto = userDocData?['selectedProfilePhoto'] ??
                       'default_profile_photo.png';
                   //var roleType = userDocData?['roleType'] ?? 'Missing Role';
+                  print(
+                      'Creating CustomCard for role $roleType with ObjectKey: ${threadDoc.id}');
 
                   return CustomCard(
                     key: ObjectKey(threadDoc.id),
+                    //indexKey: Key('customCard_0'),
                     snapshot: snapshot.data,
                     index: index,
                     firestore: widget.firestore,
                     auth: widget.auth,
                     userProfilePhoto: profilePhoto,
-                    onEditCompleted: _refreshData,
+                    onEditCompleted: refreshData,
                     roleType: roleType,
                   );
                 },
@@ -230,7 +249,7 @@ class _ThreadAppState extends State<ThreadApp> {
                       }).then((response) {
                         titleInputController.clear();
                         descriptionInputController.clear();
-                        _refreshData();
+                        refreshData();
                         Navigator.pop(context);
                       });
                     }

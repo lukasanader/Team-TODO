@@ -17,6 +17,7 @@ class CustomCard extends StatefulWidget {
   final String userProfilePhoto;
   final Function onEditCompleted;
   final String roleType;
+  //final Key indexKey;
 
   const CustomCard({
     Key? key,
@@ -27,6 +28,7 @@ class CustomCard extends StatefulWidget {
     required this.userProfilePhoto,
     required this.onEditCompleted,
     required this.roleType,
+    //required this.indexKey,
   }) : super(key: key);
 
   @override
@@ -42,7 +44,7 @@ class _CustomCardState extends State<CustomCard> {
   @override
   void initState() {
     super.initState();
-
+    print('CustomCard role with key: ${widget.roleType}');
     titleInputController = TextEditingController();
     descriptionInputController = TextEditingController();
     var docData =
