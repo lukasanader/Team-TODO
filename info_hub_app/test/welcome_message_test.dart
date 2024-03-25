@@ -7,6 +7,7 @@ import 'package:info_hub_app/welcome_message/welcome_message.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
+import 'package:info_hub_app/welcome_message/welcome_message_controller.dart';
 
 void main() {
   testWidgets('Test if Welcome Message is present',
@@ -16,27 +17,34 @@ void main() {
     final storage = MockFirebaseStorage();
     final ThemeManager themeManager = ThemeManager();
     await tester.pumpWidget(MaterialApp(
-        home: WelcomePage(
-      firestore: firestore,
-      storage: storage,
-      auth: auth,
-      themeManager: themeManager,
-    )));
+      home: WelcomePage(
+        controller: WelcomeMessageController(
+          firestore: firestore,
+          auth: auth,
+          storage: storage,
+          themeManager: themeManager, 
+        ),
+      ),
+    ));
     expect(find.text('Welcome to Info Hub App!'), findsOneWidget);
   });
+
+
+
 
   testWidgets('Test if how to use this app text is present',
       (WidgetTester tester) async {
     final firestore = FakeFirebaseFirestore();
     final auth = MockFirebaseAuth();
     final storage = MockFirebaseStorage();
-
     await tester.pumpWidget(MaterialApp(
       home: WelcomePage(
-        firestore: firestore,
-        storage: storage,
-        auth: auth,
-        themeManager: themeManager,
+        controller: WelcomeMessageController(
+          firestore: firestore,
+          auth: auth,
+          storage: storage,
+          themeManager: themeManager, 
+        ),
       ),
     ));
 
@@ -49,12 +57,14 @@ void main() {
     final auth = MockFirebaseAuth();
     final storage = MockFirebaseStorage();
 
-    await tester.pumpWidget(MaterialApp(
+     await tester.pumpWidget(MaterialApp(
       home: WelcomePage(
-        firestore: firestore,
-        storage: storage,
-        auth: auth,
-        themeManager: themeManager,
+        controller: WelcomeMessageController(
+          firestore: firestore,
+          auth: auth,
+          storage: storage,
+          themeManager: themeManager, 
+        ),
       ),
     ));
 
@@ -68,14 +78,16 @@ void main() {
       final auth = MockFirebaseAuth();
       final storage = MockFirebaseStorage();
 
-      await tester.pumpWidget(MaterialApp(
-        home: WelcomePage(
+       await tester.pumpWidget(MaterialApp(
+      home: WelcomePage(
+        controller: WelcomeMessageController(
           firestore: firestore,
-          storage: storage,
           auth: auth,
+          storage: storage,
           themeManager: themeManager,
         ),
-      ));
+      ),
+    ));
 
       final generalExpansionTileFinder =
           find.byKey(const Key('general_expansion_tile'));
@@ -97,12 +109,14 @@ void main() {
     final auth = MockFirebaseAuth();
     final storage = MockFirebaseStorage();
 
-    await tester.pumpWidget(MaterialApp(
+     await tester.pumpWidget(MaterialApp(
       home: WelcomePage(
-        firestore: firestore,
-        storage: storage,
-        auth: auth,
-        themeManager: themeManager,
+        controller: WelcomeMessageController(
+          firestore: firestore,
+          auth: auth,
+          storage: storage,
+          themeManager: themeManager, 
+        ),
       ),
     ));
 
@@ -115,12 +129,14 @@ void main() {
     final auth = MockFirebaseAuth();
     final storage = MockFirebaseStorage();
 
-    await tester.pumpWidget(MaterialApp(
+     await tester.pumpWidget(MaterialApp(
       home: WelcomePage(
-        firestore: firestore,
-        storage: storage,
-        auth: auth,
-        themeManager: themeManager,
+        controller: WelcomeMessageController(
+          firestore: firestore,
+          auth: auth,
+          storage: storage,
+          themeManager: themeManager, 
+        ),
       ),
     ));
 
@@ -135,14 +151,16 @@ void main() {
       final auth = MockFirebaseAuth();
       final storage = MockFirebaseStorage();
 
-      await tester.pumpWidget(MaterialApp(
-        home: WelcomePage(
+       await tester.pumpWidget(MaterialApp(
+      home: WelcomePage(
+        controller: WelcomeMessageController(
           firestore: firestore,
-          storage: storage,
           auth: auth,
-          themeManager: themeManager,
+          storage: storage,
+          themeManager: themeManager, 
         ),
-      ));
+      ),
+    ));
 
       final generalExpansionTileFinder =
           find.byKey(const Key('guide_expansion_tile'));
@@ -161,14 +179,16 @@ void main() {
       final auth = MockFirebaseAuth();
       final storage = MockFirebaseStorage();
 
-      await tester.pumpWidget(MaterialApp(
-        home: WelcomePage(
+       await tester.pumpWidget(MaterialApp(
+      home: WelcomePage(
+        controller: WelcomeMessageController(
           firestore: firestore,
-          storage: storage,
           auth: auth,
-          themeManager: themeManager,
+          storage: storage,
+          themeManager: themeManager, 
         ),
-      ));
+      ),
+    ));
 
       final generalExpansionTileFinder =
           find.byKey(const Key('guide_expansion_tile'));
@@ -191,14 +211,16 @@ void main() {
       final auth = MockFirebaseAuth();
       final storage = MockFirebaseStorage();
 
-      await tester.pumpWidget(MaterialApp(
-        home: WelcomePage(
+       await tester.pumpWidget(MaterialApp(
+      home: WelcomePage(
+        controller: WelcomeMessageController(
           firestore: firestore,
-          storage: storage,
           auth: auth,
-          themeManager: themeManager,
+          storage: storage,
+          themeManager: themeManager, 
         ),
-      ));
+      ),
+    ));
 
       final generalExpansionTileFinder =
           find.byKey(const Key('guide_expansion_tile'));
@@ -218,14 +240,16 @@ void main() {
       final auth = MockFirebaseAuth();
       final storage = MockFirebaseStorage();
 
-      await tester.pumpWidget(MaterialApp(
-        home: WelcomePage(
+       await tester.pumpWidget(MaterialApp(
+      home: WelcomePage(
+        controller: WelcomeMessageController(
           firestore: firestore,
-          storage: storage,
           auth: auth,
-          themeManager: themeManager,
+          storage: storage,
+          themeManager: themeManager, 
         ),
-      ));
+      ),
+    ));
 
       final generalExpansionTileFinder =
           find.byKey(const Key('guide_expansion_tile'));
@@ -248,14 +272,16 @@ void main() {
       final auth = MockFirebaseAuth();
       final storage = MockFirebaseStorage();
 
-      await tester.pumpWidget(MaterialApp(
-        home: WelcomePage(
+       await tester.pumpWidget(MaterialApp(
+      home: WelcomePage(
+        controller: WelcomeMessageController(
           firestore: firestore,
-          storage: storage,
           auth: auth,
-          themeManager: themeManager,
+          storage: storage,
+          themeManager: themeManager, 
         ),
-      ));
+      ),
+    ));
 
       final generalExpansionTileFinder =
           find.byKey(const Key('guide_expansion_tile'));
@@ -276,14 +302,16 @@ void main() {
       final auth = MockFirebaseAuth();
       final storage = MockFirebaseStorage();
 
-      await tester.pumpWidget(MaterialApp(
-        home: WelcomePage(
+       await tester.pumpWidget(MaterialApp(
+      home: WelcomePage(
+        controller: WelcomeMessageController(
           firestore: firestore,
-          storage: storage,
           auth: auth,
-          themeManager: themeManager,
+          storage: storage,
+          themeManager: themeManager, 
         ),
-      ));
+      ),
+    ));
 
       final generalExpansionTileFinder =
           find.byKey(const Key('guide_expansion_tile'));
@@ -308,13 +336,15 @@ void main() {
       final storage = MockFirebaseStorage();
 
       await tester.pumpWidget(MaterialApp(
-        home: WelcomePage(
+      home: WelcomePage(
+        controller: WelcomeMessageController(
           firestore: firestore,
-          storage: storage,
           auth: auth,
-          themeManager: themeManager,
+          storage: storage,
+          themeManager: themeManager, 
         ),
-      ));
+      ),
+    ));
 
       final generalExpansionTileFinder =
           find.byKey(const Key('guide_expansion_tile'));
@@ -334,15 +364,16 @@ void main() {
       final firestore = FakeFirebaseFirestore();
       final auth = MockFirebaseAuth();
       final storage = MockFirebaseStorage();
-
       await tester.pumpWidget(MaterialApp(
-        home: WelcomePage(
+      home: WelcomePage(
+        controller: WelcomeMessageController(
           firestore: firestore,
-          storage: storage,
           auth: auth,
-          themeManager: themeManager,
+          storage: storage,
+          themeManager: themeManager, 
         ),
-      ));
+      ),
+    ));
       final generalExpansionTileFinder =
           find.byKey(const Key('guide_expansion_tile'));
       expect(generalExpansionTileFinder, findsOneWidget);
@@ -362,10 +393,12 @@ void main() {
 
     await tester.pumpWidget(MaterialApp(
       home: WelcomePage(
-        firestore: firestore,
-        storage: storage,
-        auth: auth, 
-        themeManager: themeManager,
+        controller: WelcomeMessageController(
+          firestore: firestore,
+          auth: auth,
+          storage: storage,
+          themeManager: themeManager, // Provide a non-null value here
+        ),
       ),
     ));
     final generalExpansionTileFinder = find.byKey(const Key('faq_expansion_tile'));
@@ -385,10 +418,12 @@ void main() {
 
     await tester.pumpWidget(MaterialApp(
       home: WelcomePage(
-        firestore: firestore,
-        storage: storage,
-        auth: auth,
-        themeManager: themeManager,
+        controller: WelcomeMessageController(
+          firestore: firestore,
+          auth: auth,
+          storage: storage,
+          themeManager: themeManager, 
+        ),
       ),
     ));
     final generalExpansionTileFinder = find.byKey(const Key('faq_expansion_tile'));
@@ -405,12 +440,14 @@ void main() {
     final auth = MockFirebaseAuth();
     final storage = MockFirebaseStorage();
 
-    await tester.pumpWidget(MaterialApp(
+     await tester.pumpWidget(MaterialApp(
       home: WelcomePage(
-        firestore: firestore,
-        storage: storage,
-        auth: auth,
-        themeManager: themeManager,
+        controller: WelcomeMessageController(
+          firestore: firestore,
+          auth: auth,
+          storage: storage,
+          themeManager: themeManager, 
+        ),
       ),
     ));
     final generalExpansionTileFinder = find.byKey(const Key('faq_expansion_tile'));
@@ -428,12 +465,14 @@ void main() {
     final auth = MockFirebaseAuth();
     final storage = MockFirebaseStorage();
 
-    await tester.pumpWidget(MaterialApp(
+     await tester.pumpWidget(MaterialApp(
       home: WelcomePage(
-        firestore: firestore,
-        storage: storage,
-        auth: auth,
-        themeManager: themeManager,
+        controller: WelcomeMessageController(
+          firestore: firestore,
+          auth: auth,
+          storage: storage,
+          themeManager: themeManager, 
+        ),
       ),
     ));
     final generalExpansionTileFinder = find.byKey(const Key('faq_expansion_tile'));
@@ -450,14 +489,16 @@ void main() {
         final auth = MockFirebaseAuth();
         final storage = MockFirebaseStorage();
 
-        await tester.pumpWidget(MaterialApp(
-          home: WelcomePage(
-            firestore: firestore,
-            storage: storage,
-            auth: auth,
-            themeManager: themeManager,
-          ),
-        ));
+         await tester.pumpWidget(MaterialApp(
+        home: WelcomePage(
+        controller: WelcomeMessageController(
+          firestore: firestore,
+          auth: auth,
+          storage: storage,
+          themeManager: themeManager, 
+        ),
+      ),
+    ));
 
     final generalExpansionTileFinder = find.byKey(const Key('faq_expansion_tile'));
     expect(generalExpansionTileFinder, findsOneWidget);
@@ -475,10 +516,12 @@ void main() {
 
     await tester.pumpWidget(MaterialApp(
       home: WelcomePage(
-        firestore: firestore,
-        storage: storage,
-        auth: auth,
-        themeManager: themeManager,
+        controller: WelcomeMessageController(
+          firestore: firestore,
+          auth: auth,
+          storage: storage,
+          themeManager: themeManager, 
+        ),
       ),
     ));
     final generalExpansionTileFinder = find.byKey(const Key('faq_expansion_tile'));
@@ -505,14 +548,16 @@ testWidgets('WelcomePage "Get Started" button test if it brings you to the Home 
       'lastName': 'OldLastName',
     };
     await firestore.collection('Users').doc(fakeUserId).set(fakeUser);
-  await tester.pumpWidget(MaterialApp(
-    home: WelcomePage(
-      auth: auth,
-      firestore: firestore,
-      storage: storage,
-      themeManager: themeManager,
-    ),
-  ));
+     await tester.pumpWidget(MaterialApp(
+      home: WelcomePage(
+        controller: WelcomeMessageController(
+          firestore: firestore,
+          auth: auth,
+          storage: storage,
+          themeManager: themeManager, // Provide a non-null value here
+        ),
+      ),
+    ));
   await tester.ensureVisible(find.textContaining('Get Started'));
   expect(find.text('Get Started'), findsOneWidget);
   await tester.tap(find.text('Get Started'));
@@ -525,12 +570,14 @@ testWidgets('WelcomePage "Get Started" button test if it brings you to the Home 
     final firestore = FakeFirebaseFirestore();
     final auth = MockFirebaseAuth();
     final storage = MockFirebaseStorage();
-    await tester.pumpWidget(MaterialApp(
+     await tester.pumpWidget(MaterialApp(
       home: WelcomePage(
-        auth: auth,
-        firestore: firestore,
-        storage: storage,
-        themeManager: themeManager,
+        controller: WelcomeMessageController(
+          firestore: firestore,
+          auth: auth,
+          storage: storage,
+          themeManager: themeManager, 
+        ),
       ),
     ));
 

@@ -1,8 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:info_hub_app/controller/activity_controller.dart';
+import 'package:info_hub_app/controller/quiz_controller.dart';
+import 'package:info_hub_app/model/quiz_model.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:info_hub_app/topics/create_topic/helpers/quiz/complete_quiz.dart';
@@ -79,14 +83,9 @@ class TopicViewState extends State<TopicView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          iconTheme: const IconThemeData(color: Colors.white),
-          backgroundColor: const Color.fromRGBO(200, 0, 0, 1.0),
-          title: Text(
-            updatedTopic.title!,
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
+          title: Tooltip(
+            message: updatedTopic.title!,
+            child: Text(updatedTopic.title!),
           ),
           actions: <Widget>[
             // Edit button (only visible to admins)
@@ -122,8 +121,8 @@ class TopicViewState extends State<TopicView> {
             IconButton(
               key: const Key('save_btn'),
               icon: interactionController.saved
-                  ? const Icon(Icons.bookmark, color: Colors.white)
-                  : const Icon(Icons.bookmark_border, color: Colors.white),
+                  ? const Icon(Icons.bookmark)
+                  : const Icon(Icons.bookmark_border),
               onPressed: () {
                 interactionController.saveTopic();
               },
@@ -155,60 +154,66 @@ class TopicViewState extends State<TopicView> {
                         ),
                         const SizedBox(height: 16),
                         // Interaction buttons for like, dislike, comments, and quiz
-                        Row(
-                          children: [
-                            IconButton(
-                              onPressed: () {
-                                interactionController.likeTopic();
-                              },
-                              icon: Icon(Icons.thumb_up,
-                                  color: interactionController.hasLiked
-                                      ? Colors.blue
-                                      : Colors.grey),
-                            ),
-                            Text("${interactionController.likes}"),
-                            IconButton(
-                              onPressed: () {
-                                interactionController.dislikeTopic();
-                              },
-                              icon: Icon(Icons.thumb_down,
-                                  color: interactionController.hasDisliked
-                                      ? Colors.red
-                                      : Colors.grey),
-                            ),
-                            Text("${interactionController.dislikes}"),
-                            IconButton(
-                              icon: const Icon(FontAwesomeIcons.comments,
-                                  size: 20),
-                              onPressed: () {
-                                // Navigate to the Threads screen
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => ThreadApp(
-                                        firestore: widget.firestore,
-                                        auth: widget.auth,
-                                        topicId: widget.topic.id!,
-                                        topicTitle: widget.topic.title!),
-                                  ),
-                                );
-                              },
-                            ),
-                            // Complete quiz button
-                            TextButton(
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => CompleteQuiz(
+                        Align(
+                          alignment: Alignment.center,
+                          child: Row(
+                            mainAxisAlignment:
+                                MainAxisAlignment.center, // Optional
+                            children: [
+                              IconButton(
+                                onPressed: () {
+                                  interactionController.likeTopic();
+                                },
+                                icon: Icon(Icons.thumb_up,
+                                    color: interactionController.hasLiked
+                                        ? Colors.blue
+                                        : Colors.grey),
+                              ),
+                              Text("${interactionController.likes}"),
+                              IconButton(
+                                onPressed: () {
+                                  interactionController.dislikeTopic();
+                                },
+                                icon: Icon(Icons.thumb_down,
+                                    color: interactionController.hasDisliked
+                                        ? Colors.red
+                                        : Colors.grey),
+                              ),
+                              Text("${interactionController.dislikes}"),
+                              IconButton(
+                                icon: const Icon(FontAwesomeIcons.comments,
+                                    size: 20),
+                                onPressed: () {
+                                  // Navigate to the Threads screen
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => ThreadApp(
                                           firestore: widget.firestore,
-                                          topic: widget.topic,
-                                          auth: widget.auth)),
-                                );
-                              },
-                              child: const Text('QUIZ!!'),
-                            ),
-                          ],
+                                          auth: widget.auth,
+                                          topicId: widget.topic.id!,
+                                          topicTitle: widget.topic.title!),
+                                    ),
+                                  );
+                                },
+                              ),
+                              // complete quiz
+                              if (widget.topic.quizID != '')
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => CompleteQuiz(
+                                              firestore: widget.firestore,
+                                              topic: widget.topic,
+                                              auth: widget.auth)),
+                                    );
+                                  },
+                                  child: const Text('QUIZ!!'),
+                                ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
@@ -283,7 +288,6 @@ class TopicViewState extends State<TopicView> {
     );
   }
 
-  /// Checks if the user exists and if the user's roleType is 'admin'
   Future<void> _isAdmin() async {
     User? user = widget.auth.currentUser;
 
