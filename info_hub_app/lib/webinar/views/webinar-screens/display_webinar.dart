@@ -6,7 +6,7 @@ import 'package:info_hub_app/webinar/service/webinar_service.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import 'package:flutter/services.dart';
 
-// Displays base broadcasting screen
+// Displays webinar view screen alongside the respective chat for this webinar
 class WebinarScreen extends StatefulWidget {
   final String webinarID;
   final String youtubeURL;

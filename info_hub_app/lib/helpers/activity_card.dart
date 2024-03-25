@@ -1,8 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:info_hub_app/controller/activity_controller.dart';
-import 'package:info_hub_app/services/database.dart';
 import 'package:info_hub_app/threads/threads.dart';
 import 'package:info_hub_app/topics/create_topic/controllers/topic_controller.dart';
 
