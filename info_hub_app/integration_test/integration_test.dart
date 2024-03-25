@@ -5,5 +5,4 @@ import '../webinar_file_picker_test.dart' as testTwo;
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   testOne.main();
-  testTwo.main();
 }

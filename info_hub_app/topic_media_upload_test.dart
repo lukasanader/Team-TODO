@@ -37,6 +37,7 @@ void main() async {
     await tester.enterText(find.byKey(const Key('titleField')), 'Test title');
     await tester.enterText(
         find.byKey(const Key('descField')), 'Test description');
+    await tester.tap(find.byType(AppBar));
   }
 
   Future<void> defineUserAndStorage(WidgetTester tester) async {
