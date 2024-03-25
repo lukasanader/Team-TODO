@@ -1,6 +1,6 @@
 // This file contains the code for the email verification screen
 
-import 'package:info_hub_app/registration/user_controller.dart';
+import 'package:info_hub_app/controller/user_controller.dart';
 import 'package:info_hub_app/helpers/base.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
