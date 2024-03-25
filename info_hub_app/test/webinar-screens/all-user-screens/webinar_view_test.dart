@@ -76,6 +76,22 @@ void main() {
     });
   }
 
+  addArchiveFirestoreDocument() async {
+    await fakeFirestore.collection('Webinar').doc('id').set({
+      'id': 'id',
+      'title': 'Test Title',
+      'url': 'https://www.youtube.com/watch?v=tSXZ8hervgY',
+      'thumbnail': 'https://picsum.photos/250?image=9',
+      'webinarleadname': 'John Doe',
+      'startTime': DateTime.now().toString(),
+      'views': 5,
+      'dateStarted': DateTime.now().toString(),
+      'status': 'Archived',
+      'chatenabled': true,
+      'selectedtags': ['admin'],
+    });
+  }
+
   testWidgets(
       'Test all widgets appear as expected when nothing is found on the database',
       (WidgetTester tester) async {
@@ -90,6 +106,80 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('no_archived_webinars')), findsOneWidget);
     expect(find.text('Show Live and Upcoming Webinars'), findsOneWidget);
+  });
+
+  testWidgets(
+      'Test padding is visible when two live webinars are displayed on the screen',
+      (WidgetTester tester) async {
+    await provideMockedNetworkImages(() async {
+      await tester.pumpWidget(webinarViewScreen);
+      addLiveFirestoreDocument();
+      await fakeFirestore.collection('Webinar').doc('id_2').set({
+        'id': 'id_2',
+        'title': 'Test Title 2',
+        'url': 'https://www.youtube.com/watch?v=tSXZ8hervgY',
+        'thumbnail': 'https://picsum.photos/250?image=9',
+        'webinarleadname': 'John Doe 2',
+        'startTime': DateTime.now().toString(),
+        'views': 5,
+        'dateStarted': DateTime.now().toString(),
+        'status': 'Live',
+        'chatenabled': true,
+        'selectedtags': ['admin'],
+      });
+      await tester.pumpAndSettle();
+      expect(find.byType(Padding), findsWidgets);
+    });
+  });
+
+  testWidgets(
+      'Test padding is visible when two upcoming webinars are displayed on the screen',
+      (WidgetTester tester) async {
+    await provideMockedNetworkImages(() async {
+      await tester.pumpWidget(webinarViewScreen);
+      addUpcomingFirestoreDocument();
+      await fakeFirestore.collection('Webinar').doc('id_2').set({
+        'id': 'id_2',
+        'title': 'Test Title 2',
+        'url': 'https://www.youtube.com/watch?v=tSXZ8hervgY',
+        'thumbnail': 'https://picsum.photos/250?image=9',
+        'webinarleadname': 'John Doe 2',
+        'startTime': DateTime.now().toString(),
+        'views': 5,
+        'dateStarted': DateTime.now().toString(),
+        'status': 'Upcoming',
+        'chatenabled': true,
+        'selectedtags': ['admin'],
+      });
+      await tester.pumpAndSettle();
+      expect(find.byType(Padding), findsWidgets);
+    });
+  });
+
+  testWidgets(
+      'Test padding is visible when two archived webinars are displayed on the screen',
+      (WidgetTester tester) async {
+    await provideMockedNetworkImages(() async {
+      await tester.pumpWidget(webinarViewScreen);
+      addArchiveFirestoreDocument();
+      await fakeFirestore.collection('Webinar').doc('id_2').set({
+        'id': 'id_2',
+        'title': 'Test Title 2',
+        'url': 'https://www.youtube.com/watch?v=tSXZ8hervgY',
+        'thumbnail': 'https://picsum.photos/250?image=9',
+        'webinarleadname': 'John Doe 2',
+        'startTime': DateTime.now().toString(),
+        'views': 5,
+        'dateStarted': DateTime.now().toString(),
+        'status': 'Archived',
+        'chatenabled': true,
+        'selectedtags': ['admin'],
+      });
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Archived Webinars'));
+      await tester.pumpAndSettle();
+      expect(find.byType(Padding), findsWidgets);
+    });
   });
 
   testWidgets(
