@@ -4,7 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:info_hub_app/notifications/notification_model.dart' as custom;
 import 'package:info_hub_app/services/database.dart';
-import 'package:info_hub_app/notifications/notification_card.dart';
+import 'package:info_hub_app/notifications/notification_card_view.dart';
 import 'package:provider/provider.dart';
 
 class Notifications extends StatefulWidget {

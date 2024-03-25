@@ -10,7 +10,7 @@ import 'package:info_hub_app/notifications/notification_model.dart' as custom;
 import 'package:info_hub_app/helpers/base.dart';
 import 'package:info_hub_app/discovery_view/discovery_view.dart';
 import 'package:info_hub_app/home_page/home_page.dart';
-import 'package:info_hub_app/notifications/notifications_view.dart';
+import 'package:info_hub_app/notifications/notification_view.dart';
 import 'package:info_hub_app/settings/settings_view.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:info_hub_app/services/database.dart';

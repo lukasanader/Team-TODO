@@ -4,8 +4,8 @@ import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:info_hub_app/notifications/preferences_model.dart';
-import 'package:info_hub_app/notifications/manage_notifications.dart';
+import 'package:info_hub_app/notifications/manage_notifications_model.dart';
+import 'package:info_hub_app/notifications/manage_notifications_view.dart';
 import 'package:info_hub_app/services/database.dart';
 import 'package:provider/provider.dart';
 
@@ -22,13 +22,10 @@ Future<void> main() async {
   group('Manage Notifications Tests', () {
     late FakeFirebaseFirestore firestore;
     late MockFirebaseAuth auth;
-    late ManageNotifications manageNotifications;
     late DatabaseService databaseService;
     setUp(() {
       firestore = FakeFirebaseFirestore();
       auth = MockFirebaseAuth(signedIn: true);
-      manageNotifications =
-          ManageNotifications(auth: auth, firestore: firestore);
       databaseService = DatabaseService(
           auth: auth, uid: auth.currentUser!.uid, firestore: firestore);
     });

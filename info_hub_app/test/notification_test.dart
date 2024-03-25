@@ -5,9 +5,9 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:info_hub_app/main.dart';
-import 'package:info_hub_app/notifications/notification_card.dart';
+import 'package:info_hub_app/notifications/notification_card_view.dart';
 import 'package:info_hub_app/notifications/notification_model.dart' as custom;
-import 'package:info_hub_app/notifications/notifications_view.dart';
+import 'package:info_hub_app/notifications/notification_view.dart';
 import 'package:info_hub_app/services/database.dart';
 import 'package:provider/provider.dart';
 

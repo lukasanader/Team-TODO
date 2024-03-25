@@ -13,7 +13,7 @@ import 'package:info_hub_app/helpers/test_page.dart';
 import 'package:info_hub_app/message_feature/patient_message_view.dart';
 import 'package:info_hub_app/patient_experience/patient_experience_view.dart';
 import 'package:info_hub_app/model/user_model.dart';
-import 'package:info_hub_app/notifications/notifications_view.dart';
+import 'package:info_hub_app/notifications/notification_view.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:info_hub_app/topics/create_topic/controllers/topic_controller.dart';
@@ -188,10 +188,9 @@ class _HomePageState extends State<HomePage> {
               ),
               ElevatedButton(
                 onPressed: () async {
-                  UserModel user = await UserController(
-                    widget.auth,
-                    widget.firestore
-                  ).getUser(widget.auth.currentUser!.uid);
+                  UserModel user =
+                      await UserController(widget.auth, widget.firestore)
+                          .getUser(widget.auth.currentUser!.uid);
                   WebinarService webinarService = WebinarService(
                     firestore: widget.firestore,
                     storage: widget.storage,
@@ -223,12 +222,13 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-
   Future getTopicsList() async {
     if (widget.auth.currentUser == null) {
       return;
     }
-    QuerySnapshot temp = await TopicController(auth: widget.auth, firestore: widget.firestore).getTopicList();
+    QuerySnapshot temp =
+        await TopicController(auth: widget.auth, firestore: widget.firestore)
+            .getTopicList();
     if (mounted) {
       setState(() {
         _topicsList = temp.docs.map((doc) => Topic.fromSnapshot(doc)).toList();

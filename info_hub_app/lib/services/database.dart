@@ -6,9 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:info_hub_app/main.dart';
 import 'package:info_hub_app/notifications/notification_model.dart' as custom;
-import 'package:info_hub_app/push_notifications/push_notifications.dart';
+import 'package:info_hub_app/push_notifications/push_notifications_controller.dart';
 import 'package:info_hub_app/model/user_model.dart';
-import 'package:info_hub_app/notifications/preferences_model.dart';
+import 'package:info_hub_app/notifications/manage_notifications_model.dart';
 import 'package:http/http.dart' as http;
 import 'package:info_hub_app/topics/create_topic/model/topic_model.dart';
 
@@ -138,10 +138,6 @@ class DatabaseService {
     });
   }
 
-
-
-
-
   Future<void> createPreferences() async {
     CollectionReference prefCollection = firestore.collection('preferences');
     await prefCollection.add({
@@ -181,5 +177,4 @@ class DatabaseService {
 
     return preferences;
   }
-
 }
