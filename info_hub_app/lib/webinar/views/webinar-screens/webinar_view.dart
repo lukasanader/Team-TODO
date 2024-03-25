@@ -57,7 +57,8 @@ class _WebinarViewState extends State<WebinarView> {
                               snapshot.data!.docs.isEmpty) {
                             return messageCard(
                                 "Right now, we don't have any live videos streaming. We encourage you to explore other resources available in the app while you wait for the next live event.",
-                                'no_live_webinars');
+                                'no_live_webinars',
+                                context);
                           }
                           return ListView.builder(
                             physics: const NeverScrollableScrollPhysics(),
@@ -112,7 +113,8 @@ class _WebinarViewState extends State<WebinarView> {
                               snapshot.data!.docs.isEmpty) {
                             return messageCard(
                                 "At the moment, there aren't any webinars lined up for viewing. We're working on bringing you more informative sessions soon. Thank you for your patience.",
-                                'no_upcoming_webinars');
+                                'no_upcoming_webinars',
+                                context);
                           }
                           return ListView.builder(
                             physics: const NeverScrollableScrollPhysics(),
@@ -169,7 +171,8 @@ class _WebinarViewState extends State<WebinarView> {
                               snapshot.data!.docs.isEmpty) {
                             return messageCard(
                                 "Missed a webinar? No worries! Keep an eye on this space for any webinars you might have missed. We'll make sure you have access to all the valuable information at your convenience.",
-                                'no_archived_webinars');
+                                'no_archived_webinars',
+                                context);
                           }
                           return ListView.builder(
                             physics: const NeverScrollableScrollPhysics(),

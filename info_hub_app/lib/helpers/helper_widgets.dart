@@ -18,19 +18,23 @@ Widget addVerticalSpace(double height) {
 // }
 
 // Used to display a message in a card
-Widget messageCard(String message, String messageKey) {
+Widget messageCard(String message, String messageKey, context) {
   return Padding(
     key: ValueKey(messageKey),
     padding: const EdgeInsets.symmetric(horizontal: 15),
     child: Card(
-      surfaceTintColor: COLOR_PRIMARY_LIGHT,
+      surfaceTintColor: Theme.of(context).brightness == Brightness.light
+          ? COLOR_PRIMARY_LIGHT
+          : COLOR_PRIMARY_DARK,
       child: Padding(
         padding: const EdgeInsets.all(10),
         child: Text(
           message,
           textAlign: TextAlign.center,
           style: TextStyle(
-            color: COLOR_SECONDARY_GREY_LIGHT_DARKER,
+            color: Theme.of(context).brightness == Brightness.light
+                ? COLOR_SECONDARY_GREY_LIGHT_DARKER
+                : COLOR_SECONDARY_GREY_DARK_LIGHTER,
             fontSize: 16,
           ),
         ),
