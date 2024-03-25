@@ -21,7 +21,7 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
   late ExperienceController _experienceController;
   List<Experience> _verifiedExperienceList = [];
   List<Experience> _unverifiedExperienceList = [];
-  bool _isLoading = false;
+  final bool _isLoading = false;
 
   @override
   void initState() {

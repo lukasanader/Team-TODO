@@ -9,7 +9,7 @@ void main() {
   late FakeFirebaseFirestore firestore;
   late MockFirebaseAuth auth;
   late CollectionReference userCollectionRef;
-  late CollectionReference topicsCollectionRef;
+  late CollectionReference experienceCollectionRef;
   late Widget experienceViewWidget;
   late Widget experienceViewWidgetWithFieldAsTrue;
   late Widget experienceViewWidgetWithFieldAsFalse;
@@ -27,7 +27,7 @@ void main() {
 
     firestore = FakeFirebaseFirestore();
     userCollectionRef = firestore.collection('Users');
-    topicsCollectionRef = firestore.collection('experiences');
+    experienceCollectionRef = firestore.collection('experiences');
 
     userCollectionRef.doc('patientWithOptedOutExperienceFieldAsTrue').set({
       'name': 'John Doe',
@@ -56,15 +56,17 @@ void main() {
       'roleType': 'Patient',
     });
 
-    topicsCollectionRef.add({
+    experienceCollectionRef.add({
       'title': 'Example 1',
       'description': 'Example experience',
-      'verified': true
+      'verified': true,
+      'userRoleType': 'Patient'
     });
-    topicsCollectionRef.add({
+    experienceCollectionRef.add({
       'title': 'Example 2',
       'description': 'Example experience',
-      'verified': false
+      'verified': false,
+      'userRoleType': 'Patient'
     });
 
     experienceViewWidget = MaterialApp(
@@ -127,8 +129,20 @@ void main() {
     );
   });
 
-  testWidgets('The verified experiences are being displayed',
+  testWidgets('The verified patient experiences are being displayed for patients',
       (WidgetTester tester) async {
+
+
+    await auth.createUserWithEmailAndPassword(
+        email: 'test@tested.org', password: 'Password123!');
+    String uid = auth.currentUser!.uid;
+    await firestore.collection('Users').doc(uid).set({
+      'email': 'test@tested.org',
+      'firstName': 'James',
+      'lastName': 'Doe',
+      'roleType': 'Patient'
+    });
+
     // Build our app and trigger a frame.
     await tester.pumpWidget(experienceViewWidget);
     await tester.pumpAndSettle();
@@ -142,13 +156,72 @@ void main() {
     expect(find.text('Example 1'), findsOneWidget);
   });
 
+  testWidgets('The verified parent experiences are being displayed for parents',
+      (WidgetTester tester) async {
+
+    await auth.createUserWithEmailAndPassword(
+        email: 'test@tested.org', password: 'Password123!');
+    String uid = auth.currentUser!.uid;
+    await firestore.collection('Users').doc(uid).set({
+      'email': 'test@tested.org',
+      'firstName': 'James',
+      'lastName': 'Doe',
+      'roleType': 'Parent'
+    });
+
+    firestore.collection('experiences')
+    .add({
+      'title': 'Parent example',
+      'description': 'Example experience',
+      'verified': true,
+      'userRoleType': 'Parent'
+    });
+
+    // Build our app and trigger a frame.
+    await tester.pumpWidget(experienceViewWidget);
+    await tester.pumpAndSettle();
+
+    Finder listViewFinder = find.byType(ListView);
+    expect(listViewFinder, findsOneWidget);
+
+    Finder cardFinder = find.byType(Card);
+    expect(cardFinder, findsNWidgets(1));
+
+    expect(find.text('Parent example'), findsOneWidget);
+  });
+
+  testWidgets('The verified patient experiences are being not displayed for parents',
+      (WidgetTester tester) async {
+
+    await auth.createUserWithEmailAndPassword(
+        email: 'test@tested.org', password: 'Password123!');
+    String uid = auth.currentUser!.uid;
+    await firestore.collection('Users').doc(uid).set({
+      'email': 'test@tested.org',
+      'firstName': 'James',
+      'lastName': 'Doe',
+      'roleType': 'Parent'
+    });
+
+    // Build our app and trigger a frame.
+    await tester.pumpWidget(experienceViewWidget);
+    await tester.pumpAndSettle();
+
+    Finder listViewFinder = find.byType(ListView);
+    expect(listViewFinder, findsOneWidget);
+
+
+    expect(find.text('Example 1'), findsNothing);
+  });
+
   testWidgets(
       'Ensure padding is visible if there are at least two verified experiences',
       (WidgetTester tester) async {
-    topicsCollectionRef.add({
+    experienceCollectionRef.add({
       'title': 'Example 3',
       'description': 'Example experience',
-      'verified': true
+      'verified': true,
+      'userRoleType': 'Patient'
     });
 
     // Build our app and trigger a frame.
@@ -228,7 +301,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(AlertDialog), findsOneWidget);
-    expect(find.text('Patient Experience Expectations'), findsOneWidget);
+    expect(find.text('Experience Expectations'), findsOneWidget);
   });
 
   testWidgets(
@@ -252,7 +325,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(AlertDialog), findsOneWidget);
-    expect(find.text('Patient Experience Expectations'), findsOneWidget);
+    expect(find.text('Experience Expectations'), findsOneWidget);
   });
 
   testWidgets(
@@ -276,7 +349,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(AlertDialog), findsOneWidget);
-    expect(find.text('Patient Experience Expectations'), findsOneWidget);
+    expect(find.text('Experience Expectations'), findsOneWidget);
   });
 
   testWidgets(
