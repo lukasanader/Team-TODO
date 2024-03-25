@@ -96,7 +96,7 @@ class _AdminHomepageState extends State<AdminHomepage> {
                   const Icon(Icons.note_add_sharp),
                   addVerticalSpace(5),
                   const Text(
-                    'Create Topic',
+                    'Add Topic',
                     textAlign: TextAlign.center,
                   ),
                 ])),
@@ -110,7 +110,7 @@ class _AdminHomepageState extends State<AdminHomepage> {
                   const Icon(Icons.question_answer),
                   addVerticalSpace(5),
                   const Text(
-                    'View Thread',
+                    'Threads',
                     textAlign: TextAlign.center,
                   ),
                 ],
@@ -133,7 +133,7 @@ class _AdminHomepageState extends State<AdminHomepage> {
                   const Icon(Icons.question_mark),
                   addVerticalSpace(5),
                   const Text(
-                    'View Questions',
+                    'Topic Questions',
                     textAlign: TextAlign.center,
                   ),
                 ],
@@ -166,7 +166,7 @@ class _AdminHomepageState extends State<AdminHomepage> {
                   const Icon(Icons.book),
                   addVerticalSpace(5),
                   const Text(
-                    'View Experiences',
+                    'Experiences',
                     textAlign: TextAlign.center,
                   ),
                 ],
@@ -200,7 +200,7 @@ class _AdminHomepageState extends State<AdminHomepage> {
                   const Icon(Icons.analytics),
                   addVerticalSpace(5),
                   const Text(
-                    'View Analytics',
+                    'Analytics',
                     textAlign: TextAlign.center,
                   ),
                 ],
@@ -233,7 +233,7 @@ class _AdminHomepageState extends State<AdminHomepage> {
                   const Icon(Icons.message),
                   addVerticalSpace(5),
                   const Text(
-                    'Message Users',
+                    'Message User',
                     textAlign: TextAlign.center,
                   ),
                 ],
@@ -261,7 +261,7 @@ class _AdminHomepageState extends State<AdminHomepage> {
                   const Icon(Icons.camera),
                   addVerticalSpace(5),
                   const Text(
-                    'Manage Webinars',
+                    'Manage Webinar',
                     textAlign: TextAlign.center,
                   ),
                 ],
