@@ -13,7 +13,7 @@ import 'package:provider/provider.dart';
 
 import 'mock.dart';
 
-const NotificationCollection = 'notifications';
+const notificationCollection = 'notifications';
 
 Future<void> main() async {
   setupFirebaseAuthMocks();
@@ -31,7 +31,7 @@ Future<void> main() async {
     });
 
     tearDown(() async {
-      await firestore.collection(NotificationCollection).get().then((snapshot) {
+      await firestore.collection(notificationCollection).get().then((snapshot) {
         for (var doc in snapshot.docs) {
           doc.reference.delete();
         }
@@ -39,7 +39,7 @@ Future<void> main() async {
     });
 
     testWidgets('shows notifications', (WidgetTester tester) async {
-      await firestore.collection(NotificationCollection).add({
+      await firestore.collection(notificationCollection).add({
         'uid': auth.currentUser!.uid,
         'title': 'title1',
         'body': 'body1',
@@ -79,14 +79,14 @@ Future<void> main() async {
     testWidgets(
         'ensure padding is visible if more than 2 notifications are present',
         (WidgetTester tester) async {
-      await firestore.collection(NotificationCollection).add({
+      await firestore.collection(notificationCollection).add({
         'uid': auth.currentUser!.uid,
         'title': 'title1',
         'body': 'body1',
         'timestamp': DateTime.now(),
         'route': 'route1',
       });
-      await firestore.collection(NotificationCollection).add({
+      await firestore.collection(notificationCollection).add({
         'uid': auth.currentUser!.uid,
         'title': 'title2',
         'body': 'body2',
@@ -146,7 +146,7 @@ Future<void> main() async {
                         .deleteNotification(notificationId);
 
                     final notificationAfterDelete = firestore
-                        .collection(NotificationCollection)
+                        .collection(notificationCollection)
                         .doc(notificationId);
                     final snapshot = await notificationAfterDelete.get();
 
@@ -165,7 +165,7 @@ Future<void> main() async {
     });
 
     testWidgets('delete notification on dismiss', (WidgetTester tester) async {
-      await firestore.collection(NotificationCollection).add({
+      await firestore.collection(notificationCollection).add({
         'uid': auth.currentUser!.uid,
         'title': 'Test Title',
         'body': 'Test Body',
@@ -207,7 +207,7 @@ Future<void> main() async {
 
     testWidgets('show notification details button routes correctly',
         (WidgetTester tester) async {
-      await firestore.collection(NotificationCollection).add({
+      await firestore.collection(notificationCollection).add({
         'uid': auth.currentUser!.uid,
         'title': 'title1',
         'body': 'body1',
@@ -238,6 +238,7 @@ Future<void> main() async {
                     auth: auth,
                     firestore: firestore,
                   ),
+              '/home': (_) => const Scaffold(),
             },
           ),
         ),
@@ -284,7 +285,7 @@ Future<void> main() async {
 
     testWidgets('show notification close buttons routes correctly',
         (WidgetTester tester) async {
-      await firestore.collection(NotificationCollection).add({
+      await firestore.collection(notificationCollection).add({
         'uid': auth.currentUser!.uid,
         'title': 'title1',
         'body': 'body1',

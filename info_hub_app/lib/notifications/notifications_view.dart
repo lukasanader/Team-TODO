@@ -5,6 +5,7 @@ import 'package:info_hub_app/notifications/notification_card.dart';
 import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:info_hub_app/services/database.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 
 class Notifications extends StatefulWidget {
   final FirebaseAuth auth;
@@ -16,8 +17,11 @@ class Notifications extends StatefulWidget {
 }
 
 class _NotificationsState extends State<Notifications> {
+  late SlidableController slidableController; // Declare SlidableController
+
   @override
   Widget build(BuildContext context) {
+    slidableController = SlidableController();
     final List<custom.Notification> allNotifications =
         Provider.of<List<custom.Notification>>(context);
 
@@ -36,24 +40,31 @@ class _NotificationsState extends State<Notifications> {
           final notification = userNotifications[index];
           return Column(
             children: [
-              Dismissible(
-                key: Key(notification.id),
+              Slidable(
+                key: Key(notification.id), // Use a unique key for each Slidable
+                actionPane: SlidableDrawerActionPane(),
+                actionExtentRatio: 0.25,
+                controller: slidableController, // Assign the SlidableController
+                secondaryActions: [
+                  IconSlideAction(
+                    color: Colors.red,
+                    icon: Icons.delete,
+                    onTap: () {
+                      DatabaseService(
+                        uid: widget.auth.currentUser!.uid,
+                        auth: widget.auth,
+                        firestore: widget.firestore,
+                      ).deleteNotification(notification.id);
+                    },
+                  ),
+                ],
                 child: NotificationCard(notification: notification),
-                onDismissed: (direction) {
-                  DatabaseService(
-                          uid: widget.auth.currentUser!.uid,
-                          auth: widget.auth,
-                          firestore: widget.firestore)
-                      .deleteNotification(notification.id);
-                },
               ),
               if (index != userNotifications.length - 1)
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Container(
-                    height: 0,
-                    color: Colors.grey,
-                  ),
+                const Divider(
+                  color: Colors.grey,
+                  thickness: 3.0,
+                  height: 0.0,
                 ),
             ],
           );

@@ -5,8 +5,6 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:info_hub_app/admin/admin_dash.dart';
-import 'package:info_hub_app/discovery_view/discovery_view.dart';
 import 'package:info_hub_app/helpers/base.dart';
 import 'package:info_hub_app/home_page/home_page.dart';
 import 'package:info_hub_app/push_notifications/push_notifications.dart';
@@ -57,7 +55,7 @@ Future<void> main() async {
       await FirebaseMessaging.instance.getInitialMessage();
 
   if (message != null) {
-    Future.delayed(Duration(seconds: 1), () {
+    Future.delayed(const Duration(seconds: 1), () {
       navigatorKey.currentState!.pushNamed("/notifications");
     });
   }
@@ -127,7 +125,7 @@ class _MyAppState extends State<MyApp> {
           future: checkUser(),
           builder: (context, AsyncSnapshot<String> snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return CircularProgressIndicator();
+              return const CircularProgressIndicator();
             } else {
               switch (snapshot.data) {
                 case 'admin':
@@ -164,6 +162,11 @@ class _MyAppState extends State<MyApp> {
                 auth: widget.auth,
                 firestore: widget.firestore,
               ),
+          '/home': (context) => HomePage(
+                auth: widget.auth,
+                firestore: widget.firestore,
+                storage: widget.storage,
+              ),
         },
         theme: lightTheme,
         darkTheme: darkTheme,
@@ -184,14 +187,11 @@ class _MyAppState extends State<MyApp> {
       Map<String, dynamic> userData = snapshot.data() as Map<String, dynamic>;
       // Check if user is an admin
       if (userData['roleType'] == 'admin') {
-        print('Role: admin');
         return 'admin';
       } else {
-        print('Role: user');
         return 'user';
       }
     } else {
-      print('Logged in: false');
       return 'guest';
     }
   }

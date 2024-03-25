@@ -11,7 +11,6 @@ import 'package:info_hub_app/topics/view_topic/helpers/topics_card.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:info_hub_app/topics/create_topic/model/topic_model.dart';
-import '../controller/topic_question_controller.dart';
 
 class DiscoveryView extends StatefulWidget {
   final FirebaseFirestore firestore;
@@ -44,7 +43,10 @@ class _DiscoveryViewState extends State<DiscoveryView> {
   void initState() {
     super.initState();
     initializeData();
-    widget.firestore.collection('categories').snapshots().listen(_updateCategoryList);
+    widget.firestore
+        .collection('categories')
+        .snapshots()
+        .listen(_updateCategoryList);
   }
 
   @override
@@ -163,7 +165,6 @@ class _DiscoveryViewState extends State<DiscoveryView> {
     );
   }
 
-
   Future<void> initializeData() async {
     getCategoryList();
     await getAllTopicsList().then((_) {
@@ -260,7 +261,8 @@ class _DiscoveryViewState extends State<DiscoveryView> {
     QuerySnapshot<Map<String, dynamic>> snapshot =
         await widget.firestore.collection('categories').orderBy('name').get();
 
-    List<Category> categories = snapshot.docs.map((doc) => Category.fromSnapshot(doc)).toList();
+    List<Category> categories =
+        snapshot.docs.map((doc) => Category.fromSnapshot(doc)).toList();
 
     for (Category category in categories) {
       tempStringList.add(category.name!);
@@ -290,5 +292,4 @@ class _DiscoveryViewState extends State<DiscoveryView> {
     getCategoryList();
     updateTopicListBasedOnCategory(categoriesSelected);
   }
-
 }
