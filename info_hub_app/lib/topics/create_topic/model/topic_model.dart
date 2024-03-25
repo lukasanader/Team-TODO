@@ -15,6 +15,7 @@ class Topic {
   List<dynamic>? categories;
   List<Map<String, dynamic>>? media;
   String? userID;
+  Timestamp? viewDate;
 
   Topic({
     this.id,
@@ -30,6 +31,7 @@ class Topic {
     this.categories,
     this.media,
     this.userID,
+    this.viewDate
   });
 
   factory Topic.fromSnapshot(DocumentSnapshot snapshot) {

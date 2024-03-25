@@ -11,7 +11,7 @@ class FormController {
   final FirebaseFirestore firestore;
   Topic? topic;
   Topic? draft;
-  CreateTopicScreenState screen;
+  TopicCreationViewState screen;
   MediaUploadController? mediaUploadController;
 
   FormController(this.auth, this.firestore, this.topic, this.draft, this.screen,

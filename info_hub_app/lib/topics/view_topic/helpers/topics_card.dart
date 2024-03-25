@@ -5,6 +5,7 @@ import 'package:info_hub_app/analytics/topics/analytics_view_topic.dart';
 import 'package:info_hub_app/controller/activity_controller.dart';
 import 'package:info_hub_app/main.dart';
 import 'package:info_hub_app/model/model.dart';
+import 'package:info_hub_app/topics/create_topic/controllers/topic_controller.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import '../view/topic_view.dart';
 import 'package:info_hub_app/services/database.dart';
@@ -72,12 +73,12 @@ class TopicCard extends StatelessWidget {
       onTap: () {
         ActivityController(auth: auth, firestore: firestore)
             .addActivity(_topic.id!, 'topics');
-        DatabaseService(
-                auth: auth, uid: auth.currentUser!.uid, firestore: firestore)
+        TopicController(
+                auth: auth, firestore: firestore)
             .incrementView(_topic);
         PersistentNavBarNavigator.pushNewScreen(
           context,
-          screen: ViewTopicScreen(
+          screen: TopicView(
             firestore: firestore,
             auth: auth,
             storage: storage,
@@ -370,7 +371,7 @@ class TopicDraftCard extends StatelessWidget {
       onTap: () {
         PersistentNavBarNavigator.pushNewScreen(
           context,
-          screen: CreateTopicScreen(
+          screen: TopicCreationView(
             firestore: firestore,
             auth: auth,
             storage: storage,
@@ -524,12 +525,12 @@ class LargeTopicCard extends StatelessWidget {
       onTap: () {
         ActivityController(auth: auth, firestore: firestore)
             .addActivity(_topic.id!, 'topics');
-        DatabaseService(
-                auth: auth, uid: auth.currentUser!.uid, firestore: firestore)
+        TopicController(
+                auth: auth, firestore: firestore)
             .incrementView(_topic);
         PersistentNavBarNavigator.pushNewScreen(
           context,
-          screen: ViewTopicScreen(
+          screen: TopicView(
             firestore: firestore,
             auth: auth,
             storage: storage,
@@ -611,5 +612,3 @@ class LargeTopicCard extends StatelessWidget {
     return uint8list!;
   }
 }
-
-

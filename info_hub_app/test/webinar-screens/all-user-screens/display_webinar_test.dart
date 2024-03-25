@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:info_hub_app/model/user_model.dart';
 import 'package:info_hub_app/webinar/service/webinar_service.dart';
-import 'package:info_hub_app/webinar/webinar-screens/display_webinar.dart';
+import 'package:info_hub_app/webinar/views/webinar-screens/display_webinar.dart';
 import '../mock.dart';
 
 
@@ -32,6 +32,7 @@ void main() {
         'views' : 0,
         'dateStarted' : DateTime.now().toString(),
         'status' : 'Live',
+        'chatenabled' : true,
     });
     await mockWebViewDependencies.init();
     
@@ -54,7 +55,8 @@ void main() {
         currentUser: testUser,
         title: 'Test',
         webinarService: webinarService,
-        status: "Live"
+        status: "Live",
+        chatEnabled: true,
       ),
     );
 

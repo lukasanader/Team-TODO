@@ -42,11 +42,7 @@ class AuthService {
         dislikedTopics: dislikedTopics,
         hasOptedOutOfExperienceExpectations: false);
   }
-
-  Stream<User?> get user {
-    return auth.authStateChanges();
-  }
-
+  
   // register user
   Future registerUser(
     String firstName,
@@ -88,9 +84,6 @@ class AuthService {
             likedTopics, dislikedTopics, hasOptedOutOfExperienceExpectations);
       }
     } catch (e) {
-      if (kDebugMode) {
-        print(e.toString());
-      }
       return null;
     }
   }
@@ -110,9 +103,6 @@ class AuthService {
         return user;
       }
     } catch (e) {
-      if (kDebugMode) {
-        print(e.toString());
-      }
       return null;
     }
   }

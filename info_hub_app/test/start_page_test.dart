@@ -5,6 +5,9 @@ import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:info_hub_app/admin/admin_dash.dart';
+import 'package:info_hub_app/home_page/home_page.dart';
+import 'package:info_hub_app/main.dart';
 import 'package:info_hub_app/registration/start_page.dart';
 import 'package:info_hub_app/registration/registration_screen.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
@@ -85,6 +88,61 @@ void main() {
   final storage = MockFirebaseStorage();
   final themeManager = ThemeManager();
 
+  testWidgets('Test start page is loaded', (WidgetTester tester) async {
+    final firestore = FakeFirebaseFirestore();
+   
+    final storage = MockFirebaseStorage();
+    await tester.pumpWidget(MaterialApp(
+        home: MyApp(
+      firestore: firestore,
+      auth: MockFirebaseAuth(signedIn: false),
+      storage: storage,
+    )));
+    await tester.pumpAndSettle();
+    expect(find.byType(StartPage), findsOneWidget);
+  });
+
+  testWidgets('Test homepage is loaded when patient is logged in', (WidgetTester tester) async {
+    final firestore = FakeFirebaseFirestore();
+    firestore.collection('Users').doc('patientUser').set({
+      'name': 'John Doe',
+      'email': 'john@example.com',
+      'roleType': 'Patient',
+      'likedTopics': [],
+      'dislikedTopics': [],
+    });
+    final storage = MockFirebaseStorage();
+    await tester.pumpWidget(MaterialApp(
+        home: MyApp(
+      firestore: firestore,
+      auth: MockFirebaseAuth(
+            signedIn: true, mockUser: MockUser(uid: 'patientUser')),
+      storage: storage,
+    )));
+    await tester.pumpAndSettle();
+    expect(find.byType(HomePage), findsOneWidget);
+  });
+
+  testWidgets('Test adminHomepage is loaded when admin is logged in', (WidgetTester tester) async {
+    final firestore = FakeFirebaseFirestore();
+    firestore.collection('Users').doc('adminUser').set({
+      'name': 'John Doe',
+      'email': 'john@example.com',
+      'roleType': 'admin',
+      'likedTopics': [],
+      'dislikedTopics': [],
+    });
+    final storage = MockFirebaseStorage();
+    await tester.pumpWidget(MaterialApp(
+        home: MyApp(
+      firestore: firestore,
+      auth: MockFirebaseAuth(
+            signedIn: true, mockUser: MockUser(uid: 'adminUser')),
+      storage: storage,
+    )));
+    await tester.pumpAndSettle();
+    expect(find.byType(AdminHomepage), findsOneWidget);
+  });
   testWidgets('Register button is present', (WidgetTester tester) async {
     final firestore = FakeFirebaseFirestore();
     final auth = MockFirebaseAuth();

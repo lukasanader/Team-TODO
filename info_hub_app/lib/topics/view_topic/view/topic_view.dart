@@ -3,26 +3,29 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:info_hub_app/controller/activity_controller.dart';
+import 'package:info_hub_app/controller/quiz_controller.dart';
+import 'package:info_hub_app/model/quiz_model.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:chewie/chewie.dart';
-import 'package:video_player/video_player.dart';
 import 'package:info_hub_app/topics/create_topic/helpers/quiz/complete_quiz.dart';
-import 'package:flutter/services.dart';
 import 'package:info_hub_app/topics/create_topic/view/topic_creation_view.dart';
 import 'dart:async';
 import 'package:info_hub_app/threads/threads.dart';
-import 'package:info_hub_app/controller/activity_controller.dart';
 import 'package:info_hub_app/topics/create_topic/model/topic_model.dart';
+import '../controllers/interaction_controller.dart';
+import '../controllers/media_controller.dart';
+import 'widgets/view_media_widget.dart';
 
-class ViewTopicScreen extends StatefulWidget {
-  final Topic topic;
+/// View Responsible For Viewing Topics
+class TopicView extends StatefulWidget {
+  Topic topic;
   final FirebaseFirestore firestore;
   final FirebaseStorage storage;
   final FirebaseAuth auth;
   final ThemeManager themeManager;
 
-  const ViewTopicScreen({
+  TopicView({
     required this.firestore,
     required this.topic,
     required this.storage,
@@ -32,298 +35,45 @@ class ViewTopicScreen extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<ViewTopicScreen> createState() => _ViewTopicScreenState();
+  State<TopicView> createState() => TopicViewState();
 }
 
-class _ViewTopicScreenState extends State<ViewTopicScreen> {
-  VideoPlayerController? _videoController;
-  ChewieController? _chewieController;
+class TopicViewState extends State<TopicView> {
+  late InteractionController interactionController;
+  late MediaController mediaController;
   late Topic updatedTopic;
-  bool vidAvailable = false;
-  bool imgAvailable = false;
-
-  int currentIndex = 0;
-
-  String? _videoURL;
-  String? _imageUrl;
-
-  int likes = 0;
-  int dislikes = 0;
-  bool saved = false;
 
   @override
   void initState() {
     super.initState();
     updatedTopic = widget.topic;
-    initData();
+    mediaController =
+        MediaController(widget.auth, widget.firestore, updatedTopic, this);
+    mediaController.initializeData();
+    interactionController = InteractionController(
+        widget.auth, widget.firestore, this, updatedTopic, mediaController);
+    interactionController.initializeData();
     _isAdmin();
-    checkUserLikedAndDislikedTopics();
-    updateLikesAndDislikesCount();
   }
 
-  Future<void> initData() async {
-    if (updatedTopic.media!.isNotEmpty) {
-      if (updatedTopic.media![currentIndex]['mediaType'] == 'video') {
-        _videoURL = updatedTopic.media![currentIndex]['url'];
-        _imageUrl = null;
+  /// Refreshes the screen
+  void updateState() {
+    setState(() {});
+  }
 
-        await initializeVideoPlayer();
-      } else {
-        _imageUrl = updatedTopic.media![currentIndex]['url'];
-        _videoURL = null;
-        await initializeImage();
-      }
+  /// Pops the screen
+  void popScreen() {
+    if (mounted) {
+      Navigator.pop(context, true);
     }
-    final user = widget.auth.currentUser;
-    if (user != null) {
-      final userDocSnapshot =
-          await widget.firestore.collection('Users').doc(user.uid).get();
-
-      if (userDocSnapshot.exists) {
-        Map<String, dynamic> userData = userDocSnapshot.data()!;
-
-        setState(() {
-          if (userData['savedTopics'] != null) {
-            saved = userData['savedTopics'].contains(widget.topic.id);
-          }
-        });
-      }
-    }
-  }
-
-  Future<bool> hasLikedTopic() async {
-    User? user = widget.auth.currentUser;
-
-    if (user != null) {
-      DocumentSnapshot userSnapshot =
-          await widget.firestore.collection('Users').doc(user.uid).get();
-
-      if (userSnapshot.exists) {
-        Map<String, dynamic>? userData =
-            userSnapshot.data() as Map<String, dynamic>?;
-
-        if (userData != null) {
-          List<dynamic>? likedTopics = userData['likedTopics'];
-
-          if (likedTopics != null && likedTopics.contains(widget.topic.id)) {
-            return true;
-          }
-        }
-      }
-    }
-    return false;
-  }
-
-  Widget _videoPreviewWidget() {
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          AspectRatio(
-            aspectRatio: _videoController!.value.aspectRatio,
-            child: Chewie(controller: _chewieController!),
-          ),
-          Text(
-            '                                                                  ${currentIndex + 1} / ${updatedTopic.media!.length}',
-            style: const TextStyle(color: Colors.grey),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _imagePreviewWidget() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Image.network(_imageUrl!),
-        Text(
-          '                                                                   ${currentIndex + 1} / ${updatedTopic.media!.length}',
-          style: const TextStyle(color: Colors.grey),
-        ),
-      ],
-    );
-  }
-
-  Future<bool> hasDislikedTopic() async {
-    User? user = widget.auth.currentUser;
-
-    if (user != null) {
-      DocumentSnapshot userSnapshot =
-          await widget.firestore.collection('Users').doc(user.uid).get();
-
-      if (userSnapshot.exists) {
-        Map<String, dynamic>? userData =
-            userSnapshot.data() as Map<String, dynamic>?;
-
-        if (userData != null) {
-          List<dynamic>? dislikedTopics = userData['dislikedTopics'];
-
-          if (dislikedTopics != null &&
-              dislikedTopics.contains(widget.topic.id)) {
-            return true;
-          }
-        }
-      }
-    }
-    return false;
-  }
-
-  void updateLikesAndDislikesCount() {
-    widget.firestore
-        .collection('topics')
-        .doc(widget.topic.id)
-        .get()
-        .then((doc) {
-      setState(() {
-        likes = doc['likes'];
-        dislikes = doc['dislikes'];
-      });
-    });
-  }
-
-  Future<void> initializeVideoPlayer() async {
-    bool isLoading = true; // Initialize isLoading to true
-
-    // Show loading indicator
-    setState(() {
-      isLoading = true;
-    });
-
-    if (isLoading) {
-      const Center(
-        child: CircularProgressIndicator(), // Show loading indicator
-      );
-    }
-
-    _disposeVideoPlayer();
-
-    if (_videoURL != null && _videoURL!.isNotEmpty) {
-      _videoController =
-          VideoPlayerController.networkUrl(Uri.parse(_videoURL!));
-
-      await _videoController!.initialize();
-
-      _chewieController = ChewieController(
-        videoPlayerController: _videoController!,
-        autoInitialize: true,
-        looping: false,
-        aspectRatio: 16 / 9,
-        deviceOrientationsAfterFullScreen: [DeviceOrientation.portraitUp],
-        allowedScreenSleep: false,
-      );
-
-      // Hide loading indicator after initialization
-      setState(() {
-        isLoading = false;
-      });
-    }
-
-    // Return loading indicator if isLoading is true
-    if (isLoading) {
-      const Center(
-        child: CircularProgressIndicator(), // Show loading indicator
-      );
-    }
-  }
-
-  void _disposeVideoPlayer() {
-    _videoController?.pause();
-    _videoController?.dispose();
-    _videoController = null;
-
-    _chewieController?.pause();
-    _chewieController?.dispose();
-    _chewieController = null;
   }
 
   @override
   void dispose() {
     super.dispose();
-    _videoController?.dispose();
-    _chewieController?.dispose();
-  }
-
-  bool hasLiked = false;
-  bool hasDisliked = false;
-
-  Future<void> _likeTopic() async {
-    final user = widget.auth.currentUser;
-
-    if (user != null) {
-      final userDocRef = widget.firestore.collection('Users').doc(user.uid);
-
-      if (hasLiked) {
-        likes -= 1;
-        await userDocRef.update({
-          'likedTopics': FieldValue.arrayRemove([widget.topic.id])
-        });
-        hasLiked = false;
-      } else {
-        likes += 1;
-        await userDocRef.update({
-          'likedTopics': FieldValue.arrayUnion([widget.topic.id])
-        });
-        hasLiked = true;
-
-        if (hasDisliked) {
-          dislikes -= 1;
-          await userDocRef.update({
-            'dislikedTopics': FieldValue.arrayRemove([widget.topic.id])
-          });
-          hasDisliked = false;
-        }
-      }
-
-      setState(() {});
-
-      widget.firestore
-          .collection('topics')
-          .doc(widget.topic.id)
-          .update({'likes': likes, 'dislikes': dislikes});
-    }
-  }
-
-  Future<void> _dislikeTopic() async {
-    final user = widget.auth.currentUser;
-
-    if (user != null) {
-      final userDocRef = widget.firestore.collection('Users').doc(user.uid);
-
-      if (hasDisliked) {
-        dislikes -= 1;
-        await userDocRef.update({
-          'dislikedTopics': FieldValue.arrayRemove([widget.topic.id])
-        });
-        hasDisliked = false;
-      } else {
-        dislikes += 1;
-        await userDocRef.update({
-          'dislikedTopics': FieldValue.arrayUnion([widget.topic.id])
-        });
-        hasDisliked = true;
-
-        if (hasLiked) {
-          likes -= 1;
-          await userDocRef.update({
-            'likedTopics': FieldValue.arrayRemove([widget.topic.id])
-          });
-          hasLiked = false;
-        }
-      }
-
-      setState(() {});
-
-      widget.firestore
-          .collection('topics')
-          .doc(widget.topic.id)
-          .update({'dislikes': dislikes, 'likes': likes});
-    }
-  }
-
-  Future<void> checkUserLikedAndDislikedTopics() async {
-    hasLiked = await hasLikedTopic();
-    hasDisliked = await hasDislikedTopic();
+    // Dispose video controllers
+    mediaController.videoController?.dispose();
+    mediaController.chewieController?.dispose();
   }
 
   bool userIsAdmin = false;
@@ -342,16 +92,18 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
             ),
           ),
           actions: <Widget>[
+            // Edit button (only visible to admins)
             if (userIsAdmin)
               IconButton(
                 key: const Key('edit_btn'),
                 icon: const Icon(Icons.edit, color: Colors.white),
                 onPressed: () {
                   // Navigate to edit screen
+                  updatedTopic.id = widget.topic.id;
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => CreateTopicScreen(
+                      builder: (context) => TopicCreationView(
                         topic: updatedTopic,
                         firestore: widget.firestore,
                         storage: widget.storage,
@@ -363,19 +115,20 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
                     if (updatedTopic != null) {
                       setState(() {
                         this.updatedTopic = updatedTopic;
-                        initData();
+                        mediaController.initData();
                       });
                     }
                   });
                 },
               ),
+            // Save Topic button
             IconButton(
               key: const Key('save_btn'),
-              icon: saved
+              icon: interactionController.saved
                   ? const Icon(Icons.bookmark, color: Colors.white)
                   : const Icon(Icons.bookmark_border, color: Colors.white),
               onPressed: () {
-                saveTopic();
+                interactionController.saveTopic();
               },
             ),
           ]),
@@ -388,78 +141,11 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (_videoURL != null && _chewieController != null)
-                    _videoPreviewWidget(),
-                  if (_imageUrl != null) _imagePreviewWidget(),
-                  if (_videoURL != null || _imageUrl != null)
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        if (updatedTopic.media!.length > 1)
-                          IconButton(
-                            key: const Key('previousMediaButton'),
-                            icon: const Icon(Icons.arrow_circle_left_rounded,
-                                color: Color.fromRGBO(150, 100, 200, 1.0)),
-                            onPressed: () async {
-                              if (currentIndex - 1 >= 0) {
-                                currentIndex -= 1;
-                                if (updatedTopic.media![currentIndex]
-                                        ['mediaType'] ==
-                                    'video') {
-                                  _videoURL =
-                                      updatedTopic.media![currentIndex]['url'];
-                                  _imageUrl = null;
-                                  setState(() {});
-                                  await initializeVideoPlayer();
-                                  setState(() {});
-                                } else if (updatedTopic.media![currentIndex]
-                                        ['mediaType'] ==
-                                    'image') {
-                                  _imageUrl =
-                                      updatedTopic.media![currentIndex]['url'];
-                                  _videoURL = null;
-                                  setState(() {});
-                                  await initializeImage();
-                                  setState(() {});
-                                }
-                              }
-                            },
-                            tooltip: 'Previous Video',
-                          ),
-                        if (updatedTopic.media!.length > 1)
-                          IconButton(
-                            key: const Key('nextMediaButton'),
-                            icon: const Icon(Icons.arrow_circle_right_rounded,
-                                color: Color.fromRGBO(150, 100, 200, 1.0)),
-                            onPressed: () async {
-                              if (currentIndex + 1 <
-                                  updatedTopic.media!.length) {
-                                currentIndex += 1;
-                                if (updatedTopic.media![currentIndex]
-                                        ['mediaType'] ==
-                                    'video') {
-                                  _videoURL =
-                                      updatedTopic.media![currentIndex]['url'];
-                                  _imageUrl = null;
-                                  setState(() {});
-                                  await initializeVideoPlayer();
-                                  setState(() {});
-                                } else if (updatedTopic.media![currentIndex]
-                                        ['mediaType'] ==
-                                    'image') {
-                                  _imageUrl =
-                                      updatedTopic.media![currentIndex]['url'];
-                                  _videoURL = null;
-                                  setState(() {});
-                                  await initializeImage();
-                                  setState(() {});
-                                }
-                              }
-                            },
-                            tooltip: 'Next Video',
-                          ),
-                      ],
-                    ),
+                  // Shows the Media if it exists
+                  ViewMediaWidget(
+                      screen: this,
+                      topic: updatedTopic,
+                      mediaController: mediaController),
                   const SizedBox(height: 30),
                   SingleChildScrollView(
                     physics: const ClampingScrollPhysics(),
@@ -471,25 +157,29 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
                           style: const TextStyle(fontSize: 18.0),
                         ),
                         const SizedBox(height: 16),
+                        // Interaction buttons for like, dislike, comments, and quiz
                         Row(
                           children: [
                             IconButton(
                               onPressed: () {
-                                _likeTopic();
+                                interactionController.likeTopic();
                               },
                               icon: Icon(Icons.thumb_up,
-                                  color: hasLiked ? Colors.blue : Colors.grey),
+                                  color: interactionController.hasLiked
+                                      ? Colors.blue
+                                      : Colors.grey),
                             ),
-                            Text("$likes"),
+                            Text("${interactionController.likes}"),
                             IconButton(
                               onPressed: () {
-                                _dislikeTopic();
+                                interactionController.dislikeTopic();
                               },
                               icon: Icon(Icons.thumb_down,
-                                  color:
-                                      hasDisliked ? Colors.red : Colors.grey),
+                                  color: interactionController.hasDisliked
+                                      ? Colors.red
+                                      : Colors.grey),
                             ),
-                            Text("$dislikes"),
+                            Text("${interactionController.dislikes}"),
                             IconButton(
                               icon: const Icon(FontAwesomeIcons.comments,
                                   size: 20),
@@ -508,6 +198,7 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
                               },
                             ),
                             // complete quiz
+                            if (widget.topic.quizID!='')
                             TextButton(
                               onPressed: () {
                                 Navigator.push(
@@ -519,8 +210,10 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
                                           auth: widget.auth)),
                                 );
                               },
-                              child: const Text('QUIZ!!'),
+                              child:
+                                const Text('QUIZ!!'),
                             ),
+                            
                           ],
                         ),
                       ],
@@ -529,6 +222,7 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
                 ],
               ),
             ),
+            // Read article button
             if (updatedTopic.articleLink != '')
               Padding(
                 padding: const EdgeInsets.all(16.0),
@@ -541,6 +235,7 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
                   ),
                 ),
               ),
+            // Delete topic button (only visible to admins)
             if (userIsAdmin)
               Padding(
                 padding: const EdgeInsets.all(16.0),
@@ -567,7 +262,7 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
                               TextButton(
                                 onPressed: () {
                                   // Delete the topic
-                                  deleteTopic();
+                                  interactionController.deleteTopic();
                                   Navigator.pop(context,
                                       widget.topic.id); // Close the dialog
                                 },
@@ -594,98 +289,9 @@ class _ViewTopicScreenState extends State<ViewTopicScreen> {
     );
   }
 
-  Future<void> initializeImage() async {
-    if (_imageUrl != null && _imageUrl!.isNotEmpty) {
-      setState(() {});
-    }
-  }
-
-  deleteTopic() async {
-    ActivityController(firestore: widget.firestore, auth: widget.auth)
-        .deleteActivity(widget.topic.id!);
-    removeTopicFromUsers();
-    // If the topic has a video URL, delete the corresponding video from storage
-    if (updatedTopic.media!.isNotEmpty) {
-      for (var item in updatedTopic.media!) {
-        await deleteMediaFromStorage(updatedTopic.media!.indexOf(item));
-      }
-    }
-
-    // Delete the topic document from Firestore
-    await widget.firestore.collection('topics').doc(widget.topic.id).delete();
-
-    if (mounted) {
-      Navigator.pop(context, true);
-    }
-  }
-
-  Future<void> deleteMediaFromStorage(int index) async {
-    String fileUrl = updatedTopic.media![index]['url'];
-
-    // get reference to the video file
-    Reference ref = widget.storage.refFromURL(fileUrl);
-
-    // Delete the file
-    await ref.delete();
-  }
-
-  Future<void> saveTopic() async {
-    final user = widget.auth.currentUser;
-    if (user != null) {
-      final userDocRef = widget.firestore.collection('Users').doc(user.uid);
-      if (!saved) {
-        await userDocRef.update({
-          'savedTopics': FieldValue.arrayUnion([widget.topic.id])
-        });
-        saved = true;
-      } else {
-        await userDocRef.update({
-          'savedTopics': FieldValue.arrayRemove([widget.topic.id])
-        });
-        saved = false;
-      }
-      setState(() {});
-    }
-  }
-
-  Future<void> removeTopicFromUsers() async {
-    // get all users
-    QuerySnapshot<Map<String, dynamic>> usersSnapshot =
-        await widget.firestore.collection('Users').get();
-
-    // go through each user
-    for (QueryDocumentSnapshot<Map<String, dynamic>> userSnapshot
-        in usersSnapshot.docs) {
-      Map<String, dynamic> userData = userSnapshot.data();
-
-      // Check if user has liked topic
-      if (userData.containsKey('likedTopics') &&
-          userData['likedTopics'].contains(widget.topic.id)) {
-        // Remove the topic from liked topics list
-        userData['likedTopics'].remove(widget.topic.id);
-      }
-
-      // Check if user has disliked topic
-      if (userData.containsKey('dislikedTopics') &&
-          userData['dislikedTopics'].contains(widget.topic.id)) {
-        // Remove the topic from disliked topics list
-        userData['dislikedTopics'].remove(widget.topic.id);
-      }
-
-      if (userData.containsKey('savedTopics') &&
-          userData['savedTopics'].contains(widget.topic.id)) {
-        // Remove the topic from saved topics list
-        userData['savedTopics'].remove(widget.topic.id);
-      }
-
-      await userSnapshot.reference.update(userData);
-    }
-  }
-
   Future<void> _isAdmin() async {
     User? user = widget.auth.currentUser;
 
-    // Check if the user exists and if the user's roleType is 'admin'
     if (user != null) {
       DocumentSnapshot userSnapshot =
           await widget.firestore.collection('Users').doc(user.uid).get();

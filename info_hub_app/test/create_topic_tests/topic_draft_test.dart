@@ -110,7 +110,7 @@ void main() async {
     });
 
     await tester.pumpWidget(MaterialApp(
-      home: CreateTopicScreen(
+      home: TopicCreationView(
         draft: draftTopic,
         auth: auth,
         firestore: firestore,
@@ -150,7 +150,7 @@ void main() async {
     await defineUserAndStorage(tester);
 
     await tester.pumpWidget(MaterialApp(
-      home: CreateTopicScreen(
+      home: TopicCreationView(
         firestore: firestore,
         storage: mockStorage,
         auth: auth,
