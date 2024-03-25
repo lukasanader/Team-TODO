@@ -20,7 +20,7 @@ class _ExperienceCardState extends State<ExperienceCard> {
             children: [
               Center(
                 child: Padding(
-                    padding: const EdgeInsets.only(bottom: 10.0),
+                    padding: const EdgeInsets.only(top: 12, bottom: 10.0),
                     child: Text(
                       widget._experience.title.toString(),
                       style: Theme.of(context).textTheme.titleSmall,
@@ -32,7 +32,7 @@ class _ExperienceCardState extends State<ExperienceCard> {
             children: [
               Expanded(
                   child: Padding(
-                padding: const EdgeInsets.only(bottom: 10.0),
+                padding: const EdgeInsets.only(bottom: 5),
                 child: Text(
                   widget._experience.description.toString(),
                   style: Theme.of(context).textTheme.bodySmall,
