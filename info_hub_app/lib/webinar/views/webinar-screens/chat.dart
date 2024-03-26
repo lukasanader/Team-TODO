@@ -201,7 +201,7 @@ class _ChatState extends State<Chat> {
                         readOnly: true, // Make the TextFormField non-editable
                         decoration: InputDecoration(
                           hintText: 'Chat Disabled - No Longer Live',
-                          border: OutlineInputBorder(),
+                          border: const OutlineInputBorder(),
                           // Disable interaction with the disabled input field
                           enabled: false,
                           fillColor: Colors.grey[200],

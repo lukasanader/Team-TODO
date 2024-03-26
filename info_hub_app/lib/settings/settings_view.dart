@@ -6,17 +6,14 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:info_hub_app/profile_view/profile_view.dart';
-import 'package:info_hub_app/model/user_model.dart';
 import 'package:info_hub_app/profile_view/profile_view_controller.dart';
-import 'package:info_hub_app/notifications/manage_notifications_view.dart';
+import 'package:info_hub_app/notifications/preferences_view.dart';
 import 'package:info_hub_app/screens/activity_view.dart';
-import 'package:info_hub_app/services/database.dart';
 import 'package:info_hub_app/settings/general_settings.dart';
 import 'package:info_hub_app/settings/help_page.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:info_hub_app/settings/saved/saved_page.dart';
 import 'package:info_hub_app/settings/drafts/drafts_page.dart';
-import 'package:provider/provider.dart';
 import 'package:info_hub_app/settings/privacy_base.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:info_hub_app/registration/start_page.dart';
@@ -90,7 +87,7 @@ class _SettingsViewState extends State<SettingsView> {
             onTap: () {
               PersistentNavBarNavigator.pushNewScreen(
                 context,
-                screen: ManageNotifications(
+                screen: PreferencesPage(
                   firestore: widget.firestore,
                   auth: widget.auth,
                 ),

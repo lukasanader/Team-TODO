@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:info_hub_app/controller/activity_controller.dart';
 import 'package:intl/intl.dart';
 import 'package:info_hub_app/threads/thread_replies.dart';
 import 'package:flutter/cupertino.dart';
@@ -20,7 +18,7 @@ class CustomCard extends StatefulWidget {
   //final Key indexKey;
 
   const CustomCard({
-    Key? key,
+    super.key,
     this.snapshot,
     required this.index,
     required this.firestore,
@@ -29,7 +27,7 @@ class CustomCard extends StatefulWidget {
     required this.onEditCompleted,
     required this.roleType,
     //required this.indexKey,
-  }) : super(key: key);
+  });
 
   @override
   _CustomCardState createState() => _CustomCardState();
@@ -38,7 +36,7 @@ class CustomCard extends StatefulWidget {
 class _CustomCardState extends State<CustomCard> {
   late TextEditingController titleInputController;
   late TextEditingController descriptionInputController;
-  late String _userProfilePhoto = 'assets/default_profile_photo.png';
+  late final String _userProfilePhoto = 'assets/default_profile_photo.png';
   late bool isEdited;
 
   @override
@@ -86,7 +84,7 @@ class _CustomCardState extends State<CustomCard> {
       ),
     );
 
-    IconData _getRoleIcon(String roleType) {
+    IconData getRoleIcon(String roleType) {
       switch (roleType) {
         case 'Patient':
           return Icons.local_hospital; // Example icon for Patient
@@ -201,7 +199,7 @@ class _CustomCardState extends State<CustomCard> {
                               children: <Widget>[
                                 Icon(Icons.edit,
                                     key: Key('editIcon_${widget.index}')),
-                                Padding(
+                                const Padding(
                                   padding: EdgeInsets.symmetric(vertical: 2.0),
                                 ),
                                 Text(
@@ -215,11 +213,11 @@ class _CustomCardState extends State<CustomCard> {
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
                             Icon(
-                              _getRoleIcon(widget
+                              getRoleIcon(widget
                                   .roleType), // Determines the icon based on the roleType
                               //size: 24.0, // Adjust the size as needed
                             ),
-                            Padding(
+                            const Padding(
                               padding: EdgeInsets.symmetric(vertical: 2.0),
                             ),
                             widget.roleType == 'Healthcare Professional'
@@ -277,7 +275,7 @@ class _CustomCardState extends State<CustomCard> {
                               children: <Widget>[
                                 Icon(Icons.delete,
                                     key: Key('deleteIcon_${widget.index}')),
-                                Padding(
+                                const Padding(
                                   padding: EdgeInsets.symmetric(vertical: 2.0),
                                 ),
                                 Text(
@@ -296,8 +294,8 @@ class _CustomCardState extends State<CustomCard> {
             ],
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.only(
+        const Padding(
+          padding: EdgeInsets.only(
               left: 50.0, right: 50.0), // Adjust the padding as needed
           child: Divider(
             color: Colors.grey, // Change color as needed
@@ -392,7 +390,7 @@ class _CustomCardState extends State<CustomCard> {
                       Navigator.pop(context);
                     }
                   },
-                  child: Text("Update", key: Key('updateButtonText')),
+                  child: const Text("Update", key: Key('updateButtonText')),
                 ),
               ],
             );

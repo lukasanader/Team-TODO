@@ -26,8 +26,8 @@ class MockUser extends Mock implements User {
 void main() {
   late FakeFirebaseFirestore firestore;
   late FirebaseAuth mockAuth;
-  final String testThreadId = "testThreadId";
-  final String replyId = "replyId";
+  const String testThreadId = "testThreadId";
+  const String replyId = "replyId";
 
   setUp(() async {
     firestore = FakeFirebaseFirestore();
@@ -120,18 +120,18 @@ void main() {
         roleType: 'Test Role',
       )));
 
-      final expansionTriggerFinder = find.byKey(Key('authorText_0'));
+      final expansionTriggerFinder = find.byKey(const Key('authorText_0'));
       await tester.tap(expansionTriggerFinder);
       await tester.pumpAndSettle();
 
       // Trigger the edit dialog by tapping the edit button
-      final editButtonFinder = find.byKey(Key('editButton_0'));
+      final editButtonFinder = find.byKey(const Key('editButton_0'));
       expect(editButtonFinder, findsOneWidget);
       await tester.tap(editButtonFinder);
       await tester.pumpAndSettle();
 
-      await tester.enterText(find.byKey(Key('Content')), 'Updated Reply');
-      final updateButtonFinder = find.byKey(Key('updateButtonText'));
+      await tester.enterText(find.byKey(const Key('Content')), 'Updated Reply');
+      final updateButtonFinder = find.byKey(const Key('updateButtonText'));
       await tester.tap(updateButtonFinder);
       await tester.pumpAndSettle();
 
@@ -146,7 +146,7 @@ void main() {
       await tester.tap(editButtonFinder);
       await tester.pumpAndSettle();
 
-      final contentTextField = find.byKey(Key('Content'));
+      final contentTextField = find.byKey(const Key('Content'));
       expect(find.text('Updated Reply'), findsOneWidget);
 
       final cancelButtonFinder = find.text('Cancel');

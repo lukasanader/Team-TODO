@@ -1,11 +1,8 @@
-import 'package:chewie/chewie.dart';
 import 'package:expansion_tile_card/expansion_tile_card.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:info_hub_app/threads/name_generator.dart';
 
 class ReplyCard extends StatefulWidget {
   //final QuerySnapshot snapshot;
@@ -18,7 +15,7 @@ class ReplyCard extends StatefulWidget {
   final String roleType;
 
   const ReplyCard({
-    Key? key,
+    super.key,
     //required this.snapshot,
     //required this.index,
     required this.reply,
@@ -27,7 +24,7 @@ class ReplyCard extends StatefulWidget {
     required this.userProfilePhoto,
     required this.authorName,
     required this.roleType,
-  }) : super(key: key);
+  });
 
   @override
   _ReplyCardState createState() => _ReplyCardState();
@@ -71,7 +68,7 @@ class _ReplyCardState extends State<ReplyCard> {
       ),
     );
 
-    IconData _getRoleIcon(String roleType) {
+    IconData getRoleIcon(String roleType) {
       switch (roleType) {
         case 'Patient':
           return Icons.local_hospital; // Example icon for Patient
@@ -102,8 +99,8 @@ class _ReplyCardState extends State<ReplyCard> {
             ),
             title: Text(
               widget.authorName,
-              key: Key('authorText_0'),
-              style: TextStyle(
+              key: const Key('authorText_0'),
+              style: const TextStyle(
                 fontSize: 18.0,
                 fontWeight: FontWeight.bold,
               ),
@@ -115,18 +112,18 @@ class _ReplyCardState extends State<ReplyCard> {
               children: <Widget>[
                 Text(
                   content,
-                  key: Key('Content'),
+                  key: const Key('Content'),
                   style: const TextStyle(fontSize: 18),
                   //overflow: TextOverflow.ellipsis,
                   //maxLines: 3,
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                   formatter,
                   style: const TextStyle(fontSize: 12),
                 ),
                 if (isEdited)
-                  Text(
+                  const Text(
                     " (edited)",
                     style: TextStyle(
                       fontSize: 12,
@@ -144,15 +141,15 @@ class _ReplyCardState extends State<ReplyCard> {
                 children: <Widget>[
                   if (currentUserId == creator)
                     TextButton(
-                      key: Key('editButton_0'),
+                      key: const Key('editButton_0'),
                       style: flatButtonStyle,
                       onPressed: () {
                         _showDialog(context, docId);
                       },
                       child: Column(
                         children: <Widget>[
-                          Icon(Icons.edit),
-                          Padding(
+                          const Icon(Icons.edit),
+                          const Padding(
                             padding: EdgeInsets.symmetric(vertical: 2.0),
                           ),
                           Text(
@@ -166,11 +163,11 @@ class _ReplyCardState extends State<ReplyCard> {
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
                       Icon(
-                        _getRoleIcon(widget
+                        getRoleIcon(widget
                             .roleType), // Determines the icon based on the roleType
                         //size: 24.0, // Adjust the size as needed
                       ),
-                      Padding(
+                      const Padding(
                         padding: EdgeInsets.symmetric(vertical: 2.0),
                       ),
                       widget.roleType == 'Healthcare Professional'
@@ -198,7 +195,7 @@ class _ReplyCardState extends State<ReplyCard> {
 
                   if (currentUserId == creator)
                     TextButton(
-                      key: Key('deleteButton_0'),
+                      key: const Key('deleteButton_0'),
                       style: flatButtonStyle,
                       onPressed: () async {
                         if (!mounted) return;
@@ -209,10 +206,10 @@ class _ReplyCardState extends State<ReplyCard> {
                       },
                       child: Column(
                         children: <Widget>[
-                          Icon(
+                          const Icon(
                             Icons.delete,
                           ),
-                          Padding(
+                          const Padding(
                             padding: EdgeInsets.symmetric(vertical: 2.0),
                           ),
                           Text(
@@ -228,8 +225,8 @@ class _ReplyCardState extends State<ReplyCard> {
             ],
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.only(
+        const Padding(
+          padding: EdgeInsets.only(
               left: 50.0, right: 50.0), // Adjust the padding as needed
           child: Divider(
             color: Colors.grey, // Change color as needed
@@ -283,7 +280,7 @@ class _ReplyCardState extends State<ReplyCard> {
               child: const Text('Cancel'),
             ),
             TextButton(
-              key: Key('updateButtonText'),
+              key: const Key('updateButtonText'),
               onPressed: () async {
                 if (contentController.text.isNotEmpty) {
                   String updatedContent = contentController.text;

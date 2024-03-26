@@ -1,27 +1,29 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'manage_notifications_controller.dart';
+import 'preferences_controller.dart';
 
-class ManageNotifications extends StatefulWidget {
+class PreferencesPage extends StatefulWidget {
   final FirebaseAuth auth;
   final FirebaseFirestore firestore;
-  ManageNotifications({Key? key, required this.auth, required this.firestore})
-      : super(key: key);
+  const PreferencesPage(
+      {super.key, required this.auth, required this.firestore});
   @override
-  _ManageNotificationsState createState() => _ManageNotificationsState();
+  _PreferencesPageState createState() => _PreferencesPageState();
 }
 
-class _ManageNotificationsState extends State<ManageNotifications> {
+class _PreferencesPageState extends State<PreferencesPage> {
   late bool _pushNotificationsEnabled;
   bool _isLoading = true;
-  late ManageNotificationsController _controller;
+  late PreferencesController _controller;
 
   @override
   void initState() {
     super.initState();
-    _controller = ManageNotificationsController(
-        auth: widget.auth, firestore: widget.firestore);
+    _controller = PreferencesController(
+        auth: widget.auth,
+        uid: widget.auth.currentUser!.uid,
+        firestore: widget.firestore);
     _getNotificationPreferences();
   }
 
@@ -43,14 +45,14 @@ class _ManageNotificationsState extends State<ManageNotifications> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Manage Notifications'),
+        title: const Text('Manage Notifications'),
       ),
       body: _isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : ListView(
               children: [
                 ListTile(
-                  title: Text('Push Notifications'),
+                  title: const Text('Push Notifications'),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [

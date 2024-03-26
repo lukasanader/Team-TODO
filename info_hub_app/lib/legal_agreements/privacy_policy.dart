@@ -11,10 +11,10 @@ class PrivacyPolicyPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Privacy Policy'),
+        title: const Text('Privacy Policy'),
       ),
       body: const SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -171,7 +171,7 @@ class PrivacyPolicyPage extends StatelessWidget {
             ),
             SizedBox(height: 10.0),
             Text(
-              'If you have any questions or suggestions about our Privacy Policy, do not hesitate to contact us at [contact information].',
+              'If you have any questions or suggestions about our Privacy Policy, do not hesitate to contact us at support@teamTODO.org.',
               style: TextStyle(
                 fontSize: 16.0,
               ),

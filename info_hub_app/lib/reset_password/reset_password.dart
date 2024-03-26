@@ -1,4 +1,4 @@
-// ignore_for_file: library_private_types_in_public_api
+// ignore_for_file: library_private_types_in_public_api, use_build_context_synchronously
 
 import 'package:flutter/material.dart';
 import 'reset_password_controller.dart';
@@ -46,6 +46,14 @@ class _ResetPasswordState extends State<ResetPassword> {
                     return;
                   }
                   await widget.controller.sendPasswordResetEmail(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Email sent'),
+                      duration: Duration(seconds: 3),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                  Navigator.pop(context);
                 },
                 child: const Text(
                   'Send Email',

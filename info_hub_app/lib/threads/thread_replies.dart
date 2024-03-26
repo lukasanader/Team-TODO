@@ -12,11 +12,11 @@ class ThreadReplies extends StatefulWidget {
   final FirebaseAuth auth;
 
   const ThreadReplies({
-    Key? key,
+    super.key,
     required this.threadId,
     required this.firestore,
     required this.auth,
-  }) : super(key: key);
+  });
 
   @override
   State<ThreadReplies> createState() => _ThreadRepliesState();
@@ -170,12 +170,12 @@ class _ThreadRepliesState extends State<ThreadReplies> {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showDialog(context),
-        child: Icon(FontAwesomeIcons.reply),
+        child: const Icon(FontAwesomeIcons.reply),
       ),
       body: FutureBuilder<DocumentSnapshot>(
         future: threadFuture,
         builder: (context, AsyncSnapshot<DocumentSnapshot> threadSnapshot) {
-          if (!threadSnapshot.hasData) return CircularProgressIndicator();
+          if (!threadSnapshot.hasData) return const CircularProgressIndicator();
           var threadData = threadSnapshot.data!.data() as Map<String, dynamic>;
           var threadTitle = threadData['title'] ?? 'No Title';
           var threadDescription = threadData['description'] ?? 'No Description';
@@ -188,42 +188,42 @@ class _ThreadRepliesState extends State<ThreadReplies> {
           return Column(
             children: [
               Card(
-                margin: EdgeInsets.all(8.0),
+                margin: const EdgeInsets.all(8.0),
                 elevation: 10.0,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(
                         6.0), // Adjust border radius if needed
-                    side: BorderSide(color: Colors.grey, width: 1.0)),
+                    side: const BorderSide(color: Colors.grey, width: 1.0)),
                 child: Padding(
-                  padding: EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.all(16.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
                         children: [
                           IconButton(
-                            icon: Icon(Icons.arrow_back),
+                            icon: const Icon(Icons.arrow_back),
                             onPressed: () => Navigator.of(context).pop(),
                           ),
                           Expanded(
                             child: Text(
                               threadTitle,
-                              style: TextStyle(
+                              style: const TextStyle(
                                   fontSize: 20.0, fontWeight: FontWeight.bold),
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ],
                       ),
-                      Text(threadDescription, style: TextStyle(fontSize: 16.0)),
-                      SizedBox(height: 10.0),
+                      Text(threadDescription, style: const TextStyle(fontSize: 16.0)),
+                      const SizedBox(height: 10.0),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text("By $threadAuthor",
-                              style: TextStyle(
+                              style: const TextStyle(
                                   fontSize: 14.0, fontStyle: FontStyle.italic)),
-                          Text(formattedDate, style: TextStyle(fontSize: 14.0)),
+                          Text(formattedDate, style: const TextStyle(fontSize: 14.0)),
                         ],
                       ),
                     ],

@@ -38,15 +38,6 @@ class ResetPasswordController {
       return;
     }
     await auth.sendPasswordResetEmail(email: email);
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Email sent'),
-        duration: Duration(seconds: 3),
-        backgroundColor: Colors.green,
-      ),
-    );
-    Navigator.pop(context);
   }
 }
 

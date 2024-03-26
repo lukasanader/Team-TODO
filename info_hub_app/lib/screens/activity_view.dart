@@ -46,7 +46,7 @@ class _ActivityViewState extends State<ActivityView> {
               textAlign: TextAlign.left,
               'Viewed Topics',
             ),
-            Container(
+            SizedBox(
               height: 250,
               child: ListView.builder(
                 shrinkWrap: true,
@@ -65,7 +65,7 @@ class _ActivityViewState extends State<ActivityView> {
               textAlign: TextAlign.left,
               'Liked Topics',
             ),
-            Container(
+            SizedBox(
               height: 250,
               child: ListView.builder(
                 shrinkWrap: true,
@@ -87,7 +87,7 @@ class _ActivityViewState extends State<ActivityView> {
               textAlign: TextAlign.left,
               'Replied threads',
             ),
-            Container(
+            SizedBox(
               height: 250,
               child: ListView.builder(
                 shrinkWrap: true,

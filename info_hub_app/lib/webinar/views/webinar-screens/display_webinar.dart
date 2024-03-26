@@ -6,7 +6,7 @@ import 'package:info_hub_app/webinar/service/webinar_service.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import 'package:flutter/services.dart';
 
-// Displays base broadcasting screen
+// Displays webinar view screen alongside the respective chat for this webinar
 class WebinarScreen extends StatefulWidget {
   final String webinarID;
   final String youtubeURL;
@@ -35,10 +35,7 @@ class WebinarScreen extends StatefulWidget {
 
 class _WebinarScreenState extends State<WebinarScreen> {
   late YoutubePlayerController _controller;
-  late PlayerState _playerState;
-  late YoutubeMetaData _videoMetaData;
   String? modifiedURL;
-  final bool _isPlayerReady = false;
   List<String> participants = [];
 
   @override
@@ -63,9 +60,7 @@ class _WebinarScreenState extends State<WebinarScreen> {
         enableCaption: false,
         showLiveFullscreenButton: false,
       ),
-    )..addListener(listener);
-    _videoMetaData = const YoutubeMetaData();
-    _playerState = PlayerState.unknown;  
+    );
   }
 
   // stop the youtube player from playing and exit the channel, decrementing the Live statistics 
@@ -74,16 +69,6 @@ class _WebinarScreenState extends State<WebinarScreen> {
     _controller.pause();
     _leaveChannel();
     super.dispose();
-  }
-
-  // Listens on changes from the user side
-  void listener() {
-    if (_isPlayerReady && mounted && !_controller.value.isFullScreen) {
-      setState(() {
-        _playerState = _controller.value.playerState;
-        _videoMetaData = _controller.metadata;
-      });
-    }
   }
 
   // initates leaving sequence. Decrements the total viewer count by 1
@@ -212,7 +197,4 @@ class _WebinarScreenState extends State<WebinarScreen> {
       ),
     );
   }
-
-
 }
-

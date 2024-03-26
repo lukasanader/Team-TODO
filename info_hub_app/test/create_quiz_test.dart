@@ -252,13 +252,13 @@ void main() {
         await tester.pumpAndSettle();
 
         final querySnapshot = await firestore.collection('quizQuestions').get();
-        querySnapshot.docs.forEach((doc) {
+        for (var doc in querySnapshot.docs) {
           if (doc.data().containsKey('question') && doc.data()['question'] == 'What is a doctor?') {
             expect(doc['correctAnswers'] as List, ['A Person']);
             expect(doc['wrongAnswers'] as List, ['A dog']);
             expect(doc['quizID'], '1');
           }
-        });
+        }
       });
 
       testWidgets('Test unsave quiz questions', (WidgetTester tester) async {

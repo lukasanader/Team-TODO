@@ -17,12 +17,12 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:info_hub_app/theme/theme_constants.dart';
 
 class Base extends StatefulWidget {
-  FirebaseAuth auth;
-  FirebaseFirestore firestore;
-  FirebaseStorage storage;
-  ThemeManager themeManager;
-  String roleType;
-  Base(
+  final FirebaseAuth auth;
+  final FirebaseFirestore firestore;
+  final FirebaseStorage storage;
+  final ThemeManager themeManager;
+  final String roleType;
+  const Base(
       {super.key,
       required this.auth,
       required this.storage,
@@ -36,14 +36,23 @@ class Base extends StatefulWidget {
 
 class _BaseState extends State<Base> {
   List<Widget> getScreenBasedOnUser() {
+    Widget userHomePage;
     if (widget.roleType == 'admin') {
-      return [
-        AdminHomepage(
+      userHomePage= AdminHomepage(
           auth: widget.auth,
           storage: widget.storage,
           firestore: widget.firestore,
           themeManager: widget.themeManager,
-        ),
+        );
+    }else{
+      userHomePage=HomePage(
+           auth: widget.auth,
+           storage: widget.storage,
+           firestore: widget.firestore,
+        );
+      }
+      return [
+        userHomePage,
         DiscoveryView(
           auth: widget.auth,
           storage: widget.storage,
@@ -56,26 +65,6 @@ class _BaseState extends State<Base> {
           themeManager: widget.themeManager,
         ),
       ];
-    } else {
-      return [
-        HomePage(
-          auth: widget.auth,
-          storage: widget.storage,
-          firestore: widget.firestore,
-        ),
-        DiscoveryView(
-          auth: widget.auth,
-          storage: widget.storage,
-          firestore: widget.firestore,
-        ),
-        SettingsView(
-          auth: widget.auth,
-          firestore: widget.firestore,
-          storage: widget.storage,
-          themeManager: widget.themeManager,
-        ),
-      ];
-    }
   }
 
   @override

@@ -14,10 +14,9 @@ import 'package:info_hub_app/helpers/base.dart';
 import 'package:info_hub_app/home_page/home_page.dart';
 import 'package:info_hub_app/main.dart';
 import 'package:info_hub_app/notifications/notification_model.dart' as custom;
-import 'package:info_hub_app/notifications/notification_service.dart';
+import 'package:info_hub_app/notifications/notification_controller.dart';
 import 'package:info_hub_app/notifications/notification_view.dart';
 import 'package:info_hub_app/push_notifications/push_notifications_controller.dart';
-import 'package:info_hub_app/services/database.dart';
 import 'package:mockito/mockito.dart';
 import 'package:provider/provider.dart';
 
@@ -132,7 +131,6 @@ Future<void> main() async {
           auth: auth,
           firestore: firestore,
           messaging: firebaseMessaging,
-          nav: mockNavigatorKey,
           http: mockClient,
           localnotificationsplugin: mockFlutterLocalNotificationsPlugin);
     });
@@ -211,7 +209,7 @@ Future<void> main() async {
       await tester.pumpWidget(MultiProvider(
         providers: [
           StreamProvider<List<custom.Notification>>(
-            create: (_) => NotificationService(
+            create: (_) => NotificationController(
                     auth: auth,
                     firestore: firestore,
                     uid: auth.currentUser!.uid)
@@ -242,7 +240,7 @@ Future<void> main() async {
                       )),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return CircularProgressIndicator();
+                      return const CircularProgressIndicator();
                     } else {
                       return snapshot.data!;
                     }
@@ -306,7 +304,7 @@ Future<void> main() async {
       await tester.pumpWidget(MultiProvider(
         providers: [
           StreamProvider<List<custom.Notification>>(
-            create: (_) => NotificationService(
+            create: (_) => NotificationController(
                     auth: auth,
                     firestore: firestore,
                     uid: auth.currentUser!.uid)
@@ -358,7 +356,7 @@ Future<void> main() async {
       });
 
       await pushNotifications.storeDeviceToken();
-      NotificationService notificationService = NotificationService(
+      NotificationController notificationService = NotificationController(
           auth: auth, firestore: firestore, uid: auth.currentUser!.uid);
       const title = 'Test Title';
       const body = 'Test Body';

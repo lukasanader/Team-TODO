@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:info_hub_app/topics/create_topic/helpers/categories/category_model.dart';
-import 'package:info_hub_app/topics/create_topic/view/topic_creation_view.dart';
 
 class CategoryController {
   final FirebaseFirestore _firestore;

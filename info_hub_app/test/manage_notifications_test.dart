@@ -4,10 +4,9 @@ import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:info_hub_app/notifications/manage_notifications_model.dart';
-import 'package:info_hub_app/notifications/manage_notifications_view.dart';
-import 'package:info_hub_app/notifications/preferences_service.dart';
-import 'package:info_hub_app/services/database.dart';
+import 'package:info_hub_app/notifications/preferences_controller.dart';
+import 'package:info_hub_app/notifications/preferences_model.dart';
+import 'package:info_hub_app/notifications/preferences_view.dart';
 import 'package:provider/provider.dart';
 
 import 'mock.dart';
@@ -23,11 +22,11 @@ Future<void> main() async {
   group('Manage Notifications Tests', () {
     late FakeFirebaseFirestore firestore;
     late MockFirebaseAuth auth;
-    late PreferencesService preferencesService;
+    late PreferencesController controller;
     setUp(() {
       firestore = FakeFirebaseFirestore();
       auth = MockFirebaseAuth(signedIn: true);
-      preferencesService = PreferencesService(
+      controller = PreferencesController(
           auth: auth, uid: auth.currentUser!.uid, firestore: firestore);
     });
 
@@ -44,14 +43,14 @@ Future<void> main() async {
       await tester.pumpWidget(
         MaterialApp(
           home: StreamProvider<List<Preferences>>(
-            create: (_) => PreferencesService(
+            create: (_) => PreferencesController(
                     firestore: firestore,
                     auth: auth,
                     uid: auth.currentUser!.uid)
                 .preferences,
-            initialData: [],
+            initialData: const [],
             child: Scaffold(
-              body: ManageNotifications(firestore: firestore, auth: auth),
+              body: PreferencesPage(firestore: firestore, auth: auth),
             ),
           ),
         ),
@@ -74,14 +73,14 @@ Future<void> main() async {
       await tester.pumpWidget(
         MaterialApp(
           home: StreamProvider<List<Preferences>>(
-            create: (_) => PreferencesService(
+            create: (_) => PreferencesController(
                     firestore: firestore,
                     auth: auth,
                     uid: auth.currentUser!.uid)
                 .preferences,
-            initialData: [],
+            initialData: const [],
             child: Scaffold(
-              body: ManageNotifications(firestore: firestore, auth: auth),
+              body: PreferencesPage(firestore: firestore, auth: auth),
             ),
           ),
         ),
@@ -99,7 +98,7 @@ Future<void> main() async {
     });
 
     test('createPreferences adds preferences to Firestore', () async {
-      await preferencesService.createPreferences();
+      await controller.createPreferences();
       QuerySnapshot querySnapshot =
           await firestore.collection(PreferenceCollection).get();
 
@@ -117,22 +116,21 @@ Future<void> main() async {
           await firestore.collection(PreferenceCollection).get();
 
       List<Preferences> preferences =
-          preferencesService.prefListFromSnapshot(querySnapshot);
+          controller.prefListFromSnapshot(querySnapshot);
 
       expect(preferences.length, 1);
     });
 
     test('getPreferences returns list of preferences from Firestore', () async {
-      await preferencesService.createPreferences();
-      List<Preferences> preferences = await preferencesService.getPreferences();
+      await controller.createPreferences();
+      List<Preferences> preferences = await controller.getPreferences();
 
       expect(preferences.length, 1);
     });
 
     test('get preferences stream returns list of preferences', () async {
-      await preferencesService.createPreferences();
-      Stream<List<Preferences>> preferencesStream =
-          preferencesService.preferences;
+      await controller.createPreferences();
+      Stream<List<Preferences>> preferencesStream = controller.preferences;
 
       expect(preferencesStream, isA<Stream<List<Preferences>>>());
     });

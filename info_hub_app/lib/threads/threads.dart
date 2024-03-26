@@ -12,17 +12,18 @@ class ThreadApp extends StatefulWidget {
   final String topicTitle;
 
   ThreadApp({
-    Key? key,
+    super.key,
     required this.firestore,
     required this.auth,
     required this.topicId,
     required this.topicTitle,
-  }) : super(key: key);
+  });
 
   @override
   _ThreadAppState createState() => _ThreadAppState();
 
   // Define a GlobalKey within the widget
+  @override
   final GlobalKey<_ThreadAppState> key = GlobalKey<_ThreadAppState>();
 
   void refreshDataForTesting() {
@@ -129,7 +130,7 @@ class _ThreadAppState extends State<ThreadApp> {
                 builder: (BuildContext context,
                     AsyncSnapshot<DocumentSnapshot> userSnapshot) {
                   if (!userSnapshot.hasData) {
-                    return CircularProgressIndicator(); // Or some placeholder widget
+                    return const CircularProgressIndicator(); // Or some placeholder widget
                   }
 
                   var userDocData =

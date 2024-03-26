@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/controller/topic_question_controller.dart';
 import 'package:info_hub_app/model/model.dart';
@@ -22,14 +24,14 @@ import 'package:info_hub_app/topics/create_topic/helpers/categories/category_mod
 class TopicCreationView extends StatefulWidget {
   final FirebaseFirestore firestore;
   final FirebaseStorage storage;
-  Topic? topic;
-  Topic? draft;
+  final Topic? topic;
+  final Topic? draft;
   final FirebaseAuth auth;
-  List<PlatformFile>? selectedFiles;
+  final List<PlatformFile>? selectedFiles;
   final ThemeManager themeManager;
 
-  TopicCreationView({
-    Key? key,
+  const TopicCreationView({
+    super.key,
     required this.firestore,
     required this.storage,
     this.topic,
@@ -37,7 +39,7 @@ class TopicCreationView extends StatefulWidget {
     this.selectedFiles,
     required this.auth,
     required this.themeManager,
-  }) : super(key: key);
+  });
 
   @override
   State<TopicCreationView> createState() => TopicCreationViewState();
@@ -152,7 +154,7 @@ class TopicCreationViewState extends State<TopicCreationView> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Container(
+                            SizedBox(
                               width: 200,
                               child: OutlinedButton(
                                 style: OutlinedButton.styleFrom(
@@ -222,7 +224,6 @@ class TopicCreationViewState extends State<TopicCreationView> {
         TopicQuestionController(firestore: widget.firestore, auth: widget.auth);
     List<TopicQuestion> questions =
         await controller.getRelevantQuestions(title);
-    // ignore: use_build_context_synchronously
     await showDialog(
       context: context,
       builder: (BuildContext context) {

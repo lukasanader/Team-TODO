@@ -19,7 +19,10 @@ class AnalyticsTopicView extends StatefulWidget {
   final FirebaseStorage storage;
 
   const AnalyticsTopicView(
-      {super.key, required this.auth, required this.firestore, required this.storage});
+      {super.key,
+      required this.auth,
+      required this.firestore,
+      required this.storage});
 
   @override
   State<AnalyticsTopicView> createState() => _AnalyticsTopicView();
@@ -27,7 +30,7 @@ class AnalyticsTopicView extends StatefulWidget {
 
 class _AnalyticsTopicView extends State<AnalyticsTopicView> {
   // Default/Starting Variables
-  List<Object> _topicsList = [];
+  List<Topic> _topicsList = [];
   int topicLength = 0;
   String dropdownvalue = "Name A-Z";
 
@@ -137,9 +140,10 @@ class _AnalyticsTopicView extends State<AnalyticsTopicView> {
   }
 
   Future getTopicsList() async {
-
     // Retrieves topic data from database.
-    List<Topic> topics = await TopicController(auth: widget.auth, firestore: widget.firestore).getTopicList();
+    List<Topic> topics =
+        await TopicController(auth: widget.auth, firestore: widget.firestore)
+            .getTopicList();
 
     // Amends ordering of topics on the screen when new dropdown is selected
     // or when the page is initialised for the first time.

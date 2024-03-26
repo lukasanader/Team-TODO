@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:get/get.dart';
 import 'package:info_hub_app/controller/quiz_controller.dart';
-import 'package:info_hub_app/model/model.dart';
 import 'package:info_hub_app/model/quiz_model.dart';
 import 'package:info_hub_app/topics/create_topic/helpers/quiz/user_quiz_question_card.dart';
 import 'package:info_hub_app/topics/create_topic/model/topic_model.dart';
@@ -12,21 +10,20 @@ class CompleteQuiz extends StatefulWidget {
   final FirebaseFirestore firestore;
   final Topic topic;
   final FirebaseAuth auth;
-  QuizController? quizController;
 
   CompleteQuiz({
-    Key? key,
+    super.key,
     required this.firestore,
     required this.topic,
     required this.auth,
-    this.quizController,
-  }) : super(key: key);
+  });
 
   @override
   State<CompleteQuiz> createState() => _CompleteQuizState();
 }
 
 class _CompleteQuizState extends State<CompleteQuiz> {
+  late QuizController controller;
   List<QuizQuestion> _questions = [];
   int _questionListLength = 0;
   bool _quizCompleted = false;
@@ -38,7 +35,7 @@ class _CompleteQuizState extends State<CompleteQuiz> {
   @override
   void initState() {
     super.initState();
-     widget.quizController = QuizController(firestore: widget.firestore, auth: widget.auth);
+     controller = QuizController(firestore: widget.firestore, auth: widget.auth);
     _getQuestionsList();
     _checkIfCompleted();
   }
@@ -91,7 +88,7 @@ class _CompleteQuizState extends State<CompleteQuiz> {
   // Fetch the list of quiz questions
   Future<void> _getQuestionsList() async {
     final List<QuizQuestion> tempList =
-        await widget.quizController!.getQuizQuestions(widget.topic);
+        await controller.getQuizQuestions(widget.topic);
     setState(() {
       _questions = tempList;
       _questionListLength = _questions.length;
@@ -101,8 +98,8 @@ class _CompleteQuizState extends State<CompleteQuiz> {
 
   // Check if the user has completed the quiz before
   Future<void> _checkIfCompleted() async {
-    if (await widget.quizController!.checkQuizScore(widget.topic.quizID!)) {
-      final String temp = await widget.quizController!.getQuizScore(widget.topic.quizID!);
+    if (await controller.checkQuizScore(widget.topic.quizID!)) {
+      final String temp = await controller.getQuizScore(widget.topic.quizID!);
       setState(() {
         _oldScore = temp;
         _quizCompletedBefore = true;
@@ -119,7 +116,7 @@ class _CompleteQuizState extends State<CompleteQuiz> {
       });
     }
     _score = _correctQuestions.where((element) => element == true).length;
-    widget.quizController!.handleQuizCompletion(
+    controller.handleQuizCompletion(
         widget.topic,
         "$_score/$_questionListLength",
       );

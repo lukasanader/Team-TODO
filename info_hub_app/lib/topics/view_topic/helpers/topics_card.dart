@@ -4,11 +4,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:info_hub_app/analytics/topics/analytics_view_topic.dart';
 import 'package:info_hub_app/controller/activity_controller.dart';
 import 'package:info_hub_app/main.dart';
-import 'package:info_hub_app/model/model.dart';
 import 'package:info_hub_app/topics/create_topic/controllers/topic_controller.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import '../view/topic_view.dart';
-import 'package:info_hub_app/services/database.dart';
 import '../../create_topic/view/topic_creation_view.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -49,7 +47,7 @@ class TopicCard extends StatelessWidget {
           } else if (snapshot.hasError) {
             return const Text('Error loading thumbnail');
           } else {
-            return Container(
+            return SizedBox(
               width: 50, // Adjust width as needed
               height: 50, // Adjust height as needed
               child: Image.memory(
@@ -197,7 +195,7 @@ class AdminTopicCard extends StatelessWidget {
           } else if (snapshot.hasError) {
             return const Text('Error loading thumbnail');
           } else {
-            return Container(
+            return SizedBox(
               width: 50, // Adjust width as needed
               height: 50, // Adjust height as needed
               child: Image.memory(
@@ -245,7 +243,6 @@ class AdminTopicCard extends StatelessWidget {
                       _topic.title ?? '',
                       style: const TextStyle(
                         fontSize: 16,
-                        color: Colors.black,
                       ),
                     ),
                     if (date != null)
@@ -344,7 +341,7 @@ class TopicDraftCard extends StatelessWidget {
           } else if (snapshot.hasError) {
             return const Text('Error loading thumbnail');
           } else {
-            return Container(
+            return SizedBox(
               width: 50, // Adjust width as needed
               height: 50, // Adjust height as needed
               child: Image.memory(
@@ -470,8 +467,8 @@ class LargeTopicCard extends StatelessWidget {
     this.auth,
     this.storage,
     this._topic, {
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -496,7 +493,7 @@ class LargeTopicCard extends StatelessWidget {
           } else if (snapshot.hasError || snapshot.data == null) {
             return const Text('Error loading thumbnail');
           } else {
-            return Container(
+            return SizedBox(
               width: 400, // Adjust width as needed
               height: 180, // Adjust height as needed
               child: Image.memory(
@@ -508,7 +505,7 @@ class LargeTopicCard extends StatelessWidget {
         },
       );
     } else if (mediaType == 'image') {
-      mediaWidget = Container(
+      mediaWidget = SizedBox(
         width: 400, // Adjust width as needed
         height: 180, // Adjust height as needed
         child: Image.network(
@@ -537,7 +534,7 @@ class LargeTopicCard extends StatelessWidget {
       },
       child: Card(
         elevation: 4,
-        margin: EdgeInsets.all(8),
+        margin: const EdgeInsets.all(8),
         child: SizedBox(
           width: double.infinity,
           child: Column(
@@ -564,7 +561,7 @@ class LargeTopicCard extends StatelessWidget {
                       ),
                       if (date != null)
                         Text(
-                          '${_formatDate(date)}',
+                          _formatDate(date),
                           style: const TextStyle(
                             fontSize: 10,
                             color: Colors.grey,

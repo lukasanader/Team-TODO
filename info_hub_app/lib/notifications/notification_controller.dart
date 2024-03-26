@@ -3,17 +3,16 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:info_hub_app/main.dart';
 import 'package:info_hub_app/notifications/notification_model.dart' as custom;
-import 'package:info_hub_app/notifications/preferences_service.dart';
+import 'package:info_hub_app/notifications/preferences_controller.dart';
 import 'package:info_hub_app/push_notifications/push_notifications_controller.dart';
 
-class NotificationService {
+class NotificationController {
   final FirebaseAuth auth;
   final String uid;
   final FirebaseFirestore firestore;
 
-  NotificationService(
+  NotificationController(
       {required this.auth, required this.uid, required this.firestore});
 
   Future<String> createNotification(
@@ -31,9 +30,9 @@ class NotificationService {
     // Send push notification to all device tokens
     // Send push notification only if push notifications preference is enabled
     final preferences =
-        await PreferencesService(auth: auth, uid: uid, firestore: firestore)
+        await PreferencesController(auth: auth, uid: uid, firestore: firestore)
             .getPreferences();
-    if (preferences.isNotEmpty && preferences.first.push_notifications) {
+    if (preferences.isNotEmpty && preferences.first.pushNotifications) {
       await sendNotificationToDevices(
           title, body, http.Client(), FlutterLocalNotificationsPlugin());
     }
@@ -50,7 +49,6 @@ class NotificationService {
               auth: auth,
               firestore: firestore,
               messaging: FirebaseMessaging.instance,
-              nav: navigatorKey,
               http: client,
               localnotificationsplugin: plugin)
           .sendNotificationToDevice(token, title, body);

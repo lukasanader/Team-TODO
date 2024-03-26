@@ -1,10 +1,7 @@
-import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:expansion_tile_card/expansion_tile_card.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:info_hub_app/threads/custom_card.dart';
 import 'package:info_hub_app/threads/thread_replies.dart';
@@ -12,8 +9,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:info_hub_app/threads/threads.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:info_hub_app/main.dart';
-import 'package:info_hub_app/threads/name_generator.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 class MockFirebaseAuth extends Mock implements FirebaseAuth {
   @override
@@ -32,8 +27,8 @@ class MockUser extends Mock implements User {
 void main() {
   late FakeFirebaseFirestore firestore;
   late FirebaseAuth mockAuth;
-  final String testTopicId = "testTopicId";
-  final String testTopicTitle = "testTopicTitle";
+  const String testTopicId = "testTopicId";
+  const String testTopicTitle = "testTopicTitle";
 
   setUp(() async {
     firestore = FakeFirebaseFirestore();
@@ -119,7 +114,7 @@ void main() {
 
       await tester.pumpAndSettle();
       final navigateToThreadRepliesKey =
-          find.byKey(Key('navigateToThreadReplies_0'));
+          find.byKey(const Key('navigateToThreadReplies_0'));
 
       expect(navigateToThreadRepliesKey, findsOneWidget);
     });
@@ -466,7 +461,7 @@ void main() {
 
     await tester.pumpAndSettle();
 
-    final inkWellFinder = find.byKey(Key('navigateToThreadReplies_0'));
+    final inkWellFinder = find.byKey(const Key('navigateToThreadReplies_0'));
     expect(inkWellFinder, findsOneWidget);
 
     await tester.tap(inkWellFinder);
@@ -499,20 +494,20 @@ void main() {
     )));
 
     // Expand the card
-    final expansionTriggerFinder = find.byKey(Key('authorText_0'));
+    final expansionTriggerFinder = find.byKey(const Key('authorText_0'));
     await tester.tap(expansionTriggerFinder);
     await tester.pumpAndSettle();
 
     // Open the edit dialog
-    final editButtonFinder = find.byKey(Key('editIcon_0'));
+    final editButtonFinder = find.byKey(const Key('editIcon_0'));
     await tester.tap(editButtonFinder);
     await tester.pumpAndSettle();
 
     // Update the content
-    await tester.enterText(find.byKey(Key('Title')), 'Updated Title');
+    await tester.enterText(find.byKey(const Key('Title')), 'Updated Title');
     await tester.enterText(
-        find.byKey(Key('Description')), 'Updated Description');
-    final updateButtonFinder = find.byKey(Key('updateButtonText'));
+        find.byKey(const Key('Description')), 'Updated Description');
+    final updateButtonFinder = find.byKey(const Key('updateButtonText'));
     await tester.tap(updateButtonFinder);
     await tester.pumpAndSettle();
 
@@ -529,8 +524,8 @@ void main() {
     await tester.pumpAndSettle();
 
     // Check the text fields for the updated values
-    final titleTextField = find.byKey(Key('Title'));
-    final descriptionTextField = find.byKey(Key('Description'));
+    final titleTextField = find.byKey(const Key('Title'));
+    final descriptionTextField = find.byKey(const Key('Description'));
 
     expect(find.text('Updated Title'), findsOneWidget);
     expect(find.text('Updated Description'), findsOneWidget);
