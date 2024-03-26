@@ -6,9 +6,10 @@ class Experience {
   String? description;
   String? userEmail;
   String? userRoleType;
+  Timestamp? timestamp;
   bool? verified;
 
-  Experience({this.id, this.title, this.description, this.userEmail, this.userRoleType,this.verified});
+  Experience({this.id, this.title, this.description, this.userEmail, this.userRoleType, this.timestamp,this.verified});
 
   factory Experience.fromSnapshot(DocumentSnapshot snapshot) {
     Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
@@ -18,6 +19,7 @@ class Experience {
       description: data['description'],
       userEmail: data['userEmail'],
       userRoleType: data['userRoleType'],
+      timestamp: data['timestamp'],
       verified: data['verified'],
     );
   }
@@ -28,6 +30,7 @@ class Experience {
       'description': description,
       'userEmail': userEmail,
       'userRoleType': userRoleType,
+      'timestamp': timestamp,
       'verified': verified,
     };
   }
