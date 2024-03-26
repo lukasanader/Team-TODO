@@ -256,9 +256,8 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<Topic> getTopic(String? id) async {
-    return Topic.fromSnapshot(widget.firestore
-        .collection('topics')
-        .doc(id)
-        .get() as DocumentSnapshot<Object?>);
+    DocumentSnapshot snapshot =
+        await widget.firestore.collection('topics').doc(id).get();
+    return Topic.fromSnapshot(snapshot);
   }
 }
