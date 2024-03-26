@@ -98,11 +98,17 @@ void main() {
       await tester.tap(find.text('Confirm'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Are you sure you want to delete this webinar?'),findsNothing);
-      DocumentSnapshot result = await fakeFirestore.collection('Webinar').doc('id').get();
+      expect(find.text('Are you sure you want to delete this webinar?'),
+          findsNothing);
+      DocumentSnapshot result =
+          await fakeFirestore.collection('Webinar').doc('id').get();
       expect(result.exists, equals(false));
-      QuerySnapshot chatResult = await fakeFirestore.collection('Webinar').doc('id').collection('comments').get();
-      expect(chatResult.docs.length,equals(0));
+      QuerySnapshot chatResult = await fakeFirestore
+          .collection('Webinar')
+          .doc('id')
+          .collection('comments')
+          .get();
+      expect(chatResult.docs.length, equals(0));
     });
   });
 
@@ -131,7 +137,7 @@ void main() {
   });
 
   testWidgets(
-    'Test Admin can not change webinar from live to archive using no link or invalid link',
+      'Test Admin can not change webinar from live to archive using no link or invalid link',
       (WidgetTester tester) async {
     await provideMockedNetworkImages(() async {
       helper.addLiveFirestoreDocument();
@@ -164,7 +170,7 @@ void main() {
       expect(find.text('Confirm'), findsNothing);
     });
   });
-  
+
   testWidgets('Test Admin can cancel delete webinar operation',
       (WidgetTester tester) async {
     helper.addLiveFirestoreDocument();
@@ -286,7 +292,7 @@ void main() {
         matching: find.byType(TextField),
       );
       await tester.enterText(
-          urlField, "https://www.youtube.com/watch?v=tSXZ8hervgY");
+          urlField, "https://youtu.be/HZQOdtxlim4?si=nV-AXQTcplvKreyH");
       await tester.tap(find.text('Confirm'));
       await tester.pumpAndSettle();
 
