@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:info_hub_app/main.dart';
 import 'package:info_hub_app/webinar/views/admin-webinar-screens/create_webinar_screen.dart';
 import 'package:info_hub_app/model/user_model.dart';
 import 'package:info_hub_app/webinar/service/webinar_service.dart';
@@ -30,6 +31,10 @@ void main() {
 
     firestore = FakeFirebaseFirestore();
     mockStorage = MockFirebaseStorage();
+
+    // Initialize allNouns and allAdjectives before each test
+    allNouns = await loadWordSet('assets/texts/nouns.txt');
+    allAdjectives = await loadWordSet('assets/texts/adjectives.txt');
 
     webinarService = WebinarService(firestore: firestore, storage: mockStorage);
 
