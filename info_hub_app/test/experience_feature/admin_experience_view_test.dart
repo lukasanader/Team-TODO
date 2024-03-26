@@ -3,7 +3,7 @@ import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
-import 'package:info_hub_app/experiences/admin_experience_view.dart';
+import 'package:info_hub_app/experiences/admin_experience/admin_experience_view.dart';
 import 'package:info_hub_app/experiences/experience_model.dart';
 
 void main() {

@@ -1,10 +1,14 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:info_hub_app/experiences/admin_experience/admin_experience_widgets.dart';
 import 'package:info_hub_app/helpers/helper_widgets.dart';
 import 'package:info_hub_app/experiences/experience_controller.dart';
 import 'package:info_hub_app/experiences/experiences_card.dart';
 import 'package:info_hub_app/experiences/experience_model.dart';
+import 'package:info_hub_app/topics/create_topic/helpers/transitions/checkmark_transition.dart';
 
 class AdminExperienceView extends StatefulWidget {
   final FirebaseFirestore firestore;
@@ -24,59 +28,17 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
   late ExperienceController _experienceController;
   List<Experience> _verifiedExperienceList = [];
   List<Experience> _unverifiedExperienceList = [];
+  int _currentIndex = 0;
+  late PageController _pageController;
+
 
   @override
   void initState() {
     super.initState();
     _experienceController = ExperienceController(widget.auth, widget.firestore);
     updateExperiencesList();
+    _pageController = PageController(initialPage: _currentIndex);
   }
-
-  // @override
-  // Widget build(BuildContext context) {
-  //   return Scaffold(
-  //     appBar: AppBar(
-  //       title: const Text("All Submitted Experiences"),
-  //       actions: [
-  //         IconButton(
-  //           icon: const Icon(Icons.help_outline),
-  //           onPressed: () {
-  //             _showAdminExperienceDialog(context);
-  //           },
-  //         ),
-  //       ],
-  //     ),
-  //     body: SingleChildScrollView(
-  //       padding: const EdgeInsets.all(8.0),
-  //       child: Column(
-  //         crossAxisAlignment: CrossAxisAlignment.start,
-  //         children: [
-  //           Padding(
-  //             padding: const EdgeInsets.symmetric(vertical: 8.0),
-  //             child: Center(
-  //               child: Text(
-  //                 "Verified experiences",
-  //                 style: Theme.of(context).textTheme.headlineLarge,
-  //               ),
-  //             ),
-  //           ),
-  //           _buildExperienceSection(true),
-  //           addVerticalSpace(10),
-  //           Padding(
-  //             padding: const EdgeInsets.symmetric(vertical: 8.0),
-  //             child: Center(
-  //               child: Text(
-  //                 "Unverified experiences",
-  //                 style: Theme.of(context).textTheme.headlineLarge,
-  //               ),
-  //             ),
-  //           ),
-  //           _buildExperienceSection(false),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -87,12 +49,18 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
           IconButton(
             icon: const Icon(Icons.help_outline),
             onPressed: () {
-              _showAdminExperienceDialog(context);
+              showAdminExperienceDialog(context);
             },
           ),
         ],
       ),
       body: PageView(
+        controller: _pageController,
+        onPageChanged: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
         children: [
           SingleChildScrollView(
             child: Column(
@@ -106,50 +74,54 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
                     ),
                   ),
                 ),
-                _buildExperienceSection(true),
-                const Icon(Icons.abc)
+                _buildExperienceList(_verifiedExperienceList)
               ],
             ),
           ),
           SingleChildScrollView(
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
-                  child: Center(
-                    child: Text(
-                      "Unverified experiences",
-                      style: Theme.of(context).textTheme.headlineLarge,
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: Center(
+                      child: Text(
+                        "Unverified experiences",
+                        style: Theme.of(context).textTheme.headlineLarge,
+                      ),
                     ),
                   ),
-                ),
-                _buildExperienceSection(false),
-              ],
-            )
+                  _buildExperienceList(_unverifiedExperienceList)
+                ],
+              )
           )
         ],
-
-      )
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+            _pageController.animateToPage(
+              index,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+            );
+          });
+        },
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.check_circle_outline),
+            label: 'Verified',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.highlight_off_outlined),
+            label: 'Unverified',
+          ),
+        ],
+      ),
     );
   }
 
-
-  Widget _buildExperienceSection(bool verified) {
-    return FutureBuilder<List<Experience>>(
-      future: _experienceController
-          .getAllExperienceListBasedOnVerification(verified),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          return Text("Error: ${snapshot.error}");
-        } else {
-          var experiences = snapshot.data ?? [];
-          return _buildExperienceList(experiences);
-        }
-      },
-    );
-  }
 
   Widget _buildExperienceList(List<Experience> experiences) {
     return experiences.isEmpty
@@ -175,8 +147,6 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
                   }
                 },
               );
-        
-
   }
 
   Widget displayExperiencesForAdmin(Experience experience) {
@@ -214,9 +184,19 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
                     icon: const Icon(Icons.delete_outline),
                   ),
                   IconButton(
-                    onPressed: () {
+                    onPressed: () async {
                       _experienceController.updateVerification(experience);
-                      updateExperiencesList();
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              const CheckmarkAnimationScreen(),
+                        ),
+                      );
+                      await Future.delayed(
+                          const Duration(seconds: 2));
+                      await updateExperiencesList();
+                      Navigator.pop(context);
                     },
                     icon: Icon(buttonIcon, color: buttonColor),
                   ),
@@ -228,6 +208,7 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
       ),
     );
   }
+
 
   Future<void> deleteExperienceConfirmation(Experience experience) async {
     return showDialog<void>(
@@ -262,74 +243,10 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
     var unverifiedExperiences = await _experienceController
         .getAllExperienceListBasedOnVerification(false);
     setState(() {
-      _verifiedExperienceList = verifiedExperiences;
       _unverifiedExperienceList = unverifiedExperiences;
+      _verifiedExperienceList = verifiedExperiences;
     });
   }
 
-  void _showAdminExperienceDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Admin Experience View'),
-          content: const SingleChildScrollView(
-            child: ListBody(
-              children: <Widget>[
-                Text(
-                  'Overview:',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                Text(
-                  'This section allows for the management of patient experiences, classified into Verified and Unverified categories.',
-                ),
-                SizedBox(height: 10),
-                Text(
-                  'Verified Experiences:',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                Text(
-                  'These are visible in the patient experience view.',
-                ),
-                SizedBox(height: 10),
-                Text(
-                  'Unverified Experiences:',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                Text(
-                  'These are not visible in the patient experience view.',
-                ),
-                SizedBox(height: 10),
-                Text(
-                  'Interactions:',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                Text(
-                  '• Trash icon: Deletes an experience permanently.\n'
-                  '• Cross icon: Unverifies a verified experience.\n'
-                  '• Tick icon: Verifies an unverified experience.',
-                ),
-                SizedBox(height: 10),
-                Text(
-                  'Confidential Information:',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                Text(
-                  'Each experience displays the author’s email and account type (Patient or Parent), which are not visible to patients or parents.',
-                ),
-              ],
-            ),
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('Close'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
+
 }
