@@ -118,13 +118,27 @@ class _ExperienceViewState extends State<ExperienceView> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Experience View'),
+          title: const Center(
+              child: Text(
+            'Experience Help',
+            style: TextStyle(fontSize: 23),
+          )),
           content: const SingleChildScrollView(
             child: ListBody(
               children: <Widget>[
                 Text(
-                  'Overview:',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                  'Welcome to the Experience View page, where users share their personal stories related to liver disease.',
+                  style: TextStyle(fontSize: 16),
+                ),
+                SizedBox(height: 10),
+                Text(
+                  'Feel free to contribute your own experiences by selecting the "Share your experience!" button.',
+                  style: TextStyle(fontSize: 16),
+                ),
+                SizedBox(height: 10),
+                Text(
+                  'Your submission will undergo professional verification before being published on this platform.',
+                  style: TextStyle(fontSize: 16),
                 ),
               ],
             ),
