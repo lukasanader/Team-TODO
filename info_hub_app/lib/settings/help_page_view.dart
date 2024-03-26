@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:info_hub_app/settings/help_page_controller.dart';
+import 'package:info_hub_app/settings/help_page_widget.dart';
 
 class HelpPage extends StatelessWidget {
   const HelpPage({super.key, Key? customKey});
