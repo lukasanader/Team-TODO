@@ -244,8 +244,8 @@ class _MyAppState extends State<MyApp> {
                   .then((messageRoom) => MessageRoomView(
                         firestore: widget.firestore,
                         auth: widget.auth,
-                        senderId: messageRoom.adminId.toString(),
-                        receiverId: messageRoom.patientId.toString(),
+                        senderId: messageRoom.patientId.toString(),
+                        receiverId: messageRoom.adminId.toString(),
                       )),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {

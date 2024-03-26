@@ -26,7 +26,7 @@ class MessageRoomController {
             'Message Room',
             'An admin has started a chat with you.',
             DateTime.now(),
-            '/topic',
+            '/messageroom',
             chatRoomId);
   }
 
