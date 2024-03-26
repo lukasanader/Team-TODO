@@ -16,7 +16,7 @@ class NotificationController {
       {required this.auth, required this.uid, required this.firestore});
 
   Future<String> createNotification(String title, String body,
-      DateTime timestamp, String route, Object? payload) async {
+      DateTime timestamp, String route, dynamic payload) async {
     CollectionReference notificationsCollection =
         firestore.collection('notifications');
     var docRef = await notificationsCollection.add({
