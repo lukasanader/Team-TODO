@@ -149,13 +149,6 @@ class _ProfileViewState extends State<ProfileView> {
     );
   }
 
-  // Widget _buildChangeProfileButton() {
-  //   return ElevatedButton(
-  //     onPressed: _changeProfile,
-  //     child: const Text('Change Profile'),
-  //   );
-  // }
-
   Widget _buildChangeProfileButton() {
     return ElevatedButton(
       onPressed: () async {

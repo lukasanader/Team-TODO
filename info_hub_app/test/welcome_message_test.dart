@@ -29,9 +29,6 @@ void main() {
     expect(find.text('Welcome to Info Hub App!'), findsOneWidget);
   });
 
-
-
-
   testWidgets('Test if how to use this app text is present',
       (WidgetTester tester) async {
     final firestore = FakeFirebaseFirestore();
@@ -554,7 +551,7 @@ testWidgets('WelcomePage "Get Started" button test if it brings you to the Home 
           firestore: firestore,
           auth: auth,
           storage: storage,
-          themeManager: themeManager, // Provide a non-null value here
+          themeManager: themeManager, 
         ),
       ),
     ));
