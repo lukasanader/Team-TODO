@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:info_hub_app/webinar/views/admin-webinar-screens/create_webinar_screen.dart';
 import 'package:info_hub_app/model/user_model.dart';
-import 'package:info_hub_app/webinar/service/webinar_service.dart';
+import 'package:info_hub_app/webinar/controllers/webinar_controller.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import '../test/mock_classes.dart';
 import '../test/webinar-screens/mock.dart';
@@ -15,7 +15,7 @@ void main() {
   late Widget createWebinarScreen;
   late UserModel testUser;
   late MockFirebaseStorage mockStorage;
-  late WebinarService webinarService;
+  late WebinarController webinarController;
   final MockWebViewDependencies mockWebViewDependencies =
       MockWebViewDependencies();
 
@@ -27,7 +27,7 @@ void main() {
     firestore = FakeFirebaseFirestore();
     mockStorage = MockFirebaseStorage();
 
-    webinarService = WebinarService(firestore: firestore, storage: mockStorage);
+    webinarController = WebinarController(firestore: firestore, storage: mockStorage);
 
     testUser = UserModel(
       uid: 'mockUid',
@@ -41,7 +41,7 @@ void main() {
 
     createWebinarScreen = MaterialApp(
       home: CreateWebinarScreen(
-          user: testUser, firestore: firestore, webinarService: webinarService),
+          user: testUser, firestore: firestore, webinarController: webinarController),
     );
   });
 

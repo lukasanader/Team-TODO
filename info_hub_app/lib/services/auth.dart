@@ -5,7 +5,6 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:info_hub_app/notifications/preferences_controller.dart';
 import 'package:info_hub_app/push_notifications/push_notifications_controller.dart';
 import 'package:info_hub_app/model/user_model.dart';
-import 'package:info_hub_app/services/database.dart';
 import 'package:http/http.dart' as http;
 
 class AuthService {
@@ -20,7 +19,7 @@ class AuthService {
       required this.messaging,
       required this.localnotificationsplugin});
 
-  // create user model
+  /// Creates User Model
   UserModel? _userFromFirebaseUser(
       User user,
       String firstName,
@@ -41,7 +40,7 @@ class AuthService {
         hasOptedOutOfExperienceExpectations: false);
   }
 
-  // register user
+  /// Registers user onto the database
   Future registerUser(
     String firstName,
     String lastName,
@@ -57,8 +56,8 @@ class AuthService {
           email: email, password: password);
       User? user = result.user;
       if (user != null) {
-        await DatabaseService(firestore: firestore, auth: auth, uid: user.uid)
-            .addUserData(
+        addUserData(
+          user.uid,
           firstName,
           lastName,
           email,
@@ -67,10 +66,12 @@ class AuthService {
           dislikedTopics,
           hasOptedOutOfExperienceExpectations,
         );
+        // Sets Preferences
         await PreferencesController(
                 firestore: firestore, auth: auth, uid: user.uid)
             .createPreferences();
 
+        // Enables push notifications
         await PushNotifications(
                 auth: auth,
                 firestore: firestore,
@@ -79,7 +80,7 @@ class AuthService {
                 localnotificationsplugin: localnotificationsplugin)
             .storeDeviceToken();
 
-        // create user model
+        // returns user model
         return _userFromFirebaseUser(user, firstName, lastName, email, roleType,
             likedTopics, dislikedTopics, hasOptedOutOfExperienceExpectations);
       }
@@ -88,6 +89,7 @@ class AuthService {
     }
   }
 
+  /// Signs in existing users and checks if users do not exist
   Future signInUser(String email, String password) async {
     try {
       UserCredential result = await auth.signInWithEmailAndPassword(
@@ -106,5 +108,39 @@ class AuthService {
     } catch (e) {
       return null;
     }
+  }
+
+  /// Adds user data into the database
+  Future addUserData(
+      String uid,
+      String firstName,
+      String lastName,
+      String email,
+      String roleType,
+      List<String> likedTopics,
+      List<String> dislikedTopics,
+      bool hasOptedOutOfExperienceExpectations) async {
+    CollectionReference usersCollectionRef = firestore.collection('Users');
+    if (roleType == 'Patient') {
+      // If you are a patient, you have access to the story expectations
+      return await usersCollectionRef.doc(uid).set({
+        'firstName': firstName,
+        'lastName': lastName,
+        'email': email,
+        'roleType': roleType,
+        'likedTopics': likedTopics,
+        'dislikedTopics': dislikedTopics,
+        'hasOptedOutOfExperienceExpectations':
+            hasOptedOutOfExperienceExpectations,
+      });
+    }
+    return await usersCollectionRef.doc(uid).set({
+      'firstName': firstName,
+      'lastName': lastName,
+      'email': email,
+      'roleType': roleType,
+      'likedTopics': likedTopics,
+      'dislikedTopics': dislikedTopics,
+    });
   }
 }

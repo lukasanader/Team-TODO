@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/webinar/views/webinar-screens/chat.dart';
 import 'package:info_hub_app/model/user_model.dart';
-import 'package:info_hub_app/webinar/service/webinar_service.dart';
+import 'package:info_hub_app/webinar/controllers/webinar_controller.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import 'package:flutter/services.dart';
 
@@ -13,7 +13,7 @@ class WebinarScreen extends StatefulWidget {
   final UserModel currentUser;
   final FirebaseFirestore firestore;
   final String title;
-  final WebinarService webinarService;
+  final WebinarController webinarController;
   final String status;
   final bool chatEnabled;
 
@@ -24,7 +24,7 @@ class WebinarScreen extends StatefulWidget {
     required this.currentUser,
     required this.firestore,
     required this.title,
-    required this.webinarService,
+    required this.webinarController,
     required this.status,
     required this.chatEnabled,
   });
@@ -74,7 +74,7 @@ class _WebinarScreenState extends State<WebinarScreen> {
   // initates leaving sequence. Decrements the total viewer count by 1
   _leaveChannel() async {
     participants.remove(widget.currentUser.uid);
-    await widget.webinarService.updateViewCount(widget.webinarID, false);
+    await widget.webinarController.updateViewCount(widget.webinarID, false);
   }
 
   
@@ -189,7 +189,7 @@ class _WebinarScreenState extends State<WebinarScreen> {
               webinarID: widget.webinarID,
               user: widget.currentUser,
               firestore: widget.firestore,
-              webinarService: widget.webinarService,
+              webinarController: widget.webinarController,
               chatEnabled: widget.chatEnabled,
             ),
           ),

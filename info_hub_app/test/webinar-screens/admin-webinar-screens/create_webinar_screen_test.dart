@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:info_hub_app/main.dart';
 import 'package:info_hub_app/webinar/views/admin-webinar-screens/create_webinar_screen.dart';
 import 'package:info_hub_app/model/user_model.dart';
-import 'package:info_hub_app/webinar/service/webinar_service.dart';
+import 'package:info_hub_app/webinar/controllers/webinar_controller.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
@@ -16,7 +16,7 @@ void main() {
   late Widget createWebinarScreen;
   late UserModel testUser;
   late MockFirebaseStorage mockStorage;
-  late WebinarService webinarService;
+  late WebinarController webinarController;
   final MockWebViewDependencies mockWebViewDependencies =
       MockWebViewDependencies();
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -32,7 +32,7 @@ void main() {
     allNouns = await loadWordSet('assets/texts/nouns.txt');
     allAdjectives = await loadWordSet('assets/texts/adjectives.txt');
 
-    webinarService = WebinarService(firestore: firestore, storage: mockStorage);
+    webinarController = WebinarController(firestore: firestore, storage: mockStorage);
 
     testUser = UserModel(
       uid: 'mockUid',
@@ -46,7 +46,7 @@ void main() {
 
     createWebinarScreen = MaterialApp(
       home: CreateWebinarScreen(
-          user: testUser, firestore: firestore, webinarService: webinarService),
+          user: testUser, firestore: firestore, webinarController: webinarController),
     );
   });
 

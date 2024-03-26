@@ -7,18 +7,18 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:dotted_border/dotted_border.dart';
-import 'package:info_hub_app/webinar/service/webinar_service.dart';
+import 'package:info_hub_app/webinar/controllers/webinar_controller.dart';
 
 class CreateWebinarScreen extends StatefulWidget {
   final UserModel user;
   final FirebaseFirestore firestore;
-  final WebinarService webinarService;
+  final WebinarController webinarController;
 
   const CreateWebinarScreen(
       {super.key,
       required this.user,
       required this.firestore,
-      required this.webinarService});
+      required this.webinarController});
 
   @override
   State<CreateWebinarScreen> createState() => _CreateWebinarScreenState();
@@ -38,7 +38,7 @@ class _CreateWebinarScreenState extends State<CreateWebinarScreen> {
   @override
   void initState() {
     super.initState();
-    controller = CreateWebinarController(webinarService: widget.webinarService, firestore: widget.firestore, user: widget.user);
+    controller = CreateWebinarController(webinarController: widget.webinarController, firestore: widget.firestore, user: widget.user);
     _urlController.addListener(_removeFeatureShared);
   }
 
