@@ -171,7 +171,7 @@ class PrivacyPolicyPage extends StatelessWidget {
             ),
             SizedBox(height: 10.0),
             Text(
-              'If you have any questions or suggestions about our Privacy Policy, do not hesitate to contact us at [contact information].',
+              'If you have any questions or suggestions about our Privacy Policy, do not hesitate to contact us at support@teamTODO.org.',
               style: TextStyle(
                 fontSize: 16.0,
               ),

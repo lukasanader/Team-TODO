@@ -33,7 +33,7 @@ class NotificationService {
     final preferences =
         await PreferencesService(auth: auth, uid: uid, firestore: firestore)
             .getPreferences();
-    if (preferences.isNotEmpty && preferences.first.push_notifications) {
+    if (preferences.isNotEmpty && preferences.first.pushNotifications) {
       await sendNotificationToDevices(
           title, body, http.Client(), FlutterLocalNotificationsPlugin());
     }

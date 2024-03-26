@@ -10,14 +10,12 @@ class CompleteQuiz extends StatefulWidget {
   final FirebaseFirestore firestore;
   final Topic topic;
   final FirebaseAuth auth;
-  QuizController? quizController;
 
   CompleteQuiz({
     super.key,
     required this.firestore,
     required this.topic,
     required this.auth,
-    this.quizController,
   });
 
   @override
@@ -25,6 +23,7 @@ class CompleteQuiz extends StatefulWidget {
 }
 
 class _CompleteQuizState extends State<CompleteQuiz> {
+  late QuizController controller;
   List<QuizQuestion> _questions = [];
   int _questionListLength = 0;
   bool _quizCompleted = false;
@@ -36,7 +35,7 @@ class _CompleteQuizState extends State<CompleteQuiz> {
   @override
   void initState() {
     super.initState();
-     widget.quizController = QuizController(firestore: widget.firestore, auth: widget.auth);
+     controller = QuizController(firestore: widget.firestore, auth: widget.auth);
     _getQuestionsList();
     _checkIfCompleted();
   }
@@ -89,7 +88,7 @@ class _CompleteQuizState extends State<CompleteQuiz> {
   // Fetch the list of quiz questions
   Future<void> _getQuestionsList() async {
     final List<QuizQuestion> tempList =
-        await widget.quizController!.getQuizQuestions(widget.topic);
+        await controller.getQuizQuestions(widget.topic);
     setState(() {
       _questions = tempList;
       _questionListLength = _questions.length;
@@ -99,8 +98,8 @@ class _CompleteQuizState extends State<CompleteQuiz> {
 
   // Check if the user has completed the quiz before
   Future<void> _checkIfCompleted() async {
-    if (await widget.quizController!.checkQuizScore(widget.topic.quizID!)) {
-      final String temp = await widget.quizController!.getQuizScore(widget.topic.quizID!);
+    if (await controller.checkQuizScore(widget.topic.quizID!)) {
+      final String temp = await controller.getQuizScore(widget.topic.quizID!);
       setState(() {
         _oldScore = temp;
         _quizCompletedBefore = true;
@@ -117,7 +116,7 @@ class _CompleteQuizState extends State<CompleteQuiz> {
       });
     }
     _score = _correctQuestions.where((element) => element == true).length;
-    widget.quizController!.handleQuizCompletion(
+    controller.handleQuizCompletion(
         widget.topic,
         "$_score/$_questionListLength",
       );

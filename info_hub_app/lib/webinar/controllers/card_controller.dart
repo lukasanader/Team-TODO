@@ -38,7 +38,7 @@ class CardController {
     }
   }
 
-  // validates url into expected formats and sets these changes into database
+  /// validates url into expected formats and sets these changes into database
   Future<bool> validateCardLogic(Livestream post,String url) async {
     final RegExp regex = RegExp(
       r'https:\/\/(?:www\.)?youtube\.com\/watch\?v=([a-zA-Z0-9_-]+)|https:\/\/youtu\.be\/([a-zA-Z0-9_-]+)');

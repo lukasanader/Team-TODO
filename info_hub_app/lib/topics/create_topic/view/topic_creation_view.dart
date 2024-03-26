@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/controller/topic_question_controller.dart';
 import 'package:info_hub_app/model/model.dart';
@@ -22,13 +24,13 @@ import 'package:info_hub_app/topics/create_topic/helpers/categories/category_mod
 class TopicCreationView extends StatefulWidget {
   final FirebaseFirestore firestore;
   final FirebaseStorage storage;
-  Topic? topic;
-  Topic? draft;
+  final Topic? topic;
+  final Topic? draft;
   final FirebaseAuth auth;
-  List<PlatformFile>? selectedFiles;
+  final List<PlatformFile>? selectedFiles;
   final ThemeManager themeManager;
 
-  TopicCreationView({
+  const TopicCreationView({
     super.key,
     required this.firestore,
     required this.storage,
@@ -222,7 +224,6 @@ class TopicCreationViewState extends State<TopicCreationView> {
         TopicQuestionController(firestore: widget.firestore, auth: widget.auth);
     List<TopicQuestion> questions =
         await controller.getRelevantQuestions(title);
-    // ignore: use_build_context_synchronously
     await showDialog(
       context: context,
       builder: (BuildContext context) {

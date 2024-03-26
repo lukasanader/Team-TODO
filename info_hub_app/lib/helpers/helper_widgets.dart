@@ -11,12 +11,6 @@ Widget addVerticalSpace(double height) {
   );
 }
 
-// Widget addHorizontalSpace(double width) {
-//   return SizedBox(
-//     width: width,
-//   );
-// }
-
 // Used to display a message in a card
 Widget messageCard(String message, String messageKey, context) {
   return Padding(

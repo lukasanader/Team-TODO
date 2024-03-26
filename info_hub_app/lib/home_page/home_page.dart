@@ -1,9 +1,6 @@
-/*
- * This is a skeleton home page, which contains an app bar with the 
- * notifications and profile icons. This also contains a placeholder 
- * NotificationPage() and ProfilePage(), which should be replaced with the 
- * genuine article.
- */
+
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -26,12 +23,11 @@ import 'package:info_hub_app/topics/create_topic/model/topic_model.dart';
 import 'package:info_hub_app/helpers/helper.dart' show getTrending;
 
 class HomePage extends StatefulWidget {
-  FirebaseFirestore firestore;
-  FirebaseAuth auth;
-  FirebaseStorage storage;
-
-  //User? user = FirebaseAuth.instance.currentUser;
-  HomePage(
+  final FirebaseFirestore firestore;
+  final FirebaseAuth auth;
+  final FirebaseStorage storage;
+  
+  const HomePage(
       {super.key,
       required this.auth,
       required this.firestore,
