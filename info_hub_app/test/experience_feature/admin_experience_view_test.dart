@@ -211,4 +211,15 @@ void main() {
 
     expect(find.byWidget(experienceViewWidget), findsOneWidget);
   });
+
+  testWidgets('There is padding between two list views',
+      (WidgetTester tester) async {
+    // Build our app and trigger a frame.
+    await tester.pumpWidget(experienceViewWidget);
+    await tester.pumpAndSettle();
+
+    Finder listViewFinder = find.byType(ListView);
+    expect(listViewFinder, findsNWidgets(2));
+    expect(find.byType(Padding), findsWidgets);
+  });
 }
