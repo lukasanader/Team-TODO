@@ -18,7 +18,6 @@ void main() async {
   late MockFirebaseStorage mockStorage;
   Widget? basicWidget;
 
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   TestWidgetsFlutterBinding.ensureInitialized();
 
   setUp(() {

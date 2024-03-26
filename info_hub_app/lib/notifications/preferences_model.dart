@@ -1,9 +1,9 @@
 class Preferences {
   final String uid;
-  final bool push_notifications;
+  final bool pushNotifications;
 
   Preferences({
     required this.uid,
-    required this.push_notifications,
+    required this.pushNotifications,
   });
 }
