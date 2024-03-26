@@ -25,7 +25,7 @@ class NotificationController {
       'body': body,
       'timestamp': timestamp,
       'route': route,
-      'payload': payload ?? 'None',
+      'payload': payload,
     });
 
     // Send push notification to all device tokens
