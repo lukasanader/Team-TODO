@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:info_hub_app/webinar/views/admin-webinar-screens/admin_webinar_dashboard.dart';
 import 'package:info_hub_app/webinar/views/admin-webinar-screens/create_webinar_screen.dart';
 import 'package:info_hub_app/model/user_model.dart';
-import 'package:info_hub_app/webinar/service/webinar_service.dart';
+import 'package:info_hub_app/webinar/controllers/webinar_controller.dart';
 import 'package:info_hub_app/webinar/views/webinar-screens/webinar_view.dart';
 
 
@@ -18,7 +18,7 @@ void main() {
   setUp(() {
     mockFirestore = FakeFirebaseFirestore();
     mockStorage = MockFirebaseStorage();
-    WebinarService webService = WebinarService(
+    WebinarController webService = WebinarController(
       firestore: mockFirestore,
       storage: mockStorage);
     testUser = UserModel(
@@ -35,7 +35,7 @@ void main() {
       home: WebinarDashboard(
         firestore: mockFirestore,
         user: testUser,
-        webinarService: webService, // Pass the mock service to the widget
+        webinarController: webService, // Pass the mock service to the widget
       ),
     );
 

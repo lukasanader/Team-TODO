@@ -1,4 +1,3 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -150,9 +149,6 @@ void main() {
 
     await tester.tap(fab);
     await tester.pump();
-
-    // After tapping, you can verify if the dialog is shown or some state is changed.
-    // Adjust the expectation based on the actual behavior of your app.
   });
 
   GlobalKey<State<ThreadApp>> threadAppStateKey = GlobalKey<State<ThreadApp>>();
@@ -192,8 +188,6 @@ void main() {
     expect(find.text('Test Title 1'), findsOneWidget);
     //expect(find.text('Test Description'), findsOneWidget);
     //expect(find.text('Test Topic'), findsOneWidget);
-
-    // Perform more assertions as needed
   });
 
   testWidgets('ThreadApp ListView builder with ObjectKey',

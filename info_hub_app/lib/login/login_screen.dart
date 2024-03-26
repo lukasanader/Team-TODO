@@ -6,7 +6,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:info_hub_app/controller/user_controller.dart';
-import 'package:info_hub_app/reset_password/reset_password.dart';
+import 'package:info_hub_app/reset_password/reset_password_view.dart';
 import 'package:info_hub_app/reset_password/reset_password_controller.dart';
 import 'package:info_hub_app/services/auth.dart';
 import 'package:info_hub_app/helpers/base.dart';

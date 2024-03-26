@@ -110,6 +110,9 @@ class TopicCreationViewState extends State<TopicCreationView> {
               style: const TextStyle(
                   color: Colors.white, fontWeight: FontWeight.bold),
             ),
+            iconTheme: const IconThemeData(
+              color: Colors.white,
+            ),
             actions: <Widget>[
               // Save as draft button (visible only when not editing or publishing a draft)
               if (!editing && !drafting)

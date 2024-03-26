@@ -6,27 +6,27 @@ import 'package:info_hub_app/webinar/controllers/card_controller.dart';
 import 'package:info_hub_app/model/user_model.dart';
 import 'package:info_hub_app/webinar/helpers/webinar_card_dialogs.dart';
 import 'package:info_hub_app/webinar/models/livestream.dart';
-import 'package:info_hub_app/webinar/service/webinar_service.dart';
+import 'package:info_hub_app/webinar/controllers/webinar_controller.dart';
 
 class WebinarCard extends StatelessWidget {
   final FirebaseFirestore firestore;
   final Livestream post;
   final UserModel user;
-  final WebinarService webinarService;
+  final WebinarController webinarController;
 
   const WebinarCard({
     super.key,
     required this.post,
     required this.firestore,
     required this.user,
-    required this.webinarService,
+    required this.webinarController,
   });
 
   @override
   Widget build(BuildContext context) {
     final bool isAdmin = user.roleType == 'admin'; // Check if user is admin
-    CardController cardController = CardController(webinarService: webinarService, firestore: firestore);
-    WebinarCardDialogs cardDialogs = WebinarCardDialogs(webinarService: webinarService);
+    CardController cardController = CardController(webinarController: webinarController, firestore: firestore);
+    WebinarCardDialogs cardDialogs = WebinarCardDialogs(webinarController: webinarController);
 
     return GestureDetector(
       onTap: () async {

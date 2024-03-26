@@ -75,12 +75,8 @@ class _SavedPageState extends State<SavedPage> {
             );
           } else {
             final topicIndex = index ~/ 2;
-            return TopicCard(
-              widget.firestore,
-              widget.auth,
-              widget.storage,
-              _topicsList[topicIndex],
-            );
+            return TopicCard(widget.firestore, widget.auth, widget.storage,
+                _topicsList[topicIndex], "topic");
           }
         },
       );

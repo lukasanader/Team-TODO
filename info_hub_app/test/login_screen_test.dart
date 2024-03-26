@@ -8,7 +8,7 @@ import 'package:info_hub_app/login/login_screen.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
-import 'package:info_hub_app/reset_password/reset_password.dart';
+import 'package:info_hub_app/reset_password/reset_password_view.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
 
 class MockFlutterLocalNotificationsPlugin extends Fake
