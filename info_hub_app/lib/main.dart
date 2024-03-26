@@ -7,6 +7,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:info_hub_app/controller/user_controller.dart';
 import 'package:info_hub_app/helpers/base.dart';
 import 'package:info_hub_app/home_page/home_page.dart';
 import 'package:info_hub_app/message_feature/message_room/message_room_controller.dart';
@@ -276,30 +277,34 @@ class _MyAppState extends State<MyApp> {
           '/webinar': (context) {
             final String? id =
                 ModalRoute.of(context)!.settings.arguments as String?;
-            final DocumentSnapshot userSnapshot = widget.firestore
-                .collection('Users')
-                .doc(widget.auth.currentUser!.uid)
-                .get() as DocumentSnapshot;
 
             return FutureBuilder<WebinarScreen>(
               future: WebinarController(
                       firestore: widget.firestore, storage: widget.storage)
                   .getWebinar(id)
-                  .then((webinar) => WebinarScreen(
-                        webinarID: id!,
-                        youtubeURL: webinar.youtubeURL,
-                        currentUser: UserModel.fromSnapshot(userSnapshot),
-                        firestore: widget.firestore,
-                        title: webinar.title,
-                        webinarController: WebinarController(
-                            firestore: widget.firestore,
-                            storage: widget.storage),
-                        status: webinar.status,
-                        chatEnabled: webinar.chatEnabled,
-                      )),
+                  .then((webinar) {
+                return UserController(widget.auth, widget.firestore)
+                    .getUser(widget.auth.currentUser!.uid)
+                    .then((user) {
+                  return WebinarScreen(
+                    webinarID: id!,
+                    youtubeURL: webinar.youtubeURL,
+                    currentUser: user,
+                    firestore: widget.firestore,
+                    title: webinar.title,
+                    webinarController: WebinarController(
+                        firestore: widget.firestore, storage: widget.storage),
+                    status: webinar.status,
+                    chatEnabled: webinar.chatEnabled,
+                    // Additional parameters based on the result of someOtherFutureOperation()
+                  );
+                });
+              }),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const CircularProgressIndicator();
+                } else if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
                 } else {
                   return snapshot.data!;
                 }
