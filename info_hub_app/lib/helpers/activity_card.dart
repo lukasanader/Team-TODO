@@ -1,8 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:info_hub_app/controller/activity_controller.dart';
-import 'package:info_hub_app/services/database.dart';
 import 'package:info_hub_app/threads/threads.dart';
 import 'package:info_hub_app/topics/create_topic/controllers/topic_controller.dart';
 
@@ -24,7 +22,7 @@ class ActivityCard extends StatelessWidget {
         String topicTitle= await TopicController(auth: auth, firestore: firestore).getTopicTitle(_activity['topicId']);
          // ignore: use_build_context_synchronously
          Navigator.push(
-                                  context,
+      context,
       MaterialPageRoute(
           builder: (context) => ThreadApp(
           firestore: firestore,
@@ -35,14 +33,12 @@ class ActivityCard extends StatelessWidget {
         )
          );
       },
-      child: Container(
         child: Card(
           child: Padding(
             padding: const EdgeInsets.all(12.0),
             child: childWidget,
           ),
         ),
-      ),
     );
   }
 

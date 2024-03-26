@@ -29,7 +29,7 @@ class TopicCreationView extends StatefulWidget {
   final ThemeManager themeManager;
 
   TopicCreationView({
-    Key? key,
+    super.key,
     required this.firestore,
     required this.storage,
     this.topic,
@@ -37,7 +37,7 @@ class TopicCreationView extends StatefulWidget {
     this.selectedFiles,
     required this.auth,
     required this.themeManager,
-  }) : super(key: key);
+  });
 
   @override
   State<TopicCreationView> createState() => TopicCreationViewState();
@@ -152,7 +152,7 @@ class TopicCreationViewState extends State<TopicCreationView> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Container(
+                            SizedBox(
                               width: 200,
                               child: OutlinedButton(
                                 style: OutlinedButton.styleFrom(

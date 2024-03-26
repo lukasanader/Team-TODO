@@ -1,10 +1,12 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/change_profile/change_profile_controller.dart';
 
 class ChangeProfile extends StatefulWidget {
   final ChangeProfileController controller;
 
-  const ChangeProfile({Key? key, required this.controller}) : super(key: key);
+  const ChangeProfile({super.key, required this.controller});
 
   @override
   _ChangeProfileState createState() => _ChangeProfileState();
@@ -48,13 +50,13 @@ class _ChangeProfileState extends State<ChangeProfile> {
         _lastNameController,
         _newPasswordController,
         _confirmPasswordController)) {
-      if (!widget.controller.isAlpha(_firstNameController.text)) {
+      if (!widget.controller.checkAllLetters(_firstNameController.text)) {
         setState(() {
           _firstNameErrorText = 'First name must consist of letters only';
         });
       }
 
-      if (!widget.controller.isAlpha(_lastNameController.text)) {
+      if (!widget.controller.checkAllLetters(_lastNameController.text)) {
         setState(() {
           _lastNameErrorText = 'Last name must consist of letters only';
         });

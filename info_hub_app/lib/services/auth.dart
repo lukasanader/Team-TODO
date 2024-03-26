@@ -1,16 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:info_hub_app/notifications/notification_service.dart';
 import 'package:info_hub_app/notifications/preferences_service.dart';
 import 'package:info_hub_app/push_notifications/push_notifications_controller.dart';
 import 'package:info_hub_app/model/user_model.dart';
 import 'package:info_hub_app/services/database.dart';
-import 'package:info_hub_app/notifications/manage_notifications_view.dart';
 
 class AuthService {
   final FirebaseAuth auth;

@@ -141,7 +141,7 @@ class _HomePageState extends State<HomePage> {
                       widget.firestore,
                       widget.auth,
                       widget.storage,
-                      _topicsList[topicIndex] as Topic,
+                      _topicsList[topicIndex],
                     );
                   }
                 },

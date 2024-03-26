@@ -52,7 +52,7 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   // Return a loading indicator while data is being fetched
-                  return CircularProgressIndicator();
+                  return const CircularProgressIndicator();
                 } else {
                   // Data fetching is successful, update the UI with the fetched data
                   _verifiedExperienceList = snapshot.data ?? [];
@@ -67,7 +67,7 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   // Return a loading indicator while data is being fetched
-                  return CircularProgressIndicator();
+                  return const CircularProgressIndicator();
                 } else {
                   // Data fetching is successful, update the UI with the fetched data
                   _unverifiedExperienceList = snapshot.data ?? [];

@@ -17,7 +17,6 @@ import 'package:info_hub_app/notifications/notification_model.dart' as custom;
 import 'package:info_hub_app/notifications/notification_service.dart';
 import 'package:info_hub_app/notifications/notification_view.dart';
 import 'package:info_hub_app/push_notifications/push_notifications_controller.dart';
-import 'package:info_hub_app/services/database.dart';
 import 'package:mockito/mockito.dart';
 import 'package:provider/provider.dart';
 
@@ -242,7 +241,7 @@ Future<void> main() async {
                       )),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return CircularProgressIndicator();
+                      return const CircularProgressIndicator();
                     } else {
                       return snapshot.data!;
                     }

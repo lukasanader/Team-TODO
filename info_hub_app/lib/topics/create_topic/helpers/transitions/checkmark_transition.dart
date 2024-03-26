@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class CheckmarkAnimationScreen extends StatefulWidget {
+  @override
   final Key? key;
 
   const CheckmarkAnimationScreen({this.key}) : super(key: key);

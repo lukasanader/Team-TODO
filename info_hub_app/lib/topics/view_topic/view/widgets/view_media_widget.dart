@@ -11,11 +11,10 @@ class ViewMediaWidget extends StatelessWidget {
   Topic topic;
 
   ViewMediaWidget(
-      {Key? key,
+      {super.key,
       required this.screen,
       required this.topic,
-      required this.mediaController})
-      : super(key: key);
+      required this.mediaController});
 
   @override
   Widget build(BuildContext context) {

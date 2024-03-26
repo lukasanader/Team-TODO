@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:info_hub_app/model/model.dart';
 import 'package:info_hub_app/model/quiz_model.dart';
 
 import 'quiz_answer_card.dart';
@@ -17,8 +16,8 @@ class UserQuizQuestionCard extends StatefulWidget {
     required this.firestore,
     required this.completed,
     required this.onUpdateAnswer,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<UserQuizQuestionCard> createState() => _UserQuizQuestionCardState();

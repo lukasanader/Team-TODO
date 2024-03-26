@@ -3,14 +3,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:info_hub_app/threads/thread_replies.dart';
 import 'package:intl/intl.dart';
-import 'package:info_hub_app/threads/threads.dart';
 
 class ViewThreads extends StatefulWidget {
   final FirebaseFirestore firestore;
   final FirebaseAuth auth;
 
-  const ViewThreads({Key? key, required this.firestore, required this.auth})
-      : super(key: key);
+  const ViewThreads({super.key, required this.firestore, required this.auth});
 
   @override
   State<ViewThreads> createState() => _ViewThreadsState();
@@ -37,17 +35,17 @@ class _ViewThreadsState extends State<ViewThreads> {
               isViewingThreads = true;
               contentStream = widget.firestore.collection("thread").snapshots();
             }),
+            style: TextButton.styleFrom(
+              backgroundColor: isViewingThreads
+                  ? Theme.of(context).primaryColor
+                  : Colors.white,
+            ),
             child: Text(
               "Threads",
               style: TextStyle(
                   color: isViewingThreads
                       ? Colors.white
                       : Theme.of(context).primaryColor),
-            ),
-            style: TextButton.styleFrom(
-              backgroundColor: isViewingThreads
-                  ? Theme.of(context).primaryColor
-                  : Colors.white,
             ),
           ),
           TextButton(
@@ -56,17 +54,17 @@ class _ViewThreadsState extends State<ViewThreads> {
               contentStream =
                   widget.firestore.collection("replies").snapshots();
             }),
+            style: TextButton.styleFrom(
+              backgroundColor: !isViewingThreads
+                  ? Theme.of(context).primaryColor
+                  : Colors.white,
+            ),
             child: Text(
               "Replies",
               style: TextStyle(
                   color: !isViewingThreads
                       ? Colors.white
                       : Theme.of(context).primaryColor),
-            ),
-            style: TextButton.styleFrom(
-              backgroundColor: !isViewingThreads
-                  ? Theme.of(context).primaryColor
-                  : Colors.white,
             ),
           ),
         ],
@@ -93,7 +91,7 @@ class _ViewThreadsState extends State<ViewThreads> {
                 return Card(
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(6),
-                    side: BorderSide(color: Colors.black, width: 2),
+                    side: const BorderSide(color: Colors.black, width: 2),
                   ),
                   elevation: 5,
                   child: ListTile(
@@ -109,11 +107,11 @@ class _ViewThreadsState extends State<ViewThreads> {
                       children: [
                         Text(
                           "${data['title'] ?? 'No Title'}",
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 16,
                           ),
                         ),
-                        SizedBox(height: 4),
+                        const SizedBox(height: 4),
                         Text(
                           "Topic: ${data['topicTitle']} ",
                           style: TextStyle(
@@ -122,7 +120,7 @@ class _ViewThreadsState extends State<ViewThreads> {
                           ),
                         ),
                         Text(
-                          "${data['timestamp'] != null ? DateFormat("dd-MMM-yyyy 'at' HH:mm").format(data['timestamp'].toDate()) : "Unknown time"}",
+                          data['timestamp'] != null ? DateFormat("dd-MMM-yyyy 'at' HH:mm").format(data['timestamp'].toDate()) : "Unknown time",
                           style: TextStyle(
                             fontSize: 14,
                             color: Colors.grey[600],
@@ -188,7 +186,7 @@ class _ViewThreadsState extends State<ViewThreads> {
                         ),
                         const SizedBox(width: 5),
                         IconButton(
-                            icon: Icon(Icons.visibility),
+                            icon: const Icon(Icons.visibility),
                             onPressed: () {
                               Navigator.of(context).push(
                                 MaterialPageRoute(
@@ -205,7 +203,7 @@ class _ViewThreadsState extends State<ViewThreads> {
                             widget.auth.currentUser!
                                 .uid) */ // Use authorId or similar field
                         IconButton(
-                          icon: Icon(Icons.delete),
+                          icon: const Icon(Icons.delete),
                           /*onPressed: () => !isViewingThreads
                               ? deleteThread(document.id)
                               : deleteReply(document.id), */
@@ -223,7 +221,7 @@ class _ViewThreadsState extends State<ViewThreads> {
                           //maxLines: 2,
                         ),
                         const Padding(padding: EdgeInsets.all(2)),
-                        SizedBox(height: 4),
+                        const SizedBox(height: 4),
                         if (!isViewingThreads)
                           Row(
                             mainAxisAlignment: MainAxisAlignment.start,
@@ -258,6 +256,7 @@ class _ViewThreadsState extends State<ViewThreads> {
                   ),
                 );
               }
+              return null;
             },
           );
         },

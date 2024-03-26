@@ -1,9 +1,11 @@
 // ignore_for_file: library_private_types_in_public_api, use_build_context_synchronously
 
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
+
 import 'package:info_hub_app/analytics/analytics_base.dart';
 import 'package:info_hub_app/controller/user_controller.dart';
 import 'package:info_hub_app/helpers/helper_widgets.dart';
@@ -14,8 +16,6 @@ import 'package:info_hub_app/theme/theme_constants.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:info_hub_app/topics/create_topic/view/topic_creation_view.dart';
 import 'package:info_hub_app/ask_question/question_view.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:info_hub_app/webinar/views/admin-webinar-screens/admin_webinar_dashboard.dart';
 import 'package:info_hub_app/webinar/service/webinar_service.dart';
 import 'package:info_hub_app/threads/view_threads.dart';
@@ -148,16 +148,6 @@ class _AdminHomepageState extends State<AdminHomepage> {
               ),
             ),
             ElevatedButton(
-              // onPressed: () => Navigator.of(context).push(
-              //   CupertinoPageRoute(
-              //     builder: (BuildContext context) {
-              //       return AdminExperienceView(
-              //         firestore: widget.firestore,
-              //         auth: widget.auth,
-              //       );
-              //     },
-              //   ),
-              // ),
               onPressed: () {
                 PersistentNavBarNavigator.pushNewScreen(
                   context,
@@ -181,16 +171,6 @@ class _AdminHomepageState extends State<AdminHomepage> {
               ),
             ),
             ElevatedButton(
-              // onPressed: () => Navigator.of(context).push(
-              //   CupertinoPageRoute(
-              //     builder: (BuildContext context) {
-              //       return AnalyticsBase(
-              //         firestore: widget.firestore,
-              //         storage: widget.storage,
-              //       );
-              //     },
-              //   ),
-              // ),
               onPressed: () {
                 PersistentNavBarNavigator.pushNewScreen(
                   context,
@@ -215,16 +195,6 @@ class _AdminHomepageState extends State<AdminHomepage> {
               ),
             ),
             ElevatedButton(
-              // onPressed: () => Navigator.of(context).push(
-              //   CupertinoPageRoute(
-              //     builder: (BuildContext context) {
-              //       return MessageView(
-              //         firestore: widget.firestore,
-              //         auth: widget.auth,
-              //       );
-              //     },
-              //   ),
-              // ),
               onPressed: () {
                 PersistentNavBarNavigator.pushNewScreen(
                   context,

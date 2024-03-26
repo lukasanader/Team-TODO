@@ -17,12 +17,12 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:info_hub_app/theme/theme_constants.dart';
 
 class Base extends StatefulWidget {
-  FirebaseAuth auth;
-  FirebaseFirestore firestore;
-  FirebaseStorage storage;
-  ThemeManager themeManager;
-  String roleType;
-  Base(
+  final FirebaseAuth auth;
+  final FirebaseFirestore firestore;
+  final FirebaseStorage storage;
+  final ThemeManager themeManager;
+  final String roleType;
+  const Base(
       {super.key,
       required this.auth,
       required this.storage,

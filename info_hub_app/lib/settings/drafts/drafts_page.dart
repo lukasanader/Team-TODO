@@ -69,7 +69,7 @@ class _DraftsPageState extends State<DraftsPage> {
             widget.firestore,
             widget.auth,
             widget.storage,
-            _draftsList[index] as Topic,
+            _draftsList[index],
           );
         },
       );

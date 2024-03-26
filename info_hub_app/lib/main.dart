@@ -16,7 +16,6 @@ import 'package:info_hub_app/theme/theme_manager.dart';
 import 'notifications/notification_model.dart' as custom;
 import 'registration/start_page.dart';
 import 'package:provider/provider.dart';
-import 'package:info_hub_app/services/database.dart';
 import 'package:info_hub_app/notifications/notification_view.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -40,7 +39,7 @@ Future<void> main() async {
   await Firebase.initializeApp();
   allNouns = await loadWordSet('assets/texts/nouns.txt');
   allAdjectives = await loadWordSet('assets/texts/adjectives.txt');
-  FirebaseFirestore.instance.settings = Settings(persistenceEnabled: false);
+  FirebaseFirestore.instance.settings = const Settings(persistenceEnabled: false);
   PushNotifications pushNotifications = PushNotifications(
       auth: FirebaseAuth.instance,
       firestore: FirebaseFirestore.instance,
@@ -202,7 +201,7 @@ class _MyAppState extends State<MyApp> {
                     )),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return CircularProgressIndicator();
+                    return const CircularProgressIndicator();
                   } else {
                     return snapshot.data!;
                   }

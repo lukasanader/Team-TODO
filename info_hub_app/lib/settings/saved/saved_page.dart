@@ -79,7 +79,7 @@ class _SavedPageState extends State<SavedPage> {
               widget.firestore,
               widget.auth,
               widget.storage,
-              _topicsList[topicIndex] as Topic,
+              _topicsList[topicIndex],
             );
           }
         },

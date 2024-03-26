@@ -6,8 +6,7 @@ import 'manage_notifications_controller.dart';
 class ManageNotifications extends StatefulWidget {
   final FirebaseAuth auth;
   final FirebaseFirestore firestore;
-  ManageNotifications({Key? key, required this.auth, required this.firestore})
-      : super(key: key);
+  const ManageNotifications({super.key, required this.auth, required this.firestore});
   @override
   _ManageNotificationsState createState() => _ManageNotificationsState();
 }
@@ -43,14 +42,14 @@ class _ManageNotificationsState extends State<ManageNotifications> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Manage Notifications'),
+        title: const Text('Manage Notifications'),
       ),
       body: _isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : ListView(
               children: [
                 ListTile(
-                  title: Text('Push Notifications'),
+                  title: const Text('Push Notifications'),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [

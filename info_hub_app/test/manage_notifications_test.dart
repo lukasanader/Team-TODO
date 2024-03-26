@@ -7,7 +7,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:info_hub_app/notifications/manage_notifications_model.dart';
 import 'package:info_hub_app/notifications/manage_notifications_view.dart';
 import 'package:info_hub_app/notifications/preferences_service.dart';
-import 'package:info_hub_app/services/database.dart';
 import 'package:provider/provider.dart';
 
 import 'mock.dart';
@@ -49,7 +48,7 @@ Future<void> main() async {
                     auth: auth,
                     uid: auth.currentUser!.uid)
                 .preferences,
-            initialData: [],
+            initialData: const [],
             child: Scaffold(
               body: ManageNotifications(firestore: firestore, auth: auth),
             ),
@@ -79,7 +78,7 @@ Future<void> main() async {
                     auth: auth,
                     uid: auth.currentUser!.uid)
                 .preferences,
-            initialData: [],
+            initialData: const [],
             child: Scaffold(
               body: ManageNotifications(firestore: firestore, auth: auth),
             ),

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:info_hub_app/controller/quiz_controller.dart';
-import 'package:info_hub_app/model/model.dart';
 import 'package:info_hub_app/model/quiz_model.dart';
 import 'package:uuid/uuid.dart';
 import 'package:info_hub_app/topics/create_topic/model/topic_model.dart';
@@ -16,14 +15,14 @@ class CreateQuiz extends StatefulWidget {
   final bool isEdit;
   final Topic? topic;
 
-  CreateQuiz({
-    Key? key,
+  const CreateQuiz({
+    super.key,
     required this.firestore,
     required this.auth,
     this.addQuiz,
     required this.isEdit,
     this.topic,
-  }) : super(key: key);
+  });
 
   @override
   _CreateQuizState createState() => _CreateQuizState();

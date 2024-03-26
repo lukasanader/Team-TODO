@@ -9,7 +9,6 @@ import 'package:info_hub_app/notifications/notification_card_view.dart';
 import 'package:info_hub_app/notifications/notification_model.dart' as custom;
 import 'package:info_hub_app/notifications/notification_service.dart';
 import 'package:info_hub_app/notifications/notification_view.dart';
-import 'package:info_hub_app/services/database.dart';
 import 'package:provider/provider.dart';
 
 import 'mock.dart';

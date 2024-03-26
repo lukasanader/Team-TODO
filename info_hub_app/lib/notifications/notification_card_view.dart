@@ -6,7 +6,7 @@ import 'package:timeago/timeago.dart' as timeago;
 class NotificationCard extends StatelessWidget {
   final custom.Notification notification;
 
-  const NotificationCard({required this.notification});
+  const NotificationCard({super.key, required this.notification});
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +46,7 @@ class NotificationCard extends StatelessWidget {
             child: ListBody(
               children: <Widget>[
                 Text(notification.body),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 ElevatedButton(
                   onPressed: () {
                     navigatorKey.currentState!
@@ -54,7 +54,7 @@ class NotificationCard extends StatelessWidget {
                       ..pushNamed('/base')
                       ..pushNamed(notification.route);
                   },
-                  child: Text('View Details'),
+                  child: const Text('View Details'),
                 ),
               ],
             ),
@@ -64,7 +64,7 @@ class NotificationCard extends StatelessWidget {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('Close'),
+              child: const Text('Close'),
             ),
           ],
         );

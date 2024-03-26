@@ -14,7 +14,6 @@ import 'package:info_hub_app/notifications/notification_service.dart';
 import 'package:info_hub_app/notifications/notification_view.dart';
 import 'package:info_hub_app/settings/settings_view.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:info_hub_app/services/database.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:provider/provider.dart';
 import 'mock.dart';

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:info_hub_app/settings/help_page_controller.dart';
 
 class HelpPage extends StatelessWidget {
-  const HelpPage({Key? key});
+  const HelpPage({super.key, Key? key});
 
   @override
   Widget build(BuildContext context) {

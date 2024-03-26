@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:get/get.dart';
 import 'package:info_hub_app/controller/quiz_controller.dart';
-import 'package:info_hub_app/model/model.dart';
 import 'package:info_hub_app/model/quiz_model.dart';
 import 'package:info_hub_app/topics/create_topic/helpers/quiz/user_quiz_question_card.dart';
 import 'package:info_hub_app/topics/create_topic/model/topic_model.dart';
@@ -15,12 +13,12 @@ class CompleteQuiz extends StatefulWidget {
   QuizController? quizController;
 
   CompleteQuiz({
-    Key? key,
+    super.key,
     required this.firestore,
     required this.topic,
     required this.auth,
     this.quizController,
-  }) : super(key: key);
+  });
 
   @override
   State<CompleteQuiz> createState() => _CompleteQuizState();
