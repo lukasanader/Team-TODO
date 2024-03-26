@@ -112,6 +112,12 @@ void main() {
     expect(find.text('Resend Verification Email'), findsOneWidget);
   });
 
+  testWidgets('test if I have verified email button exists', (WidgetTester test) async {
+    await test.pumpWidget(verificationwidget);
+    await test.pumpAndSettle();
+    expect(find.text('I have verified my email'), findsOneWidget);
+  });
+
   testWidgets('test if email is verified when button is pressed you go to main page', (WidgetTester test) async {
       String uid = auth.currentUser!.uid;
     await firestore.collection('Users').doc(uid).set({
@@ -128,8 +134,5 @@ void main() {
     expect(find.byType(Base), findsOneWidget);
   });
 
-  testWidgets('test if when email is verified button takes you to main page', (WidgetTester test) async {
-
-  });
 
 }

@@ -32,7 +32,6 @@ class EmailVerificationScreen extends StatefulWidget {
 
 class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
   late AuthService _auth;
-  
 
   @override
   void initState() {
@@ -46,33 +45,42 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
   }
   final _formKey = GlobalKey<FormState>();
 
-  @override
+   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Email Verification'),
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'An email has been sent to your email address. Please verify your email address to continue.',
-              style: TextStyle(fontSize: 20),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                if (widget.auth.currentUser != null) {
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              Text(
+                'An email has been sent to your email address. Please verify your email address to continue.',
+                style: TextStyle(fontSize: 20),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () async {
                   await widget.auth.currentUser!.sendEmailVerification();
-                }
-              },
-              child: Text('Resend Verification Email'),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                if (widget.auth.currentUser != null){
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Verification email sent.'),
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                },
+                child: Text('Resend Verification Email'),
+              ),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () async {
                   await widget.auth.currentUser!.reload();
-                  if (widget.auth.currentUser!.emailVerified){
+                  if (widget.auth.currentUser!.emailVerified) {
                     String role = await UserController(widget.auth, widget.firestore).getUserRoleType();
                     Widget nextPage = Base(
                         firestore: widget.firestore,
@@ -81,20 +89,26 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                         themeManager: ThemeManager(),
                         roleType: role,
                       );
-                      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => nextPage), (Route<dynamic> route) => false);
+                    Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (context) => nextPage),
+                        (Route<dynamic> route) => false,
+                      );
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Email not verified.'),
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
                   }
-                  else{
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Email not verified')));
-                  }
-                }
-              },
-              child: Text('I have verified my email'),
-            ),
+                },
+                child: Text('I have verified my email'),
+              ),
             ],
-            ),
-            ),
-
+          ),
+        ),
+      ),
     );
-    
-}
+  }
 }

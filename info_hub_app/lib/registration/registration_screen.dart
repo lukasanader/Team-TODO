@@ -282,8 +282,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         messaging: widget.messaging,
                         localnotificationsplugin: widget.localnotificationsplugin,
                         storage: widget.storage,
-                        themeManager: ThemeManager(),
                       );
+                      await widget.auth.currentUser!.sendEmailVerification();
                       Navigator.pushAndRemoveUntil(
                         context,
                         MaterialPageRoute(builder: (context) => nextPage),
