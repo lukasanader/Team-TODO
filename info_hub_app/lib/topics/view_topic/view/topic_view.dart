@@ -88,7 +88,7 @@ class TopicViewState extends State<TopicView> {
             if (userIsAdmin)
               IconButton(
                 key: const Key('edit_btn'),
-                icon: const Icon(Icons.edit, color: Colors.white),
+                icon: const Icon(Icons.edit, color: Colors.red),
                 onPressed: () {
                   // Navigate to edit screen
                   updatedTopic.id = widget.topic.id;
