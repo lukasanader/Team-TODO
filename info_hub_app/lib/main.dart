@@ -209,13 +209,26 @@ class _MyAppState extends State<MyApp> {
                   }
                 },
               ),
-          '/topic': (context) => TopicView(
-                auth: widget.auth,
-                firestore: widget.firestore,
-                storage: widget.storage,
-                topic: ModalRoute.of(context)!.settings.arguments as Topic,
-                themeManager: themeManager,
-              )
+          '/topic': (context) {
+            final String? id =
+                ModalRoute.of(context)!.settings.arguments as String?;
+            return FutureBuilder<TopicView>(
+              future: getTopic(id).then((topic) => TopicView(
+                    auth: widget.auth,
+                    firestore: widget.firestore,
+                    storage: widget.storage,
+                    themeManager: themeManager,
+                    topic: topic,
+                  )),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const CircularProgressIndicator();
+                } else {
+                  return snapshot.data!;
+                }
+              },
+            );
+          },
         },
         theme: lightTheme,
         darkTheme: darkTheme,
@@ -240,5 +253,12 @@ class _MyAppState extends State<MyApp> {
     } else {
       return 'guest';
     }
+  }
+
+  Future<Topic> getTopic(String? id) async {
+    return Topic.fromSnapshot(widget.firestore
+        .collection('topics')
+        .doc(id)
+        .get() as DocumentSnapshot<Object?>);
   }
 }

@@ -16,7 +16,7 @@ class NotificationController {
       {required this.auth, required this.uid, required this.firestore});
 
   Future<String> createNotification(String title, String body,
-      DateTime timestamp, String route, dynamic payload) async {
+      DateTime timestamp, String route, String? dataId) async {
     CollectionReference notificationsCollection =
         firestore.collection('notifications');
     var docRef = await notificationsCollection.add({
@@ -25,7 +25,7 @@ class NotificationController {
       'body': body,
       'timestamp': timestamp,
       'route': route,
-      'payload': payload,
+      'payload': dataId,
     });
 
     // Send push notification to all device tokens
