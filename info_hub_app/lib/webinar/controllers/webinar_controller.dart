@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
+import 'package:info_hub_app/controller/user_controller.dart';
+import 'package:info_hub_app/model/user_model.dart';
 import 'package:uuid/uuid.dart';
 
 class WebinarController {
@@ -10,36 +12,33 @@ class WebinarController {
   WebinarController({required this.firestore, required this.storage});
   
   /// Initiates live stream creation process on database
-  Future<String> startLiveStream(String title, String url, Uint8List? image, String name, String startTime, String streamStatus, List<String> selectedTags) async {
+  Future<String> startLiveStream(String title, String url, Uint8List image, String name, String startTime, String streamStatus, List<String> selectedTags) async {
     // assign random integer as document name
     String webinarID = const Uuid().v1();
     String result = ""; // Variable to store the result
-
-    if (title.isNotEmpty && image != null) {
       // check if any document already exists with the set url or with the random id
-      CollectionReference webinarRef = firestore.collection('Webinar');
-      bool webinarExists = await checkURLExists(webinarRef, url);
+    CollectionReference webinarRef = firestore.collection('Webinar');
+    bool webinarExists = await checkURLExists(webinarRef, url);
 
-      if (!webinarExists) {
-        String thumbnailUrl = await uploadImageToStorage('webinar-thumbnails', image, webinarID);
-        DocumentReference docRef = webinarRef.doc(webinarID);
+    if (!webinarExists) {
+      String thumbnailUrl = await uploadImageToStorage('webinar-thumbnails', image, webinarID);
+      DocumentReference docRef = webinarRef.doc(webinarID);
 
-        await docRef.set({
-          'id': webinarID,
-          'title': title,
-          'url': url,
-          'thumbnail': thumbnailUrl,
-          'webinarleadname': name,
-          'startTime': startTime,
-          'views': 0,
-          'dateStarted': startTime,
-          'status': streamStatus,
-          'chatenabled' : true,
-          'selectedtags' : selectedTags,
-        });
+      await docRef.set({
+        'id': webinarID,
+        'title': title,
+        'url': url,
+        'thumbnail': thumbnailUrl,
+        'webinarleadname': name,
+        'startTime': startTime,
+        'views': 0,
+        'dateStarted': startTime,
+        'status': streamStatus,
+        'chatenabled' : true,
+        'selectedtags' : selectedTags,
+      });
 
-        result = webinarID; // Assign the collectionId to the result
-      }
+      result = webinarID; // Assign the collectionId to the result
     }
     return result; // Return the result variable
   }
@@ -84,6 +83,28 @@ class WebinarController {
       'roleType' : roleType,
       'uid' : userID,
     });
+  }
+
+  // retrieves users belonging to a specific webinar
+  Future<List<dynamic>> getWebinarRoles(String webinarID) async {
+    DocumentSnapshot docSnapshot = await firestore.collection('Webinar').doc(webinarID).get();
+    if (docSnapshot.exists) {
+      List<UserModel> userList = [];
+      List<dynamic> selectedTags = docSnapshot['selectedtags'];
+      for (String tag in selectedTags) {
+        if (tag != 'admin') {
+          QuerySnapshot data = await firestore
+          .collection('Users')
+          .where('roleType', isEqualTo: tag)
+          .get();
+          data.docs.forEach((doc) {
+            userList.add(UserModel.fromSnapshot(doc));
+          });
+        }
+      }
+      return userList;
+    }
+    return [];
   }
 
   /// Returns number of live webinars
@@ -162,6 +183,7 @@ class WebinarController {
     await firestore.collection('Webinar').doc(webinarID).delete();  
   }
 
+  /// Returns all the comments found within a webinar
   Stream<QuerySnapshot<Map<String, dynamic>>> getChatStream(String webinarID) {
     return firestore
         .collection('Webinar')
@@ -171,6 +193,7 @@ class WebinarController {
         .snapshots();
   }
 
+  /// Returns all Live Webinars associated to a specific role type
   Stream<QuerySnapshot<Map<String, dynamic>>> getLiveWebinars(String roleType) {
     return firestore
             .collection('Webinar')
@@ -180,6 +203,7 @@ class WebinarController {
             .snapshots();
   }
 
+  /// Returns all Upcoming Webinars associated to a specific role type
   Stream<QuerySnapshot<Map<String, dynamic>>> getUpcomingWebinars(String roleType) {
     return firestore
             .collection('Webinar')
@@ -189,6 +213,7 @@ class WebinarController {
             .snapshots();
   }
 
+  /// Returns all Archived Webinars associated to a specific role type
   Stream<QuerySnapshot<Map<String, dynamic>>> getArchivedWebinars(String roleType) {
     return firestore
             .collection('Webinar')

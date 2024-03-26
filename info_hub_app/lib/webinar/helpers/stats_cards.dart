@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+/// Builds Webinar Dashboard cards displaying basic statistics
 class StatisticCard extends StatelessWidget {
   final String label;
   final String value;

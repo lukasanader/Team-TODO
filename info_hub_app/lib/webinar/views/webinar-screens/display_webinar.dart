@@ -6,7 +6,7 @@ import 'package:info_hub_app/webinar/controllers/webinar_controller.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import 'package:flutter/services.dart';
 
-// Displays webinar view screen alongside the respective chat for this webinar
+/// Displays webinar view screen alongside the respective chat for this webinar
 class WebinarScreen extends StatefulWidget {
   final String webinarID;
   final String youtubeURL;
@@ -41,13 +41,13 @@ class _WebinarScreenState extends State<WebinarScreen> {
   @override
   void initState() {
     super.initState();
-    //set device orientations to be portrait only
+    // Set device orientations to be portrait only
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
     participants.add(widget.currentUser.uid);
-    // create youtube player
+    // Create youtube player
     modifiedURL = YoutubePlayer.convertUrlToId(widget.youtubeURL);
     _controller = YoutubePlayerController(
       initialVideoId: modifiedURL ?? '',
@@ -63,7 +63,7 @@ class _WebinarScreenState extends State<WebinarScreen> {
     );
   }
 
-  // stop the youtube player from playing and exit the channel, decrementing the Live statistics 
+  /// Stops the youtube player from playing and exit the channel, decrementing the Live statistics 
   @override
   void dispose() {
     _controller.pause();
@@ -71,14 +71,14 @@ class _WebinarScreenState extends State<WebinarScreen> {
     super.dispose();
   }
 
-  // initates leaving sequence. Decrements the total viewer count by 1
+  /// initates leaving sequence. Decrements the total viewer count by 1
   _leaveChannel() async {
     participants.remove(widget.currentUser.uid);
     await widget.webinarController.updateViewCount(widget.webinarID, false);
   }
 
   
-  // Displays the guide dialog explaining the expectations of those participating in the webinar
+  /// Displays the guide dialog explaining the expectations of those participating in the webinar
   void showGuideDialog(BuildContext context) {
     showDialog(
       context: context,

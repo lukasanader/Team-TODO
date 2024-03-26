@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:info_hub_app/webinar/controllers/webinar_controller.dart';
 
+/// Screen concerned with the creation of a webinar instance
 class CreateWebinarScreen extends StatefulWidget {
   final UserModel user;
   final FirebaseFirestore firestore;
@@ -49,7 +50,7 @@ class _CreateWebinarScreenState extends State<CreateWebinarScreen> {
     super.dispose();
   }
 
-  // Removes YouTube tracking from link copying
+  /// Removes YouTube tracking from link copying
   void _removeFeatureShared() {
     setState(() {
       String currentText = _urlController.text;
@@ -59,7 +60,7 @@ class _CreateWebinarScreenState extends State<CreateWebinarScreen> {
     });
   }
 
-  // Grants user the ability to schedule their webinar for a later date
+  /// Grants user the ability to schedule their webinar for a later date
   Future<void> _selectDateTime() async {
     DateTime? pickedDate = await showDatePicker(
       context: context,
@@ -96,7 +97,7 @@ class _CreateWebinarScreenState extends State<CreateWebinarScreen> {
               _formKey.currentState,
               _titleController.text,
               _urlController.text,
-              image,
+              image!,
               selectedTags,
               isScheduled: true
             );
@@ -109,7 +110,7 @@ class _CreateWebinarScreenState extends State<CreateWebinarScreen> {
   }
 
 
-  // Creates the instruction dialog for how to create a webinar and seed the database from the user side
+  /// Creates the instruction dialog for how to create a webinar and seed the database from the user side
   void showWebinarStartingHelpDialogue(BuildContext context) {
     showDialog(
       context: context,
@@ -369,7 +370,7 @@ class _CreateWebinarScreenState extends State<CreateWebinarScreen> {
                     onPressed: () async {
                       if (_formKey.currentState!.validate() && image != null && controller.isAnyRoleSelected(isPatientSelected,isParentSelected,isHealthcareProfessionalSelected)) {
                         List<String> selectedTags = controller.populateTags(isPatientSelected,isParentSelected,isHealthcareProfessionalSelected);
-                        await controller.goLiveWebinar(context, null, _formKey.currentState, _titleController.text, _urlController.text, image, selectedTags);
+                        await controller.goLiveWebinar(context, null, _formKey.currentState, _titleController.text, _urlController.text, image!, selectedTags);
                       } else {
                         controller.showThumbnailAndRoleError(context);
                       }
