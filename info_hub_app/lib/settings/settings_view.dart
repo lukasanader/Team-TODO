@@ -7,7 +7,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:info_hub_app/profile_view/profile_view.dart';
 import 'package:info_hub_app/profile_view/profile_view_controller.dart';
-import 'package:info_hub_app/notifications/manage_notifications_view.dart';
+import 'package:info_hub_app/notifications/preferences_view.dart';
 import 'package:info_hub_app/screens/activity_view.dart';
 import 'package:info_hub_app/settings/general_settings.dart';
 import 'package:info_hub_app/settings/help_page.dart';
@@ -87,7 +87,7 @@ class _SettingsViewState extends State<SettingsView> {
             onTap: () {
               PersistentNavBarNavigator.pushNewScreen(
                 context,
-                screen: ManageNotifications(
+                screen: PreferencesPage(
                   firestore: widget.firestore,
                   auth: widget.auth,
                 ),

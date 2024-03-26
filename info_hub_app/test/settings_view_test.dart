@@ -6,7 +6,7 @@ import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:info_hub_app/screens/activity_view.dart';
-import 'package:info_hub_app/notifications/manage_notifications_view.dart';
+import 'package:info_hub_app/notifications/preferences_view.dart';
 import 'package:info_hub_app/settings/general_settings.dart';
 import 'package:info_hub_app/settings/saved/saved_page.dart';
 import 'package:info_hub_app/settings/drafts/drafts_page.dart';
@@ -108,7 +108,7 @@ void main() {
     await tester.tap(find.text('Notifications'));
     await tester.pumpAndSettle();
 
-    expect(find.byType(ManageNotifications), findsOneWidget);
+    expect(find.byType(PreferencesPage), findsOneWidget);
   });
 
   testWidgets('test if logout works', (WidgetTester tester) async {

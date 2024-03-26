@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:info_hub_app/notifications/notification_service.dart';
+import 'package:info_hub_app/notifications/notification_controller.dart';
 
 class TestView extends StatefulWidget {
   TestView(
@@ -38,7 +38,7 @@ class _TestViewState extends State<TestView> {
               child: Column(children: [
         ElevatedButton(
           onPressed: () async {
-            await NotificationService(
+            await NotificationController(
                     firestore: widget.firestore,
                     auth: widget.auth,
                     uid: widget.auth.currentUser!.uid)

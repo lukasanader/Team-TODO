@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:http/http.dart';
 import 'dart:convert';
 import 'package:info_hub_app/main.dart';
 
@@ -11,16 +12,14 @@ class PushNotifications {
   final FirebaseFirestore firestore;
   final FirebaseMessaging messaging;
   final FlutterLocalNotificationsPlugin localnotificationsplugin;
-  final nav;
-  final http;
+  final Client http;
 
   PushNotifications(
       {required this.auth,
       required this.firestore,
       required this.messaging,
       required this.localnotificationsplugin,
-      this.nav,
-      this.http});
+      required this.http});
 
   // Initialize Firebase Messaging
   Future<void> init() async {
@@ -35,7 +34,7 @@ class PushNotifications {
     );
   }
 
-  // Initialize local notifications
+  /// Initialize local notifications
   Future<void> localNotiInit() async {
     const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('@mipmap/ic_launcher');

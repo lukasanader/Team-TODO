@@ -2,10 +2,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:info_hub_app/notifications/preferences_service.dart';
+import 'package:info_hub_app/notifications/preferences_controller.dart';
 import 'package:info_hub_app/push_notifications/push_notifications_controller.dart';
 import 'package:info_hub_app/model/user_model.dart';
 import 'package:info_hub_app/services/database.dart';
+import 'package:http/http.dart' as http;
 
 class AuthService {
   final FirebaseAuth auth;
@@ -66,7 +67,7 @@ class AuthService {
           dislikedTopics,
           hasOptedOutOfExperienceExpectations,
         );
-        await PreferencesService(
+        await PreferencesController(
                 firestore: firestore, auth: auth, uid: user.uid)
             .createPreferences();
 
@@ -74,6 +75,7 @@ class AuthService {
                 auth: auth,
                 firestore: firestore,
                 messaging: messaging,
+                http: http.Client(),
                 localnotificationsplugin: localnotificationsplugin)
             .storeDeviceToken();
 
@@ -96,6 +98,7 @@ class AuthService {
                 auth: auth,
                 firestore: firestore,
                 messaging: messaging,
+                http: http.Client(),
                 localnotificationsplugin: localnotificationsplugin)
             .storeDeviceToken();
         return user;

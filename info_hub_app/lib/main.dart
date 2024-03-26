@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:info_hub_app/helpers/base.dart';
 import 'package:info_hub_app/home_page/home_page.dart';
-import 'package:info_hub_app/notifications/notification_service.dart';
+import 'package:info_hub_app/notifications/notification_controller.dart';
 import 'package:info_hub_app/push_notifications/push_notifications_controller.dart';
 import 'package:info_hub_app/theme/theme_constants.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
@@ -39,12 +39,12 @@ Future<void> main() async {
   await Firebase.initializeApp();
   allNouns = await loadWordSet('assets/texts/nouns.txt');
   allAdjectives = await loadWordSet('assets/texts/adjectives.txt');
-  FirebaseFirestore.instance.settings = const Settings(persistenceEnabled: false);
+  FirebaseFirestore.instance.settings =
+      const Settings(persistenceEnabled: false);
   PushNotifications pushNotifications = PushNotifications(
       auth: FirebaseAuth.instance,
       firestore: FirebaseFirestore.instance,
       messaging: FirebaseMessaging.instance,
-      nav: navigatorKey,
       http: http.Client(),
       localnotificationsplugin: FlutterLocalNotificationsPlugin());
 
@@ -131,7 +131,7 @@ class _MyAppState extends State<MyApp> {
     return MultiProvider(
       providers: [
         StreamProvider<List<custom.Notification>>(
-          create: (_) => NotificationService(
+          create: (_) => NotificationController(
             auth: widget.auth,
             firestore: widget.firestore,
             uid: widget.auth.currentUser!.uid,

@@ -10,7 +10,7 @@ import 'package:info_hub_app/notifications/notification_model.dart' as custom;
 import 'package:info_hub_app/helpers/base.dart';
 import 'package:info_hub_app/discovery_view/discovery_view.dart';
 import 'package:info_hub_app/home_page/home_page.dart';
-import 'package:info_hub_app/notifications/notification_service.dart';
+import 'package:info_hub_app/notifications/notification_controller.dart';
 import 'package:info_hub_app/notifications/notification_view.dart';
 import 'package:info_hub_app/settings/settings_view.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -142,7 +142,7 @@ void main() {
     await tester.pumpWidget(MultiProvider(
       providers: [
         StreamProvider<List<custom.Notification>>(
-          create: (_) => NotificationService(
+          create: (_) => NotificationController(
                   auth: auth, firestore: firestore, uid: auth.currentUser!.uid)
               .notifications,
           initialData: const [], // Initial data while waiting for Firebase data
@@ -166,7 +166,7 @@ void main() {
     await tester.pumpWidget(MultiProvider(
       providers: [
         StreamProvider<List<custom.Notification>>(
-          create: (_) => NotificationService(
+          create: (_) => NotificationController(
                   auth: auth, firestore: firestore, uid: auth.currentUser!.uid)
               .notifications,
           initialData: const [], // Initial data while waiting for Firebase data
