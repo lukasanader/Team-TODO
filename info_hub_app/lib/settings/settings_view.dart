@@ -10,7 +10,7 @@ import 'package:info_hub_app/profile_view/profile_view_controller.dart';
 import 'package:info_hub_app/notifications/preferences_view.dart';
 import 'package:info_hub_app/screens/activity_view.dart';
 import 'package:info_hub_app/settings/general_settings.dart';
-import 'package:info_hub_app/settings/help_page.dart';
+import 'package:info_hub_app/settings/help_page_view.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:info_hub_app/settings/saved/saved_page.dart';
 import 'package:info_hub_app/settings/drafts/drafts_page.dart';

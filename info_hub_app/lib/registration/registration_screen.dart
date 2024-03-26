@@ -13,7 +13,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:info_hub_app/legal_agreements/terms_of_services.dart';
 import 'package:info_hub_app/legal_agreements/privacy_policy.dart';
-import 'package:info_hub_app/welcome_message/welcome_message.dart';
+import 'package:info_hub_app/welcome_message/welcome_message_view.dart';
 import 'package:info_hub_app/welcome_message/welcome_message_controller.dart';
 
 class RegistrationScreen extends StatefulWidget {

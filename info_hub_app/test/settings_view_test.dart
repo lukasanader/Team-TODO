@@ -12,7 +12,7 @@ import 'package:info_hub_app/settings/saved/saved_page.dart';
 import 'package:info_hub_app/settings/drafts/drafts_page.dart';
 import 'package:info_hub_app/settings/privacy_base.dart';
 import 'package:info_hub_app/settings/settings_view.dart';
-import 'package:info_hub_app/settings/help_page.dart';
+import 'package:info_hub_app/settings/help_page_view.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
 import 'mock.dart';
 

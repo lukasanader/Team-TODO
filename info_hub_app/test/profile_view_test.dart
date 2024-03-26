@@ -4,7 +4,7 @@ import 'package:info_hub_app/main.dart';
 import 'package:info_hub_app/profile_view/profile_view.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
-import 'package:info_hub_app/change_profile/change_profile.dart';
+import 'package:info_hub_app/change_profile/change_profile_view.dart';
 import 'package:info_hub_app/profile_view/profile_view_controller.dart';
 
 void main() {
