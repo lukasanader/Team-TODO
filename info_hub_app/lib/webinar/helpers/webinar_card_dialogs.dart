@@ -2,15 +2,17 @@
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/webinar/controllers/card_controller.dart';
 import 'package:info_hub_app/webinar/models/livestream.dart';
-import 'package:info_hub_app/webinar/service/webinar_service.dart';
+import 'package:info_hub_app/webinar/controllers/webinar_controller.dart';
 
+/// Stores all dialogs associated to admin functions for webinars (move to live/archived and delete)
 class WebinarCardDialogs {
-  WebinarService webinarService;
+  WebinarController webinarController;
 
   WebinarCardDialogs({
-    required this.webinarService,
+    required this.webinarController,
   });
 
+  /// Displays the delete dialog
   void showDeleteDialog(BuildContext context, CardController controller, Livestream post) {
     showDialog(
       context: context,
@@ -27,7 +29,7 @@ class WebinarCardDialogs {
             ),
             ElevatedButton(
               onPressed: () {
-                controller.deleteWebinar(post.webinarID);
+                controller.deleteWebinar(post.webinarID); // deletes webinar
                 Navigator.pop(context); // Close the dialog
               },
               child: const Text('Confirm'),
@@ -38,7 +40,7 @@ class WebinarCardDialogs {
     );
   }
 
-  // allows admin to change webinar card from upcoming to live
+  /// Allows admin to change webinar card from upcoming to live
   void showLiveDialog(BuildContext context, Livestream post) {
     // Store the context in a variable
     showDialog(
@@ -52,7 +54,7 @@ class WebinarCardDialogs {
             TextButton(
               onPressed: () {
                 // if the user cancels the operation, nothing happens
-                Navigator.pop(context); // Use the stored dialogContext
+                Navigator.pop(context);
               },
               child: const Text('Cancel'),
             ),
@@ -61,7 +63,7 @@ class WebinarCardDialogs {
                 // Check if the widget associated with the context is mounted
                 if (Navigator.of(context).canPop()) {
                   // update database with new information and pop dialog box off the screen
-                  await webinarService.setWebinarStatus(
+                  await webinarController.setWebinarStatus(
                       post.webinarID, post.youtubeURL,
                       changeToLive: true);
                   Navigator.pop(context); // Use the stored dialogContext
@@ -76,7 +78,7 @@ class WebinarCardDialogs {
   }
 
 
-  // prompts the user with an informative summary that a webinar is not yet available to be watched and when they should check
+  /// Prompts the user with an informative summary that a webinar is not yet available to be watched and when they should check
   void showUpcomingDialog(BuildContext context, String startTime) {
     showDialog(
       context: context,
@@ -105,7 +107,7 @@ class WebinarCardDialogs {
     );
   }
 
-  // prompts the user with a dialog box to change a webinar from live -> archived
+  /// Prompts the user with a dialog box to change a webinar from live -> archived
   void showArchiveDialog(BuildContext context, CardController controller, Livestream post) {
     TextEditingController urlController = TextEditingController();
     bool isValidURL = true; // Track if the URL is valid

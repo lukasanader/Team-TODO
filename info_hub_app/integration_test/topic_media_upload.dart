@@ -36,6 +36,7 @@ void main() async {
     await tester.enterText(find.byKey(const Key('titleField')), 'Test title');
     await tester.enterText(
         find.byKey(const Key('descField')), 'Test description');
+    await tester.ensureVisible(find.byType(AppBar));    
     await tester.tap(find.byType(AppBar));
   }
 

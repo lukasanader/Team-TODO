@@ -1,4 +1,3 @@
-
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -15,7 +14,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:info_hub_app/topics/create_topic/controllers/topic_controller.dart';
 import 'package:info_hub_app/topics/view_topic/helpers/topics_card.dart';
-import 'package:info_hub_app/webinar/service/webinar_service.dart';
+import 'package:info_hub_app/webinar/controllers/webinar_controller.dart';
 import 'package:info_hub_app/webinar/views/webinar-screens/webinar_view.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:info_hub_app/topics/create_topic/model/topic_model.dart';
@@ -26,7 +25,7 @@ class HomePage extends StatefulWidget {
   final FirebaseFirestore firestore;
   final FirebaseAuth auth;
   final FirebaseStorage storage;
-  
+
   const HomePage(
       {super.key,
       required this.auth,
@@ -138,6 +137,7 @@ class _HomePageState extends State<HomePage> {
                       widget.auth,
                       widget.storage,
                       _topicsList[topicIndex],
+                      "topic",
                     );
                   }
                 },
@@ -187,7 +187,7 @@ class _HomePageState extends State<HomePage> {
                   UserModel user =
                       await UserController(widget.auth, widget.firestore)
                           .getUser(widget.auth.currentUser!.uid);
-                  WebinarService webinarService = WebinarService(
+                  WebinarController webinarController = WebinarController(
                     firestore: widget.firestore,
                     storage: widget.storage,
                   );
@@ -196,7 +196,7 @@ class _HomePageState extends State<HomePage> {
                     screen: WebinarView(
                       firestore: widget.firestore,
                       user: user,
-                      webinarService: webinarService,
+                      webinarController: webinarController,
                     ),
                     withNavBar: false,
                   );

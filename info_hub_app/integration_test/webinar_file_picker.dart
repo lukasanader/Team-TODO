@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:info_hub_app/webinar/views/admin-webinar-screens/create_webinar_screen.dart';
 import 'package:info_hub_app/model/user_model.dart';
-import 'package:info_hub_app/webinar/service/webinar_service.dart';
+import 'package:info_hub_app/webinar/controllers/webinar_controller.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import '../test/mock_classes.dart';
 import '../test/webinar-screens/mock.dart';
@@ -15,7 +15,7 @@ void main() {
   late Widget createWebinarScreen;
   late UserModel testUser;
   late MockFirebaseStorage mockStorage;
-  late WebinarService webinarService;
+  late WebinarController webinarController;
   final MockWebViewDependencies mockWebViewDependencies =
       MockWebViewDependencies();
 
@@ -27,8 +27,7 @@ void main() {
     firestore = FakeFirebaseFirestore();
     mockStorage = MockFirebaseStorage();
 
-    webinarService = WebinarService(firestore: firestore, storage: mockStorage);
-
+    webinarController = WebinarController(firestore: firestore, storage: mockStorage);
     testUser = UserModel(
       uid: 'mockUid',
       firstName: 'John',
@@ -41,7 +40,7 @@ void main() {
 
     createWebinarScreen = MaterialApp(
       home: CreateWebinarScreen(
-          user: testUser, firestore: firestore, webinarService: webinarService),
+          user: testUser, firestore: firestore, webinarController: webinarController),
     );
   });
 
@@ -78,7 +77,8 @@ void main() {
         matching: find.byType(TextFormField),
       );
       await tester.enterText(
-          urlField, 'https://www.youtube.com/watch?v=tSXZ8hervgY');
+          urlField, 'https://youtu.be/GYW_SJI7ZM8');
+      await tester.ensureVisible(find.byType(AppBar));  
       await tester.tap(find.byType(AppBar));
       await tester.pump();
       final titleField = find.ancestor(
@@ -86,7 +86,7 @@ void main() {
         matching: find.byType(TextFormField),
       );
       await tester.enterText(titleField, 'test');
-
+      await tester.ensureVisible(find.byType(AppBar));  
       await tester.tap(find.byType(AppBar));
       await tester.pump();
       await tester.ensureVisible(find.text('Patients'));
@@ -176,7 +176,8 @@ void main() {
         matching: find.byType(TextFormField),
       );
       await tester.enterText(
-          urlField, 'https://www.youtube.com/watch?v=tSXZ8hervgY');
+          urlField, 'https://youtu.be/GYW_SJI7ZM8');
+      await tester.ensureVisible(find.byType(AppBar));  
       await tester.tap(find.byType(AppBar));
       await tester.pump();
       final titleField = find.ancestor(
@@ -184,6 +185,7 @@ void main() {
         matching: find.byType(TextFormField),
       );
       await tester.enterText(titleField, 'test');
+      await tester.ensureVisible(find.byType(AppBar));  
       await tester.tap(find.byType(AppBar));
       await tester.pump();
       await tester.ensureVisible(find.text('Patients'));
@@ -201,9 +203,81 @@ void main() {
       final querySnapshot = await firestore
           .collection('Webinar')
           .where('url',
-              isEqualTo: 'https://www.youtube.com/watch?v=tSXZ8hervgY')
+              isEqualTo: 'https://youtu.be/GYW_SJI7ZM8')
           .get();
       expect(querySnapshot.docs.length, greaterThan(0));
     });
   });
+
+testWidgets('Test Admin can not upload YouTube URL twice', (WidgetTester tester) async {
+  await provideMockedNetworkImages(() async {
+    await firestore.collection('Webinar').add({
+      'id': 'id',
+      'title': 'Test',
+      'url': 'https://youtu.be/GYW_SJI7ZM7',
+      'thumbnail': "doesntmatter",
+      'webinarleadname': 'John Doe',
+      'startTime': DateTime.now().toString(),
+      'views': 0,
+      'dateStarted': DateTime.now().toString(),
+      'status': 'Live',
+      'chatenabled' : true,
+      'selectedtags' : ['admin'],
+    });
+    mockFilePicker('base_image.png');
+    await tester.pumpWidget(createWebinarScreen);
+    await tester.pumpAndSettle();
+
+    // Interact with the widget to trigger file picker
+    await tester.ensureVisible(find.text('Select a thumbnail'));
+    await tester.tap(find.text('Select a thumbnail'));
+    await tester.pumpAndSettle();
+
+    bool dialogDismissed = false;
+    final startTime = DateTime.now();
+    while (!dialogDismissed) {
+      await tester.pump();
+
+      if (find.text('Select a thumbnail').evaluate().isEmpty) {
+        dialogDismissed = true;
+        break;
+      }
+
+      if (DateTime.now().difference(startTime).inSeconds > 30) {
+        fail('Timed out waiting for the file picker dialog to disappear');
+      }
+    }
+
+    expect(find.text('Select a thumbnail'), findsNothing);
+
+    expect(find.byType(Image), findsOneWidget);
+    final urlField = find.ancestor(
+      of: find.text('YouTube Video URL'),
+      matching: find.byType(TextFormField),
+    );
+    await tester.enterText(
+        urlField, 'https://youtu.be/GYW_SJI7ZM7');
+    await tester.pumpAndSettle();
+    final titleField = find.ancestor(
+      of: find.text('Title'),
+      matching: find.byType(TextFormField),
+    );
+    await tester.enterText(titleField, 'test');
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.byType(AppBar));  
+    await tester.tap(find.byType(AppBar));
+    await tester.pump();
+    await tester.ensureVisible(find.text('Patients'));
+    await tester.tap(find.text('Patients'));
+    await tester.pump();
+    await tester.tap(find.text('Start Webinar'));
+    await tester.pumpAndSettle();
+
+    expect(
+        find.text(
+            'A webinar with this URL may already exist. Please try again.'),
+        findsOneWidget);
+  });
+  });
+  
 }

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:info_hub_app/main.dart';
 import 'package:info_hub_app/model/user_model.dart';
-import 'package:info_hub_app/webinar/service/webinar_service.dart';
+import 'package:info_hub_app/webinar/controllers/webinar_controller.dart';
 import 'package:info_hub_app/webinar/views/webinar-screens/display_webinar.dart';
 import '../mock.dart';
 
@@ -12,7 +12,7 @@ void main() {
   late UserModel testUser;
   late FakeFirebaseFirestore fakeFirestore;
   late MockFirebaseStorage mockFirebaseStorage;
-  late WebinarService webinarService;
+  late WebinarController webinarController;
   late Widget webinarScreen;
   final MockWebViewDependencies mockWebViewDependencies =
       MockWebViewDependencies();
@@ -24,8 +24,8 @@ void main() {
     // Initialize allNouns and allAdjectives before each test
     allNouns = await loadWordSet('assets/texts/nouns.txt');
     allAdjectives = await loadWordSet('assets/texts/adjectives.txt');
-    webinarService =
-        WebinarService(firestore: fakeFirestore, storage: mockFirebaseStorage);
+    webinarController =
+        WebinarController(firestore: fakeFirestore, storage: mockFirebaseStorage);
 
     await fakeFirestore.collection('Webinar').doc('id').set({
       'id': 'id',
@@ -59,7 +59,7 @@ void main() {
         firestore: fakeFirestore,
         currentUser: testUser,
         title: 'Test',
-        webinarService: webinarService,
+        webinarController: webinarController,
         status: "Live",
         chatEnabled: true,
       ),

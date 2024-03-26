@@ -4,7 +4,7 @@ import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:info_hub_app/model/user_model.dart';
-import 'package:info_hub_app/webinar/service/webinar_service.dart';
+import 'package:info_hub_app/webinar/controllers/webinar_controller.dart';
 import 'package:info_hub_app/webinar/views/webinar-screens/webinar_view.dart';
 import 'package:integration_test/integration_test.dart';
 import '../../mock.dart';
@@ -14,7 +14,7 @@ void main() {
   late UserModel testUser;
   late FakeFirebaseFirestore fakeFirestore;
   late MockFirebaseStorage mockFirebaseStorage;
-  late WebinarService webinarService;
+  late WebinarController webinarController;
   late WebinarViewHelper helper;
   late Widget webinarViewScreen;
   final MockWebViewDependencies mockWebViewDependencies =
@@ -25,8 +25,8 @@ void main() {
     fakeFirestore = FakeFirebaseFirestore();
     mockFirebaseStorage = MockFirebaseStorage();
     helper = WebinarViewHelper(fakeFirestore: fakeFirestore);
-    webinarService =
-        WebinarService(firestore: fakeFirestore, storage: mockFirebaseStorage);
+    webinarController =
+        WebinarController(firestore: fakeFirestore, storage: mockFirebaseStorage);
     await mockWebViewDependencies.init();
     testUser = UserModel(
       uid: 'mockUid',
@@ -42,7 +42,7 @@ void main() {
       home: WebinarView(
         firestore: fakeFirestore,
         user: testUser,
-        webinarService: webinarService,
+        webinarController: webinarController,
       ),
     );
   });

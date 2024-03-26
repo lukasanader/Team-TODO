@@ -191,8 +191,7 @@ class _ThreadRepliesState extends State<ThreadReplies> {
                 margin: const EdgeInsets.all(8.0),
                 elevation: 10.0,
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(
-                        6.0), // Adjust border radius if needed
+                    borderRadius: BorderRadius.circular(6.0),
                     side: const BorderSide(color: Colors.grey, width: 1.0)),
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
@@ -215,7 +214,8 @@ class _ThreadRepliesState extends State<ThreadReplies> {
                           ),
                         ],
                       ),
-                      Text(threadDescription, style: const TextStyle(fontSize: 16.0)),
+                      Text(threadDescription,
+                          style: const TextStyle(fontSize: 16.0)),
                       const SizedBox(height: 10.0),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -223,7 +223,8 @@ class _ThreadRepliesState extends State<ThreadReplies> {
                           Text("By $threadAuthor",
                               style: const TextStyle(
                                   fontSize: 14.0, fontStyle: FontStyle.italic)),
-                          Text(formattedDate, style: const TextStyle(fontSize: 14.0)),
+                          Text(formattedDate,
+                              style: const TextStyle(fontSize: 14.0)),
                         ],
                       ),
                     ],

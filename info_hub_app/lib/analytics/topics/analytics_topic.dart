@@ -130,8 +130,13 @@ class _AnalyticsTopicView extends State<AnalyticsTopicView> {
                       shrinkWrap: true,
                       itemCount: topicLength == 0 ? 0 : topicLength,
                       itemBuilder: (context, index) {
-                        return AdminTopicCard(widget.firestore, widget.storage,
-                            _topicsList[index] as Topic);
+                        return TopicCard(
+                          widget.firestore,
+                          widget.auth,
+                          widget.storage,
+                          _topicsList[index],
+                          "adminTopic",
+                        );
                       }),
                 ),
         ],

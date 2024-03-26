@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:info_hub_app/main.dart';
 import 'package:info_hub_app/webinar/views/admin-webinar-screens/create_webinar_screen.dart';
 import 'package:info_hub_app/model/user_model.dart';
-import 'package:info_hub_app/webinar/service/webinar_service.dart';
+import 'package:info_hub_app/webinar/controllers/webinar_controller.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
@@ -16,7 +16,7 @@ void main() {
   late Widget createWebinarScreen;
   late UserModel testUser;
   late MockFirebaseStorage mockStorage;
-  late WebinarService webinarService;
+  late WebinarController webinarController;
   final MockWebViewDependencies mockWebViewDependencies =
       MockWebViewDependencies();
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -32,7 +32,7 @@ void main() {
     allNouns = await loadWordSet('assets/texts/nouns.txt');
     allAdjectives = await loadWordSet('assets/texts/adjectives.txt');
 
-    webinarService = WebinarService(firestore: firestore, storage: mockStorage);
+    webinarController = WebinarController(firestore: firestore, storage: mockStorage);
 
     testUser = UserModel(
       uid: 'mockUid',
@@ -46,7 +46,7 @@ void main() {
 
     createWebinarScreen = MaterialApp(
       home: CreateWebinarScreen(
-          user: testUser, firestore: firestore, webinarService: webinarService),
+          user: testUser, firestore: firestore, webinarController: webinarController),
     );
   });
 
@@ -123,6 +123,19 @@ void main() {
     await tester.tap(find.text('Start Webinar'));
     await tester.pumpAndSettle();
     expect(find.text('Enter a valid YouTube video URL'), findsNothing);
+  });
+
+  testWidgets('Test YouTube URL with tracking link is removed',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(createWebinarScreen);
+    await tester.ensureVisible(find.text('Start Webinar'));
+    final urlField = find.ancestor(
+      of: find.text('YouTube Video URL'),
+      matching: find.byType(TextFormField),
+    );
+    await tester.enterText(
+        urlField, 'https://www.youtube.com/watch?v=tSXZ8hervyY?feature=shared');
+    expect(find.text('https://www.youtube.com/watch?v=tSXZ8hervyY'), findsOne);
   });
 
   testWidgets('Test select scheduled date appears',
@@ -208,4 +221,5 @@ void main() {
             'Please check if you have uploaded a thumbnail or selected a role.'),
         findsOneWidget);
   });
+
 }

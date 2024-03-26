@@ -1,4 +1,4 @@
-
+/// Stores a local reference of a Livestream object, alongside all of its attributes
 class Livestream {
   final String webinarID;
   final String title;
@@ -24,6 +24,7 @@ class Livestream {
     required this.selectedTags,
   });
 
+  // Maps document information from Firebase to Livestream object 
   factory Livestream.fromMap(Map<String, dynamic> map) {
     return Livestream(
       webinarID: map['id'],
