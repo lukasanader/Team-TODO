@@ -79,6 +79,7 @@ void main() {
       );
       await tester.enterText(
           urlField, 'https://www.youtube.com/watch?v=tSXZ8hervgY');
+      await tester.ensureVisible(find.byType(AppBar));  
       await tester.tap(find.byType(AppBar));
       await tester.pump();
       final titleField = find.ancestor(
@@ -86,7 +87,7 @@ void main() {
         matching: find.byType(TextFormField),
       );
       await tester.enterText(titleField, 'test');
-
+      await tester.ensureVisible(find.byType(AppBar));  
       await tester.tap(find.byType(AppBar));
       await tester.pump();
       await tester.ensureVisible(find.text('Patients'));
@@ -177,6 +178,7 @@ void main() {
       );
       await tester.enterText(
           urlField, 'https://www.youtube.com/watch?v=tSXZ8hervgY');
+      await tester.ensureVisible(find.byType(AppBar));  
       await tester.tap(find.byType(AppBar));
       await tester.pump();
       final titleField = find.ancestor(
@@ -184,6 +186,7 @@ void main() {
         matching: find.byType(TextFormField),
       );
       await tester.enterText(titleField, 'test');
+      await tester.ensureVisible(find.byType(AppBar));  
       await tester.tap(find.byType(AppBar));
       await tester.pump();
       await tester.ensureVisible(find.text('Patients'));
