@@ -12,6 +12,7 @@ import 'package:info_hub_app/services/auth.dart';
 import 'package:info_hub_app/helpers/base.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
+import 'package:info_hub_app/email_verification/email_verification_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   final FirebaseFirestore firestore;
@@ -110,6 +111,21 @@ class _LoginScreenState extends State<LoginScreen> {
                     User? user = await _auth.signInUser(
                         emailController.text, passwordController.text);
                     if (user != null) {
+                      if (user.emailVerified!= true ){
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => EmailVerificationScreen(
+                              firestore: widget.firestore,
+                              auth: widget.auth,
+                              storage: widget.storage,
+                              messaging: widget.messaging,
+                              localnotificationsplugin: widget.localnotificationsplugin,
+                            ),
+                          ),
+                        );
+                      }
+                      else{
                       String roleType =
                           await UserController(widget.auth, widget.firestore)
                               .getUserRoleType();
@@ -125,7 +141,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         MaterialPageRoute(builder: (context) => nextPage),
                         (Route<dynamic> route) => false,
                       );
-                    } else {
+                    }} else {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text(

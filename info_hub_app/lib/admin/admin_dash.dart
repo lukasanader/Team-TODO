@@ -17,7 +17,7 @@ import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:info_hub_app/topics/create_topic/view/topic_creation_view.dart';
 import 'package:info_hub_app/ask_question/question_view.dart';
 import 'package:info_hub_app/webinar/views/admin-webinar-screens/admin_webinar_dashboard.dart';
-import 'package:info_hub_app/webinar/service/webinar_service.dart';
+import 'package:info_hub_app/webinar/controllers/webinar_controller.dart';
 import 'package:info_hub_app/threads/view_threads.dart';
 
 class AdminHomepage extends StatefulWidget {
@@ -221,14 +221,14 @@ class _AdminHomepageState extends State<AdminHomepage> {
               onPressed: () async {
                 UserModel currentAdmin = await _userController
                     .getUser(widget.auth.currentUser!.uid.toString());
-                WebinarService webService = WebinarService(
+                WebinarController webService = WebinarController(
                     firestore: widget.firestore, storage: widget.storage);
                 PersistentNavBarNavigator.pushNewScreen(
                   context,
                   screen: WebinarDashboard(
                     firestore: widget.firestore,
                     user: currentAdmin,
-                    webinarService: webService,
+                    webinarController: webService,
                   ),
                   withNavBar: false,
                 );

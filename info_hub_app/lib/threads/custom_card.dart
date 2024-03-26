@@ -215,7 +215,7 @@ class _CustomCardState extends State<CustomCard> {
                             Icon(
                               getRoleIcon(widget
                                   .roleType), // Determines the icon based on the roleType
-                              //size: 24.0, // Adjust the size as needed
+                              //size: 24.0,
                             ),
                             const Padding(
                               padding: EdgeInsets.symmetric(vertical: 2.0),
@@ -295,10 +295,9 @@ class _CustomCardState extends State<CustomCard> {
           ),
         ),
         const Padding(
-          padding: EdgeInsets.only(
-              left: 50.0, right: 50.0), // Adjust the padding as needed
+          padding: EdgeInsets.only(left: 50.0, right: 50.0),
           child: Divider(
-            color: Colors.grey, // Change color as needed
+            color: Colors.grey,
             height: 1,
           ),
         )

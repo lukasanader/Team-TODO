@@ -71,16 +71,15 @@ class _ReplyCardState extends State<ReplyCard> {
     IconData getRoleIcon(String roleType) {
       switch (roleType) {
         case 'Patient':
-          return Icons.local_hospital; // Example icon for Patient
+          return Icons.local_hospital;
         case 'Healthcare Professional':
-          return Icons
-              .medical_services; // Example icon for Healthcare Professional
+          return Icons.medical_services;
         case 'Parent':
-          return Icons.family_restroom; // Example icon for Parent
+          return Icons.family_restroom;
         case 'admin':
-          return Icons.admin_panel_settings; // Example icon for Admin
+          return Icons.admin_panel_settings;
         default:
-          return Icons.help_outline; // Example icon for Unknown or other roles
+          return Icons.help_outline;
       }
     }
 
@@ -89,8 +88,8 @@ class _ReplyCardState extends State<ReplyCard> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12.0),
           child: ExpansionTileCard(
-            //baseColor: Colors.white, // You can adjust the base color
-            //expandedColor: Colors.white, // And the expanded color
+            //baseColor: Colors.white,
+            //expandedColor: Colors.white,
             elevation: 5,
             leading: CircleAvatar(
               radius: 30,
@@ -165,7 +164,7 @@ class _ReplyCardState extends State<ReplyCard> {
                       Icon(
                         getRoleIcon(widget
                             .roleType), // Determines the icon based on the roleType
-                        //size: 24.0, // Adjust the size as needed
+                        //size: 24.0,
                       ),
                       const Padding(
                         padding: EdgeInsets.symmetric(vertical: 2.0),
@@ -192,7 +191,6 @@ class _ReplyCardState extends State<ReplyCard> {
                             ),
                     ],
                   ),
-
                   if (currentUserId == creator)
                     TextButton(
                       key: const Key('deleteButton_0'),
@@ -219,17 +217,15 @@ class _ReplyCardState extends State<ReplyCard> {
                         ],
                       ),
                     ),
-                  // Add more buttons or logic for user role as needed
                 ],
               ),
             ],
           ),
         ),
         const Padding(
-          padding: EdgeInsets.only(
-              left: 50.0, right: 50.0), // Adjust the padding as needed
+          padding: EdgeInsets.only(left: 50.0, right: 50.0),
           child: Divider(
-            color: Colors.grey, // Change color as needed
+            color: Colors.grey,
             height: 1,
           ),
         )

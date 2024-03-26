@@ -85,7 +85,7 @@ class _QuizQuestionCardState extends State<QuizQuestionCard> {
 
   Widget buildCollapsedQuestionTile() {
     return SizedBox(
-      height: 60, // Adjust the height as needed
+      height: 60,
       child: ListTile(
         title: Text(
           "${widget.questionNo}. ${widget.question}",

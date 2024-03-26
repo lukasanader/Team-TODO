@@ -65,12 +65,8 @@ class _DraftsPageState extends State<DraftsPage> {
         shrinkWrap: true,
         itemCount: _draftsList.length,
         itemBuilder: (context, index) {
-          return TopicDraftCard(
-            widget.firestore,
-            widget.auth,
-            widget.storage,
-            _draftsList[index],
-          );
+          return TopicCard(widget.firestore, widget.auth, widget.storage,
+              _draftsList[index], "draft");
         },
       );
     }

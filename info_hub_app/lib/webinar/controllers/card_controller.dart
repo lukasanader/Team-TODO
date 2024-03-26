@@ -2,24 +2,26 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/model/user_model.dart';
 import 'package:info_hub_app/webinar/models/livestream.dart';
-import 'package:info_hub_app/webinar/service/webinar_service.dart';
+import 'package:info_hub_app/webinar/controllers/webinar_controller.dart';
 import 'package:info_hub_app/webinar/views/webinar-screens/display_webinar.dart';
 
+/// Handles back-end logic for webinar cards
 class CardController {
-  final WebinarService webinarService;
+  final WebinarController webinarController;
   final FirebaseFirestore firestore;
 
   CardController({
-    required this.webinarService,
+    required this.webinarController,
     required this.firestore,
   });
 
+  /// Handles the tap gesture on a card
   Future<String> handleTap(BuildContext context, Livestream post, UserModel user) async {
     if (post.status == "Upcoming") {
       return "Upcoming";
     } else {
       // if live or archived redirect to watch screen and increment view counter
-      await webinarService.updateViewCount(post.webinarID, true);
+      await webinarController.updateViewCount(post.webinarID, true);
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) => WebinarScreen(
@@ -28,7 +30,7 @@ class CardController {
             currentUser: user,
             firestore: firestore,
             title: post.title,
-            webinarService: webinarService,
+            webinarController: webinarController,
             status: post.status,
             chatEnabled: post.chatEnabled,
           ),
@@ -43,7 +45,7 @@ class CardController {
     final RegExp regex = RegExp(
       r'https:\/\/(?:www\.)?youtube\.com\/watch\?v=([a-zA-Z0-9_-]+)|https:\/\/youtu\.be\/([a-zA-Z0-9_-]+)');
     if (regex.hasMatch(url)) {
-      await webinarService.setWebinarStatus(
+      await webinarController.setWebinarStatus(
           post.webinarID, url,
           changeToArchived: true);
           return true;
@@ -51,8 +53,9 @@ class CardController {
     return false;
   }
 
+  /// Calls the webinar conrtroller to delete the webinar
   void deleteWebinar(String webinarID) {
-    webinarService.deleteWebinar(webinarID);
+    webinarController.deleteWebinar(webinarID);
   }
 
 }

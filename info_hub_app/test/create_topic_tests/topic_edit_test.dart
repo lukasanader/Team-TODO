@@ -97,6 +97,12 @@ void main() async {
 
     await tester.enterText(
         find.byKey(const Key('titleField')), 'Updated title');
+    await tester.ensureVisible(find.byKey(const Key('uploadMediaButton')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('uploadMediaButton')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Upload Image'));
+    await tester.pumpAndSettle();
 
     final updateButtonFinder = find.text('UPDATE TOPIC');
 

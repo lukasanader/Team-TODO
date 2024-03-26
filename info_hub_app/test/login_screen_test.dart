@@ -348,4 +348,108 @@ void main() {
     await test.pumpAndSettle();
     expect(find.text('test'), findsOneWidget);
   });
+
+  testWidgets('test logging in with a patient works', (WidgetTester test) async {
+    await auth.createUserWithEmailAndPassword(
+        email: 'test@tested@example.org', password: 'Password123!');
+    String uid = auth.currentUser!.uid;
+        await firestore.collection('Users').doc(uid).set({
+      'email': 'test@tested.org',
+      'firstName': 'James',
+      'lastName': 'Doe',
+      'roleType': 'Patient',
+  });
+    await test.pumpWidget(MaterialApp(
+        home: LoginScreen(
+            firestore: firestore,
+            auth: auth,
+            storage: storage,
+            messaging: firebaseMessaging,
+            localnotificationsplugin: mockFlutterLocalNotificationsPlugin,
+            themeManager: ThemeManager())));
+    final emailField = find.ancestor(
+      of: find.text('Email'),
+      matching: find.byType(TextFormField),
+    );
+    final passwordField = find.ancestor(
+      of: find.text('Password'),
+      matching: find.byType(TextFormField),
+    );
+    await test.enterText(emailField, 'test@tested.org');
+    await test.enterText(passwordField, 'Password123!');
+    final loginButton = find.text('Login');
+    await test.tap(loginButton);
+    await test.pumpAndSettle();
+    expect(find.byType(HomePage), findsOneWidget);
+});
+
+  testWidgets('test logging in with a parent works', (WidgetTester test) async {
+    await auth.createUserWithEmailAndPassword(
+        email: 'test@tested.org', password: 'Password123!');
+    String uid = auth.currentUser!.uid;
+    await firestore.collection('Users').doc(uid).set({
+      'email': 'test@tested.org',
+      'firstName': 'James',
+      'lastName': 'Doe',
+      'roleType': 'Parent',
+  });
+    await test.pumpWidget(MaterialApp(
+        home: LoginScreen(
+            firestore: firestore,
+            auth: auth,
+            storage: storage,
+            messaging: firebaseMessaging,
+            localnotificationsplugin: mockFlutterLocalNotificationsPlugin,
+            themeManager: ThemeManager())));
+    final emailField = find.ancestor(
+      of: find.text('Email'),
+      matching: find.byType(TextFormField),
+    );
+    final passwordField = find.ancestor(
+      of: find.text('Password'),
+      matching: find.byType(TextFormField),
+    );
+    await test.enterText(emailField, 'test@tested.org');
+    await test.enterText(passwordField, 'Password123!');
+    final loginButton = find.text('Login');
+    await test.tap(loginButton);
+    await test.pumpAndSettle();
+    expect(find.byType(HomePage), findsOneWidget);
+});
+
+  testWidgets('test logging in with a healthcare professional works', (WidgetTester test) async {
+    await auth.createUserWithEmailAndPassword(
+      email: 'test@tested.org',
+      password: 'Password123!');
+    String uid = auth.currentUser!.uid;
+    await firestore.collection('Users').doc(uid).set({
+      'email': 'test@tested.org',
+      'firstName': 'James',
+      'lastName': 'Doe',
+      'roleType': 'Healthcare Professional',
+  });
+    await test.pumpWidget(MaterialApp(
+        home: LoginScreen(
+            firestore: firestore,
+            auth: auth,
+            storage: storage,
+            messaging: firebaseMessaging,
+            localnotificationsplugin: mockFlutterLocalNotificationsPlugin,
+            themeManager: ThemeManager())));
+    final emailField = find.ancestor(
+      of: find.text('Email'),
+      matching: find.byType(TextFormField),
+    );
+    final passwordField = find.ancestor(
+      of: find.text('Password'),
+      matching: find.byType(TextFormField),
+    );
+    await test.enterText(emailField, 'test@tested.org');
+    await test.enterText(passwordField, 'Password123!');
+    final loginButton = find.text('Login');
+    await test.tap(loginButton);
+    await test.pumpAndSettle();
+    expect(find.byType(HomePage), findsOneWidget);
+});
+  
 }
