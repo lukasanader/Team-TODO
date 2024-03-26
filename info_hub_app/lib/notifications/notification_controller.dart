@@ -15,8 +15,8 @@ class NotificationController {
   NotificationController(
       {required this.auth, required this.uid, required this.firestore});
 
-  Future<String> createNotification(
-      String title, String body, DateTime timestamp, String route) async {
+  Future<String> createNotification(String title, String body,
+      DateTime timestamp, String route, Object? payload) async {
     CollectionReference notificationsCollection =
         firestore.collection('notifications');
     var docRef = await notificationsCollection.add({
@@ -25,6 +25,7 @@ class NotificationController {
       'body': body,
       'timestamp': timestamp,
       'route': route,
+      'payload': payload ?? 'None',
     });
 
     // Send push notification to all device tokens
@@ -85,6 +86,7 @@ class NotificationController {
         body: doc.get('body') ?? '',
         timestamp: doc.get('timestamp').toDate() ?? DateTime.now(),
         route: doc.get('route') ?? '',
+        payload: doc.get('payload') ?? '',
         deleted: false,
       );
     }).toList();
