@@ -161,4 +161,13 @@ class WebinarController {
     }
     await firestore.collection('Webinar').doc(webinarID).delete();  
   }
+
+  Stream<QuerySnapshot<Map<String, dynamic>>> getChatStream(String webinarID) {
+    return firestore
+        .collection('Webinar')
+        .doc(webinarID)
+        .collection('comments')
+        .orderBy('createdAt', descending: true)
+        .snapshots();
+  }
 }

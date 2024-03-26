@@ -43,12 +43,7 @@ class _ChatState extends State<Chat> {
     super.initState();
 
     // Initialize the Firestore stream
-    _chatStream = widget.firestore
-        .collection('Webinar')
-        .doc(widget.webinarID)
-        .collection('comments')
-        .orderBy('createdAt', descending: true)
-        .snapshots();
+    _chatStream = widget.webinarController.getChatStream(widget.webinarID);
   }
 
   // Displays chat messages in a scrollable feature
