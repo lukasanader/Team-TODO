@@ -6,12 +6,11 @@ import 'package:timeago/timeago.dart' as timeago;
 class NotificationCard extends StatelessWidget {
   final custom.Notification notification;
 
-  NotificationCard({required this.notification});
+  const NotificationCard({super.key, required this.notification});
 
   @override
   Widget build(BuildContext context) {
     final timeAgo = timeago.format(notification.timestamp);
-
     return GestureDetector(
       onTap: () {
         showNotificationDetails(context);
@@ -20,10 +19,6 @@ class NotificationCard extends StatelessWidget {
         padding: const EdgeInsets.only(top: 8.0),
         child: Card(
           margin: const EdgeInsets.fromLTRB(20.0, 6.0, 20.0, 0.0),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15.0),
-            side: BorderSide(color: Color.fromARGB(255, 255, 87, 87)),
-          ),
           child: ListTile(
             title: Text(notification.title),
             subtitle: Column(
@@ -51,12 +46,16 @@ class NotificationCard extends StatelessWidget {
             child: ListBody(
               children: <Widget>[
                 Text(notification.body),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 ElevatedButton(
                   onPressed: () {
-                    navigatorKey.currentState!.pushNamed(notification.route);
+                    navigatorKey.currentState!
+                      ..popUntil((route) => false)
+                      ..pushNamed('/base')
+                      ..pushNamed(notification.route,
+                          arguments: notification.payload);
                   },
-                  child: Text('View Details'),
+                  child: const Text('View Details'),
                 ),
               ],
             ),
@@ -66,7 +65,7 @@ class NotificationCard extends StatelessWidget {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('Close'),
+              child: const Text('Close'),
             ),
           ],
         );

@@ -1,26 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:info_hub_app/controller/activity_controller.dart';
 import 'package:intl/intl.dart';
 import 'package:info_hub_app/threads/thread_replies.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:info_hub_app/threads/name_generator.dart';
+import 'package:expansion_tile_card/expansion_tile_card.dart';
 
 class CustomCard extends StatefulWidget {
   final QuerySnapshot? snapshot;
   final int index;
   final FirebaseFirestore firestore;
   final FirebaseAuth auth;
+  final String userProfilePhoto;
+  final Function onEditCompleted;
+  final String roleType;
+  //final Key indexKey;
 
   const CustomCard({
-    Key? key,
+    super.key,
     this.snapshot,
     required this.index,
     required this.firestore,
     required this.auth,
-  }) : super(key: key);
+    required this.userProfilePhoto,
+    required this.onEditCompleted,
+    required this.roleType,
+    //required this.indexKey,
+  });
 
   @override
   _CustomCardState createState() => _CustomCardState();
@@ -29,20 +36,17 @@ class CustomCard extends StatefulWidget {
 class _CustomCardState extends State<CustomCard> {
   late TextEditingController titleInputController;
   late TextEditingController descriptionInputController;
-  //late TextEditingController nameInputController;
+  late final String _userProfilePhoto = 'assets/default_profile_photo.png';
+  late bool isEdited;
 
   @override
   void initState() {
     super.initState();
-    /*final docData =
-        widget.snapshot!.docs[widget.index].data() as Map<String, dynamic>;
-     titleInputController = TextEditingController(text: docData['title']);
-    descriptionInputController =
-        TextEditingController(text: docData['description']);
-    nameInputController = TextEditingController(text: docData['name']); */
     titleInputController = TextEditingController();
     descriptionInputController = TextEditingController();
-    //nameInputController = TextEditingController();
+    var docData =
+        widget.snapshot!.docs[widget.index].data() as Map<String, dynamic>;
+    isEdited = docData['isEdited'] ?? false;
   }
 
   @override
@@ -55,9 +59,13 @@ class _CustomCardState extends State<CustomCard> {
 
   @override
   Widget build(BuildContext context) {
+    //print('Building CustomCard widget for index: ${widget.index}, isEdited: $isEdited');
+
     var docData =
         widget.snapshot!.docs[widget.index].data() as Map<String, dynamic>;
     var docId = widget.snapshot!.docs[widget.index].id;
+
+    // print('Selected Profile Photo: ${docData['selectedProfilePhoto']}');
 
     var title = docData['title'] ?? 'No title';
     var description = docData['description'] ?? 'No description';
@@ -70,128 +78,234 @@ class _CustomCardState extends State<CustomCard> {
         : 'Timestamp not available';
     var authorName = generateUniqueName(creator);
 
+    final ButtonStyle flatButtonStyle = TextButton.styleFrom(
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(4.0)),
+      ),
+    );
+
+    IconData getRoleIcon(String roleType) {
+      switch (roleType) {
+        case 'Patient':
+          return Icons.local_hospital; // Example icon for Patient
+        case 'Healthcare Professional':
+          return Icons
+              .medical_services; // Example icon for Healthcare Professional
+        case 'Parent':
+          return Icons.family_restroom; // Example icon for Parent
+        case 'admin':
+          return Icons.admin_panel_settings; // Example icon for Admin
+        default:
+          return Icons.help_outline; // Example icon for Unknown or other roles
+      }
+    }
+
     return Column(
       children: <Widget>[
-        SizedBox(
-          height: 140,
-          child: Card(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(6),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12.0),
+          child: ExpansionTileCard(
+            leading: CircleAvatar(
+              key: Key('profilePhoto_${widget.index}'),
+              radius: 30,
+              backgroundImage: AssetImage('assets/${widget.userProfilePhoto}')
+                  as ImageProvider<Object>,
             ),
-            elevation: 5,
-            child: ListTile(
-              title: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Expanded(
-                    child: Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        key: Key('navigateToThreadReplies_${widget.index}'),
-                        onTap: () {
-                          Navigator.of(context).push(CupertinoPageRoute(
-                              builder: (BuildContext context) => ThreadReplies(
-                                    threadId: docId,
-                                    firestore: widget.firestore,
-                                    auth: widget.auth,
-                                  )));
-                        },
-                        child: Text(
-                          title,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
+            title: Row(
+              children: <Widget>[
+                Expanded(
+                  child: InkWell(
+                    key: Key('navigateToThreadReplies_${widget.index}'),
+                    onTap: () {
+                      Navigator.of(context).push(CupertinoPageRoute(
+                        builder: (BuildContext context) => ThreadReplies(
+                          threadId: docId,
+                          firestore: widget.firestore,
+                          auth: widget.auth,
                         ),
+                      ));
+                    },
+                    child: Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  if (currentUserId == creator)
-                    IconButton(
-                      key: Key('editButton_$docId'),
-                      icon: const Icon(FontAwesomeIcons.edit, size: 15),
-                      onPressed: () {
-                        _showDialog(context, docId);
-                      },
-                    ),
-                  if (currentUserId == creator)
-                    IconButton(
-                      icon: const Icon(FontAwesomeIcons.trashAlt, size: 15),
-                      onPressed: () async {
-                        if (!mounted) return;
-                        // batch delete removes up to 500 replies at a time from the replies collection due to firestore limitations
-                        final replyQuerySnapshot = await widget.firestore
-                            .collection("replies")
-                            .where('threadId', isEqualTo: docId)
-                            .get();
+                ),
+              ],
+            ),
+            subtitle: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Expanded(
+                  child: Text(
+                    authorName,
+                    key: Key('authorText_${widget.index}'),
 
-                        final WriteBatch batch = widget.firestore.batch();
-                        for (DocumentSnapshot replyDoc
-                            in replyQuerySnapshot.docs) {
-                          batch.delete(replyDoc.reference);
-                        }
-
-                        await batch.commit();
-                        await ActivityController(firestore: widget.firestore,auth: widget.auth).deleteActivity(docId);
-                        await widget.firestore
-                            .collection("thread")
-                            .doc(docId)
-                            .delete();
-                      },
-                    ),
-                ],
+                    style: const TextStyle(fontSize: 14),
+                    //overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                Text(
+                  formatter,
+                  style: const TextStyle(fontSize: 14),
+                ),
+              ],
+            ),
+            children: <Widget>[
+              const Divider(
+                thickness: 1.0,
+                height: 1.0,
               ),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  Text(
-                    description,
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 2,
-                  ),
-                  const Padding(padding: EdgeInsets.all(2)),
-                  const SizedBox(height: 4),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: <Widget>[
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      description,
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyMedium!
+                          .copyWith(fontSize: 16),
+                      //maxLines: 2,
+                      //overflow: TextOverflow.ellipsis,
+                    ),
+                    if (isEdited)
                       Text(
-                        "$authorName: ",
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: Color.fromARGB(255, 255, 0, 0),
-                          fontWeight: FontWeight.bold,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                      ),
-                      Text(
-                        formatter,
+                        " (edited)",
+                        key: Key('editedText_${widget.index}'),
                         style: const TextStyle(
                           fontSize: 12,
                           color: Color.fromARGB(255, 255, 0, 0),
+                          fontStyle: FontStyle.italic,
                         ),
                       ),
-                    ],
-                  ),
-                ],
+                    ButtonBar(
+                      alignment: MainAxisAlignment.spaceAround,
+                      buttonHeight: 52.0,
+                      buttonMinWidth: 90.0,
+                      children: <Widget>[
+                        if (currentUserId == creator)
+                          TextButton(
+                            style: flatButtonStyle,
+                            onPressed: () {
+                              _showDialog(context, docId);
+                            },
+                            child: Column(
+                              children: <Widget>[
+                                Icon(Icons.edit,
+                                    key: Key('editIcon_${widget.index}')),
+                                const Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 2.0),
+                                ),
+                                Text(
+                                  'Edit Post',
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                )
+                              ],
+                            ),
+                          ),
+                        Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            Icon(
+                              getRoleIcon(widget
+                                  .roleType), // Determines the icon based on the roleType
+                              //size: 24.0,
+                            ),
+                            const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 2.0),
+                            ),
+                            widget.roleType == 'Healthcare Professional'
+                                ? Column(
+                                    children: <Widget>[
+                                      Text(
+                                        'Healthcare',
+                                        textAlign: TextAlign.center,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodyMedium,
+                                      ),
+                                      Text(
+                                        'Professional',
+                                        textAlign: TextAlign.center,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodyMedium,
+                                      ),
+                                    ],
+                                  )
+                                : Text(
+                                    widget.roleType,
+                                    textAlign: TextAlign.center,
+                                    style:
+                                        Theme.of(context).textTheme.bodyMedium,
+                                  ),
+                          ],
+                        ),
+                        if (currentUserId == creator)
+                          TextButton(
+                            style: flatButtonStyle,
+                            onPressed: () async {
+                              if (!mounted) return;
+                              // batch delete removes up to 500 replies at a time from the replies collection due to firestore limitations
+                              final replyQuerySnapshot = await widget.firestore
+                                  .collection("replies")
+                                  .where('threadId', isEqualTo: docId)
+                                  .get();
+
+                              final WriteBatch batch = widget.firestore.batch();
+                              for (DocumentSnapshot replyDoc
+                                  in replyQuerySnapshot.docs) {
+                                batch.delete(replyDoc.reference);
+                              }
+
+                              await batch.commit();
+
+                              await widget.firestore
+                                  .collection("thread")
+                                  .doc(docId)
+                                  .delete();
+                            },
+                            child: Column(
+                              children: <Widget>[
+                                Icon(Icons.delete,
+                                    key: Key('deleteIcon_${widget.index}')),
+                                const Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 2.0),
+                                ),
+                                Text(
+                                  'Delete Post',
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
+                              ],
+                            ),
+                          ),
+                        // Additional buttons or logic for user role can be added here
+                      ],
+                    ),
+                  ],
+                ),
               ),
-              leading: CircleAvatar(
-                radius: 38,
-                child: Text(title[0]),
-              ),
-            ),
+            ],
           ),
         ),
+        const Padding(
+          padding: EdgeInsets.only(left: 50.0, right: 50.0),
+          child: Divider(
+            color: Colors.grey,
+            height: 1,
+          ),
+        )
       ],
     );
   }
 
   _showDialog(BuildContext context, String docId) async {
-    bool showErrorName = false;
     bool showErrorTitle = false;
     bool showErrorDescription = false;
 
@@ -203,7 +317,6 @@ class _CustomCardState extends State<CustomCard> {
 
     titleInputController.text = docData['title'] ?? '';
     descriptionInputController.text = docData['description'] ?? '';
-    //nameInputController.text = docData['name'] ?? '';
 
     await showDialog(
       context: context,
@@ -217,17 +330,6 @@ class _CustomCardState extends State<CustomCard> {
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
                     const Text("Please fill out the form"),
-                    /*TextField(
-                      key: const Key('Author'),
-                      autofocus: true,
-                      autocorrect: true,
-                      decoration: InputDecoration(
-                        labelText: "Author",
-                        errorText:
-                            showErrorName ? "Please enter your name" : null,
-                      ),
-                      controller: nameInputController,
-                    ), */
                     TextField(
                       key: const Key('Title'),
                       autofocus: true,
@@ -257,9 +359,6 @@ class _CustomCardState extends State<CustomCard> {
               actions: <Widget>[
                 TextButton(
                   onPressed: () {
-                    /*nameInputController.clear();
-                    titleInputController.clear();
-                    descriptionInputController.clear();*/
                     Navigator.pop(context);
                   },
                   child: const Text("Cancel"),
@@ -267,30 +366,30 @@ class _CustomCardState extends State<CustomCard> {
                 TextButton(
                   onPressed: () {
                     setState(() {
-                      //showErrorName = nameInputController.text.isEmpty;
                       showErrorTitle = titleInputController.text.isEmpty;
                       showErrorDescription =
                           descriptionInputController.text.isEmpty;
                     });
 
-                    if (!showErrorName &&
-                        !showErrorTitle &&
-                        !showErrorDescription) {
+                    if (!showErrorTitle && !showErrorDescription) {
+                      setState(() {
+                        docData['title'] = titleInputController.text;
+                        docData['description'] =
+                            descriptionInputController.text;
+                        isEdited = true;
+                      });
+
                       widget.firestore.collection("thread").doc(docId).update({
                         "title": titleInputController.text,
-                        "description":
-                            "${descriptionInputController.text} (edited)",
+                        "description": descriptionInputController.text,
                         "timestamp": FieldValue.serverTimestamp(),
-                      }).then((response) {
-                        //print(response.id);
-                        /* nameInputController.clear();
-                        titleInputController.clear();
-                        descriptionInputController.clear(); */
-                        Navigator.pop(context);
+                        "isEdited": true,
                       });
+
+                      Navigator.pop(context);
                     }
                   },
-                  child: const Text("Update"),
+                  child: const Text("Update", key: Key('updateButtonText')),
                 ),
               ],
             );

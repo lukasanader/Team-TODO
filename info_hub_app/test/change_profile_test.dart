@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:info_hub_app/change_profile/change_profile.dart';
+import 'package:info_hub_app/change_profile/change_profile_view.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:info_hub_app/change_profile/change_profile_controller.dart';
+import 'package:info_hub_app/main.dart';
 import 'package:info_hub_app/profile_view/profile_view.dart';
 import 'package:info_hub_app/profile_view/profile_view_controller.dart';
 
 void main() {
+  setUp(() async {
+    allNouns = await loadWordSet('assets/texts/nouns.txt');
+    allAdjectives = await loadWordSet('assets/texts/adjectives.txt');
+  });
   testWidgets('Test if first name TextField is present',
       (WidgetTester tester) async {
     final firestore = FakeFirebaseFirestore();

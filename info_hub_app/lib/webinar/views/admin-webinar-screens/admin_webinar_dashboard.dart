@@ -1,4 +1,3 @@
-import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -6,19 +5,20 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:info_hub_app/webinar/views/admin-webinar-screens/create_webinar_screen.dart';
 import 'package:info_hub_app/webinar/helpers/stats_cards.dart';
 import 'package:info_hub_app/model/user_model.dart';
-import 'package:info_hub_app/webinar/service/webinar_service.dart';
+import 'package:info_hub_app/webinar/controllers/webinar_controller.dart';
 import 'package:info_hub_app/webinar/views/webinar-screens/webinar_view.dart';
 
+/// Displays Webinar Dashboard interface, providing admin with basic metrics and option to view webinars or create one
 class WebinarDashboard extends StatefulWidget {
   final UserModel user;
   final FirebaseFirestore firestore;
-  final WebinarService webinarService;
+  final WebinarController webinarController;
 
   const WebinarDashboard(
       {super.key,
       required this.user,
       required this.firestore,
-      required this.webinarService});
+      required this.webinarController});
 
   @override
   _WebinarDashboardState createState() => _WebinarDashboardState();
@@ -50,7 +50,7 @@ class _WebinarDashboardState extends State<WebinarDashboard> {
                 children: [
                   StreamBuilder<String>(
                     stream: Stream.fromFuture(
-                        widget.webinarService.getNumberOfLiveWebinars()),
+                        widget.webinarController.getNumberOfLiveWebinars()),  // Retrieve number of live webinars
                     builder: (context, snapshot) {
                       return StatisticCard(
                         label: 'Live Webinars',
@@ -62,7 +62,7 @@ class _WebinarDashboardState extends State<WebinarDashboard> {
                   ),
                   StreamBuilder<String>(
                     stream: Stream.fromFuture(
-                        widget.webinarService.getNumberOfUpcomingWebinars()),
+                        widget.webinarController.getNumberOfUpcomingWebinars()), // Retrieve number of upcoming webinars
                     builder: (context, snapshot) {
                       return StatisticCard(
                         label: 'Upcoming Webinars',
@@ -74,7 +74,7 @@ class _WebinarDashboardState extends State<WebinarDashboard> {
                   ),
                   StreamBuilder<String>(
                     stream: Stream.fromFuture(
-                        widget.webinarService.getNumberOfLiveViewers()),
+                        widget.webinarController.getNumberOfLiveViewers()), // Retrieve number of live viewers
                     builder: (context, snapshot) {
                       return StatisticCard(
                         label: 'Live Viewers',
@@ -86,7 +86,7 @@ class _WebinarDashboardState extends State<WebinarDashboard> {
                   ),
                   StreamBuilder<String>(
                     stream: Stream.fromFuture(
-                        widget.webinarService.getNumberOfArchivedWebinars()),
+                        widget.webinarController.getNumberOfArchivedWebinars()), // Retrieve number of archived webinars
                     builder: (context, snapshot) {
                       return StatisticCard(
                         label: 'Archived Webinars',
@@ -107,7 +107,7 @@ class _WebinarDashboardState extends State<WebinarDashboard> {
                         return WebinarView(
                           firestore: widget.firestore,
                           user: widget.user,
-                          webinarService: widget.webinarService,
+                          webinarController: widget.webinarController,
                         );
                       },
                     ),
@@ -126,7 +126,7 @@ class _WebinarDashboardState extends State<WebinarDashboard> {
                         return CreateWebinarScreen(
                           firestore: widget.firestore,
                           user: widget.user,
-                          webinarService: widget.webinarService,
+                          webinarController: widget.webinarController,
                         );
                       },
                     ),

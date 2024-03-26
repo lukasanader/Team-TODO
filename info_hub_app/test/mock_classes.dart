@@ -218,22 +218,22 @@ class StoreData {
   }
 }
 
-mockFilePicker() {
+mockFilePicker(String path) {
   const MethodChannel channelFilePicker =
       MethodChannel('miguelruivo.flutter.plugins.filepicker');
 
   TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
       .setMockMethodCallHandler(channelFilePicker,
           (MethodCall methodCall) async {
-    final ByteData data = await rootBundle.load('/assets/sample-5s.mp4');
+    final ByteData data = await rootBundle.load('assets/$path');
     final Uint8List bytes = data.buffer.asUint8List();
     final Directory tempDir = await getTemporaryDirectory();
     final File file = await File(
-      '${tempDir.path}/sample-5s.mp4',
+      '${tempDir.path}/$path',
     ).writeAsBytes(bytes);
     return [
       {
-        'name': "sample-5s.mp4",
+        'name': path,
         'path': file.path,
         'bytes': bytes,
         'size': bytes.lengthInBytes,

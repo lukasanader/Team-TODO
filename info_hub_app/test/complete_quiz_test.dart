@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
@@ -149,7 +148,7 @@ void main() {
 
     await tester.tap(find.text('Reset'));
     await tester.pumpAndSettle();
-    expect(find.text('Your old score is 1/2'), findsOne);
+    expect(find.text('your old score is 1/2'), findsOne);
 
     await tester.tap(find.textContaining('An organ'));
     //answer incorrectly

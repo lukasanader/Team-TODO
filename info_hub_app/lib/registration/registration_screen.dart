@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
@@ -14,6 +16,9 @@ import 'package:info_hub_app/legal_agreements/privacy_policy.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:info_hub_app/welcome_message/welcome_message.dart';
 import 'package:info_hub_app/email_verification/email_verification_screen.dart';
+import 'package:info_hub_app/welcome_message/welcome_message_view.dart';
+import 'package:info_hub_app/welcome_message/welcome_message_controller.dart';
+
 
 class RegistrationScreen extends StatefulWidget {
   final FirebaseFirestore firestore;

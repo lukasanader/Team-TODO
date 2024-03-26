@@ -1,66 +1,58 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'preferences_controller.dart';
 
-class ManageNotifications extends StatefulWidget {
+class PreferencesPage extends StatefulWidget {
   final FirebaseAuth auth;
-  FirebaseFirestore firestore;
-  ManageNotifications({Key? key, required this.auth, required this.firestore})
-      : super(key: key);
+  final FirebaseFirestore firestore;
+  const PreferencesPage(
+      {super.key, required this.auth, required this.firestore});
   @override
-  _ManageNotificationsState createState() => _ManageNotificationsState();
+  _PreferencesPageState createState() => _PreferencesPageState();
 }
 
-class _ManageNotificationsState extends State<ManageNotifications> {
+class _PreferencesPageState extends State<PreferencesPage> {
   late bool _pushNotificationsEnabled;
   bool _isLoading = true;
+  late PreferencesController _controller;
 
   @override
   void initState() {
     super.initState();
+    _controller = PreferencesController(
+        auth: widget.auth,
+        uid: widget.auth.currentUser!.uid,
+        firestore: widget.firestore);
     _getNotificationPreferences();
   }
 
   Future<void> _getNotificationPreferences() async {
-    final currentUser = widget.auth.currentUser;
-
-    final querySnapshot = await widget.firestore
-        .collection('preferences')
-        .where('uid', isEqualTo: currentUser?.uid)
-        .get();
+    final result = await _controller.getNotificationPreferences();
 
     setState(() {
-      _pushNotificationsEnabled =
-          querySnapshot.docs.first.get('push_notifications');
+      _pushNotificationsEnabled = result;
       _isLoading = false;
     });
   }
 
   Future<void> _updateNotificationPreferences(
       String type, bool newValue) async {
-    final currentUser = widget.auth.currentUser;
-
-    await widget.firestore
-        .collection('preferences')
-        .where('uid', isEqualTo: currentUser?.uid)
-        .get()
-        .then((querySnapshot) {
-      querySnapshot.docs.first.reference.update({type: newValue});
-    });
+    await _controller.updateNotificationPreferences(type, newValue);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Manage Notifications'),
+        title: const Text('Manage Notifications'),
       ),
       body: _isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : ListView(
               children: [
                 ListTile(
-                  title: Text('Push Notifications'),
+                  title: const Text('Push Notifications'),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [

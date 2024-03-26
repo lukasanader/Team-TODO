@@ -11,10 +11,10 @@ class MediaDisplayWidget extends StatelessWidget {
   final TopicCreationViewState screen;
 
   const MediaDisplayWidget({
-    Key? key,
+    super.key,
     required this.mediaUploadController,
     required this.screen,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

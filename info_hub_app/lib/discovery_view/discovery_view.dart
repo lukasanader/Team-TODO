@@ -45,7 +45,10 @@ class _DiscoveryViewState extends State<DiscoveryView> {
   void initState() {
     super.initState();
     initializeData();
-    widget.firestore.collection('categories').snapshots().listen(_updateCategoryList);
+    widget.firestore
+        .collection('categories')
+        .snapshots()
+        .listen(_updateCategoryList);
   }
 
   @override
@@ -95,9 +98,7 @@ class _DiscoveryViewState extends State<DiscoveryView> {
                       children: List.generate(
                         _categoriesWidget.length,
                         (index) => Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal:
-                                  15.0), // Adjust the horizontal spacing here
+                          padding: const EdgeInsets.symmetric(horizontal: 15.0),
                           child: _categoriesWidget[index],
                         ),
                       ),
@@ -141,6 +142,7 @@ class _DiscoveryViewState extends State<DiscoveryView> {
                               widget.auth,
                               widget.storage,
                               _displayedTopicsList[topicIndex],
+                              "topic",
                             );
                           }
                         }
@@ -163,7 +165,6 @@ class _DiscoveryViewState extends State<DiscoveryView> {
       ),
     );
   }
-
 
   Future<void> initializeData() async {
     getCategoryList();
@@ -211,8 +212,9 @@ class _DiscoveryViewState extends State<DiscoveryView> {
   }
 
   Future getAllTopicsList() async {
-    List<Topic> tempList = await TopicController(auth: widget.auth, firestore: widget.firestore)
-      .getTopicList();
+    List<Topic> tempList =
+        await TopicController(auth: widget.auth, firestore: widget.firestore)
+            .getTopicList();
 
     setState(() {
       _topicsList = tempList;
@@ -244,8 +246,8 @@ class _DiscoveryViewState extends State<DiscoveryView> {
     List<String> tempStringList = [];
     List<Widget> tempWidgetList = [];
 
-    List<Category> categories = await CategoryController(widget.firestore)
-      .getCategoryList();
+    List<Category> categories =
+        await CategoryController(widget.firestore).getCategoryList();
 
     for (Category category in categories) {
       tempStringList.add(category.name!);
@@ -275,5 +277,4 @@ class _DiscoveryViewState extends State<DiscoveryView> {
     getCategoryList();
     updateTopicListBasedOnCategory(categoriesSelected);
   }
-
 }

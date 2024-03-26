@@ -7,15 +7,14 @@ import 'package:info_hub_app/topics/create_topic/model/topic_model.dart';
 /// Widget for displaying Media Previews and navigation buttons
 class ViewMediaWidget extends StatelessWidget {
   final TopicViewState screen;
-  MediaController mediaController;
-  Topic topic;
+  final MediaController mediaController;
+  final Topic topic;
 
-  ViewMediaWidget(
-      {Key? key,
+  const ViewMediaWidget(
+      {super.key,
       required this.screen,
       required this.topic,
-      required this.mediaController})
-      : super(key: key);
+      required this.mediaController});
 
   @override
   Widget build(BuildContext context) {

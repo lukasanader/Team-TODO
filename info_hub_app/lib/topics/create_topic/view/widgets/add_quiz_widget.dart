@@ -5,7 +5,7 @@ import 'package:info_hub_app/topics/create_topic/helpers/quiz/create_quiz.dart';
 class AddQuizWidget extends StatelessWidget {
   final TopicCreationViewState screen;
 
-  const AddQuizWidget({
+  const AddQuizWidget({super.key, 
     required this.screen,
   });
 

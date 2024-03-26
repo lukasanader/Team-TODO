@@ -12,12 +12,12 @@ class TopicFormWidget extends StatelessWidget {
   final TopicCreationViewState screen;
   final FirebaseFirestore firestore;
 
-  TopicFormWidget({
-    Key? key,
+  const TopicFormWidget({
+    super.key,
     required this.formController,
     required this.screen,
     required this.firestore,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -46,9 +46,8 @@ class _DraftsPageState extends State<DraftsPage> {
       appBar: AppBar(
         title: const Text(
           'Your Drafts',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
-        backgroundColor: Colors.red,
       ),
       body: SingleChildScrollView(
         child: _buildDraftsList(),
@@ -66,12 +65,8 @@ class _DraftsPageState extends State<DraftsPage> {
         shrinkWrap: true,
         itemCount: _draftsList.length,
         itemBuilder: (context, index) {
-          return TopicDraftCard(
-            widget.firestore,
-            widget.auth,
-            widget.storage,
-            _draftsList[index] as Topic,
-          );
+          return TopicCard(widget.firestore, widget.auth, widget.storage,
+              _draftsList[index], "draft");
         },
       );
     }

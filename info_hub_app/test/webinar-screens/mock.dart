@@ -93,7 +93,7 @@ class MockWebViewDependencies {
   }
 }
 
-R provideMockedNetworkImages<R>(R body()) {
+R provideMockedNetworkImages<R>(R Function() body) {
   return HttpOverrides.runZoned(
     body,
     createHttpClient: (_) => _createMockImageHttpClient(_, _transparentImage),

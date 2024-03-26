@@ -5,20 +5,20 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:info_hub_app/model/user_model.dart';
-import 'package:info_hub_app/webinar/service/webinar_service.dart';
+import 'package:info_hub_app/webinar/controllers/webinar_controller.dart';
 import 'package:info_hub_app/webinar/views/webinar-screens/chat.dart';
 
 void main() {
   late FakeFirebaseFirestore firestore;
   late Widget chatScreenWidget;
   late MockFirebaseStorage mockStorage;
-  late WebinarService webService;
+  late WebinarController webService;
   late UserModel user;
 
   setUp(() {
     firestore = FakeFirebaseFirestore();
     mockStorage = MockFirebaseStorage();
-    webService = WebinarService(
+    webService = WebinarController(
       firestore: firestore,
       storage: mockStorage
     );
@@ -40,7 +40,7 @@ void main() {
         firestore: firestore,
         user: user,
         webinarID: 'test',
-        webinarService: webService,
+        webinarController: webService,
         chatEnabled: true,
         )
     );
@@ -52,7 +52,7 @@ void main() {
         firestore: firestore,
         user: user,
         webinarID: 'test',
-        webinarService: webService,
+        webinarController: webService,
         chatEnabled: false,
         )
     );

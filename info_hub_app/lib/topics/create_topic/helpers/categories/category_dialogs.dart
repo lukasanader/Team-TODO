@@ -1,5 +1,4 @@
   import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/topics/create_topic/helpers/categories/category_controller.dart';
 import 'package:info_hub_app/topics/create_topic/helpers/categories/category_model.dart';

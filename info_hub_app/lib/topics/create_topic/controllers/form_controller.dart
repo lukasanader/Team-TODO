@@ -86,7 +86,7 @@ class FormController {
   }
 
   /// Uploads the topic to Firestore, either as a draft or for publishing.
-  Future<void> uploadTopic(context, bool saveAsDraft) async {
+  Future<Topic> uploadTopic(context, bool saveAsDraft) async {
     List<Map<String, String>> mediaList = [];
     Topic newTopic = Topic();
     for (var item in mediaUploadController!.mediaUrls) {
@@ -137,7 +137,8 @@ class FormController {
           });
         }
       } else {
-        await topicCollectionRef.add(newTopic.toJson());
+        final docRef = await topicCollectionRef.add(newTopic.toJson());
+        newTopic.id = docRef.id;
       }
     } else {
       if (topic != null && topic!.quizID != '') {
@@ -174,6 +175,8 @@ class FormController {
       }
       if (editing) {}
     }
+
+    return newTopic;
   }
 
   /// Deletes the current draft from Firestore.

@@ -2,18 +2,18 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/webinar/views/webinar-screens/chat.dart';
 import 'package:info_hub_app/model/user_model.dart';
-import 'package:info_hub_app/webinar/service/webinar_service.dart';
+import 'package:info_hub_app/webinar/controllers/webinar_controller.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import 'package:flutter/services.dart';
 
-// Displays base broadcasting screen
+/// Displays webinar view screen alongside the respective chat for this webinar
 class WebinarScreen extends StatefulWidget {
   final String webinarID;
   final String youtubeURL;
   final UserModel currentUser;
   final FirebaseFirestore firestore;
   final String title;
-  final WebinarService webinarService;
+  final WebinarController webinarController;
   final String status;
   final bool chatEnabled;
 
@@ -24,7 +24,7 @@ class WebinarScreen extends StatefulWidget {
     required this.currentUser,
     required this.firestore,
     required this.title,
-    required this.webinarService,
+    required this.webinarController,
     required this.status,
     required this.chatEnabled,
   });
@@ -35,22 +35,19 @@ class WebinarScreen extends StatefulWidget {
 
 class _WebinarScreenState extends State<WebinarScreen> {
   late YoutubePlayerController _controller;
-  late PlayerState _playerState;
-  late YoutubeMetaData _videoMetaData;
   String? modifiedURL;
-  final bool _isPlayerReady = false;
   List<String> participants = [];
 
   @override
   void initState() {
     super.initState();
-    //set device orientations to be portrait only
+    // Set device orientations to be portrait only
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
     participants.add(widget.currentUser.uid);
-    // create youtube player
+    // Create youtube player
     modifiedURL = YoutubePlayer.convertUrlToId(widget.youtubeURL);
     _controller = YoutubePlayerController(
       initialVideoId: modifiedURL ?? '',
@@ -63,12 +60,10 @@ class _WebinarScreenState extends State<WebinarScreen> {
         enableCaption: false,
         showLiveFullscreenButton: false,
       ),
-    )..addListener(listener);
-    _videoMetaData = const YoutubeMetaData();
-    _playerState = PlayerState.unknown;  
+    );
   }
 
-  // stop the youtube player from playing and exit the channel, decrementing the Live statistics 
+  /// Stops the youtube player from playing and exit the channel, decrementing the Live statistics 
   @override
   void dispose() {
     _controller.pause();
@@ -76,24 +71,14 @@ class _WebinarScreenState extends State<WebinarScreen> {
     super.dispose();
   }
 
-  // Listens on changes from the user side
-  void listener() {
-    if (_isPlayerReady && mounted && !_controller.value.isFullScreen) {
-      setState(() {
-        _playerState = _controller.value.playerState;
-        _videoMetaData = _controller.metadata;
-      });
-    }
-  }
-
-  // initates leaving sequence. Decrements the total viewer count by 1
+  /// initates leaving sequence. Decrements the total viewer count by 1
   _leaveChannel() async {
     participants.remove(widget.currentUser.uid);
-    await widget.webinarService.updateViewCount(widget.webinarID, false);
+    await widget.webinarController.updateViewCount(widget.webinarID, false);
   }
 
   
-  // Displays the guide dialog explaining the expectations of those participating in the webinar
+  /// Displays the guide dialog explaining the expectations of those participating in the webinar
   void showGuideDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -204,7 +189,7 @@ class _WebinarScreenState extends State<WebinarScreen> {
               webinarID: widget.webinarID,
               user: widget.currentUser,
               firestore: widget.firestore,
-              webinarService: widget.webinarService,
+              webinarController: widget.webinarController,
               chatEnabled: widget.chatEnabled,
             ),
           ),
@@ -212,7 +197,4 @@ class _WebinarScreenState extends State<WebinarScreen> {
       ),
     );
   }
-
-
 }
-
