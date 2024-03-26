@@ -281,7 +281,18 @@ class TopicCreationViewState extends State<TopicCreationView> {
                                   TextButton(
                                     onPressed: () async {
                                       // Delete the question from the database
-
+                                      for(int i=0; i<questions.length; i++){
+                                         NotificationController(
+                                              auth: widget.auth,
+                                              firestore: widget.firestore,
+                                              uid: questions[i].uid)
+                                          .createNotification(
+                                              'Question Reply',
+                                              'A topic has been created in response to your question.',
+                                              DateTime.now(),
+                                              '/topic',
+                                              topic);
+                                      }
                                       NotificationController(
                                               auth: widget.auth,
                                               firestore: widget.firestore,
