@@ -111,10 +111,12 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.check_circle_outline),
+            key: ValueKey<String>('verify_navbar_button'),
             label: 'Verified',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.highlight_off_outlined),
+            key: ValueKey<String>('unverify_navbar_button'),
             label: 'Unverified',
           ),
         ],

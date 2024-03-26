@@ -38,14 +38,7 @@ void main() {
     );
   });
 
-  testWidgets('There are two list views', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(experienceViewWidget);
-    await tester.pumpAndSettle();
 
-    Finder listViewFinder = find.byType(ListView);
-    expect(listViewFinder, findsNWidgets(2));
-  });
 
   testWidgets('Displays verified experiences', (WidgetTester tester) async {
     // Build our app and trigger a frame.
@@ -60,6 +53,9 @@ void main() {
     await tester.pumpWidget(experienceViewWidget);
     await tester.pumpAndSettle();
 
+    await tester.tap(find.byKey(const ValueKey<String>('unverify_navbar_button')));
+    await tester.pumpAndSettle();
+
     expect(find.text('Example 2'), findsOneWidget);
   });
 
@@ -69,7 +65,10 @@ void main() {
     await tester.pumpWidget(experienceViewWidget);
     await tester.pumpAndSettle();
 
-    Finder checkButton = find.byIcon(Icons.check_circle_outline);
+    await tester.tap(find.byKey(const ValueKey<String>('unverify_navbar_button')));
+    await tester.pumpAndSettle();
+
+    Finder checkButton = find.byIcon(Icons.check_circle_outline).first;
 
     await tester.ensureVisible(checkButton);
     await tester.tap(checkButton.first);
@@ -93,7 +92,7 @@ void main() {
     await tester.pumpWidget(experienceViewWidget);
     await tester.pumpAndSettle();
 
-    Finder checkButton = find.byIcon(Icons.highlight_off_outlined);
+    Finder checkButton = find.byIcon(Icons.highlight_off_outlined).first;
 
     await tester.ensureVisible(checkButton);
     await tester.tap(checkButton.first);
@@ -177,7 +176,13 @@ void main() {
     await tester.pumpWidget(experienceViewWidget);
     await tester.pumpAndSettle();
 
-    Finder deleteButton = find.byIcon(Icons.delete_outline).last;
+    await tester.tap(find.byKey(const ValueKey<String>('unverify_navbar_button')));
+    await tester.pumpAndSettle();
+
+    //experience should be present
+    expect(find.text('Example 2'), findsOneWidget);
+
+    Finder deleteButton = find.byIcon(Icons.delete_outline);
 
     await tester.ensureVisible(deleteButton);
     await tester.tap(deleteButton);
@@ -188,6 +193,8 @@ void main() {
     await tester.tap(find.text('Cancel'));
     await tester.pumpAndSettle();
 
+
+    //experience should still be present
     expect(find.text('Example 2'), findsOneWidget);
   });
 
