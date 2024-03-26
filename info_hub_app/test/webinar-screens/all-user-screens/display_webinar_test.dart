@@ -2,11 +2,11 @@ import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:info_hub_app/main.dart';
 import 'package:info_hub_app/model/user_model.dart';
 import 'package:info_hub_app/webinar/service/webinar_service.dart';
 import 'package:info_hub_app/webinar/views/webinar-screens/display_webinar.dart';
 import '../mock.dart';
-
 
 void main() {
   late UserModel testUser;
@@ -14,28 +14,34 @@ void main() {
   late MockFirebaseStorage mockFirebaseStorage;
   late WebinarService webinarService;
   late Widget webinarScreen;
-  final MockWebViewDependencies mockWebViewDependencies = MockWebViewDependencies();
+  final MockWebViewDependencies mockWebViewDependencies =
+      MockWebViewDependencies();
   TestWidgetsFlutterBinding.ensureInitialized();
 
   setUp(() async {
     fakeFirestore = FakeFirebaseFirestore();
     mockFirebaseStorage = MockFirebaseStorage();
-    webinarService = WebinarService(firestore: fakeFirestore, storage: mockFirebaseStorage);
+    // Initialize allNouns and allAdjectives before each test
+    allNouns = await loadWordSet('assets/texts/nouns.txt');
+    allAdjectives = await loadWordSet('assets/texts/adjectives.txt');
+    webinarService =
+        WebinarService(firestore: fakeFirestore, storage: mockFirebaseStorage);
 
     await fakeFirestore.collection('Webinar').doc('id').set({
-        'id' : 'id',
-        'title' : 'Test',
-        'url' :  'https://www.youtube.com/watch?v=tSXZ8hervyY',
-        'thumbnail' : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSYscfUBUbqwGd_DHVhG-ZjCOD7MUpxp4uhNe7toUg4ug&s',
-        'webinarleadname' : 'John Doe',
-        'startTime' : DateTime.now().toString(),
-        'views' : 0,
-        'dateStarted' : DateTime.now().toString(),
-        'status' : 'Live',
-        'chatenabled' : true,
+      'id': 'id',
+      'title': 'Test',
+      'url': 'https://www.youtube.com/watch?v=tSXZ8hervyY',
+      'thumbnail':
+          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSYscfUBUbqwGd_DHVhG-ZjCOD7MUpxp4uhNe7toUg4ug&s',
+      'webinarleadname': 'John Doe',
+      'startTime': DateTime.now().toString(),
+      'views': 0,
+      'dateStarted': DateTime.now().toString(),
+      'status': 'Live',
+      'chatenabled': true,
     });
     await mockWebViewDependencies.init();
-    
+
     testUser = UserModel(
       uid: 'mockUid',
       firstName: 'John',
@@ -45,7 +51,6 @@ void main() {
       likedTopics: [],
       dislikedTopics: [],
     );
-
 
     webinarScreen = MaterialApp(
       home: WebinarScreen(
@@ -59,13 +64,12 @@ void main() {
         chatEnabled: true,
       ),
     );
-
   });
 
   testWidgets('Test Webinar Title appears', (WidgetTester tester) async {
     provideMockedNetworkImages(() async {
       await tester.pumpWidget(webinarScreen);
-      expect(find.text('Test'),findsOneWidget);
+      expect(find.text('Test'), findsOneWidget);
     });
   });
 
@@ -79,7 +83,8 @@ void main() {
     });
   });
 
-  testWidgets('Test Dialog redirects back to main screen', (WidgetTester tester) async {
+  testWidgets('Test Dialog redirects back to main screen',
+      (WidgetTester tester) async {
     provideMockedNetworkImages(() async {
       await tester.pumpWidget(webinarScreen);
       await tester.ensureVisible(find.byIcon(Icons.help_outline));
@@ -90,7 +95,6 @@ void main() {
       await tester.pump();
       expect(find.byWidget(webinarScreen), findsOneWidget);
     });
-
   });
 
   testWidgets('Test Live Viewers text appears', (WidgetTester tester) async {
@@ -98,7 +102,5 @@ void main() {
       await tester.pumpWidget(webinarScreen);
       expect(find.text('1 watching'), findsOneWidget);
     });
-
   });
 }
-

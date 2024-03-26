@@ -6,8 +6,8 @@ import 'package:info_hub_app/webinar/views/admin-webinar-screens/create_webinar_
 import 'package:info_hub_app/model/user_model.dart';
 import 'package:info_hub_app/webinar/service/webinar_service.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'test/mock_classes.dart';
-import 'test/webinar-screens/mock.dart';
+import '../test/mock_classes.dart';
+import '../test/webinar-screens/mock.dart';
 import 'package:integration_test/integration_test.dart';
 
 void main() {
@@ -79,15 +79,20 @@ void main() {
       );
       await tester.enterText(
           urlField, 'https://www.youtube.com/watch?v=tSXZ8hervgY');
+      await tester.tap(find.byType(AppBar));
       await tester.pump();
       final titleField = find.ancestor(
         of: find.text('Title'),
         matching: find.byType(TextFormField),
       );
       await tester.enterText(titleField, 'test');
+
+      await tester.tap(find.byType(AppBar));
       await tester.pump();
+      await tester.ensureVisible(find.text('Patients'));
       await tester.tap(find.text('Patients'));
       await tester.pump();
+      await tester.ensureVisible(find.text('Schedule Webinar'));
       await tester.tap(find.text('Schedule Webinar'));
       await tester.pump();
       await tester.tap(find.text('31'));
@@ -172,19 +177,25 @@ void main() {
       );
       await tester.enterText(
           urlField, 'https://www.youtube.com/watch?v=tSXZ8hervgY');
+      await tester.tap(find.byType(AppBar));
       await tester.pump();
       final titleField = find.ancestor(
         of: find.text('Title'),
         matching: find.byType(TextFormField),
       );
       await tester.enterText(titleField, 'test');
+      await tester.tap(find.byType(AppBar));
       await tester.pump();
+      await tester.ensureVisible(find.text('Patients'));
       await tester.tap(find.text('Patients'));
       await tester.pump();
+      await tester.ensureVisible(find.text('Parents'));
       await tester.tap(find.text('Parents'));
       await tester.pump();
+      await tester.ensureVisible(find.text('Healthcare Professionals'));
       await tester.tap(find.text('Healthcare Professionals'));
       await tester.pump();
+      await tester.ensureVisible(find.text('Start Webinar'));
       await tester.tap(find.text('Start Webinar'));
       await tester.pump();
       final querySnapshot = await firestore

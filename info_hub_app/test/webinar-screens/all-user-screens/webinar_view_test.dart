@@ -3,6 +3,7 @@ import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:info_hub_app/main.dart';
 import 'package:info_hub_app/model/user_model.dart';
 import 'package:info_hub_app/webinar/service/webinar_service.dart';
 import 'package:info_hub_app/webinar/views/webinar-screens/webinar_view.dart';
@@ -22,6 +23,9 @@ void main() {
   setUp(() async {
     fakeFirestore = FakeFirebaseFirestore();
     mockFirebaseStorage = MockFirebaseStorage();
+    // Initialize allNouns and allAdjectives before each test
+    allNouns = await loadWordSet('assets/texts/nouns.txt');
+    allAdjectives = await loadWordSet('assets/texts/adjectives.txt');
     webinarService =
         WebinarService(firestore: fakeFirestore, storage: mockFirebaseStorage);
     await mockWebViewDependencies.init();
@@ -537,11 +541,17 @@ void main() {
       await tester.tap(find.text('Confirm'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Are you sure you want to delete this webinar?'),findsNothing);
-      DocumentSnapshot result = await fakeFirestore.collection('Webinar').doc('id').get();
+      expect(find.text('Are you sure you want to delete this webinar?'),
+          findsNothing);
+      DocumentSnapshot result =
+          await fakeFirestore.collection('Webinar').doc('id').get();
       expect(result.exists, equals(false));
-      QuerySnapshot chatResult = await fakeFirestore.collection('Webinar').doc('id').collection('comments').get();
-      expect(chatResult.docs.length,equals(0));
+      QuerySnapshot chatResult = await fakeFirestore
+          .collection('Webinar')
+          .doc('id')
+          .collection('comments')
+          .get();
+      expect(chatResult.docs.length, equals(0));
     });
   });
 

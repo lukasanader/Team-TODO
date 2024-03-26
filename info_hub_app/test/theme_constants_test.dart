@@ -3,11 +3,16 @@ import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:info_hub_app/helpers/helper_widgets.dart';
+import 'package:info_hub_app/main.dart';
 import 'package:info_hub_app/profile_view/profile_view_controller.dart';
 import 'package:info_hub_app/theme/theme_constants.dart';
 import 'package:info_hub_app/profile_view/profile_view.dart';
 
 void main() {
+  setUp(() async {
+    allNouns = await loadWordSet('assets/texts/nouns.txt');
+    allAdjectives = await loadWordSet('assets/texts/adjectives.txt');
+  });
   test('Test light theme colors', () {
     expect(COLOR_PRIMARY_LIGHT, Colors.red.shade700);
     expect(COLOR_SECONDARY_GREY_LIGHT, Colors.grey.shade300);

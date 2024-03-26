@@ -11,16 +11,23 @@ class ThreadApp extends StatefulWidget {
   final String topicId;
   final String topicTitle;
 
-  const ThreadApp(
-      {Key? key,
-      required this.firestore,
-      required this.auth,
-      required this.topicId,
-      required this.topicTitle})
-      : super(key: key);
+  ThreadApp({
+    Key? key,
+    required this.firestore,
+    required this.auth,
+    required this.topicId,
+    required this.topicTitle,
+  }) : super(key: key);
 
   @override
   _ThreadAppState createState() => _ThreadAppState();
+
+  // Define a GlobalKey within the widget
+  final GlobalKey<_ThreadAppState> key = GlobalKey<_ThreadAppState>();
+
+  void refreshDataForTesting() {
+    key.currentState?.refreshData();
+  }
 }
 
 class _ThreadAppState extends State<ThreadApp> {
@@ -36,48 +43,46 @@ class _ThreadAppState extends State<ThreadApp> {
         .collection("thread")
         .where('topicId', isEqualTo: widget.topicId)
         .snapshots();
-    //nameInputController = TextEditingController();
     titleInputController = TextEditingController();
     descriptionInputController = TextEditingController();
+    //initializeStream();
   }
+
+  void refreshData() {
+    setState(() {
+      firestoreDb = widget.firestore
+          .collection("thread")
+          .where('topicId', isEqualTo: widget.topicId)
+          .snapshots();
+    });
+  }
+
+  @override
+  void dispose() {
+    titleInputController.dispose();
+    descriptionInputController.dispose();
+    super.dispose();
+  }
+
+  /*Future<void> initializeStream() async {
+    // Initialize your firestoreDb stream here
+    firestoreDb = widget.firestore.collection('thread').snapshots();
+  }  */
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-//current appbar is placeholder, replace with actual appbar or equivalent
       appBar: AppBar(
         title: Text(
           widget.topicTitle,
           style: const TextStyle(
-            color: Colors.white,
+            //color: Colors.white,
             fontSize: 20.0,
-            fontFamily: 'Roboto',
-            fontWeight: FontWeight.w500,
           ),
         ),
-        backgroundColor: const Color.fromARGB(255, 0, 48, 194),
+        //backgroundColor: Colors.red[900],
         elevation: 4.0,
-        /*leading: 
-        IconButton(
-          icon: const Icon(Icons.menu, color: Colors.white),
-          onPressed: () {},
-        ),
-        actions: <Widget>[
-          IconButton(
-            icon: const Icon(Icons.search, color: Colors.white),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: const Icon(Icons.notifications_none, color: Colors.white),
-            tooltip: 'Notifications',
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: const Icon(Icons.account_circle, color: Colors.white),
-            tooltip: 'Profile',
-            onPressed: () {},
-          ), 
-        ],*/
+
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(0.0),
           child: Container(),
@@ -104,21 +109,47 @@ class _ThreadAppState extends State<ThreadApp> {
                 );
           } */
 
-        child: const Icon(FontAwesomeIcons.solidQuestionCircle),
+        child: const Icon(FontAwesomeIcons.questionCircle),
       ),
       body: StreamBuilder(
         stream: firestoreDb,
         builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (!snapshot.hasData) return const CircularProgressIndicator();
           return ListView.builder(
+            //itemCount: 1,
             itemCount: snapshot.data!.docs.length,
             itemBuilder: (context, int index) {
-              //return Text(snapshot.data!.docs[index]['title']);
-              return CustomCard(
-                snapshot: snapshot.data,
-                index: index,
-                firestore: widget.firestore,
-                auth: widget.auth,
+              var threadDoc = snapshot.data!.docs[index];
+              var roleType = threadDoc['roleType'] ?? 'Unknown';
+              var creatorId = threadDoc['creator'];
+
+              return FutureBuilder<DocumentSnapshot>(
+                future:
+                    widget.firestore.collection('Users').doc(creatorId).get(),
+                builder: (BuildContext context,
+                    AsyncSnapshot<DocumentSnapshot> userSnapshot) {
+                  if (!userSnapshot.hasData) {
+                    return CircularProgressIndicator(); // Or some placeholder widget
+                  }
+
+                  var userDocData =
+                      userSnapshot.data?.data() as Map<String, dynamic>?;
+                  var profilePhoto = userDocData?['selectedProfilePhoto'] ??
+                      'default_profile_photo.png';
+                  //var roleType = userDocData?['roleType'] ?? 'Missing Role';
+
+                  return CustomCard(
+                    key: ObjectKey(threadDoc.id),
+                    //indexKey: Key('customCard_0'),
+                    snapshot: snapshot.data,
+                    index: index,
+                    firestore: widget.firestore,
+                    auth: widget.auth,
+                    userProfilePhoto: profilePhoto,
+                    onEditCompleted: refreshData,
+                    roleType: roleType,
+                  );
+                },
               );
             },
           );
@@ -144,18 +175,6 @@ class _ThreadAppState extends State<ThreadApp> {
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
                     const Text("Please fill out the form"),
-                    /*
-                    TextField(
-                      key: const Key('Author'),
-                      autofocus: true,
-                      autocorrect: true,
-                      decoration: InputDecoration(
-                        labelText: "Author",
-                        errorText:
-                            showErrorName ? "Please enter your name" : null,
-                      ),
-                      controller: nameInputController,
-                    ), */
                     TextField(
                       key: const Key('Title'),
                       autofocus: true,
@@ -195,40 +214,8 @@ class _ThreadAppState extends State<ThreadApp> {
                   },
                   child: const Text("Cancel"),
                 ),
-
-                /*
                 TextButton(
-                  onPressed: () {
-                    setState(() {
-                      //showErrorName = nameInputController.text.isEmpty;
-                      showErrorTitle = titleInputController.text.isEmpty;
-                      showErrorDescription =
-                          descriptionInputController.text.isEmpty;
-                    });
-
-                    if (//!showErrorName &&
-                        !showErrorTitle &&
-                        !showErrorDescription) {
-                      widget.firestore.collection("thread").add({
-                       
-                       // "name": nameInputController.text,
-                        "title": titleInputController.text,
-                        "description": descriptionInputController.text,
-                        "timestamp": FieldValue.serverTimestamp(),
-                      }).then((response) {
-                        //print(response.id);
-                        //nameInputController.clear();
-                        titleInputController.clear();
-                        descriptionInputController.clear();
-                        Navigator.pop(context);
-                      });
-                    }
-                  },
-                  child: const Text("Submit"),
-
-                  */
-                TextButton(
-                  onPressed: () {
+                  onPressed: () async {
                     setState(() {
                       showErrorTitle = titleInputController.text.isEmpty;
                       showErrorDescription =
@@ -239,6 +226,12 @@ class _ThreadAppState extends State<ThreadApp> {
                       String docId = widget.auth.currentUser!.uid;
                       String authorName = generateUniqueName(docId);
 
+                      DocumentSnapshot userDoc = await widget.firestore
+                          .collection('Users')
+                          .doc(docId)
+                          .get();
+                      var userDocData = userDoc.data() as Map<String, dynamic>?;
+                      var roleType = userDocData?['roleType'] ?? 'Missing Role';
                       widget.firestore.collection("thread").add({
                         "author": authorName, // Using logged in user details
                         "title": titleInputController.text,
@@ -246,9 +239,13 @@ class _ThreadAppState extends State<ThreadApp> {
                         "timestamp": FieldValue.serverTimestamp(),
                         "creator": docId,
                         "topicId": widget.topicId,
+                        "topicTitle": widget.topicTitle,
+                        "isEdited": false,
+                        "roleType": roleType,
                       }).then((response) {
                         titleInputController.clear();
                         descriptionInputController.clear();
+                        refreshData();
                         Navigator.pop(context);
                       });
                     }

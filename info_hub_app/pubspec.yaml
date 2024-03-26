@@ -96,6 +96,7 @@ dependencies:
   http: ^1.2.1
   video_thumbnail: ^0.5.3
   flutter_slidable: ^0.6.0
+  expansion_tile_card: ^3.0.0 
 
 
 
@@ -146,6 +147,9 @@ flutter:
     - assets/profile_photo_2.png
     - assets/profile_photo_3.png
     - assets/sample-5s.mp4
+    - assets/texts/nouns.txt
+    - assets/texts/adjectives.txt
+    
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
 
