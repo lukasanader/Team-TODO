@@ -4,9 +4,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:info_hub_app/analytics/topics/analytics_topic.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 
-import 'package:info_hub_app/analytics/analytics_base.dart';
 import 'package:info_hub_app/controller/user_controller.dart';
 import 'package:info_hub_app/helpers/helper_widgets.dart';
 import 'package:info_hub_app/message_feature/admin_message_view.dart';
@@ -174,7 +174,7 @@ class _AdminHomepageState extends State<AdminHomepage> {
               onPressed: () {
                 PersistentNavBarNavigator.pushNewScreen(
                   context,
-                  screen: AnalyticsBase(
+                  screen: AnalyticsTopicView(
                     auth: widget.auth,
                     firestore: widget.firestore,
                     storage: widget.storage,

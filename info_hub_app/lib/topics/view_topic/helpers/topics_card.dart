@@ -243,7 +243,6 @@ class AdminTopicCard extends StatelessWidget {
                       _topic.title ?? '',
                       style: const TextStyle(
                         fontSize: 16,
-                        color: Colors.black,
                       ),
                     ),
                     if (date != null)
