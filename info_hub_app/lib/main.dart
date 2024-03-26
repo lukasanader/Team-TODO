@@ -9,6 +9,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:info_hub_app/helpers/base.dart';
 import 'package:info_hub_app/home_page/home_page.dart';
+import 'package:info_hub_app/message_feature/message_room/message_room_controller.dart';
+import 'package:info_hub_app/message_feature/messaging_room_view.dart';
 import 'package:info_hub_app/notifications/notification_controller.dart';
 import 'package:info_hub_app/push_notifications/push_notifications_controller.dart';
 import 'package:info_hub_app/theme/theme_constants.dart';
@@ -223,6 +225,27 @@ class _MyAppState extends State<MyApp> {
                         storage: widget.storage,
                         themeManager: themeManager,
                         topic: topic,
+                      )),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const CircularProgressIndicator();
+                } else {
+                  return snapshot.data!;
+                }
+              },
+            );
+          },
+          '/messageroom': (context) {
+            final String? id =
+                ModalRoute.of(context)!.settings.arguments as String?;
+            return FutureBuilder<MessageRoomView>(
+              future: MessageRoomController(widget.auth, widget.firestore)
+                  .getMessageRoom(id)
+                  .then((messageRoom) => MessageRoomView(
+                        firestore: widget.firestore,
+                        auth: widget.auth,
+                        senderId: messageRoom.patientId.toString(),
+                        receiverId: messageRoom.adminId.toString(),
                       )),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
