@@ -190,4 +190,25 @@ void main() {
 
     expect(find.text('Example 2'), findsOneWidget);
   });
+
+  testWidgets(
+      'Appbar help button displays a dialog with the correct information',
+      (WidgetTester tester) async {
+    // Build our app and trigger a frame.
+    await tester.pumpWidget(experienceViewWidget);
+    await tester.pumpAndSettle();
+
+    Finder helpButton = find.byIcon(Icons.help_outline);
+
+    await tester.ensureVisible(helpButton);
+    await tester.tap(helpButton);
+    await tester.pumpAndSettle();
+
+    expect(find.byType(AlertDialog), findsOneWidget);
+
+    await tester.tap(find.text('Close'));
+    await tester.pumpAndSettle();
+
+    expect(find.byWidget(experienceViewWidget), findsOneWidget);
+  });
 }
