@@ -23,8 +23,8 @@ class MessageRoomController {
 
     NotificationController(auth: _auth, firestore: _firestore, uid: patientId)
         .createNotification(
-            'Question Reply',
-            'A topic has been created in response to your question.',
+            'Message Room',
+            'An admin has started a chat with you.',
             DateTime.now(),
             '/topic',
             chatRoomId);
