@@ -170,4 +170,31 @@ class WebinarController {
         .orderBy('createdAt', descending: true)
         .snapshots();
   }
+
+  Stream<QuerySnapshot<Map<String, dynamic>>> getLiveWebinars(String roleType) {
+    return firestore
+            .collection('Webinar')
+            .where('status', isEqualTo: 'Live')
+            .where('selectedtags',
+                arrayContains: roleType)
+            .snapshots();
+  }
+
+  Stream<QuerySnapshot<Map<String, dynamic>>> getUpcomingWebinars(String roleType) {
+    return firestore
+            .collection('Webinar')
+            .where('status', isEqualTo: 'Upcoming')
+            .where('selectedtags',
+                arrayContains: roleType)
+            .snapshots();
+  }
+
+  Stream<QuerySnapshot<Map<String, dynamic>>> getArchivedWebinars(String roleType) {
+    return firestore
+            .collection('Webinar')
+            .where('status', isEqualTo: 'Archived')
+            .where('selectedtags',
+                arrayContains: roleType)
+            .snapshots();
+  }
 }
