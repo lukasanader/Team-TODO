@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:info_hub_app/model/user_model.dart';
 import 'package:info_hub_app/theme/theme_constants.dart';
 import 'package:info_hub_app/webinar/controllers/create_webinar_controller.dart';

@@ -22,7 +22,7 @@ class PreferencesService {
     return snapshot.docs.map((doc) {
       return Preferences(
         uid: auth.currentUser!.uid,
-        push_notifications: doc.get('push_notifications') ?? true,
+        pushNotifications: doc.get('push_notifications') ?? true,
       );
     }).toList();
   }
@@ -43,7 +43,7 @@ class PreferencesService {
     final preferences = snapshot.docs
         .map((doc) => Preferences(
               uid: doc.get('uid'),
-              push_notifications: doc.get('push_notifications'),
+              pushNotifications: doc.get('push_notifications'),
             ))
         .toList();
 

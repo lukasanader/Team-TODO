@@ -40,7 +40,7 @@ class CreateWebinarController {
   }
 
 
-  // Handles image picking for webinar thumbmnail
+  /// Handles image picking for webinar thumbmnail
   Future<Uint8List?> pickImage() async {
     FilePickerResult? pickedImage = await FilePicker.platform.pickFiles(type: FileType.image);
     if (pickedImage != null) {
@@ -49,7 +49,7 @@ class CreateWebinarController {
     return null;
   }
 
-  // Routes user to new screen
+  /// Routes user to new screen
   Future<void> goLiveWebinar(BuildContext context,
     DateTime? time,
     FormState? state, 
@@ -101,7 +101,7 @@ class CreateWebinarController {
       }
   }
 
-  // Builds the dialog for how to setup a webinar
+  /// Builds the dialog for how to setup a webinar
   Widget buildStep({required int stepNumber, required String stepDescription}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -120,12 +120,12 @@ class CreateWebinarController {
     );
   }
 
-  // Checks if any role has been selected for the webinar
+  /// Checks if any role has been selected for the webinar
   bool isAnyRoleSelected(bool isPatientSelected, bool isParentSelected,bool isHealthcareProfessionalSelected) {
     return isPatientSelected || isParentSelected || isHealthcareProfessionalSelected;
   }
 
-  // Sets the adequate tags to be displayed
+  /// Sets the adequate tags to be displayed
   List<String> populateTags(bool isPatientSelected, bool isParentSelected,bool isHealthcareProfessionalSelected) {
     List<String> selectedTags = [];
     if (isPatientSelected) {

@@ -18,7 +18,7 @@ void main() {
   late WebinarService webinarService;
   final MockWebViewDependencies mockWebViewDependencies =
       MockWebViewDependencies();
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+
 
   setUp(() async {
     await initializeDateFormatting();

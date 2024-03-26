@@ -3,9 +3,9 @@ import '../../controllers/media_upload_controller.dart';
 
 /// Widget for uploading and managing media.
 class MediaUploadWidget extends StatelessWidget {
-  MediaUploadController mediaUploadController;
+  final MediaUploadController mediaUploadController;
 
-  MediaUploadWidget({super.key, 
+  const MediaUploadWidget({super.key, 
     required this.mediaUploadController,
   });
 

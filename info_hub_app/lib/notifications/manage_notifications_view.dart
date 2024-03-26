@@ -8,7 +8,7 @@ class ManageNotifications extends StatefulWidget {
   final FirebaseFirestore firestore;
   const ManageNotifications({super.key, required this.auth, required this.firestore});
   @override
-  _ManageNotificationsState createState() => _ManageNotificationsState();
+  State<ManageNotifications> createState() => _ManageNotificationsState();
 }
 
 class _ManageNotificationsState extends State<ManageNotifications> {
