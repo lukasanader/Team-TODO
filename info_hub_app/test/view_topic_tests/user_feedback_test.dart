@@ -8,10 +8,11 @@ import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import 'package:info_hub_app/topics/create_topic/model/topic_model.dart';
 
+/// This test file is responsible for testing the use of user feedback tools
 void main() {
   late FakeFirebaseFirestore firestore;
   late MockFirebaseAuth auth;
-  late CollectionReference topicCollectionRef;
+
   late DocumentReference topicDocRef;
   late MockFirebaseStorage storage;
   late Topic topic;
@@ -30,8 +31,6 @@ void main() {
     });
 
     CollectionReference ref = firestore.collection('topics');
-
-    topicCollectionRef = firestore.collection('topics');
 
     topic = Topic(
         id: '1',

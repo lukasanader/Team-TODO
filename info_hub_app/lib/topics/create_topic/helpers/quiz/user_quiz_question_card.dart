@@ -127,6 +127,8 @@ class _UserQuizQuestionCardState extends State<UserQuizQuestionCard> {
         });
         widget.onUpdateAnswer(true);
       });
+    }else{
+      widget.onUpdateAnswer(false);
     }
   }
 }

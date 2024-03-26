@@ -12,6 +12,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:info_hub_app/helpers/base.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
+import 'package:info_hub_app/main.dart';
 import 'package:info_hub_app/message_feature/patient_message_view.dart';
 import 'package:info_hub_app/experiences/experiences_view.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
@@ -26,9 +27,12 @@ void main() {
   late Widget trendingTopicWidget;
   late ThemeManager themeManager;
 
-  setUp(() {
+  setUp(() async {
     auth = MockFirebaseAuth();
     firestore = FakeFirebaseFirestore();
+    // Initialize allNouns and allAdjectives before each test
+    allNouns = await loadWordSet('assets/texts/nouns.txt');
+    allAdjectives = await loadWordSet('assets/texts/adjectives.txt');
     storage = MockFirebaseStorage();
     themeManager = ThemeManager();
     CollectionReference topicCollectionRef = firestore.collection('topics');

@@ -13,7 +13,7 @@ import 'package:info_hub_app/helpers/test_page.dart';
 import 'package:info_hub_app/message_feature/patient_message_view.dart';
 import 'package:info_hub_app/experiences/experiences_view.dart';
 import 'package:info_hub_app/model/user_model.dart';
-import 'package:info_hub_app/notifications/notifications_view.dart';
+import 'package:info_hub_app/notifications/notification_view.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:info_hub_app/topics/create_topic/controllers/topic_controller.dart';

@@ -12,6 +12,7 @@ import '../mock_classes.dart';
 import 'package:mocktail_image_network/mocktail_image_network.dart';
 import 'package:info_hub_app/topics/create_topic/model/topic_model.dart';
 
+/// This test file is responsible for testing the display of media on the topic view screen
 void main() {
   late FakeFirebaseFirestore firestore;
   late MockFirebaseAuth auth;

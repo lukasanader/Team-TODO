@@ -69,7 +69,11 @@ class _ProfileViewState extends State<ProfileView> {
               onTap: _showProfilePhotoOptions,
               child: CircleAvatar(
                 radius: 60,
-                backgroundImage: AssetImage('assets/$_selectedProfilePhoto'),
+                backgroundColor: Colors.grey[200],
+                backgroundImage: _selectedProfilePhoto.startsWith('http')
+                    ? NetworkImage(_selectedProfilePhoto)
+                    : AssetImage('assets/$_selectedProfilePhoto')
+                        as ImageProvider, // Profile photo
               ),
             ),
             Positioned(
@@ -144,13 +148,6 @@ class _ProfileViewState extends State<ProfileView> {
       ),
     );
   }
-
-  // Widget _buildChangeProfileButton() {
-  //   return ElevatedButton(
-  //     onPressed: _changeProfile,
-  //     child: const Text('Change Profile'),
-  //   );
-  // }
 
   Widget _buildChangeProfileButton() {
     return ElevatedButton(

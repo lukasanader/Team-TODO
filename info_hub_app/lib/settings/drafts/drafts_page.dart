@@ -46,9 +46,8 @@ class _DraftsPageState extends State<DraftsPage> {
       appBar: AppBar(
         title: const Text(
           'Your Drafts',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
-        backgroundColor: Colors.red,
       ),
       body: SingleChildScrollView(
         child: _buildDraftsList(),
