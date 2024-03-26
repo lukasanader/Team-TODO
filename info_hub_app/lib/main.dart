@@ -35,6 +35,7 @@ Future<Set<String>> loadWordSet(String path) async {
 final navigatorKey = GlobalKey<NavigatorState>();
 
 ThemeManager themeManager = ThemeManager();
+late String _logoUrl;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -147,9 +148,22 @@ class _MyAppState extends State<MyApp> {
           future: checkUser(),
           builder: (context, AsyncSnapshot<String> snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Scaffold(
+              return Scaffold(
                 body: Center(
-                  child: CircularProgressIndicator(),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                        width: 100,
+                        height: 100,
+                        child: Theme.of(context).brightness == Brightness.light
+                            ? Image.asset('assets/logo_light_mode.png')
+                            : Image.asset('assets/logo_dark_mode.png'),
+                      ),
+                      const SizedBox(height: 20),
+                      const CircularProgressIndicator(),
+                    ],
+                  ),
                 ),
               );
             } else {
