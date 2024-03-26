@@ -251,6 +251,16 @@ class TopicCreationViewState extends State<TopicCreationView> {
                         } else {
                           return QuestionCard(
                               questions[index], widget.firestore, () async {
+                            NotificationController(
+                                    auth: widget.auth,
+                                    firestore: widget.firestore,
+                                    uid: questions[index].uid)
+                                .createNotification(
+                                    'Question Reply',
+                                    'A topic has been created in response to your question.',
+                                    DateTime.now(),
+                                    '/topic',
+                                    topic!.id);
                             List<TopicQuestion> updatedQuestions =
                                 await controller.getRelevantQuestions(title);
                             setState(() {

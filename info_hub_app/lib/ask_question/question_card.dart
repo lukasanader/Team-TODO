@@ -4,15 +4,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:info_hub_app/controller/topic_question_controller.dart';
 import 'package:info_hub_app/model/model.dart';
 
-
 class QuestionCard extends StatelessWidget {
   final TopicQuestion _question;
   final FirebaseFirestore firestore;
   final FirebaseAuth auth;
   final Function() onDelete;
 
-  const QuestionCard(this._question,this.firestore,this.onDelete, this.auth,{super.key});
-
+  const QuestionCard(this._question, this.firestore, this.onDelete, this.auth,
+      {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +23,7 @@ class QuestionCard extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  "${_question.question} ${TopicQuestionController(firestore: firestore,auth: auth).calculateDaysAgo(_question.date)} days ago",
+                  "${_question.question} ${TopicQuestionController(firestore: firestore, auth: auth).calculateDaysAgo(_question.date)} days ago",
                 ),
               ),
               IconButton(
@@ -47,7 +46,9 @@ class QuestionCard extends StatelessWidget {
                           TextButton(
                             onPressed: () {
                               // Delete the question from the database
-                              TopicQuestionController(firestore: firestore,auth: auth).deleteQuestion(_question);
+                              TopicQuestionController(
+                                      firestore: firestore, auth: auth)
+                                  .deleteQuestion(_question);
                               onDelete();
                               Navigator.of(context).pop();
                             },
