@@ -91,6 +91,9 @@ class TopicViewState extends State<TopicView> {
                 icon: const Icon(Icons.edit, color: Colors.red),
                 onPressed: () {
                   // Navigate to edit screen
+                  if (mediaController.chewieController != null) {
+                    mediaController.chewieController!.pause();
+                  }
                   updatedTopic.id = widget.topic.id;
                   Navigator.push(
                     context,
@@ -107,7 +110,7 @@ class TopicViewState extends State<TopicView> {
                     if (updatedTopic != null) {
                       setState(() {
                         this.updatedTopic = updatedTopic;
-                        mediaController.initData();
+                        mediaController.initData(updatedTopic);
                       });
                     }
                   });

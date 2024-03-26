@@ -32,10 +32,10 @@ class MediaController {
 
   /// Initializes form data based on whether the form is for editing an existing topic or creating a new one.
   void initializeData() {
-    initData();
+    initData(topic);
   }
 
-  Future<void> initData() async {
+  Future<void> initData(Topic topic) async {
     if (topic.media!.isNotEmpty) {
       if (topic.media![currentIndex]['mediaType'] == 'video') {
         videoURL = topic.media![currentIndex]['url'];
@@ -52,8 +52,6 @@ class MediaController {
 
   Future<void> initializeVideoPlayer() async {
     bool isLoading = true; // Initialize isLoading to true
-
-    // Show loading indicator
 
     isLoading = true;
     screen.updateState();
