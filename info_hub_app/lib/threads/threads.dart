@@ -94,9 +94,6 @@ class _ThreadAppState extends State<ThreadApp> {
           ),
         ),
       ),
-
-// modify above appbar as needed to match rest of app
-
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           // Check if user is logged in before showing the dialog

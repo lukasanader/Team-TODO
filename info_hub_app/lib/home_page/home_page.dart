@@ -1,4 +1,3 @@
-
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -26,7 +25,7 @@ class HomePage extends StatefulWidget {
   final FirebaseFirestore firestore;
   final FirebaseAuth auth;
   final FirebaseStorage storage;
-  
+
   const HomePage(
       {super.key,
       required this.auth,
@@ -138,6 +137,7 @@ class _HomePageState extends State<HomePage> {
                       widget.auth,
                       widget.storage,
                       _topicsList[topicIndex],
+                      "topic",
                     );
                   }
                 },

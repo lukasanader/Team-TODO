@@ -98,9 +98,7 @@ class _DiscoveryViewState extends State<DiscoveryView> {
                       children: List.generate(
                         _categoriesWidget.length,
                         (index) => Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal:
-                                  15.0), // Adjust the horizontal spacing here
+                          padding: const EdgeInsets.symmetric(horizontal: 15.0),
                           child: _categoriesWidget[index],
                         ),
                       ),
@@ -144,6 +142,7 @@ class _DiscoveryViewState extends State<DiscoveryView> {
                               widget.auth,
                               widget.storage,
                               _displayedTopicsList[topicIndex],
+                              "topic",
                             );
                           }
                         }
