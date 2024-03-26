@@ -97,7 +97,7 @@ class _CreateWebinarScreenState extends State<CreateWebinarScreen> {
               _formKey.currentState,
               _titleController.text,
               _urlController.text,
-              image,
+              image!,
               selectedTags,
               isScheduled: true
             );
@@ -370,7 +370,7 @@ class _CreateWebinarScreenState extends State<CreateWebinarScreen> {
                     onPressed: () async {
                       if (_formKey.currentState!.validate() && image != null && controller.isAnyRoleSelected(isPatientSelected,isParentSelected,isHealthcareProfessionalSelected)) {
                         List<String> selectedTags = controller.populateTags(isPatientSelected,isParentSelected,isHealthcareProfessionalSelected);
-                        await controller.goLiveWebinar(context, null, _formKey.currentState, _titleController.text, _urlController.text, image, selectedTags);
+                        await controller.goLiveWebinar(context, null, _formKey.currentState, _titleController.text, _urlController.text, image!, selectedTags);
                       } else {
                         controller.showThumbnailAndRoleError(context);
                       }

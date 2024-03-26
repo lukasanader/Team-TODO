@@ -52,7 +52,7 @@ class CreateWebinarController {
 
   /// Routes user to new screen
   Future<void> goLiveWebinar(BuildContext context, DateTime? time, FormState? state, String title,
-                            String url, Uint8List? image, List<String> selectedTags,{bool isScheduled = false}) 
+                            String url, Uint8List image, List<String> selectedTags,{bool isScheduled = false}) 
     async {
       if (state!.validate()) {
         // if data is valid, begin uploading webinar information to database
