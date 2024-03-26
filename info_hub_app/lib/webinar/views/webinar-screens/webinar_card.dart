@@ -7,7 +7,7 @@ import 'package:info_hub_app/model/user_model.dart';
 import 'package:info_hub_app/webinar/helpers/webinar_card_dialogs.dart';
 import 'package:info_hub_app/webinar/models/livestream.dart';
 import 'package:info_hub_app/webinar/controllers/webinar_controller.dart';
-
+/// In control of creating the webinar card and its contents
 class WebinarCard extends StatelessWidget {
   final FirebaseFirestore firestore;
   final Livestream post;
@@ -88,6 +88,7 @@ class WebinarCard extends StatelessWidget {
     );
   }
 
+  /// Displays the functions an admin has at their disposal, regarding deleting and moving webinars between states
   void _showAdminActions(BuildContext context, CardController controller, WebinarCardDialogs cardDialogs) {
     showModalBottomSheet(
       backgroundColor: Colors.white,

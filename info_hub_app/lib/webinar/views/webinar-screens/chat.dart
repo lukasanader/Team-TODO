@@ -5,7 +5,7 @@ import 'package:info_hub_app/webinar/controllers/webinar_controller.dart';
 import 'package:profanity_filter/profanity_filter.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
-// Implements chat functionality
+/// Implements chat functionality
 class Chat extends StatefulWidget {
   final String webinarID;
   final UserModel user;
@@ -46,7 +46,7 @@ class _ChatState extends State<Chat> {
     _chatStream = widget.webinarController.getChatStream(widget.webinarID);
   }
 
-  // Displays chat messages in a scrollable feature
+  /// Displays chat messages in a scrollable feature
   Widget _buildChatItem(
     QueryDocumentSnapshot<Map<String, dynamic>> document,
     String timeAgo,

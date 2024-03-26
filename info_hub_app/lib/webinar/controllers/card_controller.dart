@@ -5,6 +5,7 @@ import 'package:info_hub_app/webinar/models/livestream.dart';
 import 'package:info_hub_app/webinar/controllers/webinar_controller.dart';
 import 'package:info_hub_app/webinar/views/webinar-screens/display_webinar.dart';
 
+/// Handles back-end logic for webinar cards
 class CardController {
   final WebinarController webinarController;
   final FirebaseFirestore firestore;
@@ -14,6 +15,7 @@ class CardController {
     required this.firestore,
   });
 
+  /// Handles the tap gesture on a card
   Future<String> handleTap(BuildContext context, Livestream post, UserModel user) async {
     if (post.status == "Upcoming") {
       return "Upcoming";
@@ -51,6 +53,7 @@ class CardController {
     return false;
   }
 
+  /// Calls the webinar conrtroller to delete the webinar
   void deleteWebinar(String webinarID) {
     webinarController.deleteWebinar(webinarID);
   }

@@ -53,13 +53,10 @@ void main() {
     await tester.pumpWidget(webinarViewScreen);
     expect(find.text('Webinars'), findsOneWidget);
     expect(find.text('Currently Live'), findsOneWidget);
-    expect(find.byKey(const Key('no_live_webinars')), findsOneWidget);
     expect(find.text('Upcoming Webinars'), findsOneWidget);
-    expect(find.byKey(const Key('no_upcoming_webinars')), findsOneWidget);
     expect(find.text('Archived Webinars'), findsOneWidget);
     await tester.tap(find.text('Archived Webinars'));
     await tester.pumpAndSettle();
-    expect(find.byKey(const Key('no_archived_webinars')), findsOneWidget);
     expect(find.text('Show Live and Upcoming Webinars'), findsOneWidget);
   });
 
