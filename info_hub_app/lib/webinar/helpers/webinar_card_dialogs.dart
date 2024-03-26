@@ -2,13 +2,13 @@
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/webinar/controllers/card_controller.dart';
 import 'package:info_hub_app/webinar/models/livestream.dart';
-import 'package:info_hub_app/webinar/service/webinar_service.dart';
+import 'package:info_hub_app/webinar/controllers/webinar_controller.dart';
 
 class WebinarCardDialogs {
-  WebinarService webinarService;
+  WebinarController webinarController;
 
   WebinarCardDialogs({
-    required this.webinarService,
+    required this.webinarController,
   });
 
   void showDeleteDialog(BuildContext context, CardController controller, Livestream post) {
@@ -61,7 +61,7 @@ class WebinarCardDialogs {
                 // Check if the widget associated with the context is mounted
                 if (Navigator.of(context).canPop()) {
                   // update database with new information and pop dialog box off the screen
-                  await webinarService.setWebinarStatus(
+                  await webinarController.setWebinarStatus(
                       post.webinarID, post.youtubeURL,
                       changeToLive: true);
                   Navigator.pop(context); // Use the stored dialogContext

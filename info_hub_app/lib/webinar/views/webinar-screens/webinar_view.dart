@@ -3,19 +3,19 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:info_hub_app/helpers/helper_widgets.dart';
 import 'package:info_hub_app/model/user_model.dart';
 import 'package:info_hub_app/webinar/models/livestream.dart';
-import 'package:info_hub_app/webinar/service/webinar_service.dart';
+import 'package:info_hub_app/webinar/controllers/webinar_controller.dart';
 import 'package:info_hub_app/webinar/views/webinar-screens/webinar_card.dart';
 
 class WebinarView extends StatefulWidget {
   final FirebaseFirestore firestore;
   final UserModel user;
-  final WebinarService webinarService;
+  final WebinarController webinarController;
 
   const WebinarView({
     super.key,
     required this.firestore,
     required this.user,
-    required this.webinarService,
+    required this.webinarController,
   });
 
   @override
@@ -87,7 +87,7 @@ class _WebinarViewState extends State<WebinarView> {
                                   post: post,
                                   firestore: widget.firestore,
                                   user: widget.user,
-                                  webinarService: widget.webinarService,
+                                  webinarController: widget.webinarController,
                                 );
                               }
                             },
@@ -143,7 +143,7 @@ class _WebinarViewState extends State<WebinarView> {
                                   post: post,
                                   firestore: widget.firestore,
                                   user: widget.user,
-                                  webinarService: widget.webinarService,
+                                  webinarController: widget.webinarController,
                                 );
                               }
                             },
@@ -201,7 +201,7 @@ class _WebinarViewState extends State<WebinarView> {
                                   post: post,
                                   firestore: widget.firestore,
                                   user: widget.user,
-                                  webinarService: widget.webinarService,
+                                  webinarController: widget.webinarController,
                                 );
                               }
                             },

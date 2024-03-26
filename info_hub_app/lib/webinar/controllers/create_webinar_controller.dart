@@ -4,17 +4,17 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/model/user_model.dart';
-import 'package:info_hub_app/webinar/service/webinar_service.dart';
+import 'package:info_hub_app/webinar/controllers/webinar_controller.dart';
 import 'package:info_hub_app/webinar/views/webinar-screens/display_webinar.dart';
 import 'package:intl/intl.dart';
 
 class CreateWebinarController {
-  final WebinarService webinarService;
+  final WebinarController webinarController;
   final FirebaseFirestore firestore;
   final UserModel user;
   
   CreateWebinarController({
-    required this.webinarService,
+    required this.webinarController,
     required this.firestore,
     required this.user,
   });
@@ -57,7 +57,7 @@ class CreateWebinarController {
         time ??= DateTime.now();
         String statusText = isScheduled ? 'Upcoming' : 'Live';
         final DateFormat formatter = DateFormat('dd-MM-yyyy HH:mm', 'en_GB');
-        String webinarID = await webinarService.startLiveStream(
+        String webinarID = await webinarController.startLiveStream(
             title,
             url,
             image,
@@ -67,7 +67,7 @@ class CreateWebinarController {
             selectedTags);
         if (webinarID.isNotEmpty) {
           if (!isScheduled) {
-            webinarService.updateViewCount(webinarID, true);
+            webinarController.updateViewCount(webinarID, true);
             Navigator.of(context).push(
               MaterialPageRoute(
                 builder: (context) => WebinarScreen(
@@ -76,7 +76,7 @@ class CreateWebinarController {
                     currentUser: user,
                     firestore: firestore,
                     title: title,
-                    webinarService: webinarService,
+                    webinarController: webinarController,
                     status: statusText,
                     chatEnabled: true,
                   ),
