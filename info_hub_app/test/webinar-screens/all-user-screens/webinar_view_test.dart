@@ -537,11 +537,17 @@ void main() {
       await tester.tap(find.text('Confirm'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Are you sure you want to delete this webinar?'),findsNothing);
-      DocumentSnapshot result = await fakeFirestore.collection('Webinar').doc('id').get();
+      expect(find.text('Are you sure you want to delete this webinar?'),
+          findsNothing);
+      DocumentSnapshot result =
+          await fakeFirestore.collection('Webinar').doc('id').get();
       expect(result.exists, equals(false));
-      QuerySnapshot chatResult = await fakeFirestore.collection('Webinar').doc('id').collection('comments').get();
-      expect(chatResult.docs.length,equals(0));
+      QuerySnapshot chatResult = await fakeFirestore
+          .collection('Webinar')
+          .doc('id')
+          .collection('comments')
+          .get();
+      expect(chatResult.docs.length, equals(0));
     });
   });
 

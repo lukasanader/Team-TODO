@@ -1,17 +1,12 @@
-
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:info_hub_app/patient_experience/experience_model.dart';
+import 'package:info_hub_app/experiences/experience_model.dart';
 
 class ExperienceController {
   final FirebaseAuth _auth;
   final FirebaseFirestore _firestore;
 
-  ExperienceController(
-    this._auth,
-    this._firestore
-  );
+  ExperienceController(this._auth, this._firestore);
 
   void saveExperience(String title, String description) async {
     Experience newExperience = Experience();
@@ -32,31 +27,32 @@ class ExperienceController {
     await _firestore.collection('experiences').doc(experience.id).delete();
   }
 
-
-  Future<List<Experience>> getAllExperienceListBasedOnVerification(bool verifiedStatus) async {
+  Future<List<Experience>> getAllExperienceListBasedOnVerification(
+      bool verifiedStatus) async {
     QuerySnapshot experiencesSnapshot = await _firestore
         .collection('experiences')
         .where('verified', isEqualTo: verifiedStatus)
         .get();
 
-    List<Experience> experienceList = List.from(experiencesSnapshot.docs.map((doc) => Experience.fromSnapshot(doc)));
+    List<Experience> experienceList = List.from(
+        experiencesSnapshot.docs.map((doc) => Experience.fromSnapshot(doc)));
 
     return experienceList;
   }
 
-  Future<List<Experience>> getVerifiedExperienceListBasedonRole(String roleType) async {
+  Future<List<Experience>> getVerifiedExperienceListBasedonRole(
+      String roleType) async {
     QuerySnapshot experiencesSnapshot = await _firestore
         .collection('experiences')
         .where('verified', isEqualTo: true)
         .where('userRoleType', isEqualTo: roleType)
         .get();
 
-    List<Experience> experienceList = List.from(experiencesSnapshot.docs.map((doc) => Experience.fromSnapshot(doc)));
+    List<Experience> experienceList = List.from(
+        experiencesSnapshot.docs.map((doc) => Experience.fromSnapshot(doc)));
 
     return experienceList;
   }
-
-
 
   Future<void> updateVerification(Experience experience) async {
     bool newValue = experience.verified == true ? false : true;
@@ -64,10 +60,5 @@ class ExperienceController {
     await _firestore.collection('experiences').doc(experience.id).update({
       'verified': newValue,
     });
-
   }
-
-
-
-
 }

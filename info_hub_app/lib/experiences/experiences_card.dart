@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:info_hub_app/patient_experience/experience_model.dart';
+import 'package:info_hub_app/experiences/experience_model.dart';
 
 class ExperienceCard extends StatefulWidget {
   final Experience _experience;

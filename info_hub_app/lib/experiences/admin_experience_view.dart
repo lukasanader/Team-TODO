@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:info_hub_app/helpers/helper_widgets.dart';
-import 'package:info_hub_app/patient_experience/experience_controller.dart';
-import 'package:info_hub_app/patient_experience/experiences_card.dart';
-import 'package:info_hub_app/patient_experience/experience_model.dart';
+import 'package:info_hub_app/experiences/experience_controller.dart';
+import 'package:info_hub_app/experiences/experiences_card.dart';
+import 'package:info_hub_app/experiences/experience_model.dart';
 
 class AdminExperienceView extends StatefulWidget {
   final FirebaseFirestore firestore;
@@ -37,8 +37,6 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("All Submitted Experiences"),
-        backgroundColor: Colors.transparent, // Set AppBar color to transparent
-        elevation: 0,
         actions: [
           IconButton(
             icon: const Icon(Icons.help_outline),

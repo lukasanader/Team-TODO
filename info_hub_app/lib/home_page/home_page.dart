@@ -11,7 +11,7 @@ import 'package:info_hub_app/controller/user_controller.dart';
 import 'package:info_hub_app/helpers/helper_widgets.dart';
 import 'package:info_hub_app/helpers/test_page.dart';
 import 'package:info_hub_app/message_feature/patient_message_view.dart';
-import 'package:info_hub_app/patient_experience/patient_experience_view.dart';
+import 'package:info_hub_app/experiences/experiences_view.dart';
 import 'package:info_hub_app/model/user_model.dart';
 import 'package:info_hub_app/notifications/notifications_view.dart';
 import 'package:flutter/cupertino.dart';
@@ -182,16 +182,15 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
                 child: const Text(
-                  'Patient Experience',
+                  'Shared Experience',
                   textAlign: TextAlign.center,
                 ),
               ),
               ElevatedButton(
                 onPressed: () async {
-                  UserModel user = await UserController(
-                    widget.auth,
-                    widget.firestore
-                  ).getUser(widget.auth.currentUser!.uid);
+                  UserModel user =
+                      await UserController(widget.auth, widget.firestore)
+                          .getUser(widget.auth.currentUser!.uid);
                   WebinarService webinarService = WebinarService(
                     firestore: widget.firestore,
                     storage: widget.storage,
@@ -223,16 +222,16 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-
   Future getTopicsList() async {
     if (widget.auth.currentUser == null) {
       return;
     }
-    _topicsList = await TopicController(auth: widget.auth, firestore: widget.firestore).getTopicList();
+    _topicsList =
+        await TopicController(auth: widget.auth, firestore: widget.firestore)
+            .getTopicList();
     if (mounted) {
       setState(() {
-        _topicsList.sort((b, a) =>
-            getTrending(a).compareTo(getTrending(b)));
+        _topicsList.sort((b, a) => getTrending(a).compareTo(getTrending(b)));
         topicLength = _topicsList.length;
         if (topicLength > 6) {
           _topicsList.removeRange(6, topicLength);
