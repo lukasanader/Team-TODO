@@ -13,6 +13,7 @@ import 'package:info_hub_app/notifications/notification_controller.dart';
 import 'package:info_hub_app/push_notifications/push_notifications_controller.dart';
 import 'package:info_hub_app/theme/theme_constants.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
+import 'package:info_hub_app/topics/create_topic/controllers/topic_controller.dart';
 import 'package:info_hub_app/topics/create_topic/model/topic_model.dart';
 import 'package:info_hub_app/topics/view_topic/view/topic_view.dart';
 import 'notifications/notification_model.dart' as custom;
@@ -213,13 +214,16 @@ class _MyAppState extends State<MyApp> {
             final String? id =
                 ModalRoute.of(context)!.settings.arguments as String?;
             return FutureBuilder<TopicView>(
-              future: getTopic(id).then((topic) => TopicView(
-                    auth: widget.auth,
-                    firestore: widget.firestore,
-                    storage: widget.storage,
-                    themeManager: themeManager,
-                    topic: topic,
-                  )),
+              future: TopicController(
+                      auth: widget.auth, firestore: widget.firestore)
+                  .getTopic(id)
+                  .then((topic) => TopicView(
+                        auth: widget.auth,
+                        firestore: widget.firestore,
+                        storage: widget.storage,
+                        themeManager: themeManager,
+                        topic: topic,
+                      )),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const CircularProgressIndicator();
@@ -253,11 +257,5 @@ class _MyAppState extends State<MyApp> {
     } else {
       return 'guest';
     }
-  }
-
-  Future<Topic> getTopic(String? id) async {
-    DocumentSnapshot snapshot =
-        await widget.firestore.collection('topics').doc(id).get();
-    return Topic.fromSnapshot(snapshot);
   }
 }

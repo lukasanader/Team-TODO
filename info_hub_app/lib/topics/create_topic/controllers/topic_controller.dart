@@ -6,26 +6,22 @@ class TopicController {
   final FirebaseAuth auth;
   final FirebaseFirestore firestore;
 
-  TopicController(
-      {required this.auth, required this.firestore});
+  TopicController({required this.auth, required this.firestore});
 
   Future<String> getTopicTitle(String topicID) async {
-    DocumentSnapshot snapshot = await firestore.collection('topics').doc(topicID).get();
+    DocumentSnapshot snapshot =
+        await firestore.collection('topics').doc(topicID).get();
     return snapshot['title'];
   }
 
   Future<List<Topic>> getTopicList() async {
-     String uid = auth.currentUser!.uid;
-    DocumentSnapshot user =
-        await firestore.collection('Users').doc(uid).get();
+    String uid = auth.currentUser!.uid;
+    DocumentSnapshot user = await firestore.collection('Users').doc(uid).get();
     String role = user['roleType'];
     QuerySnapshot data;
 
     if (role == 'admin') {
-      data = await firestore
-          .collection('topics')
-          .orderBy('title')        
-          .get();
+      data = await firestore.collection('topics').orderBy('title').get();
     } else {
       data = await firestore
           .collection('topics')
@@ -34,8 +30,8 @@ class TopicController {
           .get();
     }
 
-
-    List<Topic> topicList = List.from(data.docs.map((doc) => Topic.fromSnapshot(doc)));
+    List<Topic> topicList =
+        List.from(data.docs.map((doc) => Topic.fromSnapshot(doc)));
 
     return topicList;
   }
@@ -55,4 +51,9 @@ class TopicController {
     });
   }
 
+  Future<Topic> getTopic(String? id) async {
+    DocumentSnapshot snapshot =
+        await firestore.collection('topics').doc(id).get();
+    return Topic.fromSnapshot(snapshot);
+  }
 }
