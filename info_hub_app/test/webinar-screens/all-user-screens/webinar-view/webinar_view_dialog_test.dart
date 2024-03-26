@@ -292,7 +292,7 @@ void main() {
         matching: find.byType(TextField),
       );
       await tester.enterText(
-          urlField, "https://www.youtube.com/watch?v=tSXZ8hervgY");
+          urlField, "https://youtu.be/HZQOdtxlim4?si=nV-AXQTcplvKreyH");
       await tester.tap(find.text('Confirm'));
       await tester.pumpAndSettle();
 
