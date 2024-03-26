@@ -47,8 +47,6 @@ void main() {
     );
   });
 
-
-
   testWidgets(
       'Test all widgets appear as expected when nothing is found on the database',
       (WidgetTester tester) async {
@@ -74,7 +72,7 @@ void main() {
       await fakeFirestore.collection('Webinar').doc('id_2').set({
         'id': 'id_2',
         'title': 'Test Title 2',
-        'url': 'https://www.youtube.com/watch?v=tSXZ8hervgY',
+        'url': 'https://youtu.be/HZQOdtxlim4?si=nV-AXQTcplvKreyH',
         'thumbnail': 'https://picsum.photos/250?image=9',
         'webinarleadname': 'John Doe 2',
         'startTime': DateTime.now().toString(),
@@ -98,7 +96,7 @@ void main() {
       await fakeFirestore.collection('Webinar').doc('id_2').set({
         'id': 'id_2',
         'title': 'Test Title 2',
-        'url': 'https://www.youtube.com/watch?v=tSXZ8hervgY',
+        'url': 'https://youtu.be/HZQOdtxlim4?si=nV-AXQTcplvKreyH',
         'thumbnail': 'https://picsum.photos/250?image=9',
         'webinarleadname': 'John Doe 2',
         'startTime': DateTime.now().toString(),
@@ -122,7 +120,7 @@ void main() {
       await fakeFirestore.collection('Webinar').doc('id_2').set({
         'id': 'id_2',
         'title': 'Test Title 2',
-        'url': 'https://www.youtube.com/watch?v=tSXZ8hervgY',
+        'url': 'https://youtu.be/HZQOdtxlim4?si=nV-AXQTcplvKreyH',
         'thumbnail': 'https://picsum.photos/250?image=9',
         'webinarleadname': 'John Doe 2',
         'startTime': DateTime.now().toString(),
@@ -182,7 +180,7 @@ void main() {
       await fakeFirestore.collection('Webinar').doc('id').set({
         'id': 'id',
         'title': 'Test Title',
-        'url': 'https://www.youtube.com/watch?v=tSXZ8hervgY',
+        'url': 'https://youtu.be/HZQOdtxlim4?si=nV-AXQTcplvKreyH',
         'thumbnail': 'https://picsum.photos/250?image=9',
         'webinarleadname': 'John Doe',
         'startTime': DateTime.now().toString(),
@@ -205,7 +203,6 @@ void main() {
     });
   });
 
-
   testWidgets('Test pressing card leads to showing webinar screen',
       (WidgetTester tester) async {
     await provideMockedNetworkImages(() async {
@@ -223,7 +220,4 @@ void main() {
       expect(status, greaterThan(5));
     });
   });
-
-
-
 }

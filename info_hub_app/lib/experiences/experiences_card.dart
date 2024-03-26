@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:info_hub_app/patient_experience/experience_model.dart';
+import 'package:info_hub_app/experiences/experience_model.dart';
 
 class ExperienceCard extends StatefulWidget {
   final Experience _experience;
@@ -14,23 +14,25 @@ class _ExperienceCardState extends State<ExperienceCard> {
   Widget build(BuildContext context) {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(12.0),
+        padding: const EdgeInsets.symmetric(horizontal: 10.0),
         child: Column(children: [
           Row(
             children: [
-              Padding(
-                  padding: const EdgeInsets.only(bottom: 10.0),
-                  child: Text(
-                    widget._experience.title.toString(),
-                    style: Theme.of(context).textTheme.titleSmall,
-                  ))
+              Center(
+                child: Padding(
+                    padding: const EdgeInsets.only(top: 12, bottom: 10.0),
+                    child: Text(
+                      widget._experience.title.toString(),
+                      style: Theme.of(context).textTheme.titleSmall,
+                    )),
+              )
             ],
           ),
           Row(
             children: [
               Expanded(
                   child: Padding(
-                padding: const EdgeInsets.only(bottom: 10.0),
+                padding: const EdgeInsets.only(bottom: 5),
                 child: Text(
                   widget._experience.description.toString(),
                   style: Theme.of(context).textTheme.bodySmall,

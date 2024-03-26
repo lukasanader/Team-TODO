@@ -3,7 +3,7 @@ import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
-import 'package:info_hub_app/patient_experience/patient_experience_view.dart';
+import 'package:info_hub_app/experiences/experiences_view.dart';
 
 void main() {
   late FakeFirebaseFirestore firestore;
@@ -129,10 +129,9 @@ void main() {
     );
   });
 
-  testWidgets('The verified patient experiences are being displayed for patients',
+  testWidgets(
+      'The verified patient experiences are being displayed for patients',
       (WidgetTester tester) async {
-
-
     await auth.createUserWithEmailAndPassword(
         email: 'test@tested.org', password: 'Password123!');
     String uid = auth.currentUser!.uid;
@@ -158,7 +157,6 @@ void main() {
 
   testWidgets('The verified parent experiences are being displayed for parents',
       (WidgetTester tester) async {
-
     await auth.createUserWithEmailAndPassword(
         email: 'test@tested.org', password: 'Password123!');
     String uid = auth.currentUser!.uid;
@@ -169,8 +167,7 @@ void main() {
       'roleType': 'Parent'
     });
 
-    firestore.collection('experiences')
-    .add({
+    firestore.collection('experiences').add({
       'title': 'Parent example',
       'description': 'Example experience',
       'verified': true,
@@ -190,9 +187,9 @@ void main() {
     expect(find.text('Parent example'), findsOneWidget);
   });
 
-  testWidgets('The verified patient experiences are being not displayed for parents',
+  testWidgets(
+      'The verified patient experiences are being not displayed for parents',
       (WidgetTester tester) async {
-
     await auth.createUserWithEmailAndPassword(
         email: 'test@tested.org', password: 'Password123!');
     String uid = auth.currentUser!.uid;
@@ -209,7 +206,6 @@ void main() {
 
     Finder listViewFinder = find.byType(ListView);
     expect(listViewFinder, findsOneWidget);
-
 
     expect(find.text('Example 1'), findsNothing);
   });
@@ -805,5 +801,26 @@ void main() {
         isTrue);
 
     expect(find.byType(AlertDialog), findsOneWidget);
+  });
+
+  testWidgets(
+      'Appbar help button displays a dialog with the correct information',
+      (WidgetTester tester) async {
+    // Build our app and trigger a frame.
+    await tester.pumpWidget(experienceViewWidget);
+    await tester.pumpAndSettle();
+
+    Finder helpButton = find.byIcon(Icons.help_outline);
+
+    await tester.ensureVisible(helpButton);
+    await tester.tap(helpButton);
+    await tester.pumpAndSettle();
+
+    expect(find.byType(AlertDialog), findsOneWidget);
+
+    await tester.tap(find.text('Close'));
+    await tester.pumpAndSettle();
+
+    expect(find.byWidget(experienceViewWidget), findsOneWidget);
   });
 }

@@ -1,18 +1,18 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:info_hub_app/patient_experience/experience_controller.dart';
+import 'package:info_hub_app/experiences/experience_controller.dart';
 
 class ExperienceSharingController {
   final FirebaseAuth _auth;
   final FirebaseFirestore _firestore;
   late ExperienceController _experienceController;
 
-  ExperienceSharingController(this._auth,this._firestore) {
+  ExperienceSharingController(this._auth, this._firestore) {
     _experienceController = ExperienceController(_auth, _firestore);
   }
 
-  // Patient must read and accept experience expectations dialog
+  // User must read and accept experience expectations dialog
   void showExperienceExpectations(context) {
     bool checkboxValue = false;
 
@@ -211,5 +211,4 @@ class ExperienceSharingController {
       },
     );
   }
-
 }

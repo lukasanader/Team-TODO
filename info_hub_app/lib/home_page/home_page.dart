@@ -11,7 +11,7 @@ import 'package:info_hub_app/controller/user_controller.dart';
 import 'package:info_hub_app/helpers/helper_widgets.dart';
 import 'package:info_hub_app/helpers/test_page.dart';
 import 'package:info_hub_app/message_feature/patient_message_view.dart';
-import 'package:info_hub_app/patient_experience/patient_experience_view.dart';
+import 'package:info_hub_app/experiences/experiences_view.dart';
 import 'package:info_hub_app/model/user_model.dart';
 import 'package:info_hub_app/notifications/notification_view.dart';
 import 'package:flutter/cupertino.dart';
@@ -182,7 +182,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
                 child: const Text(
-                  'Patient Experience',
+                  'Shared Experience',
                   textAlign: TextAlign.center,
                 ),
               ),

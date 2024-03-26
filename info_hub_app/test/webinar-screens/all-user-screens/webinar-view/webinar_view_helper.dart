@@ -1,6 +1,6 @@
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 
-class WebinarViewHelper{
+class WebinarViewHelper {
   FakeFirebaseFirestore fakeFirestore;
 
   WebinarViewHelper({
@@ -11,7 +11,7 @@ class WebinarViewHelper{
     await fakeFirestore.collection('Webinar').doc('id').set({
       'id': 'id',
       'title': 'Test Title',
-      'url': 'https://www.youtube.com/watch?v=tSXZ8hervgY',
+      'url': 'https://youtu.be/HZQOdtxlim4?si=nV-AXQTcplvKreyH',
       'thumbnail': 'https://picsum.photos/250?image=9',
       'webinarleadname': 'John Doe',
       'startTime': DateTime.now().toString(),
@@ -27,7 +27,7 @@ class WebinarViewHelper{
     await fakeFirestore.collection('Webinar').doc('id').set({
       'id': 'id',
       'title': 'Test Title',
-      'url': 'https://www.youtube.com/watch?v=tSXZ8hervgY',
+      'url': 'https://youtu.be/HZQOdtxlim4?si=nV-AXQTcplvKreyH',
       'thumbnail': 'https://picsum.photos/250?image=9',
       'webinarleadname': 'John Doe',
       'startTime': DateTime.now().toString(),
@@ -43,7 +43,7 @@ class WebinarViewHelper{
     await fakeFirestore.collection('Webinar').doc('id').set({
       'id': 'id',
       'title': 'Test Title',
-      'url': 'https://www.youtube.com/watch?v=tSXZ8hervgY',
+      'url': 'https://youtu.be/HZQOdtxlim4?si=nV-AXQTcplvKreyH',
       'thumbnail': 'https://picsum.photos/250?image=9',
       'webinarleadname': 'John Doe',
       'startTime': DateTime.now().toString(),
@@ -54,5 +54,4 @@ class WebinarViewHelper{
       'selectedtags': ['admin'],
     });
   }
-
 }
