@@ -4,8 +4,8 @@ import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:info_hub_app/admin/admin_dash.dart';
+import 'package:info_hub_app/analytics/topics/analytics_topic.dart';
 
-import 'package:info_hub_app/analytics/analytics_base.dart';
 import 'package:info_hub_app/main.dart';
 
 import 'package:info_hub_app/message_feature/admin_message_view.dart';
@@ -88,10 +88,19 @@ void main() {
   });
 
   testWidgets('Test view analytics button', (WidgetTester tester) async {
+    await auth.createUserWithEmailAndPassword(
+        email: 'admin@gmail.com', password: 'Admin123!');
+    String uid = auth.currentUser!.uid;
+    await firestore.collection('Users').doc(uid).set({
+      'email': 'admin@gmail.com',
+      'firstName': 'John',
+      'lastName': 'Doe',
+      'roleType': 'admin'
+    });
     await tester.pumpWidget(adminWidget);
     await tester.tap(find.text('Analytics'));
     await tester.pumpAndSettle();
-    expect(find.byType(AnalyticsBase), findsOneWidget);
+    expect(find.byType(AnalyticsTopicView), findsOneWidget);
   });
 
   testWidgets('Test view message feature button', (WidgetTester tester) async {

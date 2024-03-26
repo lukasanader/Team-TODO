@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:info_hub_app/settings/help_page_controller.dart';
 
 class HelpPage extends StatelessWidget {
-  const HelpPage({super.key});
+  const HelpPage({super.key, Key? customKey});
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +66,8 @@ class HelpPage extends StatelessWidget {
                         'Liver disease is diagnosed through a combination of medical history, physical examination, blood tests, imaging studies (such as ultrasound or MRI), and sometimes liver biopsy. These tests help determine the cause, severity, and extent of liver damage.',
                   ),
                   HelpPageControllers.buildFAQItem(
-                    question: 'What are some lifestyle changes recommended for managing liver disease?',
+                    question:
+                        'What are some lifestyle changes recommended for managing liver disease?',
                     answer:
                         "Lifestyle changes that may help manage liver disease include maintaining a healthy diet low in fat and processed foods, avoiding alcohol and tobacco, exercising regularly, managing stress, and following prescribed treatment plans. It's essential to consult healthcare professionals for personalized recommendations based on individual health conditions.",
                   ),
@@ -97,7 +98,8 @@ class HelpPage extends StatelessWidget {
         ),
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
             child: content,
           ),
         ],
@@ -105,14 +107,3 @@ class HelpPage extends StatelessWidget {
     );
   }
 }
-
-
-
-
-
-
-  
-
-
-
-
