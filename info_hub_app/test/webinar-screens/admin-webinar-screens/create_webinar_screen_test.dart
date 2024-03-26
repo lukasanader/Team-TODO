@@ -125,6 +125,19 @@ void main() {
     expect(find.text('Enter a valid YouTube video URL'), findsNothing);
   });
 
+  testWidgets('Test YouTube URL with tracking link is removed',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(createWebinarScreen);
+    await tester.ensureVisible(find.text('Start Webinar'));
+    final urlField = find.ancestor(
+      of: find.text('YouTube Video URL'),
+      matching: find.byType(TextFormField),
+    );
+    await tester.enterText(
+        urlField, 'https://www.youtube.com/watch?v=tSXZ8hervyY?feature=shared');
+    expect(find.text('https://www.youtube.com/watch?v=tSXZ8hervyY'), findsOne);
+  });
+
   testWidgets('Test select scheduled date appears',
       (WidgetTester tester) async {
     await tester.pumpWidget(createWebinarScreen);
@@ -208,4 +221,5 @@ void main() {
             'Please check if you have uploaded a thumbnail or selected a role.'),
         findsOneWidget);
   });
+
 }

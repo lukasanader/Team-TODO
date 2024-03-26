@@ -8,6 +8,7 @@ import 'package:info_hub_app/model/user_model.dart';
 import 'package:info_hub_app/webinar/controllers/webinar_controller.dart';
 import 'package:info_hub_app/webinar/views/webinar-screens/webinar_view.dart';
 
+/// Displays Webinar Dashboard interface, providing admin with basic metrics and option to view webinars or create one
 class WebinarDashboard extends StatefulWidget {
   final UserModel user;
   final FirebaseFirestore firestore;
@@ -49,7 +50,7 @@ class _WebinarDashboardState extends State<WebinarDashboard> {
                 children: [
                   StreamBuilder<String>(
                     stream: Stream.fromFuture(
-                        widget.webinarController.getNumberOfLiveWebinars()),
+                        widget.webinarController.getNumberOfLiveWebinars()),  // Retrieve number of live webinars
                     builder: (context, snapshot) {
                       return StatisticCard(
                         label: 'Live Webinars',
@@ -61,7 +62,7 @@ class _WebinarDashboardState extends State<WebinarDashboard> {
                   ),
                   StreamBuilder<String>(
                     stream: Stream.fromFuture(
-                        widget.webinarController.getNumberOfUpcomingWebinars()),
+                        widget.webinarController.getNumberOfUpcomingWebinars()), // Retrieve number of upcoming webinars
                     builder: (context, snapshot) {
                       return StatisticCard(
                         label: 'Upcoming Webinars',
@@ -73,7 +74,7 @@ class _WebinarDashboardState extends State<WebinarDashboard> {
                   ),
                   StreamBuilder<String>(
                     stream: Stream.fromFuture(
-                        widget.webinarController.getNumberOfLiveViewers()),
+                        widget.webinarController.getNumberOfLiveViewers()), // Retrieve number of live viewers
                     builder: (context, snapshot) {
                       return StatisticCard(
                         label: 'Live Viewers',
@@ -85,7 +86,7 @@ class _WebinarDashboardState extends State<WebinarDashboard> {
                   ),
                   StreamBuilder<String>(
                     stream: Stream.fromFuture(
-                        widget.webinarController.getNumberOfArchivedWebinars()),
+                        widget.webinarController.getNumberOfArchivedWebinars()), // Retrieve number of archived webinars
                     builder: (context, snapshot) {
                       return StatisticCard(
                         label: 'Archived Webinars',

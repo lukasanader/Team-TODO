@@ -81,7 +81,10 @@ class _WebinarViewState extends State<WebinarView> {
                         stream: widget.webinarController.getLiveWebinars(widget.user.roleType),
                         builder: (context, snapshot) {
                           // Display data (if any) on the screen or an error message
-                          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                          if (!snapshot.hasData) {
+                            return const CircularProgressIndicator();
+                          }
+                          else if (snapshot.data!.docs.isEmpty) {
                             return messageCard(
                               "Right now, we don't have any live videos streaming. We encourage you to explore other resources available in the app while you wait for the next live event.",
                               'no_live_webinars',
@@ -100,7 +103,10 @@ class _WebinarViewState extends State<WebinarView> {
                       StreamBuilder<QuerySnapshot>(
                         stream: widget.webinarController.getUpcomingWebinars(widget.user.roleType),
                         builder: (context, snapshot) {
-                          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                          if (!snapshot.hasData) {
+                            return const CircularProgressIndicator();
+                          }
+                          else if (snapshot.data!.docs.isEmpty) {
                             return messageCard(
                               "At the moment, there aren't any webinars lined up for viewing. We're working on bringing you more informative sessions soon. Thank you for your patience.",
                               'no_upcoming_webinars',
@@ -121,7 +127,10 @@ class _WebinarViewState extends State<WebinarView> {
                       StreamBuilder<QuerySnapshot>(
                         stream: widget.webinarController.getArchivedWebinars(widget.user.roleType),
                         builder: (context, snapshot) {
-                          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                          if (!snapshot.hasData) {
+                            return const CircularProgressIndicator();
+                          }
+                          if (snapshot.data!.docs.isEmpty) {
                             return messageCard(
                               "Missed a webinar? No worries! Keep an eye on this space for any webinars you might have missed. We'll make sure you have access to all the valuable information at your convenience.",
                               'no_archived_webinars',

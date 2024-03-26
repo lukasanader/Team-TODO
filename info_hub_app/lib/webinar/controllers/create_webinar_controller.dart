@@ -8,6 +8,7 @@ import 'package:info_hub_app/webinar/controllers/webinar_controller.dart';
 import 'package:info_hub_app/webinar/views/webinar-screens/display_webinar.dart';
 import 'package:intl/intl.dart';
 
+/// Controls backend logic for the create webinar screen
 class CreateWebinarController {
   final WebinarController webinarController;
   final FirebaseFirestore firestore;
@@ -19,7 +20,7 @@ class CreateWebinarController {
     required this.user,
   });
 
-  // validates URL entered by user
+  /// validates URL entered by user
   String? validateUrl(String? url) {
     final RegExp youtubeUrlRegex = RegExp(
       r'^https?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)(\?feature=shared)?$',
@@ -54,6 +55,7 @@ class CreateWebinarController {
                             String url, Uint8List? image, List<String> selectedTags,{bool isScheduled = false}) 
     async {
       if (state!.validate()) {
+        // if data is valid, begin uploading webinar information to database
         time ??= DateTime.now();
         String statusText = isScheduled ? 'Upcoming' : 'Live';
         final DateFormat formatter = DateFormat('dd-MM-yyyy HH:mm', 'en_GB');
@@ -66,6 +68,7 @@ class CreateWebinarController {
             statusText,
             selectedTags);
         if (webinarID.isNotEmpty) {
+          // if not scheduled, push admin to screen where webinar is present
           if (!isScheduled) {
             webinarController.updateViewCount(webinarID, true);
             Navigator.of(context).push(
@@ -132,10 +135,11 @@ class CreateWebinarController {
     if (isHealthcareProfessionalSelected) {
       selectedTags.add('Healthcare Professional');
     }
-    selectedTags.add('admin');
+    selectedTags.add('admin'); // admin must always be a tag
     return selectedTags;
   }
   
+  /// Returns error message
   void showThumbnailAndRoleError(BuildContext context) {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(

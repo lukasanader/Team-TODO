@@ -162,6 +162,7 @@ class WebinarController {
     await firestore.collection('Webinar').doc(webinarID).delete();  
   }
 
+  /// Returns all the comments found within a webinar
   Stream<QuerySnapshot<Map<String, dynamic>>> getChatStream(String webinarID) {
     return firestore
         .collection('Webinar')
@@ -171,6 +172,7 @@ class WebinarController {
         .snapshots();
   }
 
+  /// Returns all Live Webinars associated to a specific role type
   Stream<QuerySnapshot<Map<String, dynamic>>> getLiveWebinars(String roleType) {
     return firestore
             .collection('Webinar')
@@ -180,6 +182,7 @@ class WebinarController {
             .snapshots();
   }
 
+  /// Returns all Upcoming Webinars associated to a specific role type
   Stream<QuerySnapshot<Map<String, dynamic>>> getUpcomingWebinars(String roleType) {
     return firestore
             .collection('Webinar')
@@ -189,6 +192,7 @@ class WebinarController {
             .snapshots();
   }
 
+  /// Returns all Archived Webinars associated to a specific role type
   Stream<QuerySnapshot<Map<String, dynamic>>> getArchivedWebinars(String roleType) {
     return firestore
             .collection('Webinar')
