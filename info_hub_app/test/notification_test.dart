@@ -135,7 +135,7 @@ Future<void> main() async {
                       firestore: firestore,
                       uid: auth.currentUser!.uid,
                     ).createNotification('Test Title', 'Test Body',
-                        DateTime.now(), 'Test Route');
+                        DateTime.now(), 'Test Route', null);
 
                     expect(notificationId, isNotEmpty);
 

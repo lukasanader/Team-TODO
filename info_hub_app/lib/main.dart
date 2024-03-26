@@ -13,6 +13,8 @@ import 'package:info_hub_app/notifications/notification_controller.dart';
 import 'package:info_hub_app/push_notifications/push_notifications_controller.dart';
 import 'package:info_hub_app/theme/theme_constants.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
+import 'package:info_hub_app/topics/create_topic/model/topic_model.dart';
+import 'package:info_hub_app/topics/view_topic/view/topic_view.dart';
 import 'notifications/notification_model.dart' as custom;
 import 'registration/start_page.dart';
 import 'package:provider/provider.dart';
@@ -207,6 +209,13 @@ class _MyAppState extends State<MyApp> {
                   }
                 },
               ),
+          '/topic': (context) => TopicView(
+                auth: widget.auth,
+                firestore: widget.firestore,
+                storage: widget.storage,
+                topic: ModalRoute.of(context)!.settings.arguments as Topic,
+                themeManager: themeManager,
+              )
         },
         theme: lightTheme,
         darkTheme: darkTheme,

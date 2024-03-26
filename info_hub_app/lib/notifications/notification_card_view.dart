@@ -52,7 +52,8 @@ class NotificationCard extends StatelessWidget {
                     navigatorKey.currentState!
                       ..popUntil((route) => false)
                       ..pushNamed('/base')
-                      ..pushNamed(notification.route);
+                      ..pushNamed(notification.route,
+                          arguments: notification.payload);
                   },
                   child: const Text('View Details'),
                 ),

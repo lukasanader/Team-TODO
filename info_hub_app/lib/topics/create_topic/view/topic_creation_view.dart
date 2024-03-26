@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/controller/topic_question_controller.dart';
 import 'package:info_hub_app/model/model.dart';
+import 'package:info_hub_app/notifications/notification_controller.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -53,6 +54,7 @@ class TopicCreationViewState extends State<TopicCreationView> {
   List<String> options = ['Patient', 'Parent', 'Healthcare Professional'];
   String quizID = '';
   bool quizAdded = false;
+  Topic? topic;
   List<String> categoriesOptions = [];
   final TextEditingController newCategoryNameController =
       TextEditingController();
@@ -173,7 +175,7 @@ class TopicCreationViewState extends State<TopicCreationView> {
                                     );
                                     await Future.delayed(
                                         const Duration(seconds: 2));
-                                    await formController.uploadTopic(
+                                    topic = await formController.uploadTopic(
                                         context, false);
                                     Navigator.pop(context);
                                     if (drafting) {
@@ -279,6 +281,17 @@ class TopicCreationViewState extends State<TopicCreationView> {
                                   TextButton(
                                     onPressed: () async {
                                       // Delete the question from the database
+
+                                      NotificationController(
+                                              auth: widget.auth,
+                                              firestore: widget.firestore,
+                                              uid: widget.auth.currentUser!.uid)
+                                          .createNotification(
+                                              'Question Reply',
+                                              'A topic has been created in response to your question.',
+                                              DateTime.now(),
+                                              '/topic',
+                                              topic);
                                       controller.deleteAllQuestions(questions);
                                       setState(
                                         () {
@@ -312,7 +325,6 @@ class TopicCreationViewState extends State<TopicCreationView> {
       },
     );
   }
-
 
   /// Retreieve the list of categories
   Future getCategoryList() async {

@@ -46,7 +46,8 @@ class _TestViewState extends State<TestView> {
                     'Test Notification',
                     'This is a test notification',
                     DateTime.now(),
-                    '/notifications');
+                    '/notifications',
+                    null);
           },
           child: const Text('Create Test Notification'),
         ),
