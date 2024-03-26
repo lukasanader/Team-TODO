@@ -16,15 +16,13 @@ class EmailVerificationScreen extends StatefulWidget {
   final FirebaseFirestore firestore;
   final FirebaseAuth auth;
   final FirebaseStorage storage;
-  final ThemeManager themeManager;
   final FirebaseMessaging messaging;
-  final FlutterLocalNotificationsPlugin localnotificationsplugin;
+    final FlutterLocalNotificationsPlugin localnotificationsplugin;
   const EmailVerificationScreen(
       {super.key,
       required this.firestore,
       required this.auth,
       required this.storage,
-      required this.themeManager,
       required this.messaging,
       required this.localnotificationsplugin});
 
@@ -34,7 +32,7 @@ class EmailVerificationScreen extends StatefulWidget {
 
 class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
   late AuthService _auth;
-  User? user = FirebaseAuth.instance.currentUser;
+  
 
   @override
   void initState() {
@@ -64,23 +62,23 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
             ),
             ElevatedButton(
               onPressed: () async {
-                if (user != null) {
-                  await user!.sendEmailVerification();
+                if (widget.auth.currentUser != null) {
+                  await widget.auth.currentUser!.sendEmailVerification();
                 }
               },
               child: Text('Resend Verification Email'),
             ),
             ElevatedButton(
               onPressed: () async {
-                if (user != null){
-                  await user!.reload();
-                  if (user!.emailVerified){
+                if (widget.auth.currentUser != null){
+                  await widget.auth.currentUser!.reload();
+                  if (widget.auth.currentUser!.emailVerified){
                     String role = await UserController(widget.auth, widget.firestore).getUserRoleType();
                     Widget nextPage = Base(
                         firestore: widget.firestore,
                         auth: widget.auth,
                         storage: widget.storage,
-                        themeManager: widget.themeManager,
+                        themeManager: ThemeManager(),
                         roleType: role,
                       );
                       Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => nextPage), (Route<dynamic> route) => false);
