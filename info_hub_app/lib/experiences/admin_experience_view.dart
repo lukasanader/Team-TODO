@@ -32,6 +32,52 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
     updateExperiencesList();
   }
 
+  // @override
+  // Widget build(BuildContext context) {
+  //   return Scaffold(
+  //     appBar: AppBar(
+  //       title: const Text("All Submitted Experiences"),
+  //       actions: [
+  //         IconButton(
+  //           icon: const Icon(Icons.help_outline),
+  //           onPressed: () {
+  //             _showAdminExperienceDialog(context);
+  //           },
+  //         ),
+  //       ],
+  //     ),
+  //     body: SingleChildScrollView(
+  //       padding: const EdgeInsets.all(8.0),
+  //       child: Column(
+  //         crossAxisAlignment: CrossAxisAlignment.start,
+  //         children: [
+  //           Padding(
+  //             padding: const EdgeInsets.symmetric(vertical: 8.0),
+  //             child: Center(
+  //               child: Text(
+  //                 "Verified experiences",
+  //                 style: Theme.of(context).textTheme.headlineLarge,
+  //               ),
+  //             ),
+  //           ),
+  //           _buildExperienceSection(true),
+  //           addVerticalSpace(10),
+  //           Padding(
+  //             padding: const EdgeInsets.symmetric(vertical: 8.0),
+  //             child: Center(
+  //               child: Text(
+  //                 "Unverified experiences",
+  //                 style: Theme.of(context).textTheme.headlineLarge,
+  //               ),
+  //             ),
+  //           ),
+  //           _buildExperienceSection(false),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -46,37 +92,47 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: Center(
-                child: Text(
-                  "Verified experiences",
-                  style: Theme.of(context).textTheme.headlineLarge,
+      body: PageView(
+        children: [
+          SingleChildScrollView(
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: Center(
+                    child: Text(
+                      "Verified experiences",
+                      style: Theme.of(context).textTheme.headlineLarge,
+                    ),
+                  ),
                 ),
-              ),
+                _buildExperienceSection(true),
+                const Icon(Icons.abc)
+              ],
             ),
-            _buildExperienceSection(true),
-            addVerticalSpace(10),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: Center(
-                child: Text(
-                  "Unverified experiences",
-                  style: Theme.of(context).textTheme.headlineLarge,
+          ),
+          SingleChildScrollView(
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: Center(
+                    child: Text(
+                      "Unverified experiences",
+                      style: Theme.of(context).textTheme.headlineLarge,
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            _buildExperienceSection(false),
-          ],
-        ),
-      ),
+                _buildExperienceSection(false),
+              ],
+            )
+          )
+        ],
+
+      )
     );
   }
+
 
   Widget _buildExperienceSection(bool verified) {
     return FutureBuilder<List<Experience>>(
@@ -101,24 +157,26 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
             "No experiences available",
           )
         : ListView.builder(
-            physics: const NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
-            itemCount: experiences.length * 2 - 1,
-            itemBuilder: (context, index) {
-              if (index.isOdd) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Container(
-                    height: 1,
-                    color: Colors.grey,
-                  ),
-                );
-              } else {
-                index = index ~/ 2;
-                return displayExperiencesForAdmin(experiences[index]);
-              }
-            },
-          );
+                physics: const NeverScrollableScrollPhysics(),
+                shrinkWrap: true,
+                itemCount: experiences.length * 2 - 1,
+                itemBuilder: (context, index) {
+                  if (index.isOdd) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Container(
+                        height: 1,
+                        color: Colors.grey,
+                      ),
+                    );
+                  } else {
+                    index = index ~/ 2;
+                    return displayExperiencesForAdmin(experiences[index]);
+                  }
+                },
+              );
+        
+
   }
 
   Widget displayExperiencesForAdmin(Experience experience) {
