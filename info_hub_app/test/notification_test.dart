@@ -45,6 +45,7 @@ Future<void> main() async {
         'body': 'body1',
         'timestamp': DateTime.now(),
         'route': 'route1',
+        'payload': 'payload1',
       });
 
       await tester.pumpWidget(
@@ -85,6 +86,7 @@ Future<void> main() async {
         'body': 'body1',
         'timestamp': DateTime.now(),
         'route': 'route1',
+        'payload': 'payload1',
       });
       await firestore.collection(notificationCollection).add({
         'uid': auth.currentUser!.uid,
@@ -92,6 +94,7 @@ Future<void> main() async {
         'body': 'body2',
         'timestamp': DateTime.now(),
         'route': 'route2',
+        'payload': 'payload2',
       });
 
       await tester.pumpWidget(
@@ -172,6 +175,7 @@ Future<void> main() async {
         'body': 'Test Body',
         'timestamp': Timestamp.now(),
         'route': 'Test Route',
+        'payload': 'Test Payload',
       }).then((doc) => doc.id);
 
       await tester.pumpWidget(
@@ -217,6 +221,7 @@ Future<void> main() async {
         'body': 'Test Body1',
         'timestamp': Timestamp.now(),
         'route': 'Test Route1',
+        'payload': 'Test Payload1',
       }).then((doc) => doc.id);
 
       await firestore.collection(notificationCollection).add({
@@ -225,6 +230,7 @@ Future<void> main() async {
         'body': 'Test Body2',
         'timestamp': Timestamp.now(),
         'route': 'Test Route2',
+        'payload': 'Test Payload2',
       }).then((doc) => doc.id);
 
       await tester.pumpWidget(
@@ -270,6 +276,7 @@ Future<void> main() async {
         'body': 'body1',
         'timestamp': DateTime.now(),
         'route': 'route1',
+        'payload': 'payload1',
       });
 
       await tester.pumpWidget(
@@ -350,6 +357,7 @@ Future<void> main() async {
         'body': 'body1',
         'timestamp': DateTime.now(),
         'route': 'route1',
+        'payload': 'payload1',
       });
 
       await tester.pumpWidget(
