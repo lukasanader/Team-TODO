@@ -7,14 +7,14 @@ import 'package:info_hub_app/topics/create_topic/helpers/quiz/quiz_answer_card.d
 
 class QuizQuestionCard extends StatefulWidget {
   final String quizID;
-  final String question;
+  String question;
   final int questionNo;
   final FirebaseFirestore firestore;
   final FirebaseAuth auth;
   final QuizQuestion? editQuestion;
   final Function(int)? onDelete;
 
-  const QuizQuestionCard({
+  QuizQuestionCard({
     required this.question,
     required this.questionNo,
     required this.quizID,
@@ -172,7 +172,6 @@ class _QuizQuestionCardState extends State<QuizQuestionCard> {
   }
 
   void onDeleteQuestion() {
-    if (widget.onDelete != null) {
       QuizController controller = QuizController(
         firestore: widget.firestore,
         auth: widget.auth,
@@ -180,8 +179,10 @@ class _QuizQuestionCardState extends State<QuizQuestionCard> {
       if (widget.editQuestion != null) {
         controller.deleteQuestion(widget.editQuestion!);
       }
-      widget.onDelete!(widget.questionNo - 1); // Trigger onDelete callback
-    }
+      setState(() {
+        widget.question='[Deleted]';
+        isExpanded=false;
+      }); // Trigger onDelete callback
   }
 
   void saveQuestion() {
