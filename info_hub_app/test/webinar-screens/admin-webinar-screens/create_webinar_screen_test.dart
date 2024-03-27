@@ -9,6 +9,7 @@ import 'package:info_hub_app/webinar/controllers/webinar_controller.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
+import '../../thread_testing/threads_test.dart';
 import '../mock.dart';
 
 void main() {
@@ -16,6 +17,7 @@ void main() {
   late Widget createWebinarScreen;
   late UserModel testUser;
   late MockFirebaseStorage mockStorage;
+  late MockFirebaseAuth auth;
   late WebinarController webinarController;
   final MockWebViewDependencies mockWebViewDependencies =
       MockWebViewDependencies();
@@ -27,12 +29,14 @@ void main() {
 
     firestore = FakeFirebaseFirestore();
     mockStorage = MockFirebaseStorage();
+    auth = MockFirebaseAuth();
 
     // Initialize allNouns and allAdjectives before each test
     allNouns = await loadWordSet('assets/texts/nouns.txt');
     allAdjectives = await loadWordSet('assets/texts/adjectives.txt');
 
-    webinarController = WebinarController(firestore: firestore, storage: mockStorage);
+    webinarController = WebinarController(
+        firestore: firestore, storage: mockStorage, auth: auth);
 
     testUser = UserModel(
       uid: 'mockUid',
@@ -46,7 +50,9 @@ void main() {
 
     createWebinarScreen = MaterialApp(
       home: CreateWebinarScreen(
-          user: testUser, firestore: firestore, webinarController: webinarController),
+          user: testUser,
+          firestore: firestore,
+          webinarController: webinarController),
     );
   });
 
@@ -221,5 +227,4 @@ void main() {
             'Please check if you have uploaded a thumbnail or selected a role.'),
         findsOneWidget);
   });
-
 }

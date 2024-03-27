@@ -11,8 +11,10 @@ import 'package:uuid/uuid.dart';
 class WebinarController {
   final FirebaseFirestore firestore;
   final FirebaseStorage storage;
+  final FirebaseAuth auth;
 
-  WebinarController({required this.firestore, required this.storage});
+  WebinarController(
+      {required this.firestore, required this.storage, required this.auth});
 
   /// Initiates live stream creation process on database
   Future<String> startLiveStream(
@@ -172,9 +174,7 @@ class WebinarController {
       dataToUpdate['status'] = "Archived";
       dataToUpdate['chatenabled'] = false;
       NotificationController notificationController = NotificationController(
-          auth: FirebaseAuth.instance,
-          firestore: firestore,
-          uid: FirebaseAuth.instance.currentUser!.uid);
+          auth: auth, firestore: firestore, uid: auth.currentUser!.uid);
       List<String> notificationId =
           await notificationController.getNotificationIdFromPayload(webinarID);
       if (notificationId.isNotEmpty) {
