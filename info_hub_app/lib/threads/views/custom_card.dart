@@ -345,7 +345,7 @@ class _CustomCardState extends State<CustomCard> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Delete Thread'),
+          title: const Text('Warning!'),
           content: const Text(
               "Deleting your Thread will also delete all replies associated with it. Do you want to proceed?"),
           actions: <Widget>[

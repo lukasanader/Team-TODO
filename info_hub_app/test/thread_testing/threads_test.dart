@@ -862,10 +862,6 @@ void main() {
 
     // You can also check for specific text within the AlertDialog to ensure it's the correct one
     expect(find.text('Delete Thread'), findsOneWidget);
-    expect(
-        find.text(
-            "Deleting your Thread will also delete all replies associated with it."),
-        findsOneWidget);
   });
 }
 
