@@ -121,8 +121,8 @@ class _ActivityViewState extends State<ActivityView> {
 
       _threadList = threadTemp;
       _threadList.sort((a, b) {
-        final DateTime dateA = a['viewDate'].toDate();
-        final DateTime dateB = b['viewDate'].toDate();
+        final DateTime dateA = a.viewDate.toDate();
+        final DateTime dateB = b.viewDate.toDate();
         return dateB.compareTo(dateA);
       });
 

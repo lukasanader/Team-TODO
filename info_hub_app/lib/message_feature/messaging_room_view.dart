@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/message_feature/message_bubble.dart';
 import 'package:info_hub_app/message_feature/message_controller.dart';
-import 'package:info_hub_app/threads/name_generator.dart';
+import 'package:info_hub_app/threads/controllers/name_generator_controller.dart';
 
 class MessageRoomView extends StatefulWidget {
   final FirebaseFirestore firestore;
