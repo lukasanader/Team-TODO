@@ -1,9 +1,11 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/model/user_model.dart';
+import 'package:info_hub_app/notifications/notification_controller.dart';
 import 'package:info_hub_app/webinar/controllers/webinar_controller.dart';
 import 'package:info_hub_app/webinar/views/webinar-screens/display_webinar.dart';
 import 'package:intl/intl.dart';
@@ -13,7 +15,7 @@ class CreateWebinarController {
   final WebinarController webinarController;
   final FirebaseFirestore firestore;
   final UserModel user;
-  
+
   CreateWebinarController({
     required this.webinarController,
     required this.firestore,
@@ -40,10 +42,10 @@ class CreateWebinarController {
     return null;
   }
 
-
   /// Handles image picking for webinar thumbmnail
   Future<Uint8List?> pickImage() async {
-    FilePickerResult? pickedImage = await FilePicker.platform.pickFiles(type: FileType.image);
+    FilePickerResult? pickedImage =
+        await FilePicker.platform.pickFiles(type: FileType.image);
     if (pickedImage != null) {
       return await File(pickedImage.files.single.path!).readAsBytes();
     }
@@ -51,52 +53,71 @@ class CreateWebinarController {
   }
 
   /// Routes user to new screen
-  Future<void> goLiveWebinar(BuildContext context, DateTime? time, FormState? state, String title,
-                            String url, Uint8List image, List<String> selectedTags,{bool isScheduled = false}) 
-    async {
-      if (state!.validate()) {
-        // if data is valid, begin uploading webinar information to database
-        time ??= DateTime.now();
-        String statusText = isScheduled ? 'Upcoming' : 'Live';
-        final DateFormat formatter = DateFormat('dd-MM-yyyy HH:mm', 'en_GB');
-        String webinarID = await webinarController.startLiveStream(
-            title,
-            url,
-            image,
-            ("${user.firstName} ${user.lastName}"),
-            formatter.format(time).toString(),
-            statusText,
-            selectedTags);
-        if (webinarID.isNotEmpty) {
-          // if not scheduled, push admin to screen where webinar is present
-          if (!isScheduled) {
-            webinarController.updateViewCount(webinarID, true);
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => WebinarScreen(
-                    webinarID: webinarID,
-                    youtubeURL: url,
-                    currentUser: user,
-                    firestore: firestore,
-                    title: title,
-                    webinarController: webinarController,
-                    status: statusText,
-                    chatEnabled: true,
-                  ),
+  Future<void> goLiveWebinar(
+      BuildContext context,
+      DateTime? time,
+      FormState? state,
+      String title,
+      String url,
+      Uint8List image,
+      List<String> selectedTags,
+      {bool isScheduled = false}) async {
+    if (state!.validate()) {
+      // if data is valid, begin uploading webinar information to database
+      time ??= DateTime.now();
+      String statusText = isScheduled ? 'Upcoming' : 'Live';
+      final DateFormat formatter = DateFormat('dd-MM-yyyy HH:mm', 'en_GB');
+      String webinarID = await webinarController.startLiveStream(
+          title,
+          url,
+          image,
+          ("${user.firstName} ${user.lastName}"),
+          formatter.format(time).toString(),
+          statusText,
+          selectedTags);
+      List<String> idList = await webinarController.getWebinarRoles(webinarID);
+
+      for (String id in idList) {
+        NotificationController(
+                auth: FirebaseAuth.instance, firestore: firestore, uid: id)
+            .createNotification(
+                'Webinar Live',
+                'A webinar you might interested in is now live!',
+                DateTime.now(),
+                '/webinar',
+                webinarID);
+      }
+      if (webinarID.isNotEmpty) {
+        // if not scheduled, push admin to screen where webinar is present
+        if (!isScheduled) {
+          webinarController.updateViewCount(webinarID, true);
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => WebinarScreen(
+                webinarID: webinarID,
+                youtubeURL: url,
+                currentUser: user,
+                firestore: firestore,
+                title: title,
+                webinarController: webinarController,
+                status: statusText,
+                chatEnabled: true,
               ),
-            );
-          } else {
-            Navigator.of(context).pop();
-          }
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('A webinar with this URL may already exist. Please try again.'),
-              duration: Duration(seconds: 3),
             ),
           );
+        } else {
+          Navigator.of(context).pop();
         }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+                'A webinar with this URL may already exist. Please try again.'),
+            duration: Duration(seconds: 3),
+          ),
+        );
       }
+    }
   }
 
   /// Builds the dialog for how to setup a webinar
@@ -119,12 +140,16 @@ class CreateWebinarController {
   }
 
   /// Checks if any role has been selected for the webinar
-  bool isAnyRoleSelected(bool isPatientSelected, bool isParentSelected,bool isHealthcareProfessionalSelected) {
-    return isPatientSelected || isParentSelected || isHealthcareProfessionalSelected;
+  bool isAnyRoleSelected(bool isPatientSelected, bool isParentSelected,
+      bool isHealthcareProfessionalSelected) {
+    return isPatientSelected ||
+        isParentSelected ||
+        isHealthcareProfessionalSelected;
   }
 
   /// Sets the adequate tags to be displayed
-  List<String> populateTags(bool isPatientSelected, bool isParentSelected,bool isHealthcareProfessionalSelected) {
+  List<String> populateTags(bool isPatientSelected, bool isParentSelected,
+      bool isHealthcareProfessionalSelected) {
     List<String> selectedTags = [];
     if (isPatientSelected) {
       selectedTags.add('Patient');
@@ -138,15 +163,15 @@ class CreateWebinarController {
     selectedTags.add('admin'); // admin must always be a tag
     return selectedTags;
   }
-  
+
   /// Returns error message
   void showThumbnailAndRoleError(BuildContext context) {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('Please check if you have uploaded a thumbnail or selected a role.'),
+        content: Text(
+            'Please check if you have uploaded a thumbnail or selected a role.'),
         duration: Duration(seconds: 2),
       ),
     );
   }
-
 }
