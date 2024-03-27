@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
+import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -16,6 +17,7 @@ void main() {
   late MockFirebaseStorage mockFirebaseStorage;
   late WebinarController webinarController;
   late WebinarViewHelper helper;
+  late MockFirebaseAuth auth;
   late Widget webinarViewScreen;
   final MockWebViewDependencies mockWebViewDependencies =
       MockWebViewDependencies();
@@ -24,9 +26,10 @@ void main() {
   setUp(() async {
     fakeFirestore = FakeFirebaseFirestore();
     mockFirebaseStorage = MockFirebaseStorage();
+    auth = MockFirebaseAuth(signedIn: true);
     helper = WebinarViewHelper(fakeFirestore: fakeFirestore);
-    webinarController =
-        WebinarController(firestore: fakeFirestore, storage: mockFirebaseStorage);
+    webinarController = WebinarController(
+        firestore: fakeFirestore, storage: mockFirebaseStorage);
     await mockWebViewDependencies.init();
     testUser = UserModel(
       uid: 'mockUid',
@@ -40,6 +43,7 @@ void main() {
 
     webinarViewScreen = MaterialApp(
       home: WebinarView(
+        auth: auth,
         firestore: fakeFirestore,
         user: testUser,
         webinarController: webinarController,

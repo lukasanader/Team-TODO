@@ -296,7 +296,6 @@ class _MyAppState extends State<MyApp> {
                         firestore: widget.firestore, storage: widget.storage),
                     status: webinar.status,
                     chatEnabled: webinar.chatEnabled,
-                    // Additional parameters based on the result of someOtherFutureOperation()
                   );
                 });
               }),

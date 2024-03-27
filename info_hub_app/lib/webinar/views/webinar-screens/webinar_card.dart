@@ -1,15 +1,18 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/webinar/controllers/card_controller.dart';
 import 'package:info_hub_app/model/user_model.dart';
 import 'package:info_hub_app/webinar/helpers/webinar_card_dialogs.dart';
 import 'package:info_hub_app/webinar/models/livestream.dart';
 import 'package:info_hub_app/webinar/controllers/webinar_controller.dart';
+
 /// In control of creating the webinar card and its contents
 class WebinarCard extends StatelessWidget {
   final FirebaseFirestore firestore;
+  final FirebaseAuth auth;
   final Livestream post;
   final UserModel user;
   final WebinarController webinarController;
@@ -17,6 +20,7 @@ class WebinarCard extends StatelessWidget {
   const WebinarCard({
     super.key,
     required this.post,
+    required this.auth,
     required this.firestore,
     required this.user,
     required this.webinarController,
@@ -25,12 +29,15 @@ class WebinarCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool isAdmin = user.roleType == 'admin'; // Check if user is admin
-    CardController cardController = CardController(webinarController: webinarController, firestore: firestore);
-    WebinarCardDialogs cardDialogs = WebinarCardDialogs(webinarController: webinarController);
+    CardController cardController = CardController(
+        webinarController: webinarController, firestore: firestore);
+    WebinarCardDialogs cardDialogs =
+        WebinarCardDialogs(auth: auth, webinarController: webinarController);
 
     return GestureDetector(
       onTap: () async {
-        String gestureHandler = await cardController.handleTap(context, post, user);
+        String gestureHandler =
+            await cardController.handleTap(context, post, user);
         if (gestureHandler == "Upcoming") {
           cardDialogs.showUpcomingDialog(context, post.startTime);
         }
@@ -79,7 +86,8 @@ class WebinarCard extends StatelessWidget {
               if (isAdmin)
                 IconButton(
                   icon: const Icon(Icons.more_vert),
-                  onPressed: () => _showAdminActions(context, cardController, cardDialogs),
+                  onPressed: () =>
+                      _showAdminActions(context, cardController, cardDialogs),
                 ),
             ],
           ),
@@ -89,7 +97,8 @@ class WebinarCard extends StatelessWidget {
   }
 
   /// Displays the functions an admin has at their disposal, regarding deleting and moving webinars between states
-  void _showAdminActions(BuildContext context, CardController controller, WebinarCardDialogs cardDialogs) {
+  void _showAdminActions(BuildContext context, CardController controller,
+      WebinarCardDialogs cardDialogs) {
     showModalBottomSheet(
       backgroundColor: Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -102,7 +111,6 @@ class WebinarCard extends StatelessWidget {
                 onTap: () async {
                   Navigator.pop(context); // Close the bottom sheet
                   cardDialogs.showArchiveDialog(context, controller, post);
-
                 },
                 child: Container(
                   padding: const EdgeInsets.only(top: 10),
@@ -117,7 +125,7 @@ class WebinarCard extends StatelessWidget {
               InkWell(
                 onTap: () {
                   Navigator.pop(context); // Close the bottom sheet
-                  cardDialogs.showLiveDialog(context,post);
+                  cardDialogs.showLiveDialog(context, post);
                 },
                 child: Container(
                   padding: const EdgeInsets.only(top: 10),
@@ -135,10 +143,10 @@ class WebinarCard extends StatelessWidget {
               },
               child: Container(
                 padding: const EdgeInsets.only(top: 5),
-                  height: 65,
-                  child: const ListTile(
-                    leading: Icon(Icons.delete_outlined),
-                    title: Text('Delete Webinar'),
+                height: 65,
+                child: const ListTile(
+                  leading: Icon(Icons.delete_outlined),
+                  title: Text('Delete Webinar'),
                 ),
               ),
             ),

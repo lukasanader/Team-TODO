@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/notifications/notification_controller.dart';
 import 'package:info_hub_app/webinar/controllers/card_controller.dart';
@@ -7,9 +8,11 @@ import 'package:info_hub_app/webinar/controllers/webinar_controller.dart';
 
 /// Stores all dialogs associated to admin functions for webinars (move to live/archived and delete)
 class WebinarCardDialogs {
+  FirebaseAuth auth;
   WebinarController webinarController;
 
   WebinarCardDialogs({
+    required this.auth,
     required this.webinarController,
   });
 
