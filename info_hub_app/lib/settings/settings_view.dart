@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:info_hub_app/controller/user_controller.dart';
 import 'package:info_hub_app/profile_view/profile_view.dart';
 import 'package:info_hub_app/profile_view/profile_view_controller.dart';
 import 'package:info_hub_app/notifications/preferences_view.dart';
@@ -36,15 +37,17 @@ class SettingsView extends StatefulWidget {
 
 class _SettingsViewState extends State<SettingsView> {
   bool isAdmin = false;
+  late UserController userController;
 
   @override
   void initState() {
     super.initState();
+    userController = UserController(widget.auth, widget.firestore);
     initializeAdminStatus();
   }
 
   Future<void> initializeAdminStatus() async {
-    await isAdminUser();
+    isAdmin = await userController.isAdmin();
   }
 
   @override
@@ -171,36 +174,26 @@ class _SettingsViewState extends State<SettingsView> {
             title: const Text('Log Out'),
             onTap: () {
               widget.auth.signOut();
-                Navigator.of(context, rootNavigator: true)
-                  .pushAndRemoveUntil(
-                    MaterialPageRoute(
-                      builder: (BuildContext context) {
-                        return StartPage(
-                          firestore: widget.firestore ,
-                          auth: widget.auth, 
-                          storage: widget.storage, 
-                          themeManager: widget.themeManager,
-                          messaging: FirebaseMessaging.instance,
-                          localnotificationsplugin: FlutterLocalNotificationsPlugin(),);
-                      },
-                    ),
-                    (_) => false,
-                );
+              Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
+                MaterialPageRoute(
+                  builder: (BuildContext context) {
+                    return StartPage(
+                      firestore: widget.firestore,
+                      auth: widget.auth,
+                      storage: widget.storage,
+                      themeManager: widget.themeManager,
+                      messaging: FirebaseMessaging.instance,
+                      localnotificationsplugin:
+                          FlutterLocalNotificationsPlugin(),
+                    );
+                  },
+                ),
+                (_) => false,
+              );
             },
           ),
         ],
       ),
     );
-  }
-
-  Future<void> isAdminUser() async {
-    User? user = widget.auth.currentUser;
-    if (user != null) {
-      DocumentSnapshot snapshot =
-          await widget.firestore.collection('Users').doc(user.uid).get();
-      setState(() {
-        isAdmin = snapshot['roleType'] == 'admin';
-      });
-    }
   }
 }
