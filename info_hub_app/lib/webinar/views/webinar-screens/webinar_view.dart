@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:info_hub_app/helpers/helper_widgets.dart';
 import 'package:info_hub_app/model/user_model.dart';
@@ -9,11 +10,13 @@ import 'package:info_hub_app/webinar/views/webinar-screens/webinar_card.dart';
 class WebinarView extends StatefulWidget {
   final FirebaseFirestore firestore;
   final UserModel user;
+  final FirebaseAuth auth;
   final WebinarController webinarController;
 
   const WebinarView({
     super.key,
     required this.firestore,
+    required this.auth,
     required this.user,
     required this.webinarController,
   });
@@ -55,6 +58,7 @@ class _WebinarViewState extends State<WebinarView> {
           );
           return WebinarCard(
             post: post,
+            auth: widget.auth,
             firestore: widget.firestore,
             user: widget.user,
             webinarController: widget.webinarController,
