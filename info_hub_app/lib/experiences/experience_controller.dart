@@ -59,6 +59,21 @@ class ExperienceController {
     return experienceList;
   }
 
+  Future<List<Experience>> getunVerifiedExperienceListBasedonRole(
+      String roleType) async {
+    QuerySnapshot experiencesSnapshot = await _firestore
+        .collection('experiences')
+        .where('verified', isEqualTo: false)
+        .where('userRoleType', isEqualTo: roleType)
+        .orderBy('timestamp', descending: true)
+        .get();
+
+    List<Experience> experienceList = List.from(
+        experiencesSnapshot.docs.map((doc) => Experience.fromSnapshot(doc)));
+
+    return experienceList;
+  }
+
   Future<void> updateVerification(Experience experience) async {
     bool newValue = experience.verified == true ? false : true;
 
