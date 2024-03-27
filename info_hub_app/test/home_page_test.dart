@@ -7,6 +7,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
@@ -19,6 +20,46 @@ import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:info_hub_app/threads/controllers/name_generator_controller.dart';
 import 'package:info_hub_app/topics/view_topic/view/topic_view.dart';
 import 'package:info_hub_app/webinar/views/webinar-screens/webinar_view.dart';
+
+class FakeFirebaseMessaging extends Fake implements FirebaseMessaging {
+  Function(RemoteMessage)? onMessageOpenedAppHandler;
+
+  void simulateMessageOpenedApp(RemoteMessage message) {
+    if (onMessageOpenedAppHandler != null) {
+      onMessageOpenedAppHandler!(message);
+    }
+  }
+
+  @override
+  Future<String?> getToken({String? vapidKey}) async {
+    return 'fakeDeviceToken';
+  }
+
+  @override
+  Future<NotificationSettings> requestPermission({
+    bool alert = false,
+    bool announcement = false,
+    bool badge = false,
+    bool carPlay = false,
+    bool criticalAlert = false,
+    bool provisional = false,
+    bool sound = false,
+  }) async {
+    return const NotificationSettings(
+      authorizationStatus: AuthorizationStatus.authorized,
+      alert: AppleNotificationSetting.enabled,
+      announcement: AppleNotificationSetting.enabled,
+      badge: AppleNotificationSetting.enabled,
+      carPlay: AppleNotificationSetting.enabled,
+      criticalAlert: AppleNotificationSetting.enabled,
+      sound: AppleNotificationSetting.enabled,
+      lockScreen: AppleNotificationSetting.enabled,
+      notificationCenter: AppleNotificationSetting.enabled,
+      showPreviews: AppleShowPreviewSetting.always,
+      timeSensitive: AppleNotificationSetting.enabled,
+    );
+  }
+}
 
 void main() {
   late MockFirebaseAuth auth;
@@ -79,6 +120,7 @@ void main() {
         auth: auth,
         firestore: firestore,
         themeManager: themeManager,
+        messaging: FakeFirebaseMessaging(),
         roleType: 'Patient',
       ),
     );

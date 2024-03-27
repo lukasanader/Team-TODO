@@ -24,12 +24,14 @@ class SettingsView extends StatefulWidget {
   final FirebaseFirestore firestore;
   final FirebaseStorage storage;
   final ThemeManager themeManager;
+  final FirebaseMessaging messaging;
   const SettingsView(
       {super.key,
       required this.auth,
       required this.firestore,
       required this.storage,
-      required this.themeManager});
+      required this.themeManager,
+      required this.messaging});
 
   @override
   State<SettingsView> createState() => _SettingsViewState();
@@ -175,7 +177,20 @@ class _SettingsViewState extends State<SettingsView> {
           ),
           ListTile(
             title: const Text('Log Out'),
-            onTap: () {
+            onTap: () async {
+              final String? deviceToken = await widget.messaging.getToken();
+              if (deviceToken != null) {
+                final tokenSnapshot = await widget.firestore
+                    .collection('Users')
+                    .doc(widget.auth.currentUser!.uid)
+                    .collection('deviceTokens')
+                    .where('token', isEqualTo: deviceToken)
+                    .get();
+
+                if (tokenSnapshot.docs.isNotEmpty) {
+                  await tokenSnapshot.docs.first.reference.delete();
+                }
+              }
               widget.auth.signOut();
               Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
                 MaterialPageRoute(

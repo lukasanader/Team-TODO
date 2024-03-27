@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -15,6 +16,47 @@ import 'package:info_hub_app/settings/settings_view.dart';
 import 'package:info_hub_app/settings/help_page_view.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
 import 'mock.dart';
+import 'push_notifications_test.dart';
+
+class FakeFirebaseMessaging extends Fake implements FirebaseMessaging {
+  Function(RemoteMessage)? onMessageOpenedAppHandler;
+
+  void simulateMessageOpenedApp(RemoteMessage message) {
+    if (onMessageOpenedAppHandler != null) {
+      onMessageOpenedAppHandler!(message);
+    }
+  }
+
+  @override
+  Future<String?> getToken({String? vapidKey}) async {
+    return 'fakeDeviceToken';
+  }
+
+  @override
+  Future<NotificationSettings> requestPermission({
+    bool alert = false,
+    bool announcement = false,
+    bool badge = false,
+    bool carPlay = false,
+    bool criticalAlert = false,
+    bool provisional = false,
+    bool sound = false,
+  }) async {
+    return const NotificationSettings(
+      authorizationStatus: AuthorizationStatus.authorized,
+      alert: AppleNotificationSetting.enabled,
+      announcement: AppleNotificationSetting.enabled,
+      badge: AppleNotificationSetting.enabled,
+      carPlay: AppleNotificationSetting.enabled,
+      criticalAlert: AppleNotificationSetting.enabled,
+      sound: AppleNotificationSetting.enabled,
+      lockScreen: AppleNotificationSetting.enabled,
+      notificationCenter: AppleNotificationSetting.enabled,
+      showPreviews: AppleShowPreviewSetting.always,
+      timeSensitive: AppleNotificationSetting.enabled,
+    );
+  }
+}
 
 void main() {
   setupFirebaseAuthMocks();
@@ -26,11 +68,13 @@ void main() {
   late MockFirebaseStorage firebaseStorage;
   late FakeFirebaseFirestore firestore;
   late ThemeManager themeManager;
+  late FakeFirebaseMessaging firebaseMessaging;
 
   setUp(() {
     firebaseStorage = MockFirebaseStorage();
     firestore = FakeFirebaseFirestore();
     themeManager = ThemeManager();
+    firebaseMessaging = FakeFirebaseMessaging();
     firestore.collection('Users').doc('adminUser').set({
       'name': 'John Doe',
       'email': 'john@example.com',
@@ -47,6 +91,7 @@ void main() {
       firestore: firestore,
       storage: firebaseStorage,
       themeManager: themeManager,
+      messaging: firebaseMessaging,
     ));
   });
 
