@@ -66,7 +66,7 @@ class _ThreadRepliesState extends State<ThreadReplies> {
 
     String authorName = generateUniqueName(creatorId);
     String userProfilePhoto =
-        await threadController.getUserProfilePhoto(creatorId);
+        await threadController.getUserProfilePhotoFilename(creatorId);
     String tempReplyId = DateTime.now().millisecondsSinceEpoch.toString();
     String roleType = await threadController.getUserRoleType(creatorId);
 

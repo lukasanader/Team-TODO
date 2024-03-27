@@ -863,6 +863,193 @@ void main() {
     // You can also check for specific text within the AlertDialog to ensure it's the correct one
     expect(find.text('Delete Thread'), findsOneWidget);
   });
+  testWidgets('CustomCard navigates to ThreadReplies on tap',
+      (WidgetTester tester) async {
+    final firestore = FakeFirebaseFirestore();
+
+    // Create a thread in Firestore
+    final threadId = 'dummyThreadId';
+    await firestore.collection('thread').doc(threadId).set({
+      'title': 'Test Title',
+      'description': 'Test Description',
+      'creator': 'dummyUid',
+      'authorName': 'Author Name',
+      'timestamp': Timestamp.now(),
+      'isEdited': false,
+      'roleType': 'Admin',
+      'topicId': 'testTopicId',
+      'topicTitle': 'Test Topic Title',
+    });
+
+    final snapshot = await firestore.collection('thread').doc(threadId).get();
+    final thread = Thread.fromMap(snapshot.data()!, snapshot.id);
+
+    final controller = ThreadController(firestore: firestore, auth: mockAuth);
+
+    await tester.pumpWidget(createTestWidget(MaterialApp(
+      home: CustomCard(
+        index: 0,
+        thread: thread,
+        controller: controller,
+        threadId: thread.id,
+      ),
+    )));
+
+    await tester.pumpAndSettle();
+
+    // Simulate a tap on the InkWell widget
+    await tester.tap(find.byKey(Key('navigateToThreadReplies_0')));
+    await tester.pumpAndSettle(); // Wait for the navigation to complete
+
+    // Check if ThreadReplies screen is pushed onto the navigation stack
+    expect(find.byType(ThreadReplies), findsOneWidget);
+  });
+
+  testWidgets('CustomCard shows AlertDialog and handles actions',
+      (WidgetTester tester) async {
+    final firestore = FakeFirebaseFirestore();
+
+    // Create a thread in Firestore
+    final threadId = 'dummyThreadId';
+    await firestore.collection('thread').doc(threadId).set({
+      'title': 'Test Title',
+      'description': 'Test Description',
+      'creator': 'dummyUid',
+      'authorName': 'Author Name',
+      'timestamp': Timestamp.now(),
+      'isEdited': false,
+      'roleType': 'Admin',
+      'topicId': 'testTopicId',
+      'topicTitle': 'Test Topic Title',
+    });
+
+    final snapshot = await firestore.collection('thread').doc(threadId).get();
+    final thread = Thread.fromMap(snapshot.data()!, snapshot.id);
+
+    final controller = ThreadController(firestore: firestore, auth: mockAuth);
+
+    await tester.pumpWidget(createTestWidget(MaterialApp(
+      home: CustomCard(
+        index: 0,
+        thread: thread,
+        controller: controller,
+        threadId: thread.id,
+      ),
+    )));
+
+    // Expand the card
+    final expansionTriggerFinder = find.byKey(const Key('authorText_0'));
+    await tester.tap(expansionTriggerFinder);
+    await tester.pumpAndSettle();
+
+    // Open the edit dialog
+    final deleteButtonFinder = find.byKey(const Key('deleteIcon_0'));
+    await tester.tap(deleteButtonFinder);
+    await tester.pumpAndSettle();
+
+    // Verify the AlertDialog is displayed
+    expect(find.byType(AlertDialog), findsOneWidget);
+    expect(find.text('Warning!'), findsOneWidget);
+    expect(
+        find.text(
+            "Deleting your Thread will also delete all replies associated with it. Do you want to proceed?"),
+        findsOneWidget);
+
+    // Test the 'Close' button
+    await tester.tap(find.widgetWithText(TextButton, 'Close'));
+    await tester.pumpAndSettle();
+    expect(find.byType(AlertDialog), findsNothing); // Dialog should be closed
+
+    // Reopen the dialog to test the 'Delete Thread' button
+    await tester.tap(expansionTriggerFinder);
+
+    await tester.tap(find.byKey(Key('deleteIcon_0')));
+    await tester.pumpAndSettle();
+
+    // Tap 'Delete Thread' and verify the dialog closes and the deleteThread method is called
+    await tester.tap(find.widgetWithText(TextButton, 'Delete Thread'));
+    await tester.pumpAndSettle();
+    expect(find.byType(AlertDialog), findsNothing); // Dialog should be closed
+
+    // Here you might want to verify that the deleteThread method was called
+    // This might involve checking a mock or verifying the state of your application
+  });
+  test('getUserRoleType returns correct role type', () async {
+    final firestore = FakeFirebaseFirestore();
+    final userId = 'testUserId';
+    final expectedRoleType = 'Admin';
+
+    await firestore
+        .collection('Users')
+        .doc(userId)
+        .set({'roleType': expectedRoleType});
+
+    final controller = ThreadController(firestore: firestore, auth: mockAuth);
+    final roleType = await controller.getUserRoleType(userId);
+
+    expect(roleType, equals(expectedRoleType));
+  });
+
+  test('deleteThread deletes the thread and its replies', () async {
+    final firestore = FakeFirebaseFirestore();
+    final threadId = 'testThreadId';
+
+    // Simulate existing replies associated with the thread
+    await firestore.collection('replies').add({'threadId': threadId});
+
+    final controller = ThreadController(firestore: firestore, auth: mockAuth);
+
+    await controller.deleteThread(threadId);
+
+    final threadExists =
+        (await firestore.collection('thread').doc(threadId).get()).exists;
+    final repliesExist = (await firestore
+            .collection('replies')
+            .where('threadId', isEqualTo: threadId)
+            .get())
+        .docs
+        .isNotEmpty;
+
+    expect(threadExists, isFalse);
+    expect(repliesExist, isFalse);
+  });
+
+  test('getUserData retrieves user data correctly', () async {
+    final firestore = FakeFirebaseFirestore();
+    final userId = 'testUserId';
+    final expectedUserData = {'name': 'Test User', 'email': 'test@example.com'};
+
+    await firestore.collection('Users').doc(userId).set(expectedUserData);
+
+    final controller = ThreadController(firestore: firestore, auth: mockAuth);
+    final userData = await controller.getUserData(userId);
+
+    expect(userData, equals(expectedUserData));
+  });
+
+  test('getThreads returns a stream of threads for a specific topic', () async {
+    final firestore = FakeFirebaseFirestore();
+    final topicId = 'testTopicId';
+
+    // Adding threads for the specific topic
+    await firestore
+        .collection('thread')
+        .add({'topicId': topicId, 'content': 'Thread 1'});
+    await firestore
+        .collection('thread')
+        .add({'topicId': 'otherTopicId', 'content': 'Thread 2'});
+
+    final controller = ThreadController(firestore: firestore, auth: mockAuth);
+    final stream = controller.getThreads(topicId);
+
+    final QuerySnapshot querySnapshot = await stream.first;
+    final List<QueryDocumentSnapshot> threads = querySnapshot.docs;
+
+    final containsOnlySpecificTopic =
+        threads.every((doc) => doc['topicId'] == topicId);
+
+    expect(containsOnlySpecificTopic, isTrue);
+  });
 }
 
 // Create a helper function to wrap your widget in a MaterialApp
