@@ -15,6 +15,9 @@ import 'package:info_hub_app/home_page/home_page.dart';
 import 'package:info_hub_app/admin/admin_dash.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:info_hub_app/theme/theme_constants.dart';
+import 'package:info_hub_app/email_verification/email_verification_screen.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class Base extends StatefulWidget {
   final FirebaseAuth auth;
@@ -37,7 +40,16 @@ class Base extends StatefulWidget {
 class _BaseState extends State<Base> {
   List<Widget> getScreenBasedOnUser() {
     Widget userHomePage;
-    if (widget.roleType == 'admin') {
+    if (widget.auth.currentUser!.emailVerified != true){
+      userHomePage= EmailVerificationScreen(
+          auth: widget.auth,
+          firestore: widget.firestore,
+          storage: widget.storage,
+          messaging: FirebaseMessaging.instance,
+          localnotificationsplugin: FlutterLocalNotificationsPlugin(),
+        );
+    }
+    else if (widget.roleType == 'admin') {
       userHomePage= AdminHomepage(
           auth: widget.auth,
           storage: widget.storage,
