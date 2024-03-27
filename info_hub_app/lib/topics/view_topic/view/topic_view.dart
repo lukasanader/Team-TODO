@@ -8,7 +8,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:info_hub_app/topics/create_topic/helpers/quiz/complete_quiz.dart';
 import 'package:info_hub_app/topics/create_topic/view/topic_creation_view.dart';
 import 'dart:async';
-import 'package:info_hub_app/threads/threads.dart';
+import 'package:info_hub_app/threads/views/threads.dart';
 import 'package:info_hub_app/topics/create_topic/model/topic_model.dart';
 import '../controllers/interaction_controller.dart';
 import '../controllers/media_controller.dart';

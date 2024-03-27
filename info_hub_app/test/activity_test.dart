@@ -7,7 +7,7 @@ import 'package:info_hub_app/home_page/home_page.dart';
 import 'package:info_hub_app/main.dart';
 import 'package:info_hub_app/screens/activity_view.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
-import 'package:info_hub_app/threads/threads.dart';
+import 'package:info_hub_app/threads/views/threads.dart';
 import 'package:info_hub_app/topics/create_topic/model/topic_model.dart';
 import 'package:info_hub_app/topics/view_topic/view/topic_view.dart';
 

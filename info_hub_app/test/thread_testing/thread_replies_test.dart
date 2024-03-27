@@ -3,9 +3,9 @@ import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:info_hub_app/threads/reply_card.dart';
+import 'package:info_hub_app/threads/views/reply_card.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:info_hub_app/threads/thread_replies.dart';
+import 'package:info_hub_app/threads/views/thread_replies.dart';
 
 import 'package:info_hub_app/main.dart';
 
