@@ -20,8 +20,8 @@ void main() {
     mockFirestore = FakeFirebaseFirestore();
     mockStorage = MockFirebaseStorage();
     auth = MockFirebaseAuth(signedIn: true);
-    WebinarController webService =
-        WebinarController(firestore: mockFirestore, storage: mockStorage);
+    WebinarController webService = WebinarController(
+        firestore: mockFirestore, storage: mockStorage, auth: auth);
     testUser = UserModel(
       uid: 'testUid',
       firstName: 'John',

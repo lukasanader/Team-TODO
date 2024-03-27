@@ -280,7 +280,9 @@ class _MyAppState extends State<MyApp> {
 
             return FutureBuilder<WebinarScreen>(
               future: WebinarController(
-                      firestore: widget.firestore, storage: widget.storage)
+                      firestore: widget.firestore,
+                      storage: widget.storage,
+                      auth: widget.auth)
                   .getWebinar(id)
                   .then((webinar) {
                 return UserController(widget.auth, widget.firestore)
@@ -293,7 +295,9 @@ class _MyAppState extends State<MyApp> {
                     firestore: widget.firestore,
                     title: webinar.title,
                     webinarController: WebinarController(
-                        firestore: widget.firestore, storage: widget.storage),
+                        firestore: widget.firestore,
+                        storage: widget.storage,
+                        auth: widget.auth),
                     status: webinar.status,
                     chatEnabled: webinar.chatEnabled,
                   );

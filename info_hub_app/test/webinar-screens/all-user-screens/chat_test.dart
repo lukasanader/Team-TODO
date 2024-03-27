@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -13,14 +14,17 @@ void main() {
   late Widget chatScreenWidget;
   late MockFirebaseStorage mockStorage;
   late WebinarController webService;
+  late MockFirebaseAuth auth;
   late UserModel user;
 
   setUp(() {
     firestore = FakeFirebaseFirestore();
     mockStorage = MockFirebaseStorage();
+    auth = MockFirebaseAuth(signedIn: true);
     webService = WebinarController(
       firestore: firestore,
-      storage: mockStorage
+      storage: mockStorage,
+      auth: auth,
     );
     user = UserModel(
       uid: 'mockUid',
@@ -31,31 +35,28 @@ void main() {
       likedTopics: [],
       dislikedTopics: [],
     );
-
   });
 
   void enableChat() {
     chatScreenWidget = MaterialApp(
-      home: Chat(
-        firestore: firestore,
-        user: user,
-        webinarID: 'test',
-        webinarController: webService,
-        chatEnabled: true,
-        )
-    );
+        home: Chat(
+      firestore: firestore,
+      user: user,
+      webinarID: 'test',
+      webinarController: webService,
+      chatEnabled: true,
+    ));
   }
 
   void disableChat() {
     chatScreenWidget = MaterialApp(
-      home: Chat(
-        firestore: firestore,
-        user: user,
-        webinarID: 'test',
-        webinarController: webService,
-        chatEnabled: false,
-        )
-    );
+        home: Chat(
+      firestore: firestore,
+      user: user,
+      webinarID: 'test',
+      webinarController: webService,
+      chatEnabled: false,
+    ));
   }
 
   testWidgets('Chat Widget Test - Loading State', (WidgetTester tester) async {
@@ -94,7 +95,8 @@ void main() {
     expect(find.text('Test message'), findsOneWidget);
   });
 
-  testWidgets('Test Anonymous name displays correctly', (WidgetTester tester) async {
+  testWidgets('Test Anonymous name displays correctly',
+      (WidgetTester tester) async {
     firestore.collection('Webinar').doc('test').collection('comments').add({
       'uid': 'mockUid',
       'roleType': user.roleType,
@@ -109,7 +111,8 @@ void main() {
     expect(find.text('Anonymous Beaver'), findsOneWidget);
   });
 
-  testWidgets('Test Doctor name displays correctly', (WidgetTester tester) async {
+  testWidgets('Test Doctor name displays correctly',
+      (WidgetTester tester) async {
     firestore.collection('Webinar').doc('test').collection('comments').add({
       'uid': 'mockUid',
       'roleType': 'Healthcare Professional',
@@ -124,7 +127,8 @@ void main() {
     expect(find.text(user.firstName), findsOneWidget);
   });
 
-  testWidgets('Test User can not write profanities in their messages', (WidgetTester tester) async {
+  testWidgets('Test User can not write profanities in their messages',
+      (WidgetTester tester) async {
     enableChat();
     await tester.pumpWidget(chatScreenWidget);
     await tester.pumpAndSettle();
@@ -137,37 +141,51 @@ void main() {
     await tester.tap(find.byIcon(Icons.send));
     await tester.pumpAndSettle();
 
-    expect(find.text('Please refrain from using language that may be rude to others or writing your name in your messages.'), findsOneWidget);
-    
+    expect(
+        find.text(
+            'Please refrain from using language that may be rude to others or writing your name in your messages.'),
+        findsOneWidget);
+
     await tester.tap(find.text('OK'));
     await tester.pumpAndSettle();
-    
-    expect(find.text('Please refrain from using language that may be rude to others or writing your name in your messages.'), findsNothing);
+
+    expect(
+        find.text(
+            'Please refrain from using language that may be rude to others or writing your name in your messages.'),
+        findsNothing);
   });
 
-  testWidgets('Test User can not write their name in their messages', (WidgetTester tester) async {
+  testWidgets('Test User can not write their name in their messages',
+      (WidgetTester tester) async {
     enableChat();
     await tester.pumpWidget(chatScreenWidget);
     await tester.pumpAndSettle();
-    
+
     final enterMessageField = find.ancestor(
       of: find.text('Type your message...'),
       matching: find.byType(TextField),
     );
-    
+
     await tester.enterText(enterMessageField, 'I am ${user.firstName}');
     await tester.tap(find.byIcon(Icons.send));
     await tester.pumpAndSettle();
-    
-    expect(find.text('Please refrain from using language that may be rude to others or writing your name in your messages.'), findsOneWidget);
-    
+
+    expect(
+        find.text(
+            'Please refrain from using language that may be rude to others or writing your name in your messages.'),
+        findsOneWidget);
+
     await tester.tap(find.text('OK'));
     await tester.pumpAndSettle();
-    
-    expect(find.text('Please refrain from using language that may be rude to others or writing your name in your messages.'), findsNothing);
+
+    expect(
+        find.text(
+            'Please refrain from using language that may be rude to others or writing your name in your messages.'),
+        findsNothing);
   });
 
-  testWidgets('Test User can not type and send blank message', (WidgetTester tester) async {
+  testWidgets('Test User can not type and send blank message',
+      (WidgetTester tester) async {
     enableChat();
     await tester.pumpWidget(chatScreenWidget);
     await tester.pumpAndSettle();
@@ -179,14 +197,15 @@ void main() {
     await tester.tap(find.byIcon(Icons.send));
     await tester.pumpAndSettle();
     final querySnapshot = await firestore
-                            .collection('Webinar')
-                            .doc('test')
-                            .collection('comments')
-                            .get();
-    expect(querySnapshot.docs.length,equals(0));
+        .collection('Webinar')
+        .doc('test')
+        .collection('comments')
+        .get();
+    expect(querySnapshot.docs.length, equals(0));
   });
 
-  testWidgets('Test User can type and send message', (WidgetTester tester) async {
+  testWidgets('Test User can type and send message',
+      (WidgetTester tester) async {
     enableChat();
     await tester.pumpWidget(chatScreenWidget);
     await tester.pumpAndSettle();
@@ -198,15 +217,20 @@ void main() {
     await tester.tap(find.byIcon(Icons.send));
     await tester.pumpAndSettle();
     final querySnapshot = await firestore
-                            .collection('Webinar')
-                            .doc('test')
-                            .collection('comments')
-                            .get();
-    expect(querySnapshot.docs.length,greaterThan(0));
+        .collection('Webinar')
+        .doc('test')
+        .collection('comments')
+        .get();
+    expect(querySnapshot.docs.length, greaterThan(0));
   });
 
-  testWidgets('Test User can not type and send message if chat is disabled', (WidgetTester tester) async {
-    await firestore.collection('Webinar').doc('test').collection('comments').add({
+  testWidgets('Test User can not type and send message if chat is disabled',
+      (WidgetTester tester) async {
+    await firestore
+        .collection('Webinar')
+        .doc('test')
+        .collection('comments')
+        .add({
       'uid': 'mockUid',
       'roleType': 'Healthcare Professional',
       'message': 'Test message',
@@ -223,10 +247,13 @@ void main() {
     await tester.tap(find.byIcon(Icons.send));
     await tester.pumpAndSettle();
 
-    QuerySnapshot result = await firestore.collection('Webinar').doc('test').collection('comments').get();
+    QuerySnapshot result = await firestore
+        .collection('Webinar')
+        .doc('test')
+        .collection('comments')
+        .get();
 
     // Assert that the result only contains one item
     expect(result.docs.length, equals(1));
   });
-  
 }

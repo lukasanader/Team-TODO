@@ -222,7 +222,9 @@ class _AdminHomepageState extends State<AdminHomepage> {
                 UserModel currentAdmin = await _userController
                     .getUser(widget.auth.currentUser!.uid.toString());
                 WebinarController webService = WebinarController(
-                    firestore: widget.firestore, storage: widget.storage);
+                    firestore: widget.firestore,
+                    storage: widget.storage,
+                    auth: widget.auth);
                 PersistentNavBarNavigator.pushNewScreen(
                   context,
                   screen: WebinarDashboard(

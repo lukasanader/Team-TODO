@@ -29,7 +29,7 @@ void main() {
     auth = MockFirebaseAuth(signedIn: true);
     helper = WebinarViewHelper(fakeFirestore: fakeFirestore);
     webinarController = WebinarController(
-        firestore: fakeFirestore, storage: mockFirebaseStorage);
+        firestore: fakeFirestore, storage: mockFirebaseStorage, auth: auth);
     await mockWebViewDependencies.init();
     testUser = UserModel(
       uid: 'mockUid',
