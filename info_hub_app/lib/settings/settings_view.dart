@@ -47,7 +47,10 @@ class _SettingsViewState extends State<SettingsView> {
   }
 
   Future<void> initializeAdminStatus() async {
-    isAdmin = await userController.isAdmin();
+    bool isAdminUser = await userController.isAdmin();
+    setState(() {
+      isAdmin = isAdminUser;
+    });
   }
 
   @override
