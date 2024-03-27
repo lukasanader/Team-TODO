@@ -57,7 +57,7 @@ class WebinarCardDialogs {
         return AlertDialog(
           title: const Text('Move to Live'),
           content:
-              const Text('Are you sure you want to move this webinar to live? \n Ensure that you have followed the guide on the create webinar page before doing so.'),
+              const Text('Are you sure you want to move this webinar to live? \nEnsure that you have followed the guide on the create webinar page before doing so.'),
           actions: [
             TextButton(
               onPressed: () {
