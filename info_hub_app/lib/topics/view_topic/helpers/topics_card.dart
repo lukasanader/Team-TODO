@@ -178,7 +178,7 @@ class TopicCard extends StatelessWidget {
       video: videoUrl!,
       imageFormat: ImageFormat.JPEG,
       maxWidth: 100,
-      quality: 100,
+      quality: 25,
     );
     return uint8list!;
   }
