@@ -82,8 +82,8 @@ class CreateWebinarController {
         NotificationController(
                 auth: FirebaseAuth.instance, firestore: firestore, uid: id)
             .createNotification(
-                'Webinar Live',
-                'A webinar you might interested in is now live!',
+                'Live Webinar',
+                'A webinar you might interested just went live!',
                 DateTime.now(),
                 '/webinar',
                 webinarID);
