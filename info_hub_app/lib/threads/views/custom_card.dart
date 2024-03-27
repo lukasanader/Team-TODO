@@ -27,12 +27,12 @@ class _CustomCardState extends State<CustomCard> {
   late TextEditingController titleInputController;
   late TextEditingController descriptionInputController;
   late bool isEdited;
+  late String profilePhotoFilename;
 
   @override
   void initState() {
     super.initState();
     isEdited = widget.thread.isEdited;
-
     titleInputController = TextEditingController(text: widget.thread.title);
     descriptionInputController =
         TextEditingController(text: widget.thread.description);
@@ -59,11 +59,25 @@ class _CustomCardState extends State<CustomCard> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12.0),
           child: ExpansionTileCard(
-            leading: CircleAvatar(
-              key: Key('profilePhoto_${widget.index}'),
-              radius: 30,
-              backgroundImage:
-                  AssetImage('assets/${widget.thread.userProfilePhoto}'),
+            leading: FutureBuilder<String>(
+              future: widget.controller
+                  .getUserProfilePhotoFilename(widget.thread.creator),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.done &&
+                    snapshot.hasData) {
+                  return CircleAvatar(
+                    key: Key('profilePhoto_${widget.index}'),
+                    radius: 30,
+                    backgroundImage: AssetImage('assets/${snapshot.data}'),
+                  );
+                }
+                return CircleAvatar(
+                  key: Key('profilePhoto_${widget.index}'),
+                  radius: 30,
+                  backgroundImage:
+                      const AssetImage('assets/default_profile_photo.png'),
+                );
+              },
             ),
             title: Row(
               children: <Widget>[
@@ -149,8 +163,7 @@ class _CustomCardState extends State<CustomCard> {
                             },
                             child: Column(
                               children: <Widget>[
-                                Icon(Icons.edit,
-                                    key: Key('editIcon_${widget.index}')),
+                                Icon(Icons.edit, key: Key('editIcon_0')),
                                 const Padding(
                                   padding: EdgeInsets.symmetric(vertical: 2.0),
                                 ),

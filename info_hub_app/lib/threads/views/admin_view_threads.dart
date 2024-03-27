@@ -19,13 +19,14 @@ class ViewThreads extends StatefulWidget {
 class _ViewThreadsState extends State<ViewThreads> {
   late Stream<List<Thread>> threadsStream;
   late Stream<List<Reply>> repliesStream;
-
+  //late String profilePhotoFilename;
   bool isViewingThreads = true;
   late ThreadController controller;
 
   @override
   void initState() {
     super.initState();
+    //_loadUserProfilePhoto();
     controller =
         ThreadController(firestore: widget.firestore, auth: widget.auth);
     threadsStream = controller.getAllThreadsStream();
@@ -183,7 +184,7 @@ class _ViewThreadsState extends State<ViewThreads> {
       elevation: 5,
       child: ListTile(
         leading: FutureBuilder<String>(
-          future: controller.getUserProfilePhoto(reply.creator),
+          future: controller.getUserProfilePhotoFilename(reply.creator),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.done &&
                 snapshot.hasData) {

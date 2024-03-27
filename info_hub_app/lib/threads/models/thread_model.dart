@@ -9,7 +9,6 @@ class Thread {
   DateTime timestamp;
   bool isEdited;
   String roleType;
-  String userProfilePhoto;
   String topicId;
   String topicTitle;
 
@@ -22,7 +21,6 @@ class Thread {
     required this.timestamp,
     required this.isEdited,
     required this.roleType,
-    required this.userProfilePhoto,
     required this.topicId,
     required this.topicTitle,
   });
@@ -39,7 +37,6 @@ class Thread {
           : DateTime.now(),
       isEdited: map['isEdited'] ?? false,
       roleType: map['roleType'] ?? '',
-      userProfilePhoto: map['userProfilePhoto'] ?? '',
       topicId: map['topicId'] ?? '',
       topicTitle: map['topicTitle'] ?? '',
     );

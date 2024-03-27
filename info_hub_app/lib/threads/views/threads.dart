@@ -39,13 +39,6 @@ class _ThreadAppState extends State<ThreadApp> {
     descriptionInputController = TextEditingController();
   }
 
-  void refreshData() {
-    setState(() {
-      controller =
-          ThreadController(firestore: widget.firestore, auth: widget.auth);
-    });
-  }
-
   @override
   void dispose() {
     titleInputController.dispose();
@@ -169,8 +162,7 @@ class _ThreadAppState extends State<ThreadApp> {
 
                     if (!showErrorTitle && !showErrorDescription) {
                       String docId = controller.getCurrentUserId();
-                      String userProfilePhoto =
-                          await controller.getUserProfilePhoto(docId);
+
                       String roleType = await controller.getUserRoleType(docId);
                       String authorName = generateUniqueName(docId);
 
@@ -183,7 +175,6 @@ class _ThreadAppState extends State<ThreadApp> {
                         timestamp: DateTime.now(),
                         isEdited: false,
                         roleType: roleType,
-                        userProfilePhoto: userProfilePhoto,
                         topicId: widget.topicId,
                         topicTitle: widget.topicTitle,
                       );

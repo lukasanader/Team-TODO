@@ -39,6 +39,21 @@ class ThreadController {
     return auth.currentUser?.uid == creatorId;
   }
 
+  Future<ImageProvider<Object>> getUserProfileImage(String userId) async {
+    String profilePhotoFileName = await getUserProfilePhoto(userId);
+    return AssetImage('assets/$profilePhotoFileName');
+  }
+
+  Future<String> getUserProfilePhotoFilename(String userId) async {
+    DocumentSnapshot userDoc =
+        await firestore.collection('Users').doc(userId).get();
+    if (userDoc.exists) {
+      Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
+      return userData['selectedProfilePhoto'] ?? 'default_profile_photo.png';
+    }
+    return 'default_profile_photo.png';
+  }
+
   Future<String> getUserProfilePhoto(String userId) async {
     DocumentSnapshot userDoc =
         await firestore.collection('Users').doc(userId).get();
@@ -122,7 +137,6 @@ class ThreadController {
         timestamp: DateTime.now(),
         isEdited: false,
         roleType: 'Missing Role',
-        userProfilePhoto: 'default_profile_photo.png',
         topicId: '',
         topicTitle: 'Missing Topic Title',
       );
@@ -139,7 +153,6 @@ class ThreadController {
       "timestamp": FieldValue.serverTimestamp(),
       "isEdited": thread.isEdited,
       "roleType": thread.roleType,
-      "userProfilePhoto": thread.userProfilePhoto,
       "topicId": thread.topicId,
       "topicTitle": thread.topicTitle,
     });

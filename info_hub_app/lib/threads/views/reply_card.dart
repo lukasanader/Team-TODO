@@ -20,6 +20,7 @@ class ReplyCard extends StatefulWidget {
 
 class _ReplyCardState extends State<ReplyCard> {
   late TextEditingController contentController;
+  late String profilePhotoFilename;
 
   @override
   void initState() {
@@ -57,11 +58,23 @@ class _ReplyCardState extends State<ReplyCard> {
           padding: const EdgeInsets.symmetric(horizontal: 12.0),
           child: ExpansionTileCard(
             elevation: 5,
-            leading: CircleAvatar(
-              radius: 30,
-              backgroundImage:
-                  AssetImage('assets/${widget.reply.userProfilePhoto}')
-                      as ImageProvider<Object>,
+            leading: FutureBuilder<String>(
+              future: widget.controller
+                  .getUserProfilePhotoFilename(widget.reply.creator),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.done &&
+                    snapshot.hasData) {
+                  return CircleAvatar(
+                    radius: 30,
+                    backgroundImage: AssetImage('assets/${snapshot.data}'),
+                  );
+                }
+                return const CircleAvatar(
+                  radius: 30,
+                  backgroundImage:
+                      AssetImage('assets/default_profile_photo.png'),
+                );
+              },
             ),
             title: Text(
               widget.reply.authorName,
