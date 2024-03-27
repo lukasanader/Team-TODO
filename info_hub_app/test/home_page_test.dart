@@ -16,7 +16,7 @@ import 'package:info_hub_app/main.dart';
 import 'package:info_hub_app/message_feature/patient_message_view.dart';
 import 'package:info_hub_app/experiences/experiences_view.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
-import 'package:info_hub_app/threads/name_generator.dart';
+import 'package:info_hub_app/threads/controllers/name_generator_controller.dart';
 import 'package:info_hub_app/topics/view_topic/view/topic_view.dart';
 import 'package:info_hub_app/webinar/views/webinar-screens/webinar_view.dart';
 
