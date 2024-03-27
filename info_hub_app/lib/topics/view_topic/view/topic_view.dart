@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:info_hub_app/notifications/notification_controller.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:info_hub_app/topics/create_topic/helpers/quiz/complete_quiz.dart';
@@ -264,9 +265,24 @@ class TopicViewState extends State<TopicView> {
                                 child: const Text('Cancel'),
                               ),
                               TextButton(
-                                onPressed: () {
+                                onPressed: () async {
                                   // Delete the topic
-
+                                  NotificationController
+                                      notificationController =
+                                      NotificationController(
+                                          auth: widget.auth,
+                                          firestore: widget.firestore,
+                                          uid: widget.auth.currentUser!.uid);
+                                  List<String> notificationId =
+                                      await notificationController
+                                          .getNotificationIdFromPayload(
+                                              widget.topic.id);
+                                  if (notificationId.isNotEmpty) {
+                                    for (String id in notificationId) {
+                                      notificationController
+                                          .deleteNotification(id);
+                                    }
+                                  }
                                   interactionController.deleteTopic();
                                   Navigator.pop(context,
                                       widget.topic.id); // Close the dialog

@@ -75,6 +75,7 @@ class CreateWebinarController {
           formatter.format(time).toString(),
           statusText,
           selectedTags);
+
       List<String> idList = await webinarController.getWebinarRoles(webinarID);
 
       for (String id in idList) {
