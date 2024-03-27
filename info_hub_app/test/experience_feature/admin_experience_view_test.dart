@@ -219,14 +219,20 @@ void main() {
     expect(find.byWidget(experienceViewWidget), findsOneWidget);
   });
 
-  testWidgets('There is padding between two list views',
+  testWidgets('There is padding between two experiences',
       (WidgetTester tester) async {
-    // Build our app and trigger a frame.
+
+    topicsCollectionRef.add({
+      'title': 'Example 3',
+      'description': 'Example experience',
+      'userEmail': 'test2@example.org',
+      'verified': true
+    });
+
     await tester.pumpWidget(experienceViewWidget);
     await tester.pumpAndSettle();
 
-    Finder listViewFinder = find.byType(ListView);
-    expect(listViewFinder, findsNWidgets(2));
-    expect(find.byType(Padding), findsWidgets);
+
+    expect(find.byKey(const ValueKey<String>('between_experience_padding')), findsWidgets);
   });
 }

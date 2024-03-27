@@ -142,6 +142,7 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
                         height: 1,
                         color: Colors.grey,
                       ),
+                      key: const ValueKey<String>('between_experience_padding'),
                     );
                   } else {
                     index = index ~/ 2;
