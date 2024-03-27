@@ -172,52 +172,7 @@ void main() {
     expect(find.byType(MessageRoomView), findsOne);
   });
 
-  testWidgets('Delete button deletes message room',
-      (WidgetTester tester) async {
-    firestore.collection('message_rooms').doc('1').collection('messages').add({
-      'senderId': auth.currentUser!.uid,
-      'receiverId': '1',
-      'message': 'Hello world',
-      'timestamp': DateTime.now(),
-    });
 
-    //verify there is a message in the database
-    QuerySnapshot messages = await firestore
-        .collection('message_rooms')
-        .doc('1')
-        .collection('messages')
-        .get();
-
-    expect(messages.docs.isNotEmpty, true);
-
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(adminMessageViewWidget);
-    await tester.pumpAndSettle();
-
-    expect(find.text('user@gmail.com'), findsOneWidget);
-
-    Finder deleteButton = find.byIcon(Icons.delete).first;
-
-    await tester.ensureVisible(deleteButton);
-    await tester.tap(deleteButton);
-    await tester.pumpAndSettle();
-
-    expect(find.byType(AlertDialog), findsOneWidget);
-
-    await tester.tap(find.text('OK'));
-    await tester.pumpAndSettle();
-
-    messages = await firestore
-        .collection('message_rooms')
-        .doc('1')
-        .collection('messages')
-        .get();
-
-    //verify that the message is also now deleted
-    expect(messages.docs.isEmpty, true);
-
-    expect(find.text('user@gmail.com'), findsNothing);
-  });
 
   testWidgets('Can create message room and delete message room',
       (WidgetTester tester) async {
