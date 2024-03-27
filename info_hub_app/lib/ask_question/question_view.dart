@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:info_hub_app/ask_question/question_card.dart';
 import 'package:info_hub_app/controller/topic_question_controller.dart';
-import 'package:info_hub_app/model/model.dart';
+import 'package:info_hub_app/model/topic_question_model.dart';
 
 class ViewQuestionPage extends StatefulWidget {
   final FirebaseFirestore firestore;

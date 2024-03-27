@@ -66,20 +66,24 @@ class _CompleteQuizState extends State<CompleteQuiz> {
             if (_quizCompleted)
               Text('Your new score is $_score out of $_questionListLength'),
             if (_quizCompletedBefore) Text('your old score is $_oldScore'),
-            ElevatedButton(
-              onPressed: () async {
-                _calculateScore();
-                setState(() {
-                  _quizCompleted = true;
-                });
-              },
-              child: const Text('Done'),
-            ),
-            ElevatedButton(
-              onPressed: _resetPage,
-              child: const Text('Reset'),
-            ),
-          ],
+            Row(
+            children:[
+              ElevatedButton(
+                onPressed: () async {
+                  _calculateScore();
+                  setState(() {
+                    _quizCompleted = true;
+                  });
+                },
+                child: const Text('Done'),
+              ),
+              ElevatedButton(
+                onPressed: _resetPage,
+                child: const Text('Reset'),
+              ),
+            ],
+          )
+          ]
         ),
       ),
     );
