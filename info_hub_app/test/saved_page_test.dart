@@ -6,8 +6,10 @@ import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:io';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   late MockFirebaseAuth auth;
   late FakeFirebaseFirestore firestore;
   late MockFirebaseStorage storage;
@@ -15,6 +17,7 @@ void main() {
   late CollectionReference topicCollectionRef;
 
   setUp(() {
+    HttpOverrides.global = null;
     auth = MockFirebaseAuth();
 
     firestore = FakeFirebaseFirestore();
@@ -66,9 +69,15 @@ void main() {
       'title': 'test 1',
       'description': 'this is a test',
       'articleLink': '',
-      'media': [],
+      'media': [
+        {
+          'url':
+              'https://images.unsplash.com/photo-1606921231106-f1083329a65c?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8ZXhhbXBsZXxlbnwwfHwwfHx8MA%3D%3D',
+          'mediaType': 'image'
+        }
+      ],
       'views': 10,
-      'date': DateTime.now(),
+      'date': DateTime.now().subtract(const Duration(minutes: 5)),
       'likes': 0,
       'dislikes': 0,
       'tags': ['Patient'],
@@ -105,7 +114,7 @@ void main() {
       'articleLink': '',
       'media': [],
       'views': 10,
-      'date': DateTime.now(),
+      'date': DateTime.now().subtract(const Duration(days: 2)),
       'likes': 0,
       'dislikes': 0,
       'tags': ['Patient'],
@@ -118,7 +127,7 @@ void main() {
       'articleLink': '',
       'media': [],
       'views': 10,
-      'date': DateTime.now(),
+      'date': DateTime.now().subtract(const Duration(hours: 2)),
       'likes': 0,
       'dislikes': 0,
       'tags': ['Patient'],
