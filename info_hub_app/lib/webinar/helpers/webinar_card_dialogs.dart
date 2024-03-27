@@ -57,7 +57,7 @@ class WebinarCardDialogs {
         return AlertDialog(
           title: const Text('Move to Live'),
           content:
-              const Text('Are you sure you want to move this webinar to live?'),
+              const Text('Are you sure you want to move this webinar to live? \n Ensure that you have followed the guide on the create webinar page before doing so.'),
           actions: [
             TextButton(
               onPressed: () {
@@ -144,7 +144,7 @@ class WebinarCardDialogs {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   const Text(
-                      'Are you sure you want to move this webinar to the archive?'),
+                      'Are you sure you want to move this webinar to the archive? \nPlease enter the URL of this video again as it has now changed.'),
                   const SizedBox(height: 20),
                   TextField(
                     controller: urlController,
