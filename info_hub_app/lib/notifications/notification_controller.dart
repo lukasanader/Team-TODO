@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:info_hub_app/notifications/notification_model.dart' as custom;
@@ -16,7 +17,7 @@ class NotificationController {
       {required this.auth, required this.uid, required this.firestore});
 
   Future<String> createNotification(String title, String body,
-      DateTime timestamp, String route, Object? payload) async {
+      DateTime timestamp, String route, String? dataId) async {
     CollectionReference notificationsCollection =
         firestore.collection('notifications');
     var docRef = await notificationsCollection.add({
@@ -25,7 +26,7 @@ class NotificationController {
       'body': body,
       'timestamp': timestamp,
       'route': route,
-      'payload': payload ?? 'None',
+      'payload': dataId,
     });
 
     // Send push notification to all device tokens
@@ -102,5 +103,15 @@ class NotificationController {
     return notificationsCollection
         .snapshots()
         .map(notificationListFromSnapshot);
+  }
+
+  Future<String> getNotificationIdFromPayload(String? payload) async {
+    QuerySnapshot snapshot = await firestore
+        .collection('notifications')
+        .where('payload', isEqualTo: payload)
+        .get();
+
+    DocumentSnapshot doc = snapshot.docs.first;
+    return doc.id;
   }
 }

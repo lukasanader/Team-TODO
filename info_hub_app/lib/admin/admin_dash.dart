@@ -226,6 +226,7 @@ class _AdminHomepageState extends State<AdminHomepage> {
                 PersistentNavBarNavigator.pushNewScreen(
                   context,
                   screen: WebinarDashboard(
+                    auth: widget.auth,
                     firestore: widget.firestore,
                     user: currentAdmin,
                     webinarController: webService,

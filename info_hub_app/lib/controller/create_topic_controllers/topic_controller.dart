@@ -50,4 +50,10 @@ class TopicController {
       transaction.update(docRef, {'views': newViews});
     });
   }
+
+  Future<Topic> getTopic(String? id) async {
+    DocumentSnapshot snapshot =
+        await firestore.collection('message_rooms').doc(id).get();
+    return Topic.fromSnapshot(snapshot);
+  }
 }

@@ -7,14 +7,21 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:info_hub_app/controller/user_controller.dart';
 import 'package:info_hub_app/helpers/base.dart';
 import 'package:info_hub_app/home_page/home_page.dart';
+import 'package:info_hub_app/message_feature/message_room/message_room_controller.dart';
+import 'package:info_hub_app/message_feature/messaging_room_view.dart';
+import 'package:info_hub_app/model/user_model.dart';
 import 'package:info_hub_app/notifications/notification_controller.dart';
 import 'package:info_hub_app/push_notifications/push_notifications_controller.dart';
 import 'package:info_hub_app/theme/theme_constants.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:info_hub_app/model/topic_model.dart';
 import 'package:info_hub_app/topics/view_topic/view/topic_view.dart';
+import 'package:info_hub_app/webinar/controllers/webinar_controller.dart';
+import 'package:info_hub_app/webinar/views/webinar-screens/display_webinar.dart';
+import 'controller/create_topic_controllers/topic_controller.dart';
 import 'notifications/notification_model.dart' as custom;
 import 'registration/start_page.dart';
 import 'package:provider/provider.dart';
@@ -223,13 +230,86 @@ class _MyAppState extends State<MyApp> {
                   }
                 },
               ),
-          '/topic': (context) => TopicView(
-                auth: widget.auth,
-                firestore: widget.firestore,
-                storage: widget.storage,
-                topic: ModalRoute.of(context)!.settings.arguments as Topic,
-                themeManager: themeManager,
-              )
+          '/topic': (context) {
+            final String? id =
+                ModalRoute.of(context)!.settings.arguments as String?;
+            return FutureBuilder<TopicView>(
+              future: TopicController(
+                      auth: widget.auth, firestore: widget.firestore)
+                  .getTopic(id)
+                  .then((topic) => TopicView(
+                        auth: widget.auth,
+                        firestore: widget.firestore,
+                        storage: widget.storage,
+                        themeManager: themeManager,
+                        topic: topic,
+                      )),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const CircularProgressIndicator();
+                } else {
+                  return snapshot.data!;
+                }
+              },
+            );
+          },
+          '/messageroom': (context) {
+            final String? id =
+                ModalRoute.of(context)!.settings.arguments as String?;
+            return FutureBuilder<MessageRoomView>(
+              future: MessageRoomController(widget.auth, widget.firestore)
+                  .getMessageRoom(id)
+                  .then((messageRoom) => MessageRoomView(
+                        firestore: widget.firestore,
+                        auth: widget.auth,
+                        senderId: messageRoom.patientId.toString(),
+                        receiverId: messageRoom.adminId.toString(),
+                      )),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const CircularProgressIndicator();
+                } else {
+                  return snapshot.data!;
+                }
+              },
+            );
+          },
+          '/webinar': (context) {
+            final String? id =
+                ModalRoute.of(context)!.settings.arguments as String?;
+
+            return FutureBuilder<WebinarScreen>(
+              future: WebinarController(
+                      firestore: widget.firestore, storage: widget.storage)
+                  .getWebinar(id)
+                  .then((webinar) {
+                return UserController(widget.auth, widget.firestore)
+                    .getUser(widget.auth.currentUser!.uid)
+                    .then((user) {
+                  return WebinarScreen(
+                    webinarID: id!,
+                    youtubeURL: webinar.youtubeURL,
+                    currentUser: user,
+                    firestore: widget.firestore,
+                    title: webinar.title,
+                    webinarController: WebinarController(
+                        firestore: widget.firestore, storage: widget.storage),
+                    status: webinar.status,
+                    chatEnabled: webinar.chatEnabled,
+                  );
+                });
+              }),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const CircularProgressIndicator();
+                } else if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                } else {
+                  return snapshot.data!;
+                }
+              },
+            );
+          },
         },
         theme: lightTheme,
         darkTheme: darkTheme,

@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/controller/topic_question_controller.dart';
-import 'package:info_hub_app/model/model.dart';
+import 'package:info_hub_app/model/topic_question_model.dart';
 import 'package:info_hub_app/notifications/notification_controller.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:file_picker/file_picker.dart';
@@ -268,6 +268,16 @@ class TopicCreationViewState extends State<TopicCreationView> {
                         } else {
                           return QuestionCard(
                               questions[index], widget.firestore, () async {
+                            NotificationController(
+                                    auth: widget.auth,
+                                    firestore: widget.firestore,
+                                    uid: questions[index].uid)
+                                .createNotification(
+                                    'Question Reply',
+                                    'A topic has been created in response to your question.',
+                                    DateTime.now(),
+                                    '/topic',
+                                    topic!.id);
                             List<TopicQuestion> updatedQuestions =
                                 await controller.getRelevantQuestions(title);
                             setState(() {
@@ -310,18 +320,8 @@ class TopicCreationViewState extends State<TopicCreationView> {
                                                 'A topic has been created in response to your question.',
                                                 DateTime.now(),
                                                 '/topic',
-                                                topic);
+                                                topic!.id);
                                       }
-                                      NotificationController(
-                                              auth: widget.auth,
-                                              firestore: widget.firestore,
-                                              uid: widget.auth.currentUser!.uid)
-                                          .createNotification(
-                                              'Question Reply',
-                                              'A topic has been created in response to your question.',
-                                              DateTime.now(),
-                                              '/topic',
-                                              topic);
                                       controller.deleteAllQuestions(questions);
                                       setState(
                                         () {

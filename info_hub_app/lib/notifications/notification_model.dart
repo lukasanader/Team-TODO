@@ -5,7 +5,7 @@ class Notification {
   final String body;
   final DateTime timestamp;
   final String route;
-  final dynamic payload;
+  final String? payload;
   bool deleted;
 
   Notification({

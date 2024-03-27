@@ -194,6 +194,7 @@ class _HomePageState extends State<HomePage> {
                   PersistentNavBarNavigator.pushNewScreen(
                     context,
                     screen: WebinarView(
+                      auth: widget.auth,
                       firestore: widget.firestore,
                       user: user,
                       webinarController: webinarController,

@@ -18,9 +18,7 @@ class MessageBubble extends StatelessWidget {
       ),
       child: Text(
         message,
-        style: const TextStyle(
-          fontSize: 16,
-        ),
+        style: Theme.of(context).textTheme.bodyLarge,
       ),
     );
   }

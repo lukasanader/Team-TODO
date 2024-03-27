@@ -266,6 +266,7 @@ class TopicViewState extends State<TopicView> {
                               TextButton(
                                 onPressed: () {
                                   // Delete the topic
+
                                   interactionController.deleteTopic();
                                   Navigator.pop(context,
                                       widget.topic.id); // Close the dialog

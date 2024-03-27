@@ -46,8 +46,6 @@ class TopicCard extends StatelessWidget {
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return const Text('Error loading thumbnail');
           } else {
             return SizedBox(
               width: 50,
@@ -178,7 +176,7 @@ class TopicCard extends StatelessWidget {
       video: videoUrl!,
       imageFormat: ImageFormat.JPEG,
       maxWidth: 100,
-      quality: 100,
+      quality: 25,
     );
     return uint8list!;
   }
