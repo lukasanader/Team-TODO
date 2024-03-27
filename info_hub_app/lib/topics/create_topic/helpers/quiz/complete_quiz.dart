@@ -4,7 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:info_hub_app/controller/quiz_controller.dart';
 import 'package:info_hub_app/model/quiz_model.dart';
 import 'package:info_hub_app/topics/create_topic/helpers/quiz/user_quiz_question_card.dart';
-import 'package:info_hub_app/topics/create_topic/model/topic_model.dart';
+import 'package:info_hub_app/model/topic_model.dart';
 
 class CompleteQuiz extends StatefulWidget {
   final FirebaseFirestore firestore;
@@ -35,7 +35,7 @@ class _CompleteQuizState extends State<CompleteQuiz> {
   @override
   void initState() {
     super.initState();
-     controller = QuizController(firestore: widget.firestore, auth: widget.auth);
+    controller = QuizController(firestore: widget.firestore, auth: widget.auth);
     _getQuestionsList();
     _checkIfCompleted();
   }
@@ -117,9 +117,9 @@ class _CompleteQuizState extends State<CompleteQuiz> {
     }
     _score = _correctQuestions.where((element) => element == true).length;
     controller.handleQuizCompletion(
-        widget.topic,
-        "$_score/$_questionListLength",
-      );
+      widget.topic,
+      "$_score/$_questionListLength",
+    );
   }
 
   // Calculate the final score

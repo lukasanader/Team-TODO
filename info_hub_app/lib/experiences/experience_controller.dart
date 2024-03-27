@@ -12,11 +12,14 @@ class ExperienceController {
     Experience newExperience = Experience();
     String uid = _auth.currentUser!.uid;
     DocumentSnapshot user = await _firestore.collection('Users').doc(uid).get();
+    Timestamp timestamp = Timestamp.now();
+
 
     newExperience.title = title;
     newExperience.description = description;
     newExperience.userEmail = user['email'];
     newExperience.userRoleType = user['roleType'];
+    newExperience.timestamp = timestamp;
     newExperience.verified = false;
 
     CollectionReference db = _firestore.collection('experiences');
@@ -32,6 +35,7 @@ class ExperienceController {
     QuerySnapshot experiencesSnapshot = await _firestore
         .collection('experiences')
         .where('verified', isEqualTo: verifiedStatus)
+        .orderBy('timestamp', descending: true)
         .get();
 
     List<Experience> experienceList = List.from(
@@ -46,6 +50,7 @@ class ExperienceController {
         .collection('experiences')
         .where('verified', isEqualTo: true)
         .where('userRoleType', isEqualTo: roleType)
+        .orderBy('timestamp', descending: true)
         .get();
 
     List<Experience> experienceList = List.from(

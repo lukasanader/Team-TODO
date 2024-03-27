@@ -32,7 +32,7 @@ class _CheckmarkAnimationScreenState extends State<CheckmarkAnimationScreen> {
             ),
             SizedBox(height: 20),
             Text(
-              'Your Topic is in progress..',
+              'Updates is in progress..',
               style: TextStyle(
                 fontSize: 20,
               ),
