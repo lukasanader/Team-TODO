@@ -174,18 +174,9 @@ class _DiscoveryViewState extends State<DiscoveryView> {
       });
     });
 
-    String role =
-        await UserController(widget.auth, widget.firestore).getUserRoleType();
-    Query<Object?> topicsQuery;
 
-    if (role == 'admin') {
-      topicsQuery = widget.firestore.collection('topics').orderBy('title');
-    } else {
-      topicsQuery = widget.firestore
-          .collection('topics')
-          .where('tags', arrayContains: role)
-          .orderBy('title');
-    }
+    Query<Object?> topicsQuery = await TopicController(auth: widget.auth, firestore: widget.firestore).getTopicQuery();
+
 
     _topicsSubscription = topicsQuery.snapshots().listen(_updateTopicsList);
   }
