@@ -11,6 +11,7 @@ class Thread {
   String roleType;
   String topicId;
   String topicTitle;
+  Timestamp? viewDate;
 
   Thread({
     required this.id,
