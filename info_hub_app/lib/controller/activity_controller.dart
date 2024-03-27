@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:info_hub_app/model/activity_model.dart';
 import 'package:info_hub_app/model/topic_model.dart';
+import 'package:info_hub_app/threads/models/thread_model.dart';
 
 class ActivityController {
   final FirebaseFirestore firestore;
@@ -85,12 +86,10 @@ class ActivityController {
       dynamic activity;
       if (activityName == 'topics') {
         activity = Topic.fromSnapshot(snapshot);
-        activity.viewDate = activities[index].date;
       } else {
-        activity = snapshot.data();
-        activity['viewDate'] = activities[index].date;
+        activity = Thread.fromMap(snapshot.data() as Map<String, dynamic>, activityID);
       }
-
+      activity.viewDate = activities[index].date;
       userActivity.add(activity);
     }
 

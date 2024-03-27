@@ -47,7 +47,7 @@ class _ExperienceViewState extends State<ExperienceView> {
             IconButton(
               icon: const Icon(Icons.help_outline),
               onPressed: () {
-                _showExperienceDialog(context);
+                _showExperienceExpectationDialog(context);
               },
             ),
           ],
@@ -113,7 +113,7 @@ class _ExperienceViewState extends State<ExperienceView> {
     });
   }
 
-  void _showExperienceDialog(BuildContext context) {
+  void _showExperienceExpectationDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-void showAdminExperienceDialog(BuildContext context) {
+void showAdminExperienceHelpDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
