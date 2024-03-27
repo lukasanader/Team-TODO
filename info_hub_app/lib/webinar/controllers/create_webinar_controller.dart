@@ -135,7 +135,6 @@ class CreateWebinarController {
     if (isHealthcareProfessionalSelected) {
       selectedTags.add('Healthcare Professional');
     }
-    selectedTags.add('admin'); // admin must always be a tag
     return selectedTags;
   }
   
