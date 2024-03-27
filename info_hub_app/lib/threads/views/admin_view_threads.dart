@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:info_hub_app/theme/theme_constants.dart';
 import 'package:info_hub_app/threads/views/thread_replies.dart';
 import 'package:info_hub_app/threads/models/thread_model.dart';
 import 'package:info_hub_app/threads/models/thread_replies_model.dart';
@@ -57,22 +58,26 @@ class _ViewThreadsState extends State<ViewThreads> {
                       : Theme.of(context).primaryColor),
             ),
           ),
-          TextButton(
-            onPressed: () => setState(() {
-              isViewingThreads = false;
-              repliesStream;
-            }),
-            style: TextButton.styleFrom(
-              backgroundColor: !isViewingThreads
-                  ? Theme.of(context).primaryColor
-                  : Colors.white,
-            ),
-            child: Text(
-              "Replies",
-              style: TextStyle(
-                  color: !isViewingThreads
-                      ? Colors.white
-                      : Theme.of(context).primaryColor),
+          const SizedBox(width: 8),
+          Padding(
+            padding: const EdgeInsets.only(right: 20.0),
+            child: TextButton(
+              onPressed: () => setState(() {
+                isViewingThreads = false;
+                repliesStream;
+              }),
+              style: TextButton.styleFrom(
+                backgroundColor: !isViewingThreads
+                    ? Theme.of(context).primaryColor
+                    : Colors.white,
+              ),
+              child: Text(
+                "Replies",
+                style: TextStyle(
+                    color: !isViewingThreads
+                        ? Colors.white
+                        : Theme.of(context).primaryColor),
+              ),
             ),
           ),
         ],
@@ -85,7 +90,9 @@ class _ViewThreadsState extends State<ViewThreads> {
     return StreamBuilder<List<Thread>>(
       stream: threadsStream,
       builder: (context, snapshot) {
-        if (!snapshot.hasData) return const CircularProgressIndicator();
+        if (!snapshot.hasData) {
+          return const Center(child: CircularProgressIndicator());
+        }
         if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return const Text("No threads found.");
         }
@@ -94,7 +101,16 @@ class _ViewThreadsState extends State<ViewThreads> {
           itemCount: snapshot.data!.length,
           itemBuilder: (context, index) {
             Thread thread = snapshot.data![index];
-            return buildThreadItem(thread);
+            if (index == snapshot.data!.length - 1) {
+              return Column(
+                children: [
+                  buildThreadItem(thread),
+                  const SizedBox(height: 20),
+                ],
+              );
+            } else {
+              return buildThreadItem(thread);
+            }
           },
         );
       },
@@ -103,53 +119,57 @@ class _ViewThreadsState extends State<ViewThreads> {
 
   Widget buildThreadItem(Thread thread) {
     return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(6),
-        side: const BorderSide(color: Colors.black, width: 2),
-      ),
       elevation: 5,
-      child: ListTile(
-        title: Text(
-          thread.authorName,
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
+      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(
+            color: Theme.of(context).brightness == Brightness.light
+                ? COLOR_SECONDARY_GREY_LIGHT
+                : COLOR_SECONDARY_GREY_DARK,
+            width: 1),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: ListTile(
+          contentPadding:
+              const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+          title: Text(
+            thread.authorName,
+            style: Theme.of(context).textTheme.titleSmall,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
-        ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              thread.title,
-              style: const TextStyle(
-                fontSize: 16,
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                thread.title,
+                style: Theme.of(context).textTheme.bodyMedium,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              "Topic: ${thread.topicTitle} ",
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[600],
+              const SizedBox(height: 4),
+              Text(
+                "Topic: ${thread.topicTitle}",
+                style: Theme.of(context).textTheme.labelSmall,
               ),
-            ),
-            Text(
-              controller.formatDate(thread.timestamp),
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[600],
+              Text(
+                controller.formatDate(thread.timestamp),
+                style: Theme.of(context).textTheme.labelSmall,
               ),
-            ),
-          ],
-        ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            IconButton(
-              icon: const Icon(Icons.delete),
-              onPressed: () => deleteThread(thread.id),
-            ),
-          ],
+            ],
+          ),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.delete_outline),
+                onPressed: () => deleteThread(thread.id),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -159,7 +179,9 @@ class _ViewThreadsState extends State<ViewThreads> {
     return StreamBuilder<List<Reply>>(
       stream: repliesStream,
       builder: (context, snapshot) {
-        if (!snapshot.hasData) return const CircularProgressIndicator();
+        if (!snapshot.hasData) {
+          return const Center(child: CircularProgressIndicator());
+        }
         if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return const Text("No replies found.");
         }
@@ -168,7 +190,16 @@ class _ViewThreadsState extends State<ViewThreads> {
           itemCount: snapshot.data!.length,
           itemBuilder: (context, index) {
             Reply reply = snapshot.data![index];
-            return buildReplyItem(reply);
+            if (index == snapshot.data!.length - 1) {
+              return Column(
+                children: [
+                  buildReplyItem(reply),
+                  const SizedBox(height: 20),
+                ],
+              );
+            } else {
+              return buildReplyItem(reply);
+            }
           },
         );
       },
@@ -177,76 +208,84 @@ class _ViewThreadsState extends State<ViewThreads> {
 
   Widget buildReplyItem(Reply reply) {
     return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(6),
-        side: BorderSide(color: Colors.grey.shade300, width: 1),
-      ),
       elevation: 5,
-      child: ListTile(
-        leading: FutureBuilder<String>(
-          future: controller.getUserProfilePhotoFilename(reply.creator),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.done &&
-                snapshot.hasData) {
-              return CircleAvatar(
-                backgroundImage: AssetImage('assets/${snapshot.data}'),
-                radius: 38,
-              );
-            }
-            return const CircleAvatar(
-              backgroundImage: AssetImage('assets/default_profile_photo.png'),
-              radius: 38,
-            );
-          },
-        ),
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            Expanded(
-              child: Text(
-                reply.threadTitle,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            IconButton(
-              icon: const Icon(Icons.visibility),
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => ThreadReplies(
-                      threadId: reply.threadId,
-                      firestore: widget.firestore,
-                      auth: widget.auth,
-                      threadTitle: reply.threadTitle,
-                    ),
-                  ),
+      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(
+            color: Theme.of(context).brightness == Brightness.light
+                ? COLOR_SECONDARY_GREY_LIGHT
+                : COLOR_SECONDARY_GREY_DARK,
+            width: 1),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: ListTile(
+          contentPadding: const EdgeInsets.all(0),
+          leading: FutureBuilder<String>(
+            future: controller.getUserProfilePhotoFilename(reply.creator),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.done &&
+                  snapshot.hasData) {
+                return CircleAvatar(
+                  backgroundImage: AssetImage('assets/${snapshot.data}'),
+                  radius: 24,
                 );
-              },
-            ),
-            IconButton(
-              icon: const Icon(Icons.delete),
-              onPressed: () => deleteReply(reply.id),
-            ),
-          ],
-        ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            Text(reply.content),
-            const SizedBox(height: 4),
-            Text(
-              controller.formatDate(reply.timestamp),
-              style: const TextStyle(
-                fontSize: 12,
+              }
+              return const CircleAvatar(
+                backgroundImage: AssetImage('assets/default_profile_photo.png'),
+                radius: 24,
+              );
+            },
+          ),
+          title: Text(
+            reply.threadTitle,
+            style: Theme.of(context).textTheme.titleSmall,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text(
+                reply.content,
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.bodyMedium,
               ),
-            ),
-          ],
+              const SizedBox(height: 4),
+              Text(
+                controller.formatDate(reply.timestamp),
+                style: Theme.of(context).textTheme.labelSmall,
+              ),
+            ],
+          ),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              IconButton(
+                icon: const Icon(Icons.visibility),
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => ThreadReplies(
+                        threadId: reply.threadId,
+                        firestore: widget.firestore,
+                        auth: widget.auth,
+                        threadTitle: reply.threadTitle,
+                      ),
+                    ),
+                  );
+                },
+              ),
+              IconButton(
+                icon: const Icon(Icons.delete_outline),
+                onPressed: () => deleteReply(reply.id),
+              ),
+            ],
+          ),
+          isThreeLine: true,
         ),
-        isThreeLine: true,
       ),
     );
   }
