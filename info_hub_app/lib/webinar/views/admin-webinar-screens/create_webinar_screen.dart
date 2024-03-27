@@ -90,7 +90,6 @@ class _CreateWebinarScreenState extends State<CreateWebinarScreen> {
           && 
           image != null) {
             List<String> selectedTags = controller.populateTags(isPatientSelected, isParentSelected,isHealthcareProfessionalSelected);
-            selectedTags.add('admin');
             controller.goLiveWebinar(
               context,
               selectedDateTime,
