@@ -57,6 +57,9 @@ class _ActivityViewState extends State<ActivityView> {
                 },
               ),
             ),
+            const SizedBox(
+              height: 40,
+            ),
             const Text(
               textAlign: TextAlign.left,
               'Liked Topics',
@@ -118,8 +121,8 @@ class _ActivityViewState extends State<ActivityView> {
 
       _threadList = threadTemp;
       _threadList.sort((a, b) {
-        final DateTime dateA = a['viewDate'].toDate();
-        final DateTime dateB = b['viewDate'].toDate();
+        final DateTime dateA = a.viewDate.toDate();
+        final DateTime dateB = b.viewDate.toDate();
         return dateB.compareTo(dateA);
       });
 

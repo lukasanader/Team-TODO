@@ -9,6 +9,7 @@ import 'package:info_hub_app/message_feature/message_room/message_room_model.dar
 import 'package:info_hub_app/message_feature/message_rooms_card.dart';
 import 'package:info_hub_app/message_feature/messaging_room_view.dart';
 import 'package:info_hub_app/model/user_model.dart';
+import 'package:info_hub_app/notifications/notification_controller.dart';
 
 class MessageView extends StatefulWidget {
   final FirebaseFirestore firestore;
@@ -31,8 +32,7 @@ class _MessageViewState extends State<MessageView> {
     super.initState();
     messageRoomController =
         MessageRoomController(widget.auth, widget.firestore);
-    userController =
-        UserController(widget.auth, widget.firestore);
+    userController = UserController(widget.auth, widget.firestore);
   }
 
   @override
@@ -146,6 +146,9 @@ class _MessageViewState extends State<MessageView> {
   }
 
   Future<void> deleteMessageRoomConfirmation(String chatId) async {
+    MessageRoom chat =
+        await MessageRoomController(widget.auth, widget.firestore)
+            .getMessageRoom(chatId);
     return showDialog<void>(
       context: context,
       builder: (BuildContext context) {
@@ -155,6 +158,18 @@ class _MessageViewState extends State<MessageView> {
           actions: [
             ElevatedButton(
               onPressed: () async {
+                NotificationController notificationController =
+                    NotificationController(
+                        auth: widget.auth,
+                        firestore: widget.firestore,
+                        uid: chat.patientId.toString());
+                List<String> notificationId = await notificationController
+                    .getNotificationIdFromPayload(chatId);
+                if (notificationId.isNotEmpty) {
+                  for (String id in notificationId) {
+                    notificationController.deleteNotification(id);
+                  }
+                }
                 messageRoomController.deleteMessageRoom(chatId);
                 Navigator.pop(context);
                 updateChatList();
@@ -167,11 +182,10 @@ class _MessageViewState extends State<MessageView> {
     );
   }
 
-
   Future getUserList() async {
     List<UserModel> tempList;
-    List<UserModel> allPatientsList = await userController
-      .getUserListBasedOnRoleType('Patient');
+    List<UserModel> allPatientsList =
+        await userController.getUserListBasedOnRoleType('Patient');
 
     String search = _searchController.text.toLowerCase();
 
@@ -182,14 +196,15 @@ class _MessageViewState extends State<MessageView> {
     } else {
       tempList = allPatientsList;
     }
-    
+
     setState(() {
       _userList = tempList;
     });
   }
 
   Future updateChatList() async {
-    List<MessageRoom> tempList = await messageRoomController.getMessageRoomsList();
+    List<MessageRoom> tempList =
+        await messageRoomController.getMessageRoomsList();
 
     setState(() {
       _chatList = tempList;

@@ -6,6 +6,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/discovery_view/discovery_view.dart';
 import 'package:info_hub_app/settings/settings_view.dart';
@@ -25,13 +26,15 @@ class Base extends StatefulWidget {
   final FirebaseStorage storage;
   final ThemeManager themeManager;
   final String roleType;
+  final FirebaseMessaging messaging;
   const Base(
       {super.key,
       required this.auth,
       required this.storage,
       required this.firestore,
       required this.themeManager,
-      required this.roleType});
+      required this.roleType,
+      required this.messaging});
 
   @override
   State<Base> createState() => _BaseState();
@@ -45,7 +48,7 @@ class _BaseState extends State<Base> {
           auth: widget.auth,
           firestore: widget.firestore,
           storage: widget.storage,
-          messaging: FirebaseMessaging.instance,
+          messaging: widget.messaging,
           localnotificationsplugin: FlutterLocalNotificationsPlugin(),
         );
     }
@@ -75,6 +78,7 @@ class _BaseState extends State<Base> {
           firestore: widget.firestore,
           storage: widget.storage,
           themeManager: widget.themeManager,
+          messaging: widget.messaging,
         ),
       ];
   }

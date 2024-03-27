@@ -152,28 +152,29 @@ class _AnalyticsTopicView extends State<AnalyticsTopicView> {
 
     // Amends ordering of topics on the screen when new dropdown is selected
     // or when the page is initialised for the first time.
-    setState(() {
-      _topicsList = topics;
-      topicLength = _topicsList.length;
-      if (dropdownvalue == "Name A-Z") {
-        _topicsList.sort((a, b) =>
-            _getTopicTitle(a as Topic).compareTo(_getTopicTitle(b as Topic)));
-      } else if (dropdownvalue == "Name Z-A") {
-        _topicsList.sort((b, a) =>
-            _getTopicTitle(a as Topic).compareTo(_getTopicTitle(b as Topic)));
-      } else if (dropdownvalue == "Most Popular") {
-        _topicsList.sort((b, a) =>
-            _getTopicViews(a as Topic).compareTo(_getTopicViews(b as Topic)));
-      } else if (dropdownvalue == "Trending") {
-        _topicsList.sort((b, a) =>
-            getTrending(a as Topic).compareTo(getTrending(b as Topic)));
-      } else if (dropdownvalue == "Most Likes") {
-        _topicsList.sort((b, a) =>
-            _getTopicLikes(a as Topic).compareTo(_getTopicLikes(b as Topic)));
-      } else if (dropdownvalue == "Most Dislikes") {
-        _topicsList.sort((b, a) => _getTopicDislikes(a as Topic)
-            .compareTo(_getTopicDislikes(b as Topic)));
-      }
-    });
+    if (mounted) {
+      setState(() {
+        _topicsList = topics;
+        topicLength = _topicsList.length;
+        if (dropdownvalue == "Name A-Z") {
+          _topicsList
+              .sort((a, b) => _getTopicTitle(a).compareTo(_getTopicTitle(b)));
+        } else if (dropdownvalue == "Name Z-A") {
+          _topicsList
+              .sort((b, a) => _getTopicTitle(a).compareTo(_getTopicTitle(b)));
+        } else if (dropdownvalue == "Most Popular") {
+          _topicsList
+              .sort((b, a) => _getTopicViews(a).compareTo(_getTopicViews(b)));
+        } else if (dropdownvalue == "Trending") {
+          _topicsList.sort((b, a) => getTrending(a).compareTo(getTrending(b)));
+        } else if (dropdownvalue == "Most Likes") {
+          _topicsList
+              .sort((b, a) => _getTopicLikes(a).compareTo(_getTopicLikes(b)));
+        } else if (dropdownvalue == "Most Dislikes") {
+          _topicsList.sort(
+              (b, a) => _getTopicDislikes(a).compareTo(_getTopicDislikes(b)));
+        }
+      });
+    }
   }
 }

@@ -31,6 +31,7 @@ class DiscoveryView extends StatefulWidget {
 
 class _DiscoveryViewState extends State<DiscoveryView> {
   final TextEditingController _searchController = TextEditingController();
+
   List<Topic> _topicsList = [];
   List<Topic> _displayedTopicsList = [];
 
@@ -39,6 +40,8 @@ class _DiscoveryViewState extends State<DiscoveryView> {
   List<String> _categories = [];
   List<String> categoriesSelected = [];
 
+  //this is necessary to allow for the UI to update 
+  //when changes are made on other screens
   late StreamSubscription<QuerySnapshot<Object?>> _topicsSubscription;
 
   @override
@@ -81,6 +84,8 @@ class _DiscoveryViewState extends State<DiscoveryView> {
                   addVerticalSpace(10),
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
+
+                    //toggle buttons to chose categories
                     child: ToggleButtons(
                       isSelected: isSelected,
                       onPressed: (int index) {
@@ -105,6 +110,8 @@ class _DiscoveryViewState extends State<DiscoveryView> {
                     ),
                   ),
                   addVerticalSpace(10),
+
+                  //listbuilder to actually create the list of topics
                   ListView.builder(
                     physics: const NeverScrollableScrollPhysics(),
                     shrinkWrap: true,
@@ -174,22 +181,15 @@ class _DiscoveryViewState extends State<DiscoveryView> {
       });
     });
 
-    String role =
-        await UserController(widget.auth, widget.firestore).getUserRoleType();
-    Query<Object?> topicsQuery;
 
-    if (role == 'admin') {
-      topicsQuery = widget.firestore.collection('topics').orderBy('title');
-    } else {
-      topicsQuery = widget.firestore
-          .collection('topics')
-          .where('tags', arrayContains: role)
-          .orderBy('title');
-    }
+    Query<Object?> topicsQuery = await TopicController(auth: widget.auth, firestore: widget.firestore).getTopicQuery();
+
 
     _topicsSubscription = topicsQuery.snapshots().listen(_updateTopicsList);
   }
 
+
+  //logic to implement searching filter
   void _searchData(String query) {
     updateTopicListBasedOnCategory(categoriesSelected);
 
@@ -221,6 +221,7 @@ class _DiscoveryViewState extends State<DiscoveryView> {
     });
   }
 
+  //implements logic for category based filtering
   Future updateTopicListBasedOnCategory(List<String> categories) async {
     if (categories.isNotEmpty) {
       List<Topic> categoryTopicList = [];

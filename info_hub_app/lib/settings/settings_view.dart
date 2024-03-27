@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:info_hub_app/controller/user_controller.dart';
 import 'package:info_hub_app/profile_view/profile_view.dart';
 import 'package:info_hub_app/profile_view/profile_view_controller.dart';
 import 'package:info_hub_app/notifications/preferences_view.dart';
@@ -23,12 +24,14 @@ class SettingsView extends StatefulWidget {
   final FirebaseFirestore firestore;
   final FirebaseStorage storage;
   final ThemeManager themeManager;
+  final FirebaseMessaging messaging;
   const SettingsView(
       {super.key,
       required this.auth,
       required this.firestore,
       required this.storage,
-      required this.themeManager});
+      required this.themeManager,
+      required this.messaging});
 
   @override
   State<SettingsView> createState() => _SettingsViewState();
@@ -36,15 +39,20 @@ class SettingsView extends StatefulWidget {
 
 class _SettingsViewState extends State<SettingsView> {
   bool isAdmin = false;
+  late UserController userController;
 
   @override
   void initState() {
     super.initState();
+    userController = UserController(widget.auth, widget.firestore);
     initializeAdminStatus();
   }
 
   Future<void> initializeAdminStatus() async {
-    await isAdminUser();
+    bool isAdminUser = await userController.isAdmin();
+    setState(() {
+      isAdmin = isAdminUser;
+    });
   }
 
   @override
@@ -169,35 +177,41 @@ class _SettingsViewState extends State<SettingsView> {
           ),
           ListTile(
             title: const Text('Log Out'),
-            onTap: () {
+            onTap: () async {
+              final String? deviceToken = await widget.messaging.getToken();
+              if (deviceToken != null) {
+                final tokenSnapshot = await widget.firestore
+                    .collection('Users')
+                    .doc(widget.auth.currentUser!.uid)
+                    .collection('deviceTokens')
+                    .where('token', isEqualTo: deviceToken)
+                    .get();
+
+                if (tokenSnapshot.docs.isNotEmpty) {
+                  await tokenSnapshot.docs.first.reference.delete();
+                }
+              }
               widget.auth.signOut();
-              PersistentNavBarNavigator.pushNewScreen(
-                context,
-                screen: StartPage(
-                  firestore: widget.firestore,
-                  auth: widget.auth,
-                  storage: widget.storage,
-                  messaging: FirebaseMessaging.instance,
-                  localnotificationsplugin: FlutterLocalNotificationsPlugin(),
-                  themeManager: widget.themeManager,
+              Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
+                MaterialPageRoute(
+                  builder: (BuildContext context) {
+                    return StartPage(
+                      firestore: widget.firestore,
+                      auth: widget.auth,
+                      storage: widget.storage,
+                      themeManager: widget.themeManager,
+                      messaging: FirebaseMessaging.instance,
+                      localnotificationsplugin:
+                          FlutterLocalNotificationsPlugin(),
+                    );
+                  },
                 ),
-                withNavBar: false,
+                (_) => false,
               );
             },
           ),
         ],
       ),
     );
-  }
-
-  Future<void> isAdminUser() async {
-    User? user = widget.auth.currentUser;
-    if (user != null) {
-      DocumentSnapshot snapshot =
-          await widget.firestore.collection('Users').doc(user.uid).get();
-      setState(() {
-        isAdmin = snapshot['roleType'] == 'admin';
-      });
-    }
   }
 }

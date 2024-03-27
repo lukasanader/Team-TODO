@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:english_words/english_words.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:info_hub_app/model/model.dart';
+import 'package:info_hub_app/model/topic_question_model.dart';
 
 class TopicQuestionController {
   final FirebaseFirestore firestore;

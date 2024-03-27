@@ -30,6 +30,8 @@ class ExperienceController {
     await _firestore.collection('experiences').doc(experience.id).delete();
   }
 
+  ///gets all experience based on verification - verification taken as 
+  ///a boolean parameter - true = verified, false = unverified
   Future<List<Experience>> getAllExperienceListBasedOnVerification(
       bool verifiedStatus) async {
     QuerySnapshot experiencesSnapshot = await _firestore
@@ -44,6 +46,9 @@ class ExperienceController {
     return experienceList;
   }
 
+
+  ///gets verified experiences from firestore based on role
+  ///role passed in as string parameter
   Future<List<Experience>> getVerifiedExperienceListBasedonRole(
       String roleType) async {
     QuerySnapshot experiencesSnapshot = await _firestore
@@ -59,6 +64,24 @@ class ExperienceController {
     return experienceList;
   }
 
+  ///gets unverified experiences from firestore based on role
+  ///role passed in as string parameter
+  Future<List<Experience>> getUnverifiedExperienceListBasedonRole(
+      String roleType) async {
+    QuerySnapshot experiencesSnapshot = await _firestore
+        .collection('experiences')
+        .where('verified', isEqualTo: false)
+        .where('userRoleType', isEqualTo: roleType)
+        .orderBy('timestamp', descending: true)
+        .get();
+
+    List<Experience> experienceList = List.from(
+        experiencesSnapshot.docs.map((doc) => Experience.fromSnapshot(doc)));
+
+    return experienceList;
+  }
+
+  ///changes the verification status of an experience
   Future<void> updateVerification(Experience experience) async {
     bool newValue = experience.verified == true ? false : true;
 

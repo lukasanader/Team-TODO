@@ -18,14 +18,16 @@ class _ExperienceCardState extends State<ExperienceCard> {
         child: Column(children: [
           Row(
             children: [
-              Center(
-                child: Padding(
-                    padding: const EdgeInsets.only(top: 12, bottom: 10.0),
-                    child: Text(
-                      widget._experience.title.toString(),
-                      style: Theme.of(context).textTheme.titleSmall,
-                    )),
-              )
+              Expanded(
+                child: Center(
+                    child: Padding(
+                        padding: const EdgeInsets.only(top: 12, bottom: 10.0),
+                        child: Text(
+                          widget._experience.title.toString(),
+                          style: Theme.of(context).textTheme.titleSmall,
+                        )),
+                  )
+                )
             ],
           ),
           Row(

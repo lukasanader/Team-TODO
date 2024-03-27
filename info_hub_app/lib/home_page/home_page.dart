@@ -190,10 +190,12 @@ class _HomePageState extends State<HomePage> {
                   WebinarController webinarController = WebinarController(
                     firestore: widget.firestore,
                     storage: widget.storage,
+                    auth: widget.auth,
                   );
                   PersistentNavBarNavigator.pushNewScreen(
                     context,
                     screen: WebinarView(
+                      auth: widget.auth,
                       firestore: widget.firestore,
                       user: user,
                       webinarController: webinarController,

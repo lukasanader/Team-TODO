@@ -90,7 +90,7 @@ void main() {
 
   testWidgets('Test start page is loaded', (WidgetTester tester) async {
     final firestore = FakeFirebaseFirestore();
-   
+
     final storage = MockFirebaseStorage();
     await tester.pumpWidget(MaterialApp(
         home: MyApp(
@@ -102,7 +102,8 @@ void main() {
     expect(find.byType(StartPage), findsOneWidget);
   });
 
-  testWidgets('Test homepage is loaded when patient is logged in', (WidgetTester tester) async {
+  testWidgets('Test homepage is loaded when patient is logged in',
+      (WidgetTester tester) async {
     final firestore = FakeFirebaseFirestore();
     firestore.collection('Users').doc('patientUser').set({
       'name': 'John Doe',
@@ -116,14 +117,15 @@ void main() {
         home: MyApp(
       firestore: firestore,
       auth: MockFirebaseAuth(
-            signedIn: true, mockUser: MockUser(uid: 'patientUser')),
+          signedIn: true, mockUser: MockUser(uid: 'patientUser')),
       storage: storage,
     )));
     await tester.pumpAndSettle();
     expect(find.byType(HomePage), findsOneWidget);
   });
 
-  testWidgets('Test adminHomepage is loaded when admin is logged in', (WidgetTester tester) async {
+  testWidgets('Test adminHomepage is loaded when admin is logged in',
+      (WidgetTester tester) async {
     final firestore = FakeFirebaseFirestore();
     firestore.collection('Users').doc('adminUser').set({
       'name': 'John Doe',
@@ -137,7 +139,7 @@ void main() {
         home: MyApp(
       firestore: firestore,
       auth: MockFirebaseAuth(
-            signedIn: true, mockUser: MockUser(uid: 'adminUser')),
+          signedIn: true, mockUser: MockUser(uid: 'adminUser')),
       storage: storage,
     )));
     await tester.pumpAndSettle();

@@ -14,13 +14,13 @@ class MessageBubble extends StatelessWidget {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
-        color: COLOR_SECONDARY_GREY_LIGHT,
+        color: Theme.of(context).brightness == Brightness.light
+            ? COLOR_SECONDARY_GREY_LIGHT
+            : COLOR_SECONDARY_GREY_DARK,
       ),
       child: Text(
         message,
-        style: const TextStyle(
-          fontSize: 16,
-        ),
+        style: Theme.of(context).textTheme.titleLarge,
       ),
     );
   }

@@ -5,7 +5,7 @@ import 'package:info_hub_app/message_feature/message_model.dart';
 import 'package:info_hub_app/message_feature/message_room/message_room_controller.dart';
 import 'package:info_hub_app/controller/user_controller.dart';
 import 'package:info_hub_app/model/user_model.dart';
-import 'package:info_hub_app/threads/name_generator.dart';
+import 'package:info_hub_app/threads/controllers/name_generator_controller.dart';
 
 class MessageController extends ChangeNotifier {
   final FirebaseAuth _firebaseAuth;
@@ -15,7 +15,6 @@ class MessageController extends ChangeNotifier {
     this._firebaseAuth,
     this._firestore,
   );
-
 
   Future<void> sendMessage(String receiverId, String message) async {
     final String currentUserId = _firebaseAuth.currentUser!.uid;
@@ -28,18 +27,20 @@ class MessageController extends ChangeNotifier {
       message: message,
     );
 
-
     List<String> ids = [currentUserId, receiverId];
     ids.sort();
 
     String chatRoomId = ids.join('_');
 
-    MessageRoomController messageRoomController = MessageRoomController(_firebaseAuth, _firestore);
+    MessageRoomController messageRoomController =
+        MessageRoomController(_firebaseAuth, _firestore);
 
     //checks if room is initialised, if not creates it
-    DocumentSnapshot chatRoomDocument = await _firestore.collection('message_rooms').doc(chatRoomId).get();  
+    DocumentSnapshot chatRoomDocument =
+        await _firestore.collection('message_rooms').doc(chatRoomId).get();
     if (!chatRoomDocument.exists) {
-      UserModel receiverUser = await UserController(_firebaseAuth, _firestore).getUser(receiverId);
+      UserModel receiverUser =
+          await UserController(_firebaseAuth, _firestore).getUser(receiverId);
 
       //will display the patients email as the card name
       String adminDisplayName = receiverUser.email;
@@ -47,16 +48,16 @@ class MessageController extends ChangeNotifier {
       //will display the admins username as the card name
       String patientDisplayName = generateUniqueName(currentUserId);
 
-      messageRoomController.addMessageRoom(chatRoomId, currentUserId, receiverId, adminDisplayName, patientDisplayName);
+      messageRoomController.addMessageRoom(chatRoomId, currentUserId,
+          receiverId, adminDisplayName, patientDisplayName);
     }
-      
-    await _firestore
-      .collection('message_rooms')
-      .doc(chatRoomId)
-      .collection('messages')
-      .add(newMessage.toMap());
-  }
 
+    await _firestore
+        .collection('message_rooms')
+        .doc(chatRoomId)
+        .collection('messages')
+        .add(newMessage.toMap());
+  }
 
   Stream<QuerySnapshot> getMessages(String userId, String otherUserId) {
     List<String> ids = [userId, otherUserId];
@@ -64,12 +65,10 @@ class MessageController extends ChangeNotifier {
     String chatRoomId = ids.join('_');
 
     return _firestore
-      .collection('message_rooms')
-      .doc(chatRoomId)
-      .collection('messages')
-      .orderBy('timestamp', descending: false)
-      .snapshots();
-
+        .collection('message_rooms')
+        .doc(chatRoomId)
+        .collection('messages')
+        .orderBy('timestamp', descending: false)
+        .snapshots();
   }
-
 }

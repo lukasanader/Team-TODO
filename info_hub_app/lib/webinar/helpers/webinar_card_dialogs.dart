@@ -1,19 +1,27 @@
-
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:info_hub_app/notifications/notification_controller.dart';
 import 'package:info_hub_app/webinar/controllers/card_controller.dart';
 import 'package:info_hub_app/webinar/models/livestream.dart';
 import 'package:info_hub_app/webinar/controllers/webinar_controller.dart';
 
 /// Stores all dialogs associated to admin functions for webinars (move to live/archived and delete)
 class WebinarCardDialogs {
+  FirebaseAuth auth;
+  FirebaseFirestore firestore;
   WebinarController webinarController;
 
   WebinarCardDialogs({
+    required this.auth,
+    required this.firestore,
     required this.webinarController,
   });
 
   /// Displays the delete dialog
-  void showDeleteDialog(BuildContext context, CardController controller, Livestream post) {
+  void showDeleteDialog(
+      BuildContext context, CardController controller, Livestream post) {
     showDialog(
       context: context,
       builder: (context) {
@@ -49,7 +57,7 @@ class WebinarCardDialogs {
         return AlertDialog(
           title: const Text('Move to Live'),
           content:
-              const Text('Are you sure you want to move this webinar to live?'),
+              const Text('Are you sure you want to move this webinar to live? \n Ensure that you have followed the guide on the create webinar page before doing so.'),
           actions: [
             TextButton(
               onPressed: () {
@@ -67,6 +75,20 @@ class WebinarCardDialogs {
                       post.webinarID, post.youtubeURL,
                       changeToLive: true);
                   Navigator.pop(context); // Use the stored dialogContext
+
+                  List idList =
+                      await webinarController.getWebinarRoles(post.webinarID);
+
+                  for (String id in idList) {
+                    NotificationController(
+                            auth: auth, firestore: firestore, uid: id)
+                        .createNotification(
+                            'Webinar Live',
+                            'A webinar you might interested in is now live!',
+                            DateTime.now(),
+                            '/webinar',
+                            post.webinarID);
+                  }
                 }
               },
               child: const Text('Confirm'),
@@ -76,7 +98,6 @@ class WebinarCardDialogs {
       },
     );
   }
-
 
   /// Prompts the user with an informative summary that a webinar is not yet available to be watched and when they should check
   void showUpcomingDialog(BuildContext context, String startTime) {
@@ -108,7 +129,8 @@ class WebinarCardDialogs {
   }
 
   /// Prompts the user with a dialog box to change a webinar from live -> archived
-  void showArchiveDialog(BuildContext context, CardController controller, Livestream post) {
+  void showArchiveDialog(
+      BuildContext context, CardController controller, Livestream post) {
     TextEditingController urlController = TextEditingController();
     bool isValidURL = true; // Track if the URL is valid
     showDialog(
@@ -122,7 +144,7 @@ class WebinarCardDialogs {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   const Text(
-                      'Are you sure you want to move this webinar to the archive?'),
+                      'Are you sure you want to move this webinar to the archive? \nPlease enter the URL of this video again as it has now changed.'),
                   const SizedBox(height: 20),
                   TextField(
                     controller: urlController,
@@ -146,7 +168,8 @@ class WebinarCardDialogs {
                   onPressed: () async {
                     String newURL = urlController.text;
                     if (newURL.isNotEmpty) {
-                      bool isValidated = await controller.validateCardLogic(post, newURL);
+                      bool isValidated =
+                          await controller.validateCardLogic(post, newURL);
                       if (isValidated) {
                         Navigator.pop(context);
                       } else {

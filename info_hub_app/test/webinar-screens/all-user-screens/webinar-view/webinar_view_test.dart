@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
+import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -14,6 +15,7 @@ void main() {
   late UserModel testUser;
   late FakeFirebaseFirestore fakeFirestore;
   late MockFirebaseStorage mockFirebaseStorage;
+  late MockFirebaseAuth auth;
   late WebinarController webinarController;
   late WebinarViewHelper helper;
   late Widget webinarViewScreen;
@@ -24,9 +26,10 @@ void main() {
   setUp(() async {
     fakeFirestore = FakeFirebaseFirestore();
     mockFirebaseStorage = MockFirebaseStorage();
+    auth = MockFirebaseAuth(signedIn: true);
     helper = WebinarViewHelper(fakeFirestore: fakeFirestore);
-    webinarController =
-        WebinarController(firestore: fakeFirestore, storage: mockFirebaseStorage);
+    webinarController = WebinarController(
+        firestore: fakeFirestore, storage: mockFirebaseStorage, auth: auth);
     await mockWebViewDependencies.init();
     testUser = UserModel(
       uid: 'mockUid',
@@ -40,6 +43,7 @@ void main() {
 
     webinarViewScreen = MaterialApp(
       home: WebinarView(
+        auth: auth,
         firestore: fakeFirestore,
         user: testUser,
         webinarController: webinarController,
@@ -60,6 +64,40 @@ void main() {
     expect(find.text('Show Live and Upcoming Webinars'), findsOneWidget);
   });
 
+  testWidgets('Test dropdown appears with all user types to select on admin screen',(WidgetTester tester) async {
+    await tester.pumpWidget(webinarViewScreen);
+    expect(find.text('Patient'),findsOneWidget);
+    await tester.tap(find.text('Patient'));
+    await tester.pumpAndSettle();
+    expect(find.text('Parent'),findsOneWidget);
+    expect(find.text('Healthcare Professional'),findsOneWidget);
+  });
+  
+  testWidgets('Test changing dropdown value to different user role changes webinars on screen',(WidgetTester tester) async {
+    helper.addLiveFirestoreDocument();
+    await fakeFirestore.collection('Webinar').doc('id_2').set({
+      'id': 'id_2',
+      'title': 'Test Title 2',
+      'url': 'https://youtu.be/HZQOdtxlim4?si=nV-AXQTcplvKreyH',
+      'thumbnail': 'https://picsum.photos/250?image=9',
+      'webinarleadname': 'John Doe 2',
+      'startTime': DateTime.now().toString(),
+      'views': 5,
+      'dateStarted': DateTime.now().toString(),
+      'status': 'Live',
+      'chatenabled': true,
+      'selectedtags': ['Parent'],
+    });
+    await tester.pumpWidget(webinarViewScreen);
+    expect(find.text('Patient'),findsOneWidget);
+    await tester.tap(find.text('Patient'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Parent'));
+    await tester.pumpAndSettle();
+    expect(find.text('Test Title'),findsNothing);
+    expect(find.text('Test Title 2'),findsOneWidget);
+  });
+
   testWidgets(
       'Test padding is visible when two live webinars are displayed on the screen',
       (WidgetTester tester) async {
@@ -77,7 +115,7 @@ void main() {
         'dateStarted': DateTime.now().toString(),
         'status': 'Live',
         'chatenabled': true,
-        'selectedtags': ['admin'],
+        'selectedtags': ['Patient'],
       });
       await tester.pumpAndSettle();
       expect(find.byType(Padding), findsWidgets);
@@ -101,7 +139,7 @@ void main() {
         'dateStarted': DateTime.now().toString(),
         'status': 'Upcoming',
         'chatenabled': true,
-        'selectedtags': ['admin'],
+        'selectedtags': ['Patient'],
       });
       await tester.pumpAndSettle();
       expect(find.byType(Padding), findsWidgets);
@@ -125,7 +163,7 @@ void main() {
         'dateStarted': DateTime.now().toString(),
         'status': 'Archived',
         'chatenabled': true,
-        'selectedtags': ['admin'],
+        'selectedtags': ['Patient'],
       });
       await tester.pumpAndSettle();
       await tester.tap(find.text('Archived Webinars'));
@@ -184,7 +222,7 @@ void main() {
         'views': 0,
         'dateStarted': DateTime.now().toString(),
         'status': 'Archived',
-        'selectedtags': ['admin'],
+        'selectedtags': ['Patient'],
       });
       await tester.pumpWidget(webinarViewScreen);
       await tester.pumpAndSettle();
