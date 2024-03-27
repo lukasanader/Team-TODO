@@ -78,7 +78,7 @@ class WebinarCardDialogs {
 
                   for (String id in idList) {
                     NotificationController(
-                            auth: FirebaseAuth.instance,
+                            auth: auth,
                             firestore: webinarController.firestore,
                             uid: id)
                         .createNotification(
