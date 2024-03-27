@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -9,10 +10,12 @@ import 'package:info_hub_app/webinar/controllers/webinar_controller.dart';
 /// Stores all dialogs associated to admin functions for webinars (move to live/archived and delete)
 class WebinarCardDialogs {
   FirebaseAuth auth;
+  FirebaseFirestore firestore;
   WebinarController webinarController;
 
   WebinarCardDialogs({
     required this.auth,
+    required this.firestore,
     required this.webinarController,
   });
 
@@ -78,12 +81,10 @@ class WebinarCardDialogs {
 
                   for (String id in idList) {
                     NotificationController(
-                            auth: auth,
-                            firestore: webinarController.firestore,
-                            uid: id)
+                            auth: auth, firestore: firestore, uid: id)
                         .createNotification(
-                            'Question Reply',
-                            'A topic has been created in response to your question.',
+                            'Webinar Live',
+                            'A webinar you might interested in is now live!',
                             DateTime.now(),
                             '/webinar',
                             post.webinarID);

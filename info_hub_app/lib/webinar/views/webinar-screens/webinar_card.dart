@@ -31,8 +31,8 @@ class WebinarCard extends StatelessWidget {
     final bool isAdmin = user.roleType == 'admin'; // Check if user is admin
     CardController cardController = CardController(
         webinarController: webinarController, firestore: firestore);
-    WebinarCardDialogs cardDialogs =
-        WebinarCardDialogs(auth: auth, webinarController: webinarController);
+    WebinarCardDialogs cardDialogs = WebinarCardDialogs(
+        auth: auth, firestore: firestore, webinarController: webinarController);
 
     return GestureDetector(
       onTap: () async {
