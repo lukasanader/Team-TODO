@@ -27,19 +27,18 @@ class ThreadReplies extends StatefulWidget {
 }
 
 class _ThreadRepliesState extends State<ThreadReplies> {
-  final ThreadController threadController;
+  late final ThreadController threadController;
   late TextEditingController contentInputController;
   List<Reply> localReplies = [];
   bool _isAddingReply = false;
-
-  _ThreadRepliesState()
-      : threadController = ThreadController(
-            firestore: FirebaseFirestore.instance, auth: FirebaseAuth.instance);
 
   @override
   void initState() {
     super.initState();
     contentInputController = TextEditingController();
+    threadController =
+        ThreadController(firestore: widget.firestore, auth: widget.auth);
+
     threadController.getReplies(widget.threadId).listen((snapshot) {
       setState(() {
         localReplies = snapshot.docs
