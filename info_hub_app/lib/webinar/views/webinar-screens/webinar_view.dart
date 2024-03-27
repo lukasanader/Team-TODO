@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:info_hub_app/helpers/helper_widgets.dart';
@@ -7,17 +6,14 @@ import 'package:info_hub_app/webinar/models/livestream.dart';
 import 'package:info_hub_app/webinar/controllers/webinar_controller.dart';
 import 'package:info_hub_app/webinar/views/webinar-screens/webinar_card.dart';
 
-/// This widget represents the view for displaying webinars, including currently live, upcoming, and archived webinars.
 class WebinarView extends StatefulWidget {
   final FirebaseFirestore firestore;
-  final FirebaseAuth auth;
   final UserModel user;
   final WebinarController webinarController;
 
   const WebinarView({
     super.key,
     required this.firestore,
-    required this.auth,
     required this.user,
     required this.webinarController,
   });
@@ -27,7 +23,14 @@ class WebinarView extends StatefulWidget {
 }
 
 class _WebinarViewState extends State<WebinarView> {
+  late String _selectedCategory;
   bool _showArchivedWebinars = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedCategory = widget.user.roleType != 'admin' ? widget.user.roleType : 'Patient';
+  }
 
   Widget buildCards(AsyncSnapshot<QuerySnapshot<Object?>> snapshot) {
     return ListView.builder(
@@ -52,7 +55,6 @@ class _WebinarViewState extends State<WebinarView> {
           );
           return WebinarCard(
             post: post,
-            auth: widget.auth,
             firestore: widget.firestore,
             user: widget.user,
             webinarController: widget.webinarController,
@@ -82,8 +84,7 @@ class _WebinarViewState extends State<WebinarView> {
                         style: Theme.of(context).textTheme.headlineSmall,
                       ),
                       StreamBuilder<QuerySnapshot>(
-                        stream: widget.webinarController
-                            .getLiveWebinars(widget.user.roleType),
+                        stream: widget.webinarController.getLiveWebinars(_selectedCategory),
                         builder: (context, snapshot) {
                           // Display data (if any) on the screen or an error message
                           if (!snapshot.hasData) {
@@ -105,8 +106,7 @@ class _WebinarViewState extends State<WebinarView> {
                       ),
                       addVerticalSpace(10),
                       StreamBuilder<QuerySnapshot>(
-                        stream: widget.webinarController
-                            .getUpcomingWebinars(widget.user.roleType),
+                        stream: widget.webinarController.getUpcomingWebinars(_selectedCategory),
                         builder: (context, snapshot) {
                           if (!snapshot.hasData) {
                             return const CircularProgressIndicator();
@@ -129,8 +129,7 @@ class _WebinarViewState extends State<WebinarView> {
                       ),
                       addVerticalSpace(10),
                       StreamBuilder<QuerySnapshot>(
-                        stream: widget.webinarController
-                            .getArchivedWebinars(widget.user.roleType),
+                        stream: widget.webinarController.getArchivedWebinars(_selectedCategory),
                         builder: (context, snapshot) {
                           if (!snapshot.hasData) {
                             return const CircularProgressIndicator();
@@ -150,6 +149,22 @@ class _WebinarViewState extends State<WebinarView> {
                 ),
               ),
             ),
+            if (widget.user.roleType == 'admin') // Displays dropdown for admin to cycle webinar view between all role types
+              DropdownButton<String>(
+                value: _selectedCategory,
+                onChanged: (String? newValue) {
+                  setState(() {
+                    _selectedCategory = newValue!;
+                  });
+                },
+                items: <String>['Patient', 'Parent', 'Healthcare Professional']
+                  .map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+              ),
             ElevatedButton(
               onPressed: () {
                 setState(() {

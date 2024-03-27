@@ -58,6 +58,7 @@ void main() {
       helper.addUpcomingFirestoreDocument();
       await tester.pumpWidget(webinarViewScreen);
       await tester.pumpAndSettle();
+      await tester.ensureVisible(find.text('Test Title'));
       await tester.tap(find.text('Test Title'));
       await tester.pumpAndSettle();
       expect(find.text('Webinar Not Available Yet'), findsOneWidget);
