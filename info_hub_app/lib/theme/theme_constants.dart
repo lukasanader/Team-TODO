@@ -112,7 +112,7 @@ ThemeData lightTheme = ThemeData(
       fontSize: 14,
       color: COLOR_SECONDARY_GREY_LIGHT_DARKER,
     ),
-    bodyLarge: const TextStyle(
+    displayLarge: const TextStyle(
       fontSize: 16,
       color: Colors.white,
     ),
@@ -351,7 +351,7 @@ ThemeData darkTheme = ThemeData(
       fontSize: 14,
       color: COLOR_SECONDARY_GREY_DARK_LIGHTER,
     ),
-    bodyLarge: const TextStyle(
+    displayLarge: const TextStyle(
       fontSize: 16,
       color: Colors.black,
     ),
