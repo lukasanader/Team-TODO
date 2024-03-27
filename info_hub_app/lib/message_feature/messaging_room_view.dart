@@ -111,7 +111,9 @@ class _MessageRoomViewState extends State<MessageRoomView> {
 
   Widget _buildMessageInput() {
     return Container(
-      color: Colors.white,
+      color: Theme.of(context).brightness == Brightness.light
+          ? Colors.white
+          : Colors.black,
       child: Row(
         children: [
           Expanded(
