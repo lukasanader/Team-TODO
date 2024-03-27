@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:info_hub_app/controller/user_controller.dart';
 import 'package:info_hub_app/model/topic_model.dart';
 
 class TopicController {
@@ -34,6 +35,22 @@ class TopicController {
         List.from(data.docs.map((doc) => Topic.fromSnapshot(doc)));
 
     return topicList;
+  }
+
+  Future<Query<Object?>> getTopicQuery() async {
+    
+    String role = await UserController(auth, firestore).getUserRoleType();
+    Query<Object?> topicsQuery;
+
+    if (role == 'admin') {
+      topicsQuery = firestore.collection('topics').orderBy('title');
+    } else {
+      topicsQuery = firestore
+          .collection('topics')
+          .where('tags', arrayContains: role)
+          .orderBy('title');
+    }
+    return topicsQuery;
   }
 
   Future<void> incrementView(Topic topic) async {
