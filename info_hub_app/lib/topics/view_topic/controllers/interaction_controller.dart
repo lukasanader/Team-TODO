@@ -4,6 +4,7 @@ import 'package:info_hub_app/model/topic_model.dart';
 import 'package:info_hub_app/topics/view_topic/view/topic_view.dart';
 import 'package:info_hub_app/controller/activity_controller.dart';
 import 'media_controller.dart';
+import 'package:info_hub_app/threads/controllers/thread_controller.dart';
 
 /// Controller class responsible for managing the form data and actions in the topic creation process.
 class InteractionController {
@@ -241,6 +242,17 @@ class InteractionController {
         await mediaController
             .deleteMediaFromStorage(topic.media!.indexOf(item));
       }
+    }
+
+    final threadController = ThreadController(firestore: firestore, auth: auth);
+    // Delete all threads associated with the topic
+    final threadQuerySnapshot = await firestore
+        .collection("thread")
+        .where('topicId', isEqualTo: topic.id)
+        .get();
+
+    for (DocumentSnapshot threadDoc in threadQuerySnapshot.docs) {
+      await threadController.deleteThread(threadDoc.id);
     }
 
     // Delete the topic document from Firestore
