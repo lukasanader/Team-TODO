@@ -1,22 +1,19 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:info_hub_app/controller/activity_controller.dart';
-import 'package:info_hub_app/controller/quiz_controller.dart';
-import 'package:info_hub_app/model/quiz_model.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:info_hub_app/topics/create_topic/helpers/quiz/complete_quiz.dart';
 import 'package:info_hub_app/topics/create_topic/view/topic_creation_view.dart';
 import 'dart:async';
 import 'package:info_hub_app/threads/threads.dart';
-import 'package:info_hub_app/topics/create_topic/model/topic_model.dart';
+import 'package:info_hub_app/model/topic_model.dart';
 import '../controllers/interaction_controller.dart';
 import '../controllers/media_controller.dart';
 import 'widgets/view_media_widget.dart';
+import 'package:info_hub_app/controller/user_controller.dart';
 
 /// View Responsible For Viewing Topics
 class TopicView extends StatefulWidget {
@@ -32,8 +29,8 @@ class TopicView extends StatefulWidget {
     required this.storage,
     required this.auth,
     required this.themeManager,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<TopicView> createState() => TopicViewState();
@@ -43,6 +40,8 @@ class TopicViewState extends State<TopicView> {
   late InteractionController interactionController;
   late MediaController mediaController;
   late Topic updatedTopic;
+  late UserController _userController;
+  bool userIsAdmin = false;
 
   @override
   void initState() {
@@ -54,7 +53,8 @@ class TopicViewState extends State<TopicView> {
     interactionController = InteractionController(
         widget.auth, widget.firestore, this, updatedTopic, mediaController);
     interactionController.initializeData();
-    _isAdmin();
+    _userController = UserController(widget.auth, widget.firestore);
+    getUserIsAdmin();
   }
 
   /// Refreshes the screen
@@ -69,6 +69,10 @@ class TopicViewState extends State<TopicView> {
     }
   }
 
+  Future<void> getUserIsAdmin() async {
+    userIsAdmin = await _userController.isAdmin();
+  }
+
   @override
   void dispose() {
     super.dispose();
@@ -76,8 +80,6 @@ class TopicViewState extends State<TopicView> {
     mediaController.videoController?.dispose();
     mediaController.chewieController?.dispose();
   }
-
-  bool userIsAdmin = false;
 
   @override
   Widget build(BuildContext context) {
@@ -92,9 +94,12 @@ class TopicViewState extends State<TopicView> {
             if (userIsAdmin)
               IconButton(
                 key: const Key('edit_btn'),
-                icon: const Icon(Icons.edit, color: Colors.white),
+                icon: const Icon(Icons.edit, color: Colors.red),
                 onPressed: () {
                   // Navigate to edit screen
+                  if (mediaController.chewieController != null) {
+                    mediaController.chewieController!.pause();
+                  }
                   updatedTopic.id = widget.topic.id;
                   Navigator.push(
                     context,
@@ -111,7 +116,7 @@ class TopicViewState extends State<TopicView> {
                     if (updatedTopic != null) {
                       setState(() {
                         this.updatedTopic = updatedTopic;
-                        mediaController.initData();
+                        mediaController.initData(updatedTopic);
                       });
                     }
                   });
@@ -286,23 +291,5 @@ class TopicViewState extends State<TopicView> {
         ),
       ),
     );
-  }
-
-  Future<void> _isAdmin() async {
-    User? user = widget.auth.currentUser;
-
-    if (user != null) {
-      DocumentSnapshot userSnapshot =
-          await widget.firestore.collection('Users').doc(user.uid).get();
-
-      if (userSnapshot.exists) {
-        Map<String, dynamic>? userData =
-            userSnapshot.data() as Map<String, dynamic>?;
-
-        if (userData != null) {
-          userIsAdmin = userData['roleType'] == 'admin';
-        }
-      }
-    }
   }
 }

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import '../../controllers/media_upload_controller.dart';
+import '../../../../controller/create_topic_controllers/media_upload_controller.dart';
 
 /// Widget for uploading and managing media.
 class MediaUploadWidget extends StatelessWidget {
-  MediaUploadController mediaUploadController;
+  final MediaUploadController mediaUploadController;
 
-  MediaUploadWidget({
+  const MediaUploadWidget({
+    super.key,
     required this.mediaUploadController,
   });
 

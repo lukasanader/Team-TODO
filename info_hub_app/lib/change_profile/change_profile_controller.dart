@@ -31,7 +31,8 @@ class ChangeProfileController {
     }
   }
   
-  bool isAlpha(String text) {
+  /// Method to check if name has only letters
+  bool checkAllLetters(String text) {
     final alphaRegExp = RegExp(r'^[a-zA-Z]+$');
     return alphaRegExp.hasMatch(text);
   }
@@ -44,12 +45,12 @@ class ChangeProfileController {
     bool isValid = true;
 
     // Check first name
-    if (!isAlpha(firstNameController.text)) {
+    if (!checkAllLetters(firstNameController.text)) {
       isValid = false;
     }
 
     // Check last name
-    if (!isAlpha(lastNameController.text)) {
+    if (!checkAllLetters(lastNameController.text)) {
       isValid = false;
     }
 

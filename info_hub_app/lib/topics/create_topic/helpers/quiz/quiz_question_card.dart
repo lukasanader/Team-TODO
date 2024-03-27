@@ -14,7 +14,7 @@ class QuizQuestionCard extends StatefulWidget {
   final QuizQuestion? editQuestion;
   final Function(int)? onDelete;
 
-  QuizQuestionCard({
+  const QuizQuestionCard({
     required this.question,
     required this.questionNo,
     required this.quizID,
@@ -22,8 +22,8 @@ class QuizQuestionCard extends StatefulWidget {
     required this.auth,
     this.editQuestion,
     this.onDelete,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<QuizQuestionCard> createState() => _QuizQuestionCardState();
@@ -85,7 +85,7 @@ class _QuizQuestionCardState extends State<QuizQuestionCard> {
 
   Widget buildCollapsedQuestionTile() {
     return SizedBox(
-      height: 60, // Adjust the height as needed
+      height: 60,
       child: ListTile(
         title: Text(
           "${widget.questionNo}. ${widget.question}",

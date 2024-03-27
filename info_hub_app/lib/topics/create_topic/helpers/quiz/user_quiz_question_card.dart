@@ -1,24 +1,23 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:info_hub_app/model/model.dart';
 import 'package:info_hub_app/model/quiz_model.dart';
 
 import 'quiz_answer_card.dart';
 
 class UserQuizQuestionCard extends StatefulWidget {
-  QuizQuestion question;
-  int questionNo = -1;
-  bool completed;
+  final QuizQuestion question;
+  final int questionNo;
+  final bool completed;
   final FirebaseFirestore firestore;
   final Function(bool) onUpdateAnswer;
-  UserQuizQuestionCard({
+  const UserQuizQuestionCard({
     required this.question,
     required this.questionNo,
     required this.firestore,
     required this.completed,
     required this.onUpdateAnswer,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<UserQuizQuestionCard> createState() => _UserQuizQuestionCardState();
@@ -127,6 +126,8 @@ class _UserQuizQuestionCardState extends State<UserQuizQuestionCard> {
         });
         widget.onUpdateAnswer(true);
       });
+    }else{
+      widget.onUpdateAnswer(false);
     }
   }
 }

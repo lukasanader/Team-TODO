@@ -12,8 +12,9 @@ import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import '../mock_classes.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:info_hub_app/threads/threads.dart';
-import 'package:info_hub_app/topics/create_topic/model/topic_model.dart';
+import 'package:info_hub_app/model/topic_model.dart';
 
+/// This test file is responsible for testing that elements of the topic view screen can be utilised
 void main() {
   late MockUrlLauncher mockLauncher;
   late FakeFirebaseFirestore firestore;
@@ -27,13 +28,6 @@ void main() {
   setUp(() async {
     firestore = FakeFirebaseFirestore();
     storage = MockFirebaseStorage();
-
-    firestore.collection('Users').doc('user123').set({
-      'name': 'John Doe',
-      'email': 'john@example.com',
-      'likedTopics': [],
-      'dislikedTopics': [],
-    });
 
     firestore.collection('Users').doc('adminUser').set({
       'name': 'John Doe',
@@ -69,13 +63,8 @@ void main() {
 
     topic.id = topicRef.id;
 
-    final MockUser mockUser = MockUser(
-      isAnonymous: false,
-      uid: 'user123',
-      email: 'test@example.com',
-    );
-    localAuth = MockFirebaseAuth(mockUser: mockUser, signedIn: true);
-    // Pass a valid URL when creating the VideoPlayerController instance
+    localAuth =
+        MockFirebaseAuth(signedIn: true, mockUser: MockUser(uid: 'adminUser'));
     topicWithVideo = MaterialApp(
       home: TopicView(
           firestore: firestore,
@@ -94,14 +83,6 @@ void main() {
   });
 
   testWidgets('Test article link opens', (WidgetTester tester) async {
-    final MockUser mockUser = MockUser(
-      isAnonymous: false,
-      uid: 'user123',
-      email: 'test@example.com',
-    );
-
-    auth = MockFirebaseAuth(mockUser: mockUser, signedIn: true);
-
     await tester.pumpWidget(topicWithVideo);
 
     mockLauncher
@@ -126,15 +107,6 @@ void main() {
 
   testWidgets('Admin user can use edit topic button',
       (WidgetTester tester) async {
-    // Mock user data
-    final MockUser mockUser = MockUser(
-      isAnonymous: false,
-      uid: 'user123',
-      email: 'test@example.com',
-    );
-
-    auth = MockFirebaseAuth(mockUser: mockUser, signedIn: true);
-
     CollectionReference topicCollectionRef = firestore.collection('topics');
 
     final fakeVideoPlayerPlatform = FakeVideoPlayerPlatform();
@@ -196,13 +168,8 @@ void main() {
   });
   testWidgets('Test navigation to ThreadApp screen',
       (WidgetTester tester) async {
-    final MockUser mockUser = MockUser(
-      isAnonymous: false,
-      uid: 'user123',
-      email: 'test@example.com',
-    );
-
-    auth = MockFirebaseAuth(mockUser: mockUser, signedIn: true);
+    auth =
+        MockFirebaseAuth(signedIn: true, mockUser: MockUser(uid: 'adminUser'));
     CollectionReference topicCollectionRef = firestore.collection('topics');
 
     Topic topic = Topic(

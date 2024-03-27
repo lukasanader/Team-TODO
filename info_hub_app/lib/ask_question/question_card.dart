@@ -11,7 +11,7 @@ class QuestionCard extends StatelessWidget {
   final FirebaseAuth auth;
   final Function() onDelete;
 
-  QuestionCard(this._question,this.firestore,this.onDelete, this.auth,{super.key});
+  const QuestionCard(this._question,this.firestore,this.onDelete, this.auth,{super.key});
 
 
   @override

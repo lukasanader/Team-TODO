@@ -92,6 +92,11 @@ ThemeData lightTheme = ThemeData(
 
   // All text themes
   textTheme: const TextTheme(
+    headlineLarge: TextStyle(
+      fontSize: 22,
+      color: Colors.black,
+      fontWeight: FontWeight.w600,
+    ),
     headlineSmall: TextStyle(
       fontSize: 20,
       color: Colors.black,
@@ -317,24 +322,33 @@ ThemeData darkTheme = ThemeData(
   ),
 
   // All text themes
-  textTheme: const TextTheme(
-    headlineSmall: TextStyle(
+  textTheme: TextTheme(
+    headlineLarge: const TextStyle(
+      fontSize: 22,
+      color: Colors.white,
+      fontWeight: FontWeight.w600,
+    ),
+    headlineSmall: const TextStyle(
       fontSize: 20,
       color: Colors.white,
       fontWeight: FontWeight.w600,
     ),
-    titleSmall: TextStyle(
+    titleSmall: const TextStyle(
       fontSize: 19,
       color: Colors.white,
       fontWeight: FontWeight.w600,
     ),
-    bodyMedium: TextStyle(
+    labelSmall: TextStyle(
+      fontSize: 14,
+      color: COLOR_SECONDARY_GREY_DARK_LIGHTER,
+    ),
+    bodyMedium: const TextStyle(
       fontSize: 16,
       color: Colors.white,
     ),
     bodySmall: TextStyle(
       fontSize: 15,
-      color: Colors.white,
+      color: COLOR_SECONDARY_GREY_DARK_LIGHTER,
     ),
   ),
   textButtonTheme: TextButtonThemeData(

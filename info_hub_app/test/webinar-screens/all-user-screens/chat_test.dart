@@ -5,20 +5,20 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:info_hub_app/model/user_model.dart';
-import 'package:info_hub_app/webinar/service/webinar_service.dart';
+import 'package:info_hub_app/webinar/controllers/webinar_controller.dart';
 import 'package:info_hub_app/webinar/views/webinar-screens/chat.dart';
 
 void main() {
   late FakeFirebaseFirestore firestore;
   late Widget chatScreenWidget;
   late MockFirebaseStorage mockStorage;
-  late WebinarService webService;
+  late WebinarController webService;
   late UserModel user;
 
   setUp(() {
     firestore = FakeFirebaseFirestore();
     mockStorage = MockFirebaseStorage();
-    webService = WebinarService(
+    webService = WebinarController(
       firestore: firestore,
       storage: mockStorage
     );
@@ -40,7 +40,7 @@ void main() {
         firestore: firestore,
         user: user,
         webinarID: 'test',
-        webinarService: webService,
+        webinarController: webService,
         chatEnabled: true,
         )
     );
@@ -52,7 +52,7 @@ void main() {
         firestore: firestore,
         user: user,
         webinarID: 'test',
-        webinarService: webService,
+        webinarController: webService,
         chatEnabled: false,
         )
     );
@@ -165,6 +165,25 @@ void main() {
     await tester.pumpAndSettle();
     
     expect(find.text('Please refrain from using language that may be rude to others or writing your name in your messages.'), findsNothing);
+  });
+
+  testWidgets('Test User can not type and send blank message', (WidgetTester tester) async {
+    enableChat();
+    await tester.pumpWidget(chatScreenWidget);
+    await tester.pumpAndSettle();
+    final enterMessageField = find.ancestor(
+      of: find.text('Type your message...'),
+      matching: find.byType(TextField),
+    );
+    await tester.enterText(enterMessageField, '   ');
+    await tester.tap(find.byIcon(Icons.send));
+    await tester.pumpAndSettle();
+    final querySnapshot = await firestore
+                            .collection('Webinar')
+                            .doc('test')
+                            .collection('comments')
+                            .get();
+    expect(querySnapshot.docs.length,equals(0));
   });
 
   testWidgets('Test User can type and send message', (WidgetTester tester) async {

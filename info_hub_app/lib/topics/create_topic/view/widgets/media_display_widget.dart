@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../controllers/media_upload_controller.dart';
+import '../../../../controller/create_topic_controllers/media_upload_controller.dart';
 import 'package:info_hub_app/topics/create_topic/view/topic_creation_view.dart';
 
 import 'dart:io';
@@ -11,10 +11,10 @@ class MediaDisplayWidget extends StatelessWidget {
   final TopicCreationViewState screen;
 
   const MediaDisplayWidget({
-    Key? key,
+    super.key,
     required this.mediaUploadController,
     required this.screen,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

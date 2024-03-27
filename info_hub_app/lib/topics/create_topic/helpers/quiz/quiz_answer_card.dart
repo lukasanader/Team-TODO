@@ -5,12 +5,12 @@ class AnswerCard extends StatefulWidget {
   final int answerNo;
   final bool Function(int, bool) onSelected;
 
-  AnswerCard({
+  const AnswerCard({
     required this.answer,
     required this.answerNo,
     required this.onSelected,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<AnswerCard> createState() => _AnswerCardState();

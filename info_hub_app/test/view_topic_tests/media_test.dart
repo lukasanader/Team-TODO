@@ -10,8 +10,9 @@ import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import '../mock_classes.dart';
 import 'package:mocktail_image_network/mocktail_image_network.dart';
-import 'package:info_hub_app/topics/create_topic/model/topic_model.dart';
+import 'package:info_hub_app/model/topic_model.dart';
 
+/// This test file is responsible for testing the display of media on the topic view screen
 void main() {
   late FakeFirebaseFirestore firestore;
   late MockFirebaseAuth auth;
@@ -24,9 +25,10 @@ void main() {
     firestore = FakeFirebaseFirestore();
     storage = MockFirebaseStorage();
 
-    firestore.collection('Users').doc('user123').set({
+    firestore.collection('Users').doc('adminUser').set({
       'name': 'John Doe',
       'email': 'john@example.com',
+      'roleType': 'admin',
       'likedTopics': [],
       'dislikedTopics': [],
     });
@@ -55,12 +57,8 @@ void main() {
         await topicCollectionRef.add(topic.toJson());
     topic.id = topicDocRef.id;
 
-    final MockUser mockUser = MockUser(
-      isAnonymous: false,
-      uid: 'user123',
-      email: 'test@example.com',
-    );
-    localAuth = MockFirebaseAuth(mockUser: mockUser, signedIn: true);
+    localAuth =
+        MockFirebaseAuth(signedIn: true, mockUser: MockUser(uid: 'adminUser'));
 
     topicWithVideo = MaterialApp(
       home: TopicView(
@@ -91,15 +89,6 @@ void main() {
   });
 
   testWidgets('TopicView shows image', (WidgetTester tester) async {
-    final MockUser mockUser = MockUser(
-      isAnonymous: false,
-      uid: 'user123',
-      email: 'test@example.com',
-    );
-
-    auth = MockFirebaseAuth(mockUser: mockUser, signedIn: true);
-    final firestore = FakeFirebaseFirestore();
-
     CollectionReference topicCollectionRef = firestore.collection('topics');
 
     Topic topic = Topic(
@@ -121,13 +110,13 @@ void main() {
         await topicCollectionRef.add(topic.toJson());
     topic.id = topicDocRef.id;
 
-    // Pass a valid URL when creating the VideoPlayerController instance
     await mockNetworkImages(() async => await tester.pumpWidget(MaterialApp(
           home: TopicView(
             firestore: firestore,
             storage: storage,
             topic: topic,
-            auth: auth,
+            auth: MockFirebaseAuth(
+                signedIn: true, mockUser: MockUser(uid: 'adminUser')),
             themeManager: themeManager,
           ),
         )));
@@ -137,14 +126,8 @@ void main() {
   });
   testWidgets('next and previous buttons change current media',
       (WidgetTester tester) async {
-    final MockUser mockUser = MockUser(
-      isAnonymous: false,
-      uid: 'user123',
-      email: 'test@example.com',
-    );
-
-    auth = MockFirebaseAuth(mockUser: mockUser, signedIn: true);
-    final firestore = FakeFirebaseFirestore();
+    auth =
+        MockFirebaseAuth(signedIn: true, mockUser: MockUser(uid: 'adminUser'));
 
     CollectionReference topicCollectionRef = firestore.collection('topics');
 
@@ -177,7 +160,6 @@ void main() {
         await topicCollectionRef.add(topic.toJson());
     topic.id = topicDocRef.id;
 
-    // Pass a valid URL when creating the VideoPlayerController instance
     await mockNetworkImages(() async => await tester.pumpWidget(MaterialApp(
           home: TopicView(
             firestore: firestore,

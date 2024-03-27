@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:info_hub_app/topics/create_topic/model/topic_model.dart';
+import 'package:info_hub_app/model/topic_model.dart';
 import 'package:info_hub_app/topics/view_topic/view/topic_view.dart';
 import 'package:flutter/material.dart';
 import 'package:chewie/chewie.dart';
@@ -32,18 +32,18 @@ class MediaController {
 
   /// Initializes form data based on whether the form is for editing an existing topic or creating a new one.
   void initializeData() {
-    initData();
+    initData(topic);
   }
 
-  Future<void> initData() async {
-    if (topic.media!.isNotEmpty) {
-      if (topic.media![currentIndex]['mediaType'] == 'video') {
-        videoURL = topic.media![currentIndex]['url'];
+  Future<void> initData(Topic currentTopic) async {
+    if (currentTopic.media!.isNotEmpty) {
+      if (currentTopic.media![currentIndex]['mediaType'] == 'video') {
+        videoURL = currentTopic.media![currentIndex]['url'];
         imageUrl = null;
 
         await initializeVideoPlayer();
       } else {
-        imageUrl = topic.media![currentIndex]['url'];
+        imageUrl = currentTopic.media![currentIndex]['url'];
         videoURL = null;
         await initializeImage();
       }
@@ -52,8 +52,6 @@ class MediaController {
 
   Future<void> initializeVideoPlayer() async {
     bool isLoading = true; // Initialize isLoading to true
-
-    // Show loading indicator
 
     isLoading = true;
     screen.updateState();

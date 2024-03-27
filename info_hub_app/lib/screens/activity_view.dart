@@ -46,18 +46,14 @@ class _ActivityViewState extends State<ActivityView> {
               textAlign: TextAlign.left,
               'Viewed Topics',
             ),
-            Container(
+            SizedBox(
               height: 250,
               child: ListView.builder(
                 shrinkWrap: true,
                 itemCount: _topicsList.length,
                 itemBuilder: (context, index) {
-                  return TopicCard(
-                    widget.firestore,
-                    widget.auth,
-                    widget.storage,
-                    _topicsList[index],
-                  );
+                  return TopicCard(widget.firestore, widget.auth,
+                      widget.storage, _topicsList[index], "topic");
                 },
               ),
             ),
@@ -65,18 +61,14 @@ class _ActivityViewState extends State<ActivityView> {
               textAlign: TextAlign.left,
               'Liked Topics',
             ),
-            Container(
+            SizedBox(
               height: 250,
               child: ListView.builder(
                 shrinkWrap: true,
                 itemCount: _likedTopics.length,
                 itemBuilder: (context, index) {
-                  return TopicCard(
-                    widget.firestore,
-                    widget.auth,
-                    widget.storage,
-                    _likedTopics[index],
-                  );
+                  return TopicCard(widget.firestore, widget.auth,
+                      widget.storage, _likedTopics[index], "topic");
                 },
               ),
             ),
@@ -87,7 +79,7 @@ class _ActivityViewState extends State<ActivityView> {
               textAlign: TextAlign.left,
               'Replied threads',
             ),
-            Container(
+            SizedBox(
               height: 250,
               child: ListView.builder(
                 shrinkWrap: true,
@@ -109,7 +101,8 @@ class _ActivityViewState extends State<ActivityView> {
 
   // Fetch activity lists from the database
   Future<void> _getActivityList() async {
-    ActivityController controller = ActivityController(firestore: widget.firestore, auth: widget.auth);
+    ActivityController controller =
+        ActivityController(firestore: widget.firestore, auth: widget.auth);
 
     final List<dynamic> topicTemp = await controller.getActivityList('topics');
     final List<dynamic> threadTemp = await controller.getActivityList('thread');

@@ -2,8 +2,7 @@
  * This file contains all helper function.
  */
 
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:info_hub_app/topics/create_topic/model/topic_model.dart';
+import 'package:info_hub_app/model/topic_model.dart';
 
 // This function calculates the trending score of a topic.
 double getTrending(Topic topic) {

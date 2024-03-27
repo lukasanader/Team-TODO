@@ -8,7 +8,7 @@ import 'package:info_hub_app/main.dart';
 import 'package:info_hub_app/screens/activity_view.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import 'package:info_hub_app/threads/threads.dart';
-import 'package:info_hub_app/topics/create_topic/model/topic_model.dart';
+import 'package:info_hub_app/model/topic_model.dart';
 import 'package:info_hub_app/topics/view_topic/view/topic_view.dart';
 
 void main() {
@@ -63,9 +63,13 @@ void main() {
       'categories': [],
       'quizID': '',
     });
+    // Initialize allNouns and allAdjectives before each test
+    allNouns = await loadWordSet('assets/texts/nouns.txt');
+    allAdjectives = await loadWordSet('assets/texts/adjectives.txt');
   });
 
-  testWidgets('Test topic likes and history tracker', (WidgetTester tester) async {
+  testWidgets('Test topic likes and history tracker',
+      (WidgetTester tester) async {
     // Pump the HomePage widget and navigate to a topic
     await tester.pumpWidget(MaterialApp(
       home: HomePage(
@@ -103,7 +107,12 @@ void main() {
     );
 
     // Navigate to ActivityView and verify the presence of test 1 topic
-    await tester.pumpWidget(MaterialApp(home: ActivityView(firestore: firestore, auth: auth, storage: storage,)));
+    await tester.pumpWidget(MaterialApp(
+        home: ActivityView(
+      firestore: firestore,
+      auth: auth,
+      storage: storage,
+    )));
     await tester.pumpAndSettle();
     expect(find.text('test 1'), findsOneWidget);
   });
@@ -116,12 +125,15 @@ void main() {
       'creator': 'dummyUid',
       'timestamp': Timestamp.now(),
       'topicId': '1',
+      'roleType': 'Patient',
     }).then((doc) => doc.id);
 
     // Add replies to the thread
     await firestore.collection('replies').add({
       'content': 'Reply 1',
       'threadId': threadId,
+      'creator': 'dummyUid',
+      'timestamp': Timestamp.now(),
     });
 
     final newThreadId = await firestore.collection('thread').add({
@@ -130,11 +142,14 @@ void main() {
       'creator': 'dummyUid',
       'timestamp': Timestamp.now(),
       'topicId': '1',
+      'roleType': 'Patient',
     }).then((doc) => doc.id);
 
     await firestore.collection('replies').add({
       'content': 'Reply 1',
       'threadId': newThreadId,
+      'creator': 'dummyUid',
+      'timestamp': Timestamp.now(),
     });
 
     // Add thread activity
@@ -153,8 +168,12 @@ void main() {
     });
 
     // Navigate to ActivityView and verify threads are displayed
-    await tester.pumpWidget(
-        MaterialApp(home: ActivityView(firestore: firestore, auth: auth, storage: storage,)));
+    await tester.pumpWidget(MaterialApp(
+        home: ActivityView(
+      firestore: firestore,
+      auth: auth,
+      storage: storage,
+    )));
     await tester.pumpAndSettle();
 
     expect(find.textContaining('Thread 1'), findsOne);
@@ -168,15 +187,15 @@ void main() {
     expect(find.byType(ThreadApp), findsOne);
   });
 
-   testWidgets('Test delete topic', (WidgetTester tester) async {
-      firestore.collection('activity').add({
+  testWidgets('Test delete topic', (WidgetTester tester) async {
+    firestore.collection('activity').add({
       'type': 'topics',
       'aid': '1',
       'uid': 'adminUser',
       'date': DateTime.now()
-      });
-     // create the activity
-     firestore.collection('Users').doc('adminUser').set({
+    });
+    // create the activity
+    firestore.collection('Users').doc('adminUser').set({
       'name': 'John Doe',
       'email': 'john@example.com',
       'roleType': 'admin',
@@ -184,7 +203,7 @@ void main() {
       'dislikedTopics': [],
     });
 
-     Topic topic = Topic(
+    Topic topic = Topic(
         title: 'Test Topic',
         description: 'Test Description',
         articleLink: 'https://www.example.com',
@@ -196,8 +215,8 @@ void main() {
         dislikes: 0,
         categories: ['Sports'],
         date: DateTime.now());
-        topic.id='1';
-   Widget deleteView = MaterialApp(
+    topic.id = '1';
+    Widget deleteView = MaterialApp(
       home: TopicView(
         firestore: firestore,
         storage: storage,
@@ -209,7 +228,7 @@ void main() {
     );
 
     await tester.pumpWidget(deleteView);
-    
+
     await tester.pumpAndSettle();
     await tester.ensureVisible(find.text('Delete Topic'));
     await tester.tap(find.text('Delete Topic'));
@@ -219,5 +238,5 @@ void main() {
 
     final querySnapshot = await firestore.collection("activity").get();
     expect(querySnapshot.docs.isEmpty, true);
-   });
+  });
 }

@@ -1,11 +1,12 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:info_hub_app/controller/quiz_controller.dart';
-import 'package:info_hub_app/model/model.dart';
 import 'package:info_hub_app/model/quiz_model.dart';
 import 'package:uuid/uuid.dart';
-import 'package:info_hub_app/topics/create_topic/model/topic_model.dart';
+import 'package:info_hub_app/model/topic_model.dart';
 
 import 'quiz_question_card.dart';
 
@@ -16,14 +17,14 @@ class CreateQuiz extends StatefulWidget {
   final bool isEdit;
   final Topic? topic;
 
-  CreateQuiz({
-    Key? key,
+  const CreateQuiz({
+    super.key,
     required this.firestore,
     required this.auth,
     this.addQuiz,
     required this.isEdit,
     this.topic,
-  }) : super(key: key);
+  });
 
   @override
   _CreateQuizState createState() => _CreateQuizState();
@@ -46,34 +47,35 @@ class _CreateQuizState extends State<CreateQuiz> {
   // Function to handle the back button press
   Future<bool> _onWillPop() async {
     return await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Are you sure?'),
-        content: const Text('Do you want to leave without saving the quiz?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('No'),
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Are you sure?'),
+            content:
+                const Text('Do you want to leave without saving the quiz?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('No'),
+              ),
+              TextButton(
+                onPressed: () {
+                  // Delete the quiz if the user confirms
+                  QuizController controller = QuizController(
+                    firestore: widget.firestore,
+                    auth: widget.auth,
+                  );
+                  if (widget.topic != null) {
+                    quizID = widget.topic!.quizID!;
+                    controller.deleteTopicQuiz(widget.topic!);
+                  }
+                  controller.deleteQuiz(quizID);
+                  Navigator.of(context).pop(true);
+                },
+                child: const Text('Yes'),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () {
-              // Delete the quiz if the user confirms
-              QuizController controller = QuizController(
-                firestore: widget.firestore,
-                auth: widget.auth,
-              );
-              if (widget.topic != null) {
-                quizID = widget.topic!.quizID!;
-                controller.deleteTopicQuiz(widget.topic!);
-              }
-              controller.deleteQuiz(quizID);
-              Navigator.of(context).pop(true);
-            },
-            child: const Text('Yes'),
-          ),
-        ],
-      ),
-    ) ??
+        ) ??
         false;
   }
 
@@ -100,12 +102,19 @@ class _CreateQuizState extends State<CreateQuiz> {
           children: [
             Expanded(
               child: ListView.builder(
-                itemCount: widget.isEdit ? editQuestions.length : questions.length,
+                itemCount:
+                    widget.isEdit ? editQuestions.length : questions.length,
                 itemBuilder: (context, index) {
                   return QuizQuestionCard(
-                    question: widget.isEdit ? editQuestions[index].question : questions[index],
+                    question: widget.isEdit
+                        ? editQuestions[index].question
+                        : questions[index],
                     questionNo: index + 1,
-                    quizID: widget.isEdit && widget.topic != null && widget.topic!.quizID != '' ? widget.topic!.quizID! : quizID,
+                    quizID: widget.isEdit &&
+                            widget.topic != null &&
+                            widget.topic!.quizID != ''
+                        ? widget.topic!.quizID!
+                        : quizID,
                     firestore: widget.firestore,
                     auth: widget.auth,
                     editQuestion: widget.isEdit ? editQuestions[index] : null,
@@ -200,6 +209,7 @@ class _CreateQuizState extends State<CreateQuiz> {
       });
     }
   }
+
   // Callback function to handle question deletion
   void onDeleteQuestion(int index) {
     setState(() {
@@ -210,5 +220,4 @@ class _CreateQuizState extends State<CreateQuiz> {
       }
     });
   }
- 
 }

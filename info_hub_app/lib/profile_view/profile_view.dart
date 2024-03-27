@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/profile_view/profile_view_controller.dart';
-import 'package:info_hub_app/change_profile/change_profile.dart';
+import 'package:info_hub_app/change_profile/change_profile_view.dart';
 import 'package:info_hub_app/change_profile/change_profile_controller.dart';
 import 'package:info_hub_app/theme/theme_constants.dart';
 
@@ -69,7 +69,11 @@ class _ProfileViewState extends State<ProfileView> {
               onTap: _showProfilePhotoOptions,
               child: CircleAvatar(
                 radius: 60,
-                backgroundImage: AssetImage('assets/$_selectedProfilePhoto'),
+                backgroundColor: Colors.grey[200],
+                backgroundImage: _selectedProfilePhoto.startsWith('http')
+                    ? NetworkImage(_selectedProfilePhoto)
+                    : AssetImage('assets/$_selectedProfilePhoto')
+                        as ImageProvider, // Profile photo
               ),
             ),
             Positioned(
@@ -144,13 +148,6 @@ class _ProfileViewState extends State<ProfileView> {
       ),
     );
   }
-
-  // Widget _buildChangeProfileButton() {
-  //   return ElevatedButton(
-  //     onPressed: _changeProfile,
-  //     child: const Text('Change Profile'),
-  //   );
-  // }
 
   Widget _buildChangeProfileButton() {
     return ElevatedButton(

@@ -1,6 +1,9 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/controller/topic_question_controller.dart';
 import 'package:info_hub_app/model/model.dart';
+import 'package:info_hub_app/notifications/notification_controller.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -8,9 +11,9 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:info_hub_app/ask_question/question_card.dart';
 import '../helpers/transitions/checkmark_transition.dart';
-import '../model/topic_model.dart';
-import '../controllers/form_controller.dart';
-import '../controllers/media_upload_controller.dart';
+import '../../../model/topic_model.dart';
+import '../../../controller/create_topic_controllers/form_controller.dart';
+import '../../../controller/create_topic_controllers/media_upload_controller.dart';
 import 'widgets/topic_form_widget.dart';
 import 'widgets/add_quiz_widget.dart';
 import 'widgets/media_upload_widget.dart';
@@ -22,14 +25,14 @@ import 'package:info_hub_app/topics/create_topic/helpers/categories/category_mod
 class TopicCreationView extends StatefulWidget {
   final FirebaseFirestore firestore;
   final FirebaseStorage storage;
-  Topic? topic;
-  Topic? draft;
+  final Topic? topic;
+  final Topic? draft;
   final FirebaseAuth auth;
-  List<PlatformFile>? selectedFiles;
+  final List<PlatformFile>? selectedFiles;
   final ThemeManager themeManager;
 
-  TopicCreationView({
-    Key? key,
+  const TopicCreationView({
+    super.key,
     required this.firestore,
     required this.storage,
     this.topic,
@@ -37,7 +40,7 @@ class TopicCreationView extends StatefulWidget {
     this.selectedFiles,
     required this.auth,
     required this.themeManager,
-  }) : super(key: key);
+  });
 
   @override
   State<TopicCreationView> createState() => TopicCreationViewState();
@@ -51,7 +54,9 @@ class TopicCreationViewState extends State<TopicCreationView> {
   List<String> options = ['Patient', 'Parent', 'Healthcare Professional'];
   String quizID = '';
   bool quizAdded = false;
+  Topic? topic;
   List<String> categoriesOptions = [];
+
   final TextEditingController newCategoryNameController =
       TextEditingController();
 
@@ -106,6 +111,9 @@ class TopicCreationViewState extends State<TopicCreationView> {
               style: const TextStyle(
                   color: Colors.white, fontWeight: FontWeight.bold),
             ),
+            iconTheme: const IconThemeData(
+              color: Colors.white,
+            ),
             actions: <Widget>[
               // Save as draft button (visible only when not editing or publishing a draft)
               if (!editing && !drafting)
@@ -117,6 +125,19 @@ class TopicCreationViewState extends State<TopicCreationView> {
                   },
                   child: const Text(
                     'Save Draft',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                )
+              else if (drafting)
+                TextButton(
+                  key: const Key('delete_draft_btn'),
+                  onPressed: () async {
+                    formController.deleteDraft();
+                    updateState();
+                    Navigator.pop(context);
+                  },
+                  child: const Text(
+                    'Delete this draft',
                     style: TextStyle(color: Colors.white),
                   ),
                 )
@@ -152,7 +173,7 @@ class TopicCreationViewState extends State<TopicCreationView> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Container(
+                            SizedBox(
                               width: 200,
                               child: OutlinedButton(
                                 style: OutlinedButton.styleFrom(
@@ -171,7 +192,7 @@ class TopicCreationViewState extends State<TopicCreationView> {
                                     );
                                     await Future.delayed(
                                         const Duration(seconds: 2));
-                                    await formController.uploadTopic(
+                                    topic = await formController.uploadTopic(
                                         context, false);
                                     Navigator.pop(context);
                                     if (drafting) {
@@ -222,7 +243,6 @@ class TopicCreationViewState extends State<TopicCreationView> {
         TopicQuestionController(firestore: widget.firestore, auth: widget.auth);
     List<TopicQuestion> questions =
         await controller.getRelevantQuestions(title);
-    // ignore: use_build_context_synchronously
     await showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -278,6 +298,30 @@ class TopicCreationViewState extends State<TopicCreationView> {
                                   TextButton(
                                     onPressed: () async {
                                       // Delete the question from the database
+                                      for (int i = 0;
+                                          i < questions.length;
+                                          i++) {
+                                        NotificationController(
+                                                auth: widget.auth,
+                                                firestore: widget.firestore,
+                                                uid: questions[i].uid)
+                                            .createNotification(
+                                                'Question Reply',
+                                                'A topic has been created in response to your question.',
+                                                DateTime.now(),
+                                                '/topic',
+                                                topic);
+                                      }
+                                      NotificationController(
+                                              auth: widget.auth,
+                                              firestore: widget.firestore,
+                                              uid: widget.auth.currentUser!.uid)
+                                          .createNotification(
+                                              'Question Reply',
+                                              'A topic has been created in response to your question.',
+                                              DateTime.now(),
+                                              '/topic',
+                                              topic);
                                       controller.deleteAllQuestions(questions);
                                       setState(
                                         () {
@@ -311,7 +355,6 @@ class TopicCreationViewState extends State<TopicCreationView> {
       },
     );
   }
-
 
   /// Retreieve the list of categories
   Future getCategoryList() async {

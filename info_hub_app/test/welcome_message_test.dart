@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:info_hub_app/helpers/base.dart';
 import 'package:info_hub_app/main.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
-import 'package:info_hub_app/welcome_message/welcome_message.dart';
+import 'package:info_hub_app/welcome_message/welcome_message_view.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
@@ -28,9 +28,6 @@ void main() {
     ));
     expect(find.text('Welcome to Info Hub App!'), findsOneWidget);
   });
-
-
-
 
   testWidgets('Test if how to use this app text is present',
       (WidgetTester tester) async {
@@ -554,7 +551,7 @@ testWidgets('WelcomePage "Get Started" button test if it brings you to the Home 
           firestore: firestore,
           auth: auth,
           storage: storage,
-          themeManager: themeManager, // Provide a non-null value here
+          themeManager: themeManager, 
         ),
       ),
     ));

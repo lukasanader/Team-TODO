@@ -1,9 +1,5 @@
-/*
- * This is a skeleton home page, which contains an app bar with the 
- * notifications and profile icons. This also contains a placeholder 
- * NotificationPage() and ProfilePage(), which should be replaced with the 
- * genuine article.
- */
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -11,27 +7,26 @@ import 'package:info_hub_app/controller/user_controller.dart';
 import 'package:info_hub_app/helpers/helper_widgets.dart';
 import 'package:info_hub_app/helpers/test_page.dart';
 import 'package:info_hub_app/message_feature/patient_message_view.dart';
-import 'package:info_hub_app/patient_experience/patient_experience_view.dart';
+import 'package:info_hub_app/experiences/experiences_view.dart';
 import 'package:info_hub_app/model/user_model.dart';
-import 'package:info_hub_app/notifications/notifications_view.dart';
+import 'package:info_hub_app/notifications/notification_view.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:info_hub_app/topics/create_topic/controllers/topic_controller.dart';
+import 'package:info_hub_app/controller/create_topic_controllers/topic_controller.dart';
 import 'package:info_hub_app/topics/view_topic/helpers/topics_card.dart';
-import 'package:info_hub_app/webinar/service/webinar_service.dart';
+import 'package:info_hub_app/webinar/controllers/webinar_controller.dart';
 import 'package:info_hub_app/webinar/views/webinar-screens/webinar_view.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
-import 'package:info_hub_app/topics/create_topic/model/topic_model.dart';
+import 'package:info_hub_app/model/topic_model.dart';
 
 import 'package:info_hub_app/helpers/helper.dart' show getTrending;
 
 class HomePage extends StatefulWidget {
-  FirebaseFirestore firestore;
-  FirebaseAuth auth;
-  FirebaseStorage storage;
+  final FirebaseFirestore firestore;
+  final FirebaseAuth auth;
+  final FirebaseStorage storage;
 
-  //User? user = FirebaseAuth.instance.currentUser;
-  HomePage(
+  const HomePage(
       {super.key,
       required this.auth,
       required this.firestore,
@@ -141,7 +136,8 @@ class _HomePageState extends State<HomePage> {
                       widget.firestore,
                       widget.auth,
                       widget.storage,
-                      _topicsList[topicIndex] as Topic,
+                      _topicsList[topicIndex],
+                      "topic",
                     );
                   }
                 },
@@ -182,17 +178,16 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
                 child: const Text(
-                  'Patient Experience',
+                  'Shared Experience',
                   textAlign: TextAlign.center,
                 ),
               ),
               ElevatedButton(
                 onPressed: () async {
-                  UserModel user = await UserController(
-                    widget.auth,
-                    widget.firestore
-                  ).getUser(widget.auth.currentUser!.uid);
-                  WebinarService webinarService = WebinarService(
+                  UserModel user =
+                      await UserController(widget.auth, widget.firestore)
+                          .getUser(widget.auth.currentUser!.uid);
+                  WebinarController webinarController = WebinarController(
                     firestore: widget.firestore,
                     storage: widget.storage,
                   );
@@ -201,7 +196,7 @@ class _HomePageState extends State<HomePage> {
                     screen: WebinarView(
                       firestore: widget.firestore,
                       user: user,
-                      webinarService: webinarService,
+                      webinarController: webinarController,
                     ),
                     withNavBar: false,
                   );
@@ -223,16 +218,16 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-
   Future getTopicsList() async {
     if (widget.auth.currentUser == null) {
       return;
     }
-    _topicsList = await TopicController(auth: widget.auth, firestore: widget.firestore).getTopicList();
+    _topicsList =
+        await TopicController(auth: widget.auth, firestore: widget.firestore)
+            .getTopicList();
     if (mounted) {
       setState(() {
-        _topicsList.sort((b, a) =>
-            getTrending(a).compareTo(getTrending(b)));
+        _topicsList.sort((b, a) => getTrending(a).compareTo(getTrending(b)));
         topicLength = _topicsList.length;
         if (topicLength > 6) {
           _topicsList.removeRange(6, topicLength);

@@ -3,11 +3,12 @@ import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:info_hub_app/main.dart';
-import 'package:info_hub_app/topics/create_topic/model/topic_model.dart';
+import 'package:info_hub_app/model/topic_model.dart';
 import 'package:info_hub_app/topics/create_topic/view/topic_creation_view.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 
+/// This test file is responsible for testing the create topic form submission
 void main() async {
   late MockFirebaseAuth auth;
   late FakeFirebaseFirestore firestore;
@@ -262,7 +263,8 @@ void main() async {
     expect(find.text('Gym'), findsNothing);
   });
 
-  testWidgets('Deleting category removes category from existing topics', (WidgetTester tester) async {
+  testWidgets('Deleting category removes category from existing topics',
+      (WidgetTester tester) async {
     await defineUserAndStorage(tester);
 
     await firestore.collection('categories').add({'name': 'Testing category'});
@@ -286,13 +288,10 @@ void main() async {
         date: DateTime.now(),
         quizID: '');
 
-    DocumentReference topicRef = await firestore
-      .collection('topics')
-      .add(topic.toJson());
+    DocumentReference topicRef =
+        await firestore.collection('topics').add(topic.toJson());
 
     topic.id = topicRef.id;
-
-
 
     await tester.pumpWidget(basicWidget!);
     await fillRequiredFields(tester);
@@ -313,13 +312,10 @@ void main() async {
     expect(find.text('Testing category'), findsNothing);
 
     //verifies that the topic no longer contains the category Testing category
-    DocumentSnapshot topicSnapshot = await firestore.collection('topics').doc(topic.id).get();
+    DocumentSnapshot topicSnapshot =
+        await firestore.collection('topics').doc(topic.id).get();
     expect(topicSnapshot['categories'], isEmpty);
-
-
-
   });
-
 
   testWidgets('Topic with no title does not save', (WidgetTester tester) async {
     await defineUserAndStorage(tester);

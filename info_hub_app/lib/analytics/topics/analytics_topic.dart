@@ -8,10 +8,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:info_hub_app/topics/create_topic/controllers/topic_controller.dart';
+import 'package:info_hub_app/controller/create_topic_controllers/topic_controller.dart';
 import 'package:info_hub_app/topics/view_topic/helpers/topics_card.dart';
 import 'package:info_hub_app/helpers/helper.dart' show getTrending;
-import 'package:info_hub_app/topics/create_topic/model/topic_model.dart';
+import 'package:info_hub_app/model/topic_model.dart';
 
 class AnalyticsTopicView extends StatefulWidget {
   final FirebaseAuth auth;
@@ -19,7 +19,10 @@ class AnalyticsTopicView extends StatefulWidget {
   final FirebaseStorage storage;
 
   const AnalyticsTopicView(
-      {super.key, required this.auth, required this.firestore, required this.storage});
+      {super.key,
+      required this.auth,
+      required this.firestore,
+      required this.storage});
 
   @override
   State<AnalyticsTopicView> createState() => _AnalyticsTopicView();
@@ -27,7 +30,7 @@ class AnalyticsTopicView extends StatefulWidget {
 
 class _AnalyticsTopicView extends State<AnalyticsTopicView> {
   // Default/Starting Variables
-  List<Object> _topicsList = [];
+  List<Topic> _topicsList = [];
   int topicLength = 0;
   String dropdownvalue = "Name A-Z";
 
@@ -127,8 +130,13 @@ class _AnalyticsTopicView extends State<AnalyticsTopicView> {
                       shrinkWrap: true,
                       itemCount: topicLength == 0 ? 0 : topicLength,
                       itemBuilder: (context, index) {
-                        return AdminTopicCard(widget.firestore, widget.storage,
-                            _topicsList[index] as Topic);
+                        return TopicCard(
+                          widget.firestore,
+                          widget.auth,
+                          widget.storage,
+                          _topicsList[index],
+                          "adminTopic",
+                        );
                       }),
                 ),
         ],
@@ -137,9 +145,10 @@ class _AnalyticsTopicView extends State<AnalyticsTopicView> {
   }
 
   Future getTopicsList() async {
-
     // Retrieves topic data from database.
-    List<Topic> topics = await TopicController(auth: widget.auth, firestore: widget.firestore).getTopicList();
+    List<Topic> topics =
+        await TopicController(auth: widget.auth, firestore: widget.firestore)
+            .getTopicList();
 
     // Amends ordering of topics on the screen when new dropdown is selected
     // or when the page is initialised for the first time.

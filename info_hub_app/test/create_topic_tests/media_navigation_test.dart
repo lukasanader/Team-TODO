@@ -13,8 +13,9 @@ import '../mock_classes.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:mocktail_image_network/mocktail_image_network.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:info_hub_app/topics/create_topic/model/topic_model.dart';
+import 'package:info_hub_app/model/topic_model.dart';
 
+/// This test file is responsible for testing the navigation between media
 void main() async {
   late MockFirebaseAuth auth;
   late FakeFirebaseFirestore firestore;
@@ -96,7 +97,6 @@ void main() async {
     // Add the topic to Firestore
     await topicCollectionRef.add(topic.toJson());
 
-    // Pass a valid URL when creating the VideoPlayerController instance
     await mockNetworkImages(() async => await tester.pumpWidget(MaterialApp(
           home: TopicCreationView(
             auth: auth,
@@ -175,7 +175,6 @@ void main() async {
       'when video is changed or deselected, old video gets deleted from storage',
       (WidgetTester tester) async {
     CollectionReference topicCollectionRef;
-    QuerySnapshot data;
 
     topicCollectionRef = firestore.collection('topics');
     await defineUserAndStorage(tester);
@@ -215,8 +214,6 @@ void main() async {
       final ref = mockStorage.ref().child('media');
       await ref.putString(content, format: PutStringFormat.raw);
     }
-
-    data = await topicCollectionRef.orderBy('title').get();
 
     await tester.pumpWidget(MaterialApp(
       home: TopicCreationView(
