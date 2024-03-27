@@ -170,17 +170,19 @@ class _ChatState extends State<Chat> {
                       icon: const Icon(Icons.send),
                       onPressed: () async {
                         // checks for profanities or name before adding comment to database
-                        bool hasProfanities = filter.hasProfanity(_chatController.text);
-                        bool hasName = _namePresent(_chatController.text);
-                        if (!hasProfanities && !hasName) {
-                          await widget.webinarController
-                              .chat(_chatController.text, widget.webinarID, widget.user.roleType,widget.user.uid);
-                        } else {
-                          _showWarningDialog();
+                        if (_chatController.text.trim().isNotEmpty) {
+                          bool hasProfanities = filter.hasProfanity(_chatController.text);
+                          bool hasName = _namePresent(_chatController.text);
+                          if (!hasProfanities && !hasName) {
+                            await widget.webinarController
+                                .chat(_chatController.text, widget.webinarID, widget.user.roleType,widget.user.uid);
+                          } else {
+                            _showWarningDialog();
+                          }
+                          setState(() {
+                            _chatController.text = "";
+                          });
                         }
-                        setState(() {
-                          _chatController.text = "";
-                        });
                       },
                     ),
                   ],
