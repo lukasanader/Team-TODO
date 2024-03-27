@@ -12,7 +12,7 @@ class ExperienceSharingController {
     _experienceController = ExperienceController(_auth, _firestore);
   }
 
-  // User must read and accept experience expectations dialog
+  /// User must read and accept experience expectations dialog
   void showExperienceExpectations(context) {
     bool checkboxValue = false;
 
@@ -89,7 +89,7 @@ class ExperienceSharingController {
     );
   }
 
-  // Checks whether the user has previously opted to not view story expectations
+  /// Checks whether the user has previously opted to not view story expectations
   Future<bool> hasOptedOutOfExperienceExpectations() async {
     User? user = _auth.currentUser;
 
@@ -115,8 +115,8 @@ class ExperienceSharingController {
     return false;
   }
 
-  // Adds a field to the user's document in the database to indicate that they
-  // have opted out of story expectations
+  /// Adds a field to the user's document in the database to indicate that they
+  /// have opted out of story expectations
   void optOutOfStoryExpectations() async {
     User? user = _auth.currentUser;
 
@@ -200,6 +200,7 @@ class ExperienceSharingController {
     );
   }
 
+  //alert in case a blank title or description was submitted
   Future<void> _blankTitleOrExperienceAlert(BuildContext context) async {
     return showDialog<void>(
       context: context,
