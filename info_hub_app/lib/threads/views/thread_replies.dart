@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:info_hub_app/theme/theme_constants.dart';
 import 'package:info_hub_app/threads/views/reply_card.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:info_hub_app/threads/controllers/name_generator_controller.dart';
@@ -175,21 +176,33 @@ class _ThreadRepliesState extends State<ThreadReplies> {
 
           return Column(
             children: [
+              const SizedBox(height: 30.0),
               Card(
                 margin: const EdgeInsets.all(8.0),
                 elevation: 10.0,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(6.0),
-                    side: const BorderSide(color: Colors.grey, width: 1.0)),
+                    side: BorderSide(
+                        color: Theme.of(context).brightness == Brightness.light
+                            ? COLOR_SECONDARY_GREY_LIGHT
+                            : COLOR_SECONDARY_GREY_DARK,
+                        width: 1.0)),
                 child: Padding(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.only(
+                      top: 8, bottom: 16.0, left: 16.0, right: 16.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
                         children: [
                           IconButton(
-                            icon: const Icon(Icons.arrow_back),
+                            icon: Icon(
+                              Icons.arrow_back,
+                              color: Theme.of(context).brightness ==
+                                      Brightness.light
+                                  ? COLOR_PRIMARY_LIGHT
+                                  : COLOR_PRIMARY_DARK,
+                            ),
                             onPressed: () => Navigator.of(context).pop(),
                           ),
                           Expanded(
