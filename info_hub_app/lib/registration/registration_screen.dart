@@ -102,9 +102,11 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter your first name';
-                  } else if (!RegExp(r'^[a-zA-Z]+$').hasMatch(value)) {
+                  } else if (value.length > 30) {
+                    return 'Please shorten this field!';
+                  } else if (!RegExp(r"^\s*([A-Za-z]{1,}([\.,] |[-']| ))+[A-Za-z]+\.?\s*$").hasMatch(value)) {
                     return 'Please enter only letters';
-                  }
+                  } 
                   return null;
                 },
               ),
@@ -116,7 +118,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter your last name';
-                  } else if (!RegExp(r'^[a-zA-Z]+$').hasMatch(value)) {
+                  } else if (value.length > 30) {
+                    return 'Please shorten this field!';
+                  }
+                   else if (!RegExp(r"^\s*([A-Za-z]{1,}([\.,] |[-']| ))+[A-Za-z]+\.?\s*$").hasMatch(value)) {
                     return 'Please enter only letters';
                   }
                   return null;
