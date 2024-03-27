@@ -199,6 +199,11 @@ void main() {
     await tester.tap(find.text('Register'));
     await tester.pumpAndSettle();
     expect(find.text('Please enter only letters'), findsOneWidget);
+    await tester.enterText(firstNameField, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+    await tester.ensureVisible(find.text('Register'));
+    await tester.tap(find.text('Register'));
+    await tester.pumpAndSettle();
+    expect(find.text('Please shorten this field!'), findsOneWidget);
   });
 
   testWidgets('Test if last name TextFormField validation works',
@@ -213,6 +218,11 @@ void main() {
     await tester.tap(find.text('Register'));
     await tester.pumpAndSettle();
     expect(find.text('Please enter only letters'), findsOneWidget);
+    await tester.enterText(lastNameField, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+    await tester.ensureVisible(find.text('Register'));
+    await tester.tap(find.text('Register'));
+    await tester.pumpAndSettle();
+    expect(find.text('Please shorten this field!'), findsOneWidget);
   });
 
   testWidgets('Test if email TextFormField validation works',
