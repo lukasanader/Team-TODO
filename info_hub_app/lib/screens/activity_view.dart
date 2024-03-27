@@ -57,6 +57,9 @@ class _ActivityViewState extends State<ActivityView> {
                 },
               ),
             ),
+            const SizedBox(
+              height: 40,
+            ),
             const Text(
               textAlign: TextAlign.left,
               'Liked Topics',
