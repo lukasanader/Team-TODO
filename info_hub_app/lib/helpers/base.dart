@@ -6,6 +6,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/discovery_view/discovery_view.dart';
 import 'package:info_hub_app/settings/settings_view.dart';
@@ -22,13 +23,15 @@ class Base extends StatefulWidget {
   final FirebaseStorage storage;
   final ThemeManager themeManager;
   final String roleType;
+  final FirebaseMessaging messaging;
   const Base(
       {super.key,
       required this.auth,
       required this.storage,
       required this.firestore,
       required this.themeManager,
-      required this.roleType});
+      required this.roleType,
+      required this.messaging});
 
   @override
   State<Base> createState() => _BaseState();
@@ -38,33 +41,34 @@ class _BaseState extends State<Base> {
   List<Widget> getScreenBasedOnUser() {
     Widget userHomePage;
     if (widget.roleType == 'admin') {
-      userHomePage= AdminHomepage(
-          auth: widget.auth,
-          storage: widget.storage,
-          firestore: widget.firestore,
-          themeManager: widget.themeManager,
-        );
-    }else{
-      userHomePage=HomePage(
-           auth: widget.auth,
-           storage: widget.storage,
-           firestore: widget.firestore,
-        );
-      }
-      return [
-        userHomePage,
-        DiscoveryView(
-          auth: widget.auth,
-          storage: widget.storage,
-          firestore: widget.firestore,
-        ),
-        SettingsView(
-          auth: widget.auth,
-          firestore: widget.firestore,
-          storage: widget.storage,
-          themeManager: widget.themeManager,
-        ),
-      ];
+      userHomePage = AdminHomepage(
+        auth: widget.auth,
+        storage: widget.storage,
+        firestore: widget.firestore,
+        themeManager: widget.themeManager,
+      );
+    } else {
+      userHomePage = HomePage(
+        auth: widget.auth,
+        storage: widget.storage,
+        firestore: widget.firestore,
+      );
+    }
+    return [
+      userHomePage,
+      DiscoveryView(
+        auth: widget.auth,
+        storage: widget.storage,
+        firestore: widget.firestore,
+      ),
+      SettingsView(
+        auth: widget.auth,
+        firestore: widget.firestore,
+        storage: widget.storage,
+        themeManager: widget.themeManager,
+        messaging: widget.messaging,
+      ),
+    ];
   }
 
   @override

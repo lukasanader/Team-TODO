@@ -17,7 +17,7 @@ class EmailVerificationScreen extends StatefulWidget {
   final FirebaseAuth auth;
   final FirebaseStorage storage;
   final FirebaseMessaging messaging;
-    final FlutterLocalNotificationsPlugin localnotificationsplugin;
+  final FlutterLocalNotificationsPlugin localnotificationsplugin;
   const EmailVerificationScreen(
       {super.key,
       required this.firestore,
@@ -27,7 +27,8 @@ class EmailVerificationScreen extends StatefulWidget {
       required this.localnotificationsplugin});
 
   @override
-  State<EmailVerificationScreen> createState() => _EmailVerificationScreenState();
+  State<EmailVerificationScreen> createState() =>
+      _EmailVerificationScreenState();
 }
 
 class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
@@ -43,9 +44,10 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
       localnotificationsplugin: widget.localnotificationsplugin,
     );
   }
+
   final _formKey = GlobalKey<FormState>();
 
-   @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -81,19 +83,22 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                 onPressed: () async {
                   await widget.auth.currentUser!.reload();
                   if (widget.auth.currentUser!.emailVerified) {
-                    String role = await UserController(widget.auth, widget.firestore).getUserRoleType();
+                    String role =
+                        await UserController(widget.auth, widget.firestore)
+                            .getUserRoleType();
                     Widget nextPage = Base(
-                        firestore: widget.firestore,
-                        auth: widget.auth,
-                        storage: widget.storage,
-                        themeManager: ThemeManager(),
-                        roleType: role,
-                      );
+                      firestore: widget.firestore,
+                      auth: widget.auth,
+                      storage: widget.storage,
+                      messaging: widget.messaging,
+                      themeManager: ThemeManager(),
+                      roleType: role,
+                    );
                     Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(builder: (context) => nextPage),
-                        (Route<dynamic> route) => false,
-                      );
+                      context,
+                      MaterialPageRoute(builder: (context) => nextPage),
+                      (Route<dynamic> route) => false,
+                    );
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(

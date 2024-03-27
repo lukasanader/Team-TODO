@@ -181,6 +181,7 @@ class _MyAppState extends State<MyApp> {
                     firestore: widget.firestore,
                     storage: widget.storage,
                     themeManager: themeManager,
+                    messaging: FirebaseMessaging.instance,
                     roleType: 'admin',
                   );
                 case 'user':
@@ -189,6 +190,7 @@ class _MyAppState extends State<MyApp> {
                     firestore: widget.firestore,
                     storage: widget.storage,
                     themeManager: themeManager,
+                    messaging: FirebaseMessaging.instance,
                     roleType: 'user',
                   );
                 default:
@@ -220,6 +222,7 @@ class _MyAppState extends State<MyApp> {
                       firestore: widget.firestore,
                       storage: widget.storage,
                       themeManager: themeManager,
+                      messaging: FirebaseMessaging.instance,
                       roleType: roleType,
                     )),
                 builder: (context, snapshot) {
