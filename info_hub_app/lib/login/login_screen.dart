@@ -111,21 +111,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     User? user = await _auth.signInUser(
                         emailController.text, passwordController.text);
                     if (user != null) {
-                      if (user.emailVerified != true) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => EmailVerificationScreen(
-                              firestore: widget.firestore,
-                              auth: widget.auth,
-                              storage: widget.storage,
-                              messaging: widget.messaging,
-                              localnotificationsplugin:
-                                  widget.localnotificationsplugin,
-                            ),
-                          ),
-                        );
-                      } else {
                         String roleType =
                             await UserController(widget.auth, widget.firestore)
                                 .getUserRoleType();
@@ -142,7 +127,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           MaterialPageRoute(builder: (context) => nextPage),
                           (Route<dynamic> route) => false,
                         );
-                      }
+                      
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
