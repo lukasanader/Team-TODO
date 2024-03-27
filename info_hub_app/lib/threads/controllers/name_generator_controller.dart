@@ -14,5 +14,5 @@ String generateUniqueName(String docId) {
   String noun = allNouns!.elementAt(hashInt % allNouns!.length);
   String adjective = allAdjectives!.elementAt(hashInt % allAdjectives!.length);
 
-  return '$adjective $noun';
+  return '$adjective$noun';
 }
