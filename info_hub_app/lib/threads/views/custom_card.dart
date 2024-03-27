@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
-
 import 'package:info_hub_app/threads/views/thread_replies.dart';
 import 'package:flutter/cupertino.dart';
-
 import 'package:expansion_tile_card/expansion_tile_card.dart';
 import 'package:info_hub_app/threads/models/thread_model.dart';
-
 import 'package:info_hub_app/threads/controllers/thread_controller.dart';
 
 class CustomCard extends StatefulWidget {
