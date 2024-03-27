@@ -6,7 +6,7 @@ import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:info_hub_app/topics/view_topic/view/topic_view.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
-import 'package:info_hub_app/topics/create_topic/model/topic_model.dart';
+import 'package:info_hub_app/model/topic_model.dart';
 
 /// This test file is responsible for testing the use of user feedback tools
 void main() {
@@ -16,16 +16,16 @@ void main() {
   late DocumentReference topicDocRef;
   late MockFirebaseStorage storage;
   late Topic topic;
-  late MockUser mockUser;
+
   late ThemeManager themeManager = ThemeManager();
 
   setUp(() async {
     firestore = FakeFirebaseFirestore();
     storage = MockFirebaseStorage();
-
-    firestore.collection('Users').doc('user123').set({
+    firestore.collection('Users').doc('adminUser').set({
       'name': 'John Doe',
       'email': 'john@example.com',
+      'roleType': 'admin',
       'likedTopics': [],
       'dislikedTopics': [],
     });
@@ -70,19 +70,12 @@ void main() {
       'categories': ['Sports'],
       'date': DateTime.now()
     });
-
-    mockUser = MockUser(
-      isAnonymous: false,
-      uid: 'user123',
-      email: 'test@example.com',
-    );
-
-    // Pass a valid URL when creating the VideoPlayerController instance
   });
 
   testWidgets('Test tapping thumb up icon increments likes by one',
       (WidgetTester tester) async {
-    auth = MockFirebaseAuth(mockUser: mockUser, signedIn: true);
+    auth =
+        MockFirebaseAuth(signedIn: true, mockUser: MockUser(uid: 'adminUser'));
 
     await tester.pumpWidget(MaterialApp(
       home: TopicView(
@@ -108,13 +101,8 @@ void main() {
 
   testWidgets('Test tapping thumb down icon increments dislikes by one',
       (WidgetTester tester) async {
-    final MockUser mockUser = MockUser(
-      isAnonymous: false,
-      uid: 'user123',
-      email: 'test@example.com',
-    );
-
-    auth = MockFirebaseAuth(mockUser: mockUser, signedIn: true);
+    auth =
+        MockFirebaseAuth(signedIn: true, mockUser: MockUser(uid: 'adminUser'));
 
     await tester.pumpWidget(MaterialApp(
       home: TopicView(
@@ -140,13 +128,8 @@ void main() {
 
   testWidgets('Test tapping dislike button removes past like',
       (WidgetTester tester) async {
-    final MockUser mockUser = MockUser(
-      isAnonymous: false,
-      uid: 'user123',
-      email: 'test@example.com',
-    );
-
-    auth = MockFirebaseAuth(mockUser: mockUser, signedIn: true);
+    auth =
+        MockFirebaseAuth(signedIn: true, mockUser: MockUser(uid: 'adminUser'));
 
     // Create the TopicView widget with the test topic
     await tester.pumpWidget(MaterialApp(
@@ -190,13 +173,8 @@ void main() {
 
   testWidgets('Test tapping like button removes past dislike',
       (WidgetTester tester) async {
-    final MockUser mockUser = MockUser(
-      isAnonymous: false,
-      uid: 'user123',
-      email: 'test@example.com',
-    );
-
-    auth = MockFirebaseAuth(mockUser: mockUser, signedIn: true);
+    auth =
+        MockFirebaseAuth(signedIn: true, mockUser: MockUser(uid: 'adminUser'));
 
     await tester.pumpWidget(MaterialApp(
       home: TopicView(
@@ -235,13 +213,8 @@ void main() {
 
   testWidgets('Test tapping like button twice removes like',
       (WidgetTester tester) async {
-    final MockUser mockUser = MockUser(
-      isAnonymous: false,
-      uid: 'user123',
-      email: 'test@example.com',
-    );
-
-    auth = MockFirebaseAuth(mockUser: mockUser, signedIn: true);
+    auth =
+        MockFirebaseAuth(signedIn: true, mockUser: MockUser(uid: 'adminUser'));
 
     await tester.pumpWidget(MaterialApp(
       home: TopicView(
@@ -278,13 +251,8 @@ void main() {
 
   testWidgets('Test tapping dislike button twice removes dislike',
       (WidgetTester tester) async {
-    final MockUser mockUser = MockUser(
-      isAnonymous: false,
-      uid: 'user123',
-      email: 'test@example.com',
-    );
-
-    auth = MockFirebaseAuth(mockUser: mockUser, signedIn: true);
+    auth =
+        MockFirebaseAuth(signedIn: true, mockUser: MockUser(uid: 'adminUser'));
 
     await tester.pumpWidget(MaterialApp(
       home: TopicView(

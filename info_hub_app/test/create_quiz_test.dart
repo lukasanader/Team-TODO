@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:info_hub_app/topics/create_topic/helpers/quiz/create_quiz.dart';
 import 'package:info_hub_app/topics/create_topic/helpers/quiz/quiz_question_card.dart';
-import 'package:info_hub_app/topics/create_topic/model/topic_model.dart';
+import 'package:info_hub_app/model/topic_model.dart';
 import 'package:info_hub_app/topics/create_topic/view/topic_creation_view.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
@@ -20,7 +20,8 @@ void main() {
     setUp(() {
       firestore = FakeFirebaseFirestore();
       mockStorage = MockFirebaseStorage();
-      auth = MockFirebaseAuth(signedIn: true, mockUser: MockUser(uid: 'adminUser'));
+      auth = MockFirebaseAuth(
+          signedIn: true, mockUser: MockUser(uid: 'adminUser'));
       themeManager = ThemeManager();
 
       firestore.collection('Users').doc('adminUser').set({
@@ -59,7 +60,8 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(saveQuizButton);
       await tester.pumpAndSettle();
-      expect(find.text('Please add at least one question to save the quiz'), findsOne);
+      expect(find.text('Please add at least one question to save the quiz'),
+          findsOne);
       await tester.pumpAndSettle(const Duration(seconds: 4));
 
       final addQuestionButton = find.text('Add Question');
@@ -223,7 +225,8 @@ void main() {
         await tester.pumpAndSettle();
 
         final addAnswerButton = find.byIcon(Icons.add);
-        await tester.enterText(find.byKey(const Key('answerField')), 'A Person');
+        await tester.enterText(
+            find.byKey(const Key('answerField')), 'A Person');
         await tester.ensureVisible(addAnswerButton);
         await tester.pumpAndSettle();
         await tester.tap(addAnswerButton);
@@ -253,7 +256,8 @@ void main() {
 
         final querySnapshot = await firestore.collection('quizQuestions').get();
         for (var doc in querySnapshot.docs) {
-          if (doc.data().containsKey('question') && doc.data()['question'] == 'What is a doctor?') {
+          if (doc.data().containsKey('question') &&
+              doc.data()['question'] == 'What is a doctor?') {
             expect(doc['correctAnswers'] as List, ['A Person']);
             expect(doc['wrongAnswers'] as List, ['A dog']);
             expect(doc['quizID'], '1');

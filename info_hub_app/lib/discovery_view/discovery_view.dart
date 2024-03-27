@@ -5,14 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:info_hub_app/discovery_view/discovery_view_dialogs.dart';
 import 'package:info_hub_app/helpers/helper_widgets.dart';
 import 'package:info_hub_app/controller/user_controller.dart';
-import 'package:info_hub_app/topics/create_topic/controllers/topic_controller.dart';
+import 'package:info_hub_app/controller/create_topic_controllers/topic_controller.dart';
 import 'package:info_hub_app/topics/create_topic/helpers/categories/category_controller.dart';
 import 'package:info_hub_app/topics/create_topic/helpers/categories/category_model.dart';
 
 import 'package:info_hub_app/topics/view_topic/helpers/topics_card.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:info_hub_app/topics/create_topic/model/topic_model.dart';
+import 'package:info_hub_app/model/topic_model.dart';
 
 class DiscoveryView extends StatefulWidget {
   final FirebaseFirestore firestore;

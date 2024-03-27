@@ -10,7 +10,7 @@ import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import '../mock_classes.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:info_hub_app/topics/create_topic/model/topic_model.dart';
+import 'package:info_hub_app/model/topic_model.dart';
 
 /// This test file is responsible for testing topic drafts
 void main() async {
@@ -142,6 +142,75 @@ void main() async {
         (doc) => doc.data()?['title'] == 'Submitted draft',
       ),
       isTrue,
+    );
+  });
+
+  testWidgets('drafted topic can be deleted', (WidgetTester tester) async {
+    CollectionReference draftCollectionRef;
+
+    draftCollectionRef = firestore.collection('topicDrafts');
+
+    await defineUserAndStorage(tester);
+    DocumentSnapshot adminUserDoc =
+        await firestore.collection('Users').doc('adminUser').get();
+
+    Topic draftTopic = Topic(
+      title: 'Test Topic',
+      description: 'Test Description',
+      articleLink: '',
+      media: [
+        {
+          'url':
+              'https://firebasestorage.googleapis.com/v0/b/team-todo-38f76.appspot.com/o/videos%2F2024-02-27%2022%3A09%3A02.035911.mp4?alt=media&token=ea6b51e9-9e9f-4d2e-a014-64fc3631e321',
+          'mediaType': 'video'
+        }
+      ],
+      tags: ['Patient'],
+      likes: 0,
+      views: 0,
+      dislikes: 0,
+      categories: ['Sports'],
+      date: DateTime.now(),
+      userID: adminUserDoc.id, // Replace with the actual user ID
+      quizID: '',
+    );
+
+    // Add the draft topic to Firestore
+    DocumentReference draftDocRef =
+        await draftCollectionRef.add(draftTopic.toJson());
+    draftTopic.id = draftDocRef.id;
+
+    // Update user document to include the draft topic
+    await firestore.collection('Users').doc('adminUser').update({
+      'draftedTopics': FieldValue.arrayUnion([draftDocRef.id])
+    });
+
+    await tester.pumpWidget(MaterialApp(
+      home: TopicCreationView(
+        draft: draftTopic,
+        auth: auth,
+        firestore: firestore,
+        storage: mockStorage,
+        themeManager: themeManager,
+      ),
+    ));
+
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('delete_draft_btn')));
+    await tester.pumpAndSettle();
+
+    final QuerySnapshot<Map<String, dynamic>> querySnapshot =
+        await firestore.collection("topicDrafts").get();
+
+    final List<DocumentSnapshot<Map<String, dynamic>>> documents =
+        querySnapshot.docs;
+
+    expect(
+      documents.any(
+        (doc) => doc.data()?['title'] == 'Test Topic',
+      ),
+      isFalse,
     );
   });
 

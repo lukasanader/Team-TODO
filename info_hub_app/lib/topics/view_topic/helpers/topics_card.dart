@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:info_hub_app/analytics/topics/analytics_view_topic.dart';
 import 'package:info_hub_app/controller/activity_controller.dart';
 import 'package:info_hub_app/main.dart';
-import 'package:info_hub_app/topics/create_topic/controllers/topic_controller.dart';
+import 'package:info_hub_app/controller/create_topic_controllers/topic_controller.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import '../view/topic_view.dart';
 import '../../create_topic/view/topic_creation_view.dart';
@@ -12,7 +12,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
 import 'dart:typed_data';
-import 'package:info_hub_app/topics/create_topic/model/topic_model.dart';
+import 'package:info_hub_app/model/topic_model.dart';
 
 class TopicCard extends StatelessWidget {
   final Topic _topic;

@@ -11,9 +11,9 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:info_hub_app/ask_question/question_card.dart';
 import '../helpers/transitions/checkmark_transition.dart';
-import '../model/topic_model.dart';
-import '../controllers/form_controller.dart';
-import '../controllers/media_upload_controller.dart';
+import '../../../model/topic_model.dart';
+import '../../../controller/create_topic_controllers/form_controller.dart';
+import '../../../controller/create_topic_controllers/media_upload_controller.dart';
 import 'widgets/topic_form_widget.dart';
 import 'widgets/add_quiz_widget.dart';
 import 'widgets/media_upload_widget.dart';
@@ -56,6 +56,7 @@ class TopicCreationViewState extends State<TopicCreationView> {
   bool quizAdded = false;
   Topic? topic;
   List<String> categoriesOptions = [];
+
   final TextEditingController newCategoryNameController =
       TextEditingController();
 
@@ -124,6 +125,19 @@ class TopicCreationViewState extends State<TopicCreationView> {
                   },
                   child: const Text(
                     'Save Draft',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                )
+              else if (drafting)
+                TextButton(
+                  key: const Key('delete_draft_btn'),
+                  onPressed: () async {
+                    formController.deleteDraft();
+                    updateState();
+                    Navigator.pop(context);
+                  },
+                  child: const Text(
+                    'Delete this draft',
                     style: TextStyle(color: Colors.white),
                   ),
                 )

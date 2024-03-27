@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:info_hub_app/topics/view_topic/view/topic_view.dart';
 import 'package:chewie/chewie.dart';
 import '../../controllers/media_controller.dart';
-import 'package:info_hub_app/topics/create_topic/model/topic_model.dart';
+import 'package:info_hub_app/model/topic_model.dart';
 
 /// Widget for displaying Media Previews and navigation buttons
 class ViewMediaWidget extends StatelessWidget {
