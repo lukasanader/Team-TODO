@@ -3,6 +3,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:info_hub_app/theme/theme_constants.dart';
 import 'package:info_hub_app/webinar/controllers/card_controller.dart';
 import 'package:info_hub_app/model/user_model.dart';
 import 'package:info_hub_app/webinar/helpers/webinar_card_dialogs.dart';
@@ -100,7 +101,9 @@ class WebinarCard extends StatelessWidget {
   void _showAdminActions(BuildContext context, CardController controller,
       WebinarCardDialogs cardDialogs) {
     showModalBottomSheet(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).brightness == Brightness.light
+          ? const Color.fromRGBO(244, 255, 255, 1)
+          : const Color.fromRGBO(65, 66, 66, 1),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       context: context,
       builder: (BuildContext context) {
