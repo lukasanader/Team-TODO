@@ -171,18 +171,21 @@ class _SettingsViewState extends State<SettingsView> {
             title: const Text('Log Out'),
             onTap: () {
               widget.auth.signOut();
-              PersistentNavBarNavigator.pushNewScreen(
-                context,
-                screen: StartPage(
-                  firestore: widget.firestore,
-                  auth: widget.auth,
-                  storage: widget.storage,
-                  messaging: FirebaseMessaging.instance,
-                  localnotificationsplugin: FlutterLocalNotificationsPlugin(),
-                  themeManager: widget.themeManager,
-                ),
-                withNavBar: false,
-              );
+                Navigator.of(context, rootNavigator: true)
+                  .pushAndRemoveUntil(
+                    MaterialPageRoute(
+                      builder: (BuildContext context) {
+                        return StartPage(
+                          firestore: widget.firestore ,
+                          auth: widget.auth, 
+                          storage: widget.storage, 
+                          themeManager: widget.themeManager,
+                          messaging: FirebaseMessaging.instance,
+                          localnotificationsplugin: FlutterLocalNotificationsPlugin(),);
+                      },
+                    ),
+                    (_) => false,
+                );
             },
           ),
         ],
