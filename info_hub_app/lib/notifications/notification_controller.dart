@@ -105,13 +105,16 @@ class NotificationController {
         .map(notificationListFromSnapshot);
   }
 
-  Future<String> getNotificationIdFromPayload(String? payload) async {
+  Future<List<String>> getNotificationIdFromPayload(String? payload) async {
     QuerySnapshot snapshot = await firestore
         .collection('notifications')
         .where('payload', isEqualTo: payload)
         .get();
 
-    DocumentSnapshot doc = snapshot.docs.first;
-    return doc.id;
+    if (snapshot.docs.isEmpty) {
+      return [];
+    } else {
+      return snapshot.docs.map((doc) => doc.id).toList();
+    }
   }
 }

@@ -163,9 +163,13 @@ class _MessageViewState extends State<MessageView> {
                         auth: widget.auth,
                         firestore: widget.firestore,
                         uid: chat.patientId.toString());
-                String notificationId = await notificationController
+                List<String> notificationId = await notificationController
                     .getNotificationIdFromPayload(chatId);
-                notificationController.deleteNotification(notificationId);
+                if (notificationId.isNotEmpty) {
+                  for (String id in notificationId) {
+                    notificationController.deleteNotification(id);
+                  }
+                }
                 messageRoomController.deleteMessageRoom(chatId);
                 Navigator.pop(context);
                 updateChatList();

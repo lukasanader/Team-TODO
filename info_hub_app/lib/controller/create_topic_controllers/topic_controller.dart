@@ -70,7 +70,7 @@ class TopicController {
 
   Future<Topic> getTopic(String? id) async {
     DocumentSnapshot snapshot =
-        await firestore.collection('message_rooms').doc(id).get();
+        await firestore.collection('Topics').doc(id).get();
     return Topic.fromSnapshot(snapshot);
   }
 }

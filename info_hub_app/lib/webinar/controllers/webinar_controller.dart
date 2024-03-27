@@ -1,16 +1,20 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:info_hub_app/controller/user_controller.dart';
 import 'package:info_hub_app/model/user_model.dart';
+import 'package:info_hub_app/notifications/notification_controller.dart';
 import 'package:info_hub_app/webinar/models/livestream.dart';
 import 'package:uuid/uuid.dart';
 
 class WebinarController {
   final FirebaseFirestore firestore;
   final FirebaseStorage storage;
+  final FirebaseAuth auth;
 
-  WebinarController({required this.firestore, required this.storage});
+  WebinarController(
+      {required this.firestore, required this.storage, required this.auth});
 
   /// Initiates live stream creation process on database
   Future<String> startLiveStream(
@@ -169,6 +173,15 @@ class WebinarController {
     } else if (changeToArchived) {
       dataToUpdate['status'] = "Archived";
       dataToUpdate['chatenabled'] = false;
+      NotificationController notificationController = NotificationController(
+          auth: auth, firestore: firestore, uid: auth.currentUser!.uid);
+      List<String> notificationId =
+          await notificationController.getNotificationIdFromPayload(webinarID);
+      if (notificationId.isNotEmpty) {
+        for (String id in notificationId) {
+          notificationController.deleteNotification(id);
+        }
+      }
     }
     await firestore.collection('Webinar').doc(webinarID).update(dataToUpdate);
   }

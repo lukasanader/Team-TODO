@@ -1,4 +1,5 @@
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
+import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -14,6 +15,7 @@ void main() {
   late MockFirebaseStorage mockFirebaseStorage;
   late WebinarController webinarController;
   late Widget webinarScreen;
+  late MockFirebaseAuth auth;
   final MockWebViewDependencies mockWebViewDependencies =
       MockWebViewDependencies();
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -21,11 +23,12 @@ void main() {
   setUp(() async {
     fakeFirestore = FakeFirebaseFirestore();
     mockFirebaseStorage = MockFirebaseStorage();
+    auth = MockFirebaseAuth(signedIn: true);
     // Initialize allNouns and allAdjectives before each test
     allNouns = await loadWordSet('assets/texts/nouns.txt');
     allAdjectives = await loadWordSet('assets/texts/adjectives.txt');
-    webinarController =
-        WebinarController(firestore: fakeFirestore, storage: mockFirebaseStorage);
+    webinarController = WebinarController(
+        firestore: fakeFirestore, storage: mockFirebaseStorage, auth: auth);
 
     await fakeFirestore.collection('Webinar').doc('id').set({
       'id': 'id',

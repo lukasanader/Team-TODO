@@ -441,4 +441,33 @@ void main() async {
     expect(find.text('Healthcare Professional'), findsOneWidget);
     expect(find.byKey(const Key('draft_btn')), findsOneWidget);
   });
+
+  test('should return a Topic object when valid id is provided', () async {
+    final String validId = 'valid_id';
+    await firestore.collection('Topics').doc(validId).set({
+      'title': 'Test title',
+      'description': 'Test description',
+      'articleLink': 'https://pub.dev/packages?q=cloud_firestore_mocks',
+      'media': [
+        {
+          'url':
+              'https://firebasestorage.googleapis.com/v0/b/team-todo-38f76.appspot.com/o/videos%2F2024-02-27%2022%3A09%3A02.035911.mp4?alt=media&token=ea6b51e9-9e9f-4d2e-a014-64fc3631e321',
+          'mediaType': 'video'
+        },
+      ],
+      'likes': 0,
+      'tags': ['Patient'],
+      'views': 0,
+      'dislikes': 0,
+      'categories': ['Testing category'],
+      'date': DateTime.now(),
+      'quizID': ''
+    });
+
+    final DocumentSnapshot snapshot =
+        await firestore.collection('Topics').doc(validId).get();
+    final result = Topic.fromSnapshot(snapshot);
+
+    expect(result, isA<Topic>());
+  });
 }
