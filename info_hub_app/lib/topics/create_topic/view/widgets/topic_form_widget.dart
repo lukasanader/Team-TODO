@@ -2,7 +2,7 @@ import 'package:chips_choice/chips_choice.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/topics/create_topic/helpers/categories/category_dialogs.dart';
-import '../../controllers/form_controller.dart';
+import '../../../../controller/create_topic_controllers/form_controller.dart';
 
 import 'package:info_hub_app/topics/create_topic/view/topic_creation_view.dart';
 
@@ -63,20 +63,16 @@ class TopicFormWidget extends StatelessWidget {
             children: [
               IconButton(
                   onPressed: () {
-                    CategoryDialogManager(
-                      firestore, 
-                      screen.categoriesOptions, 
-                      screen.getCategoryList)
-                      .createNewCategoryDialog(context);
+                    CategoryDialogManager(firestore, screen.categoriesOptions,
+                            screen.getCategoryList)
+                        .createNewCategoryDialog(context);
                   },
                   icon: const Icon(Icons.add)),
               IconButton(
                   onPressed: () {
-                    CategoryDialogManager(
-                      firestore, 
-                      screen.categoriesOptions, 
-                      screen.getCategoryList)
-                      .deleteCategoryDialog(context);
+                    CategoryDialogManager(firestore, screen.categoriesOptions,
+                            screen.getCategoryList)
+                        .deleteCategoryDialog(context);
                   },
                   icon: const Icon(Icons.close)),
               if (screen.categoriesOptions.isEmpty)

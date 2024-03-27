@@ -9,7 +9,7 @@ import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import '../mock_classes.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:info_hub_app/topics/create_topic/model/topic_model.dart';
+import 'package:info_hub_app/model/topic_model.dart';
 
 /// This test file is responsible for testing the editing of topics
 void main() async {
