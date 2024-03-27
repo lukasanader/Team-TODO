@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:info_hub_app/threads/views/custom_card.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:info_hub_app/threads/models/thread_replies_model.dart';
-import 'package:info_hub_app/threads/controllers/name_generator_controller.dart';
 import 'package:info_hub_app/threads/models/thread_model.dart';
 import 'package:intl/intl.dart';
 
