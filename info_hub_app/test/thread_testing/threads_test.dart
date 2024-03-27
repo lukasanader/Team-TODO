@@ -2,10 +2,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:info_hub_app/threads/custom_card.dart';
-import 'package:info_hub_app/threads/thread_replies.dart';
+import 'package:info_hub_app/threads/views/custom_card.dart';
+import 'package:info_hub_app/threads/views/thread_replies.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:info_hub_app/threads/threads.dart';
+import 'package:info_hub_app/threads/views/threads.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:info_hub_app/main.dart';
 

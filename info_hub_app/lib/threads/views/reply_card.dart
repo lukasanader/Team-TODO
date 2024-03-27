@@ -1,29 +1,17 @@
 import 'package:expansion_tile_card/expansion_tile_card.dart';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:intl/intl.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:info_hub_app/threads/models/thread_replies_model.dart';
+
+import 'package:info_hub_app/threads/controllers/thread_controller.dart';
 
 class ReplyCard extends StatefulWidget {
-  //final QuerySnapshot snapshot;
-  //final int index;
-  final Map<String, dynamic> reply;
-  final FirebaseFirestore firestore;
-  final FirebaseAuth auth;
-  final String userProfilePhoto;
-  final String authorName;
-  final String roleType;
+  final Reply reply;
+  final ThreadController controller;
 
   const ReplyCard({
     super.key,
-    //required this.snapshot,
-    //required this.index,
     required this.reply,
-    required this.firestore,
-    required this.auth,
-    required this.userProfilePhoto,
-    required this.authorName,
-    required this.roleType,
+    required this.controller,
   });
 
   @override
@@ -31,36 +19,27 @@ class ReplyCard extends StatefulWidget {
 }
 
 class _ReplyCardState extends State<ReplyCard> {
-  //late DocumentSnapshot replyDoc;
-  //late TextEditingController authorController;
   late TextEditingController contentController;
 
   @override
   void initState() {
     super.initState();
-    //replyDoc = widget.snapshot.docs[widget.index];
-    //authorController = TextEditingController();
-    contentController = TextEditingController(text: widget.reply['content']);
+    contentController = TextEditingController(text: widget.reply.content);
   }
 
   @override
   void dispose() {
-    //authorController.dispose();
     contentController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    var docId = widget.reply['id'];
-    var content = widget.reply['content'] ?? 'No content provided';
-    var isEdited = widget.reply['isEdited'] ?? false;
-    var creator = widget.reply['creator'] ?? ' ';
-    var currentUserId = widget.auth.currentUser!.uid;
-    var timestamp = (widget.reply['timestamp'] as Timestamp?)?.toDate();
-    var formatter = timestamp != null
-        ? DateFormat("dd-MMM-yyyy 'at' HH:mm").format(timestamp)
-        : 'Timestamp not available';
+    String docId = widget.reply.id;
+    String content = widget.reply.content;
+    bool isEdited = widget.reply.isEdited;
+    String creator = widget.reply.creator;
+    String formatter = widget.controller.formatDate(widget.reply.timestamp);
 
     final ButtonStyle flatButtonStyle = TextButton.styleFrom(
       shape: const RoundedRectangleBorder(
@@ -69,18 +48,7 @@ class _ReplyCardState extends State<ReplyCard> {
     );
 
     IconData getRoleIcon(String roleType) {
-      switch (roleType) {
-        case 'Patient':
-          return Icons.local_hospital;
-        case 'Healthcare Professional':
-          return Icons.medical_services;
-        case 'Parent':
-          return Icons.family_restroom;
-        case 'admin':
-          return Icons.admin_panel_settings;
-        default:
-          return Icons.help_outline;
-      }
+      return widget.controller.getRoleIcon(roleType);
     }
 
     return Column(
@@ -88,22 +56,20 @@ class _ReplyCardState extends State<ReplyCard> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12.0),
           child: ExpansionTileCard(
-            //baseColor: Colors.white,
-            //expandedColor: Colors.white,
             elevation: 5,
             leading: CircleAvatar(
               radius: 30,
-              backgroundImage: AssetImage('assets/${widget.userProfilePhoto}')
-                  as ImageProvider<Object>,
+              backgroundImage:
+                  AssetImage('assets/${widget.reply.userProfilePhoto}')
+                      as ImageProvider<Object>,
             ),
             title: Text(
-              widget.authorName,
+              widget.reply.authorName,
               key: const Key('authorText_0'),
               style: const TextStyle(
                 fontSize: 18.0,
                 fontWeight: FontWeight.bold,
               ),
-              //overflow: TextOverflow.ellipsis,
             ),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -113,8 +79,6 @@ class _ReplyCardState extends State<ReplyCard> {
                   content,
                   key: const Key('Content'),
                   style: const TextStyle(fontSize: 18),
-                  //overflow: TextOverflow.ellipsis,
-                  //maxLines: 3,
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -138,7 +102,7 @@ class _ReplyCardState extends State<ReplyCard> {
                 buttonHeight: 52.0,
                 buttonMinWidth: 90.0,
                 children: <Widget>[
-                  if (currentUserId == creator)
+                  if (widget.controller.isUserCreator(creator))
                     TextButton(
                       key: const Key('editButton_0'),
                       style: flatButtonStyle,
@@ -162,14 +126,12 @@ class _ReplyCardState extends State<ReplyCard> {
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
                       Icon(
-                        getRoleIcon(widget
-                            .roleType), // Determines the icon based on the roleType
-                        //size: 24.0,
+                        getRoleIcon(widget.reply.roleType),
                       ),
                       const Padding(
                         padding: EdgeInsets.symmetric(vertical: 2.0),
                       ),
-                      widget.roleType == 'Healthcare Professional'
+                      widget.reply.roleType == 'Healthcare Professional'
                           ? Column(
                               children: <Widget>[
                                 Text(
@@ -185,23 +147,17 @@ class _ReplyCardState extends State<ReplyCard> {
                               ],
                             )
                           : Text(
-                              widget.roleType,
+                              widget.reply.roleType,
                               textAlign: TextAlign.center,
                               style: Theme.of(context).textTheme.bodyMedium,
                             ),
                     ],
                   ),
-                  if (currentUserId == creator)
+                  if (widget.controller.isUserCreator(creator))
                     TextButton(
                       key: const Key('deleteButton_0'),
                       style: flatButtonStyle,
-                      onPressed: () async {
-                        if (!mounted) return;
-                        await widget.firestore
-                            .collection('replies')
-                            .doc(docId)
-                            .delete();
-                      },
+                      onPressed: () => deleteReply(docId),
                       child: Column(
                         children: <Widget>[
                           const Icon(
@@ -235,14 +191,11 @@ class _ReplyCardState extends State<ReplyCard> {
 
   void _showDialog(BuildContext context, String docId) async {
     bool showErrorContent = false;
-
-    var docSnapshot =
-        await widget.firestore.collection('replies').doc(docId).get();
-    var docData = docSnapshot.data() as Map<String, dynamic>;
+    var replyData = await widget.controller.getReplyData(docId);
 
     if (!mounted) return;
 
-    contentController.text = docData['content'] ?? '';
+    contentController.text = replyData?['content'] ?? '';
 
     await showDialog(
       context: context,
@@ -281,18 +234,10 @@ class _ReplyCardState extends State<ReplyCard> {
                 if (contentController.text.isNotEmpty) {
                   String updatedContent = contentController.text;
 
-                  await widget.firestore
-                      .collection('replies')
-                      .doc(docId)
-                      .update({
-                    'content': updatedContent,
-                    'timestamp': FieldValue.serverTimestamp(),
-                    'isEdited': true,
-                  });
-
-                  if (mounted) {
-                    Navigator.pop(context);
-                  }
+                  await widget.controller.updateReply(docId, updatedContent);
+                }
+                if (mounted) {
+                  Navigator.pop(context);
                 } else {
                   setState(() {
                     showErrorContent = true;
@@ -300,6 +245,31 @@ class _ReplyCardState extends State<ReplyCard> {
                 }
               },
               child: const Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void deleteReply(String replyId) async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Delete Reply'),
+          content: const Text("Are you sure you want to delete your reply?"),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Close'),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            TextButton(
+              child: const Text('Delete Reply'),
+              onPressed: () async {
+                Navigator.of(context).pop();
+                await widget.controller.deleteReply(replyId);
+              },
             ),
           ],
         );

@@ -8,7 +8,7 @@ import 'package:info_hub_app/message_feature/admin_message_view.dart';
 import 'package:info_hub_app/message_feature/message_bubble.dart';
 import 'package:info_hub_app/message_feature/message_rooms_card.dart';
 import 'package:info_hub_app/message_feature/messaging_room_view.dart';
-import 'package:info_hub_app/threads/name_generator.dart';
+import 'package:info_hub_app/threads/controllers/name_generator_controller.dart';
 
 void main() {
   late MockFirebaseAuth auth;

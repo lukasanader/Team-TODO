@@ -1,32 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:intl/intl.dart';
-import 'package:info_hub_app/threads/thread_replies.dart';
+
+import 'package:info_hub_app/threads/views/thread_replies.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:info_hub_app/threads/name_generator.dart';
+
 import 'package:expansion_tile_card/expansion_tile_card.dart';
+import 'package:info_hub_app/threads/models/thread_model.dart';
+
+import 'package:info_hub_app/threads/controllers/thread_controller.dart';
 
 class CustomCard extends StatefulWidget {
-  final QuerySnapshot? snapshot;
   final int index;
-  final FirebaseFirestore firestore;
-  final FirebaseAuth auth;
-  final String userProfilePhoto;
-  final Function onEditCompleted;
-  final String roleType;
-  //final Key indexKey;
+  final Thread thread;
+  final ThreadController controller;
+  final String threadId;
 
   const CustomCard({
     super.key,
-    this.snapshot,
     required this.index,
-    required this.firestore,
-    required this.auth,
-    required this.userProfilePhoto,
-    required this.onEditCompleted,
-    required this.roleType,
-    //required this.indexKey,
+    required this.thread,
+    required this.controller,
+    required this.threadId,
   });
 
   @override
@@ -36,69 +29,33 @@ class CustomCard extends StatefulWidget {
 class _CustomCardState extends State<CustomCard> {
   late TextEditingController titleInputController;
   late TextEditingController descriptionInputController;
-  late final String _userProfilePhoto = 'assets/default_profile_photo.png';
   late bool isEdited;
 
   @override
   void initState() {
     super.initState();
-    titleInputController = TextEditingController();
-    descriptionInputController = TextEditingController();
-    var docData =
-        widget.snapshot!.docs[widget.index].data() as Map<String, dynamic>;
-    isEdited = docData['isEdited'] ?? false;
+    isEdited = widget.thread.isEdited;
+
+    titleInputController = TextEditingController(text: widget.thread.title);
+    descriptionInputController =
+        TextEditingController(text: widget.thread.description);
   }
 
   @override
   void dispose() {
     titleInputController.dispose();
     descriptionInputController.dispose();
-    //nameInputController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    //print('Building CustomCard widget for index: ${widget.index}, isEdited: $isEdited');
-
-    var docData =
-        widget.snapshot!.docs[widget.index].data() as Map<String, dynamic>;
-    var docId = widget.snapshot!.docs[widget.index].id;
-
-    // print('Selected Profile Photo: ${docData['selectedProfilePhoto']}');
-
-    var title = docData['title'] ?? 'No title';
-    var description = docData['description'] ?? 'No description';
-    var creator = docData['creator'] ?? 'Unknown';
-    var currentUserId = widget.auth.currentUser!.uid;
-    //var name = docData[''] ?? 'Unknown';
-    var timestamp = docData['timestamp']?.toDate();
-    var formatter = timestamp != null
-        ? DateFormat("dd-MMM-yyyy 'at' HH:mm").format(timestamp)
-        : 'Timestamp not available';
-    var authorName = generateUniqueName(creator);
-
+    var formatter = widget.controller.formatDate(widget.thread.timestamp);
     final ButtonStyle flatButtonStyle = TextButton.styleFrom(
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(4.0)),
       ),
     );
-
-    IconData getRoleIcon(String roleType) {
-      switch (roleType) {
-        case 'Patient':
-          return Icons.local_hospital; // Example icon for Patient
-        case 'Healthcare Professional':
-          return Icons
-              .medical_services; // Example icon for Healthcare Professional
-        case 'Parent':
-          return Icons.family_restroom; // Example icon for Parent
-        case 'admin':
-          return Icons.admin_panel_settings; // Example icon for Admin
-        default:
-          return Icons.help_outline; // Example icon for Unknown or other roles
-      }
-    }
 
     return Column(
       children: <Widget>[
@@ -108,8 +65,8 @@ class _CustomCardState extends State<CustomCard> {
             leading: CircleAvatar(
               key: Key('profilePhoto_${widget.index}'),
               radius: 30,
-              backgroundImage: AssetImage('assets/${widget.userProfilePhoto}')
-                  as ImageProvider<Object>,
+              backgroundImage:
+                  AssetImage('assets/${widget.thread.userProfilePhoto}'),
             ),
             title: Row(
               children: <Widget>[
@@ -119,14 +76,15 @@ class _CustomCardState extends State<CustomCard> {
                     onTap: () {
                       Navigator.of(context).push(CupertinoPageRoute(
                         builder: (BuildContext context) => ThreadReplies(
-                          threadId: docId,
-                          firestore: widget.firestore,
-                          auth: widget.auth,
+                          threadTitle: widget.thread.title,
+                          threadId: widget.threadId,
+                          firestore: widget.controller.firestore,
+                          auth: widget.controller.auth,
                         ),
                       ));
                     },
                     child: Text(
-                      title,
+                      widget.thread.title,
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -141,11 +99,9 @@ class _CustomCardState extends State<CustomCard> {
               children: <Widget>[
                 Expanded(
                   child: Text(
-                    authorName,
+                    widget.thread.authorName,
                     key: Key('authorText_${widget.index}'),
-
                     style: const TextStyle(fontSize: 14),
-                    //overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 Text(
@@ -166,13 +122,11 @@ class _CustomCardState extends State<CustomCard> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     Text(
-                      description,
+                      widget.thread.description,
                       style: Theme.of(context)
                           .textTheme
                           .bodyMedium!
                           .copyWith(fontSize: 16),
-                      //maxLines: 2,
-                      //overflow: TextOverflow.ellipsis,
                     ),
                     if (isEdited)
                       Text(
@@ -189,11 +143,12 @@ class _CustomCardState extends State<CustomCard> {
                       buttonHeight: 52.0,
                       buttonMinWidth: 90.0,
                       children: <Widget>[
-                        if (currentUserId == creator)
+                        if (widget.controller
+                            .isUserCreator(widget.thread.creator))
                           TextButton(
                             style: flatButtonStyle,
                             onPressed: () {
-                              _showDialog(context, docId);
+                              _showDialog(context, widget.threadId);
                             },
                             child: Column(
                               children: <Widget>[
@@ -213,14 +168,13 @@ class _CustomCardState extends State<CustomCard> {
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
                             Icon(
-                              getRoleIcon(widget
-                                  .roleType), // Determines the icon based on the roleType
-                              //size: 24.0,
+                              widget.controller
+                                  .getRoleIcon(widget.thread.roleType),
                             ),
                             const Padding(
                               padding: EdgeInsets.symmetric(vertical: 2.0),
                             ),
-                            widget.roleType == 'Healthcare Professional'
+                            widget.thread.roleType == 'Healthcare Professional'
                                 ? Column(
                                     children: <Widget>[
                                       Text(
@@ -240,37 +194,18 @@ class _CustomCardState extends State<CustomCard> {
                                     ],
                                   )
                                 : Text(
-                                    widget.roleType,
+                                    widget.thread.roleType,
                                     textAlign: TextAlign.center,
                                     style:
                                         Theme.of(context).textTheme.bodyMedium,
                                   ),
                           ],
                         ),
-                        if (currentUserId == creator)
+                        if (widget.controller
+                            .isUserCreator(widget.thread.creator))
                           TextButton(
                             style: flatButtonStyle,
-                            onPressed: () async {
-                              if (!mounted) return;
-                              // batch delete removes up to 500 replies at a time from the replies collection due to firestore limitations
-                              final replyQuerySnapshot = await widget.firestore
-                                  .collection("replies")
-                                  .where('threadId', isEqualTo: docId)
-                                  .get();
-
-                              final WriteBatch batch = widget.firestore.batch();
-                              for (DocumentSnapshot replyDoc
-                                  in replyQuerySnapshot.docs) {
-                                batch.delete(replyDoc.reference);
-                              }
-
-                              await batch.commit();
-
-                              await widget.firestore
-                                  .collection("thread")
-                                  .doc(docId)
-                                  .delete();
-                            },
+                            onPressed: () => deleteThread(widget.threadId),
                             child: Column(
                               children: <Widget>[
                                 Icon(Icons.delete,
@@ -285,7 +220,6 @@ class _CustomCardState extends State<CustomCard> {
                               ],
                             ),
                           ),
-                        // Additional buttons or logic for user role can be added here
                       ],
                     ),
                   ],
@@ -305,18 +239,17 @@ class _CustomCardState extends State<CustomCard> {
     );
   }
 
-  _showDialog(BuildContext context, String docId) async {
+  _showDialog(BuildContext context, String threadId) async {
     bool showErrorTitle = false;
     bool showErrorDescription = false;
 
-    var docSnapshot =
-        await widget.firestore.collection("thread").doc(docId).get();
-    var docData = docSnapshot.data() as Map<String, dynamic>;
+    var docData = await widget.controller.getThreadData(threadId);
 
     if (!mounted) return;
 
-    titleInputController.text = docData['title'] ?? '';
-    descriptionInputController.text = docData['description'] ?? '';
+    titleInputController.text = docData?['title'] ?? '';
+
+    descriptionInputController.text = docData?['description'] ?? '';
 
     await showDialog(
       context: context,
@@ -373,18 +306,16 @@ class _CustomCardState extends State<CustomCard> {
 
                     if (!showErrorTitle && !showErrorDescription) {
                       setState(() {
-                        docData['title'] = titleInputController.text;
-                        docData['description'] =
+                        docData?['title'] = titleInputController.text;
+                        docData?['description'] =
                             descriptionInputController.text;
                         isEdited = true;
                       });
 
-                      widget.firestore.collection("thread").doc(docId).update({
-                        "title": titleInputController.text,
-                        "description": descriptionInputController.text,
-                        "timestamp": FieldValue.serverTimestamp(),
-                        "isEdited": true,
-                      });
+                      widget.controller.updateThread(
+                          threadId,
+                          titleInputController.text,
+                          descriptionInputController.text);
 
                       Navigator.pop(context);
                     }
@@ -394,6 +325,32 @@ class _CustomCardState extends State<CustomCard> {
               ],
             );
           },
+        );
+      },
+    );
+  }
+
+  void deleteThread(String threadId) async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Delete Thread'),
+          content: const Text(
+              "Deleting your Thread will also delete all replies associated with it. Do you want to proceed?"),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Close'),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            TextButton(
+              child: const Text('Delete Thread'),
+              onPressed: () async {
+                Navigator.of(context).pop();
+                await widget.controller.deleteThread(threadId);
+              },
+            ),
+          ],
         );
       },
     );
