@@ -21,6 +21,7 @@ import 'package:info_hub_app/model/topic_model.dart';
 import 'package:info_hub_app/topics/view_topic/view/topic_view.dart';
 import 'package:info_hub_app/webinar/controllers/webinar_controller.dart';
 import 'package:info_hub_app/webinar/views/webinar-screens/display_webinar.dart';
+import 'controller/create_topic_controllers/topic_controller.dart';
 import 'notifications/notification_model.dart' as custom;
 import 'registration/start_page.dart';
 import 'package:provider/provider.dart';
