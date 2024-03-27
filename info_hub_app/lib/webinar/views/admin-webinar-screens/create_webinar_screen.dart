@@ -138,35 +138,31 @@ class _CreateWebinarScreenState extends State<CreateWebinarScreen> {
                 ),
                 controller.buildStep(
                   stepNumber: 5,
-                  stepDescription: 'Set the privacy settings for your livestream (Public, Unlisted, or Private).',
+                  stepDescription: 'Set the privacy settings for your livestream (Public, Unlisted, or Private) to Public.',
                 ),
                 controller.buildStep(
                   stepNumber: 6,
-                  stepDescription: 'Click on "More options" to customize your livestream settings further (optional).',
+                  stepDescription: 'Disable the stream chat in the YouTube Studio settings.',
                 ),
                 controller.buildStep(
                   stepNumber: 7,
-                  stepDescription: 'Disable the stream chat in the YouTube Studio settings to prevent distractions.',
+                  stepDescription: 'Click on "Next" to proceed to the next step. Select the schedule time if the webinar is to be schedules or proceed if otherwise.',
                 ),
                 controller.buildStep(
                   stepNumber: 8,
-                  stepDescription: 'Click on "Next" to proceed to the next step.',
-                ),
-                controller.buildStep(
-                  stepNumber: 9,
                   stepDescription: 'Wait for YouTube to set up your livestream. This may take a few moments.',
                 ),
                 controller.buildStep(
-                  stepNumber: 10,
+                  stepNumber: 9,
                   stepDescription: 'Once your livestream is set up, copy the link for the YouTube stream.',
                 ),
                 controller.buildStep(
-                  stepNumber: 11,
+                  stepNumber: 10,
                   stepDescription: 'Paste the copied link into the app to start streaming.',
                 ),
                 controller.buildStep(
-                  stepNumber: 12,
-                  stepDescription: 'Click on "Go live" to start streaming from the app.',
+                  stepNumber: 11,
+                  stepDescription: 'Click on "Go live" to start streaming from the app or schedule webinar depending on your choice in step 7.',
                 ),
               ],
             ),
