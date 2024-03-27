@@ -19,7 +19,7 @@ class WebinarViewHelper {
       'dateStarted': DateTime.now().toString(),
       'status': 'Upcoming',
       'chatenabled': true,
-      'selectedtags': ['admin'],
+      'selectedtags': ['Patient'],
     });
   }
 
@@ -35,7 +35,7 @@ class WebinarViewHelper {
       'dateStarted': DateTime.now().toString(),
       'status': 'Live',
       'chatenabled': true,
-      'selectedtags': ['admin'],
+      'selectedtags': ['Patient'],
     });
   }
 
@@ -51,7 +51,7 @@ class WebinarViewHelper {
       'dateStarted': DateTime.now().toString(),
       'status': 'Archived',
       'chatenabled': true,
-      'selectedtags': ['admin'],
+      'selectedtags': ['Patient'],
     });
   }
 }

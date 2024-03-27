@@ -1,1 +1,0 @@
-genhtml merged_coverage.info -o coverage_merge/html
