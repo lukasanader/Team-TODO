@@ -18,7 +18,7 @@ import 'package:info_hub_app/topics/create_topic/view/topic_creation_view.dart';
 import 'package:info_hub_app/ask_question/question_view.dart';
 import 'package:info_hub_app/webinar/views/admin-webinar-screens/admin_webinar_dashboard.dart';
 import 'package:info_hub_app/webinar/controllers/webinar_controller.dart';
-import 'package:info_hub_app/threads/views/view_threads.dart';
+import 'package:info_hub_app/threads/views/admin_view_threads.dart';
 
 class AdminHomepage extends StatefulWidget {
   final FirebaseFirestore firestore;
