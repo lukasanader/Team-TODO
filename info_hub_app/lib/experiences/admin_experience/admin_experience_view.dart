@@ -30,6 +30,8 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
   List<Experience> _unverifiedExperienceList = [];
   int _currentIndex = 0;
   late PageController _pageController;
+  String _verifiedSelectedTag = 'All';
+  String _unverifiedSelectedTag = 'All';
 
 
   @override
@@ -62,38 +64,8 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
           });
         },
         children: [
-          SingleChildScrollView(
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
-                  child: Center(
-                    child: Text(
-                      "Verified experiences",
-                      style: Theme.of(context).textTheme.headlineLarge,
-                    ),
-                  ),
-                ),
-                _buildExperienceList(_verifiedExperienceList)
-              ],
-            ),
-          ),
-          SingleChildScrollView(
-              child: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: Center(
-                      child: Text(
-                        "Unverified experiences",
-                        style: Theme.of(context).textTheme.headlineLarge,
-                      ),
-                    ),
-                  ),
-                  _buildExperienceList(_unverifiedExperienceList)
-                ],
-              )
-          )
+          _buildExperienceSectiion(true, _verifiedExperienceList),
+          _buildExperienceSectiion(false, _unverifiedExperienceList)
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -123,6 +95,72 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
       ),
     );
   }
+
+  Widget _buildExperienceSectiion(bool experienceType, List<Experience> experiences) {
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: Center(
+              child: experienceType 
+              ? Text(
+                  "Verified experiences",
+                  style: Theme.of(context).textTheme.headlineLarge,
+                )
+              : Text(
+                  "Unverified experiences",
+                  style: Theme.of(context).textTheme.headlineLarge,
+                ),
+            ),
+          ),
+          DropdownButton<String>(
+            value: experienceType 
+            ? _verifiedSelectedTag
+            : _unverifiedSelectedTag,
+            onChanged: (String? newValue) async {
+
+              List<Experience> tempList;
+
+              if (newValue == 'All') {
+                tempList = await _experienceController.getAllExperienceListBasedOnVerification(experienceType);
+              }
+              else {
+                if (experienceType) {
+                  tempList = await _experienceController.getVerifiedExperienceListBasedonRole(newValue!);
+                }
+                else {
+                  tempList = await _experienceController.getunVerifiedExperienceListBasedonRole(newValue!);
+                }                
+              }
+
+              setState(() {
+                if (experienceType) {
+                  _verifiedSelectedTag = newValue!;
+                  _verifiedExperienceList = tempList;
+                } else {
+                  _unverifiedSelectedTag = newValue!;
+                  _unverifiedExperienceList = tempList;
+                }
+
+              });
+            },
+            items: <String>['All' ,'Patient', 'Parent', 'Healthcare Professional']
+              .map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  key: ValueKey<String>('dropdown_menu_$value'),
+                  child: Text(value),
+                );
+              }).toList(),
+          ),
+          _buildExperienceList(experiences)
+        ],
+      )
+    );
+  }
+
+
 
 
   Widget _buildExperienceList(List<Experience> experiences) {

@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/controller/topic_question_controller.dart';
-import 'package:info_hub_app/model/model.dart';
+import 'package:info_hub_app/model/topic_question_model.dart';
 import 'package:info_hub_app/notifications/notification_controller.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:file_picker/file_picker.dart';

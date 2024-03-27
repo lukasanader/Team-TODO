@@ -9,25 +9,27 @@ import 'package:info_hub_app/experiences/experience_model.dart';
 void main() {
   late FakeFirebaseFirestore firestore;
   late MockFirebaseAuth auth;
-  late CollectionReference topicsCollectionRef;
+  late CollectionReference experienceCollectionRef;
   late Widget experienceViewWidget;
 
   setUp(() {
     firestore = FakeFirebaseFirestore();
     auth = MockFirebaseAuth();
-    topicsCollectionRef = firestore.collection('experiences');
+    experienceCollectionRef = firestore.collection('experiences');
 
-    topicsCollectionRef.add({
+    experienceCollectionRef.add({
       'title': 'Example 1',
       'description': 'Example experience',
       'userEmail': 'test@example.org',
-      'verified': true
+      'verified': true,
+      'userRoleType': 'Patient'
     });
-    topicsCollectionRef.add({
+    experienceCollectionRef.add({
       'title': 'Example 2',
       'description': 'Example experience',
       'userEmail': 'test2@example.org',
-      'verified': false
+      'verified': false,
+      'userRoleType': 'Patient'
     });
 
     experienceViewWidget = MaterialApp(
@@ -222,7 +224,7 @@ void main() {
   testWidgets('There is padding between two experiences',
       (WidgetTester tester) async {
 
-    topicsCollectionRef.add({
+    experienceCollectionRef.add({
       'title': 'Example 3',
       'description': 'Example experience',
       'userEmail': 'test2@example.org',
@@ -235,4 +237,266 @@ void main() {
 
     expect(find.byKey(const ValueKey<String>('between_experience_padding')), findsWidgets);
   });
+
+
+  testWidgets('Displays verified experiences filtered by patients correctly', (WidgetTester tester) async {
+    experienceCollectionRef.add({
+      'title': 'Parent experience',
+      'description': 'Example experience',
+      'userEmail': 'test2@example.org',
+      'verified': true,
+      'userRoleType': 'Parent'
+    });
+
+
+    // Build our app and trigger a frame.
+    await tester.pumpWidget(experienceViewWidget);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byType(DropdownButton<String>));
+    await tester.pumpAndSettle();
+
+    Finder dropDownOption = find.byKey(const ValueKey<String>('dropdown_menu_Patient'));
+
+    await tester.ensureVisible(dropDownOption);
+    await tester.pumpAndSettle();
+
+    await tester.tap(dropDownOption, warnIfMissed: false);
+    await tester.pumpAndSettle();
+
+    //patient experience is displayed
+    expect(find.text('Example 1'), findsOneWidget);
+
+    //previous experience is no longer displayed
+    expect(find.text('Parent experience'), findsNothing);
+  });
+
+  testWidgets('Displays verified experiences filtered by parents correctly', (WidgetTester tester) async {
+    experienceCollectionRef.add({
+      'title': 'Experience should only display with correct roletype',
+      'description': 'Example experience',
+      'userEmail': 'test2@example.org',
+      'verified': true,
+      'userRoleType': 'Parent'
+    });
+
+
+    // Build our app and trigger a frame.
+    await tester.pumpWidget(experienceViewWidget);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byType(DropdownButton<String>));
+    await tester.pumpAndSettle();
+
+    Finder dropDownOption = find.byKey(const ValueKey<String>('dropdown_menu_Parent'));
+
+    await tester.ensureVisible(dropDownOption);
+    await tester.pumpAndSettle();
+
+    await tester.tap(dropDownOption, warnIfMissed: false);
+    await tester.pumpAndSettle();
+
+    //patient experience is displayed
+    expect(find.text('Experience should only display with correct roletype'), findsOneWidget);
+
+    //previous experience is no longer displayed
+    expect(find.text('Example 1'), findsNothing);
+  });
+
+
+  testWidgets('Displays verified experiences filtered by healthcare professionals correctly', (WidgetTester tester) async {
+    experienceCollectionRef.add({
+      'title': 'Experience should only display with correct roletype',
+      'description': 'Example experience',
+      'userEmail': 'test2@example.org',
+      'verified': true,
+      'userRoleType': 'Healthcare Professional'
+    });
+
+
+    // Build our app and trigger a frame.
+    await tester.pumpWidget(experienceViewWidget);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byType(DropdownButton<String>));
+    await tester.pumpAndSettle();
+
+    Finder dropDownOption = find.byKey(const ValueKey<String>('dropdown_menu_Healthcare Professional'));
+
+    await tester.ensureVisible(dropDownOption);
+    await tester.pumpAndSettle();
+
+    await tester.tap(dropDownOption, warnIfMissed: false);
+    await tester.pumpAndSettle();
+
+    //patient experience is displayed
+    expect(find.text('Experience should only display with correct roletype'), findsOneWidget);
+
+    //previous experience is no longer displayed
+    expect(find.text('Example 1'), findsNothing);
+  });
+
+
+  testWidgets('Displays unverified experiences filtered by patients correctly', (WidgetTester tester) async {
+    experienceCollectionRef.add({
+      'title': 'Experience should only display with correct roletype',
+      'description': 'Example experience',
+      'userEmail': 'test2@example.org',
+      'verified': false,
+      'userRoleType': 'Parent'
+    });
+
+
+    // Build our app and trigger a frame.
+    await tester.pumpWidget(experienceViewWidget);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const ValueKey<String>('unverify_navbar_button')));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byType(DropdownButton<String>));
+    await tester.pumpAndSettle();
+
+    Finder dropDownOption = find.byKey(const ValueKey<String>('dropdown_menu_Patient'));
+
+    await tester.ensureVisible(dropDownOption);
+    await tester.pumpAndSettle();
+
+    await tester.tap(dropDownOption, warnIfMissed: false);
+    await tester.pumpAndSettle();
+
+    //experience not displayed
+    expect(find.text('Experience should only display with correct roletype'), findsNothing);
+
+    //previous experience is no longer displayed
+    expect(find.text('Example 2'), findsOneWidget);
+  });
+
+  testWidgets('Displays unverified experiences filtered by parents correctly', (WidgetTester tester) async {
+    experienceCollectionRef.add({
+      'title': 'Experience should only display with correct roletype',
+      'description': 'Example experience',
+      'userEmail': 'test2@example.org',
+      'verified': false,
+      'userRoleType': 'Parent'
+    });
+
+
+    // Build our app and trigger a frame.
+    await tester.pumpWidget(experienceViewWidget);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const ValueKey<String>('unverify_navbar_button')));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byType(DropdownButton<String>));
+    await tester.pumpAndSettle();
+
+    Finder dropDownOption = find.byKey(const ValueKey<String>('dropdown_menu_Parent'));
+
+    await tester.ensureVisible(dropDownOption);
+    await tester.pumpAndSettle();
+
+    await tester.tap(dropDownOption, warnIfMissed: false);
+    await tester.pumpAndSettle();
+
+    //patient experience is displayed
+    expect(find.text('Experience should only display with correct roletype'), findsOneWidget);
+
+    //previous experience is no longer displayed
+    expect(find.text('Example 2'), findsNothing);
+  });
+
+
+  testWidgets('Displays unverified experiences filtered by healthcare professionals correctly', (WidgetTester tester) async {
+    experienceCollectionRef.add({
+      'title': 'Experience should only display with correct roletype',
+      'description': 'Example experience',
+      'userEmail': 'test2@example.org',
+      'verified': false,
+      'userRoleType': 'Healthcare Professional'
+    });
+
+
+    // Build our app and trigger a frame.
+    await tester.pumpWidget(experienceViewWidget);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const ValueKey<String>('unverify_navbar_button')));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byType(DropdownButton<String>));
+    await tester.pumpAndSettle();
+
+    Finder dropDownOption = find.byKey(const ValueKey<String>('dropdown_menu_Healthcare Professional'));
+
+    await tester.ensureVisible(dropDownOption);
+    await tester.pumpAndSettle();
+
+    await tester.tap(dropDownOption, warnIfMissed: false);
+    await tester.pumpAndSettle();
+
+    //patient experience is displayed
+    expect(find.text('Experience should only display with correct roletype'), findsOneWidget);
+
+    //previous experience is no longer displayed
+    expect(find.text('Example 2'), findsNothing);
+  });
+
+
+  testWidgets('Changing filters works in verified', (WidgetTester tester) async {
+    experienceCollectionRef.add({
+      'title': 'Experience should only display with correct roletype',
+      'description': 'Example experience',
+      'userEmail': 'test2@example.org',
+      'verified': true,
+      'userRoleType': 'Parent'
+    });
+
+
+
+
+    // Build our app and trigger a frame.
+    await tester.pumpWidget(experienceViewWidget);
+    await tester.pumpAndSettle();
+
+    //shows all
+    expect(find.text('Experience should only display with correct roletype'), findsOneWidget);
+    expect(find.text('Example 1'), findsOneWidget);
+
+
+    await tester.tap(find.byType(DropdownButton<String>));
+    await tester.pumpAndSettle();
+
+    Finder dropDownOption = find.byKey(const ValueKey<String>('dropdown_menu_Patient'));
+
+    await tester.ensureVisible(dropDownOption);
+    await tester.pumpAndSettle();
+
+    await tester.tap(dropDownOption, warnIfMissed: false);
+    await tester.pumpAndSettle();
+
+    //Filters by patient
+    expect(find.text('Experience should only display with correct roletype'), findsNothing);
+    expect(find.text('Example 1'), findsOneWidget);
+
+    //switch back to all
+    await tester.tap(find.byType(DropdownButton<String>));
+    await tester.pumpAndSettle();
+
+    dropDownOption = find.byKey(const ValueKey<String>('dropdown_menu_All'));
+
+    await tester.ensureVisible(dropDownOption);
+    await tester.pumpAndSettle();
+
+    await tester.tap(dropDownOption, warnIfMissed: false);
+    await tester.pumpAndSettle();
+
+    //shows all experiences again
+    expect(find.text('Experience should only display with correct roletype'), findsOneWidget);
+    expect(find.text('Example 1'), findsOneWidget);
+
+
+  });
+
 }

@@ -76,7 +76,7 @@ class WebinarCardDialogs {
                       changeToLive: true);
                   Navigator.pop(context); // Use the stored dialogContext
 
-                  List<String> idList =
+                  List idList =
                       await webinarController.getWebinarRoles(post.webinarID);
 
                   for (String id in idList) {
