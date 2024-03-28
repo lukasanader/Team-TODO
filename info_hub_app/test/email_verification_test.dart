@@ -13,6 +13,7 @@ import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:info_hub_app/helpers/base.dart';
+import 'package:info_hub_app/welcome_message/welcome_message_view.dart';
 
 class MockFlutterLocalNotificationsPlugin extends Fake
     implements FlutterLocalNotificationsPlugin {
@@ -97,7 +98,8 @@ void main() {
         auth: auth,
         storage: mockStorage,
         messaging: FakeFirebaseMessaging(),
-        localnotificationsplugin: MockFlutterLocalNotificationsPlugin(),
+        localnotificationsplugin: MockFlutterLocalNotificationsPlugin(), 
+        themeManager: ThemeManager(),
       ),
     );
   });
@@ -136,6 +138,6 @@ void main() {
     await test.pumpAndSettle();
     await test.tap(find.text('I have verified my email'));
     await test.pumpAndSettle();
-    expect(find.byType(Base), findsOneWidget);
+    expect(find.byType(WelcomePage), findsOneWidget);
   });
 }

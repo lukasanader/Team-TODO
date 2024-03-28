@@ -61,8 +61,10 @@ class _NotificationsState extends State<Notifications> {
         itemCount: userNotifications.length,
         itemBuilder: (context, index) {
           final notification = userNotifications[index];
+          // Fade out animation for deleted notifications
           return AnimatedOpacity(
             onEnd: () {
+              // Delete notification from database if it is marked as deleted
               if (isDeletedList[index]) {
                 NotificationController(
                         uid: widget.auth.currentUser!.uid,
@@ -86,6 +88,7 @@ class _NotificationsState extends State<Notifications> {
                       icon: Icons.delete,
                       onTap: () {
                         setState(() {
+                          // Mark notification as deleted
                           isDeletedList[index] = true;
                           userNotifications[index].deleted = true;
                         });

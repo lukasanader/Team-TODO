@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:info_hub_app/notifications/preferences_controller.dart';
 import 'package:info_hub_app/welcome_message/welcome_message_controller.dart';
 
 class WelcomePage extends StatelessWidget {
   final WelcomeMessageController controller;
+  final PreferencesController preferencesController;
 
   const WelcomePage({
     super.key,
     required this.controller,
+    required this.preferencesController,
   });
 
   @override
@@ -258,6 +261,7 @@ class WelcomePage extends StatelessWidget {
                   child: ElevatedButton(
                     onPressed: () async {
                       await controller.navigateToBase(context);
+                      await preferencesController.updateNotificationPreferences('push_notifications', true);
                     },
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.all(16.0),

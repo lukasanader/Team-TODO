@@ -24,6 +24,7 @@ class RegistrationScreen extends StatefulWidget {
   final FirebaseAuth auth;
   final FirebaseStorage storage;
   final FirebaseMessaging messaging;
+  final ThemeManager themeManager;
   final FlutterLocalNotificationsPlugin localnotificationsplugin;
   const RegistrationScreen(
       {super.key,
@@ -31,6 +32,7 @@ class RegistrationScreen extends StatefulWidget {
       required this.storage,
       required this.auth,
       required this.messaging,
+      required this.themeManager,
       required this.localnotificationsplugin});
 
   @override
@@ -290,6 +292,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         auth: widget.auth,
                         messaging: widget.messaging,
                         localnotificationsplugin: widget.localnotificationsplugin,
+                        themeManager: widget.themeManager,
                         storage: widget.storage,
                       );
                       await widget.auth.currentUser!.sendEmailVerification();
