@@ -1,25 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:expansion_tile_card/expansion_tile_card.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:info_hub_app/threads/views/custom_card.dart';
 import 'package:info_hub_app/threads/views/thread_replies.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:info_hub_app/threads/views/threads.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:info_hub_app/main.dart';
-import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
-import 'package:info_hub_app/threads/controllers/name_generator_controller.dart';
-import 'package:info_hub_app/threads/models/thread_model.dart';
 import 'package:info_hub_app/threads/models/thread_replies_model.dart';
 import 'package:info_hub_app/threads/controllers/thread_controller.dart';
 import 'package:info_hub_app/threads/views/reply_card.dart';
-import 'package:info_hub_app/threads/views/admin_view_threads.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_core_platform_interface/firebase_core_platform_interface.dart';
 
 class MockThreadController extends Mock implements ThreadController {}
 
@@ -38,7 +29,6 @@ class MockUser extends Mock implements User {
 }
 
 void main() {
-  //WidgetsFlutterBinding.ensureInitialized();
   late FakeFirebaseFirestore firestore;
   late FirebaseAuth mockAuth;
   const String testThreadId = "testThreadId";
@@ -48,7 +38,6 @@ void main() {
     firestore = FakeFirebaseFirestore();
     mockAuth = MockFirebaseAuth();
 
-    // Initialize allNouns and allAdjectives before each test
     allNouns = await loadWordSet('assets/texts/nouns.txt');
     allAdjectives = await loadWordSet('assets/texts/adjectives.txt');
   });
@@ -79,7 +68,6 @@ void main() {
     expect(reply.id, replyId);
     expect(reply.content, 'Test Content');
     expect(reply.creator, 'dummyUid');
-    // Repeat for all fields...
   });
   testWidgets('Deleting a reply shows confirmation dialog in ReplyCard',
       (WidgetTester tester) async {
@@ -133,12 +121,10 @@ void main() {
     final content = 'Test Reply';
     final creatorId = 'dummyUid';
 
-    // Create a mock reply in the FakeFirebaseFirestore instance
     await firestore.collection('replies').doc(replyId).set({
       'content': content,
       'creator': creatorId,
       'threadId': threadId,
-      // Include other necessary fields as needed
     });
 
     final reply = Reply(
@@ -217,7 +203,6 @@ void main() {
 
   testWidgets('Add reply updates UI and Firestore',
       (WidgetTester tester) async {
-    // Initialize the widget with necessary mock objects
     final mockFirestore = FakeFirebaseFirestore();
     final mockAuth = MockFirebaseAuth();
 
@@ -241,7 +226,6 @@ void main() {
     await tester.tap(find.text('Submit'));
     await tester.pumpAndSettle();
 
-    // Check for UI changes - for example, existence of the new reply in the list
     expect(find.text('Test Reply'), findsOneWidget);
 
     // Check if the new reply is added to Firestore
@@ -253,7 +237,6 @@ void main() {
   });
   testWidgets('Add reply updates UI and Firestore',
       (WidgetTester tester) async {
-    // Initialize the widget with necessary mock objects
     final mockFirestore = FakeFirebaseFirestore();
     final mockAuth = MockFirebaseAuth();
 
@@ -277,7 +260,6 @@ void main() {
     await tester.tap(find.text('Submit'));
     await tester.pumpAndSettle();
 
-    // Check for UI changes - for example, existence of the new reply in the list
     expect(find.text('Test Reply'), findsOneWidget);
 
     // Check if the new reply is added to Firestore
@@ -301,25 +283,20 @@ void main() {
           threadTitle: 'Test Thread Title'),
     ));
 
-    // Assume _showDialog is triggered, and a reply is submitted
     final String content = 'Test Reply';
     await tester.tap(find.byIcon(FontAwesomeIcons.reply));
     await tester.pumpAndSettle();
 
-    // Enter some content and submit
     await tester.enterText(find.byKey(const Key('Content')), content);
     await tester.tap(find.text('Submit'));
     await tester.pumpAndSettle();
 
-    // Assuming your ThreadRepliesState is exposed and accessible, otherwise, you'll need to find another way to access the replies
     final ThreadRepliesState state = tester.state(find.byType(ThreadReplies));
     final List<Reply> localReplies = state.localReplies;
 
-    // Check if a new reply with the expected content is added to the localReplies list
     expect(localReplies, isNotEmpty);
     expect(localReplies.any((reply) => reply.content == content), isTrue);
 
-    // Assuming you have a mechanism to get the newly generated Firestore document ID
     final String newReplyId = 'someGeneratedFirestoreDocId';
 
     // Simulate Firestore updating the document ID
@@ -411,7 +388,6 @@ void main() {
           threadTitle: 'Test Thread Title'),
     ));
 
-    // Open the dialog
     await tester.tap(find.byIcon(FontAwesomeIcons.reply));
     await tester.pumpAndSettle();
 
@@ -420,7 +396,6 @@ void main() {
     await tester.pumpAndSettle();
 
     // Check if the error state is shown
-    // This assumes that you display some text when there's an error
     expect(find.text('Please enter a reply'), findsOneWidget);
   });
 
@@ -471,14 +446,11 @@ void main() {
     await tester.pumpAndSettle();
 
     // Check if the error state is shown
-    // This assumes that you display some text when there's an error
     expect(find.text('Please enter a reply'), findsOneWidget);
   });
 
   testWidgets('Tapping back icon pops the current screen',
       (WidgetTester tester) async {
-    // Assume that ThreadReplies is a screen pushed onto the navigation stack.
-    // First, push it onto the stack.
     await tester.pumpWidget(MaterialApp(
       home: Scaffold(
         body: Builder(
@@ -506,7 +478,7 @@ void main() {
     await tester.tap(find.text('Go to ThreadReplies'));
     await tester.pumpAndSettle(); // Finish the animation
 
-    // Now the ThreadReplies screen is displayed. Let's tap the back icon.
+    // ThreadReplies screen is displayed
     expect(find.byIcon(Icons.arrow_back), findsOneWidget);
     await tester.tap(find.byIcon(Icons.arrow_back));
     await tester.pumpAndSettle(); // Finish the animation
@@ -573,7 +545,6 @@ void main() {
 
   testWidgets('Cancel button closes the edit dialog in ReplyCard',
       (WidgetTester tester) async {
-    // Create a reply object.
     final reply = Reply(
       id: 'replyId',
       content: 'Test Reply',
@@ -587,13 +558,11 @@ void main() {
       roleType: 'User',
     );
 
-    // Initialize the thread controller with mock Firestore and Auth.
     final threadController = ThreadController(
       firestore: FakeFirebaseFirestore(),
       auth: MockFirebaseAuth(),
     );
 
-    // Build the ReplyCard widget.
     await tester.pumpWidget(MaterialApp(
       home: Scaffold(
         body: ReplyCard(

@@ -1,24 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:expansion_tile_card/expansion_tile_card.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:info_hub_app/threads/views/custom_card.dart';
-import 'package:info_hub_app/threads/views/thread_replies.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:info_hub_app/threads/views/threads.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:info_hub_app/main.dart';
-import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
-import 'package:info_hub_app/threads/controllers/name_generator_controller.dart';
 import 'package:info_hub_app/threads/models/thread_model.dart';
 import 'package:info_hub_app/threads/models/thread_replies_model.dart';
 import 'package:info_hub_app/threads/controllers/thread_controller.dart';
-import 'package:info_hub_app/threads/views/reply_card.dart';
-import 'package:info_hub_app/threads/views/admin_view_threads.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_core_platform_interface/firebase_core_platform_interface.dart';
 
 class MockFirebaseAuth extends Mock implements FirebaseAuth {
   @override
@@ -92,7 +81,6 @@ void main() {
       'roleType': 'Patient',
     });
 
-    // Initialize allNouns and allAdjectives before each test
     allNouns = await loadWordSet('assets/texts/nouns.txt');
     allAdjectives = await loadWordSet('assets/texts/adjectives.txt');
   });
@@ -531,7 +519,6 @@ void main() {
   });
 }
 
-// Create a helper function to wrap your widget in a MaterialApp
 Widget createTestWidget(Widget child) {
   return MaterialApp(
     home: Scaffold(

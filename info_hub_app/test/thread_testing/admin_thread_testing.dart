@@ -1,27 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:expansion_tile_card/expansion_tile_card.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:info_hub_app/threads/views/custom_card.dart';
 import 'package:info_hub_app/threads/views/thread_replies.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:info_hub_app/threads/views/threads.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:info_hub_app/main.dart';
-import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
-import 'package:info_hub_app/threads/controllers/name_generator_controller.dart';
-import 'package:info_hub_app/threads/models/thread_model.dart';
-import 'package:info_hub_app/threads/models/thread_replies_model.dart';
 import 'package:info_hub_app/threads/controllers/thread_controller.dart';
-import 'package:info_hub_app/threads/views/reply_card.dart';
 import 'package:info_hub_app/threads/views/admin_view_threads.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_core_platform_interface/firebase_core_platform_interface.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_core_platform_interface/firebase_core_platform_interface.dart';
 
 import '../mock.dart';
 
@@ -50,7 +36,6 @@ void main() {
     );
   }
 
-  //WidgetsFlutterBinding.ensureInitialized();
   late FakeFirebaseFirestore firestore;
   late FirebaseAuth mockAuth;
   const String testThreadId = "testThreadId";
@@ -58,10 +43,7 @@ void main() {
   late MockThreadController mockController;
 
   setUp(() async {
-    //TestWidgetsFlutterBinding.ensureInitialized();
     setupFirebaseAuthMocks();
-
-    // Manual initialization of Firebase to avoid the no-app error
 
     firestore = FakeFirebaseFirestore();
     mockAuth = MockFirebaseAuth();
@@ -87,7 +69,6 @@ void main() {
       'roleType': 'User',
     });
 
-    // Initialize allNouns and allAdjectives before each test
     allNouns = await loadWordSet('assets/texts/nouns.txt');
     allAdjectives = await loadWordSet('assets/texts/adjectives.txt');
   });
@@ -105,7 +86,6 @@ void main() {
     await tester.tap(find.text("Replies"));
     await tester.pumpAndSettle();
 
-    // Now the app bar title should change to "View Replies"
     expect(find.text("View Replies"), findsOneWidget);
     await tester.pumpAndSettle();
 
@@ -125,28 +105,22 @@ void main() {
     expect(find.text("Replies"), findsOneWidget);
     await tester.pumpAndSettle();
 
-    // Assuming the Delete icon button triggers the deletion dialog
     await tester.tap(find.byIcon(Icons.delete_outline));
     await tester.pumpAndSettle();
 
-    // Dialog should be displayed now
     expect(find.byType(AlertDialog), findsOneWidget);
 
-    // Tap on 'Cancel' button
     await tester.tap(find.text('Cancel'));
     await tester.pumpAndSettle();
 
-    // Dialog should be dismissed
     expect(find.byType(AlertDialog), findsNothing);
   });
 
   testWidgets('Deleting a thread dismisses the dialog and calls deleteThread',
       (WidgetTester tester) async {
-    // Build the widget
     await tester.pumpWidget(
         createTestWidget(ViewThreads(firestore: firestore, auth: mockAuth)));
 
-    // Wait for the mock data to load
     await tester.pumpAndSettle();
 
     // Find and tap the delete icon button to open the dialog
@@ -185,8 +159,6 @@ void main() {
     expect(find.text("View Replies"), findsOneWidget);
     await tester.pumpAndSettle();
 
-    // Assuming you have a way to identify the reply items, find the delete button for the first reply
-    // Here, I'm assuming there's a way to get a specific delete button. Adjust the finder accordingly.
     final deleteButton = find.byIcon(Icons.delete_outline).first;
     await tester.tap(deleteButton);
     await tester.pumpAndSettle();
@@ -202,9 +174,6 @@ void main() {
 
     // Verify the dialog is dismissed
     expect(find.byType(AlertDialog), findsNothing);
-
-    // Similar to the previous test, here we would verify that deleteReply was called.
-    // This requires a mock controller and is skipped here since we are not using a mock in this example.
   });
 
   testWidgets('Tapping on visibility icon navigates to ThreadReplies',
@@ -212,7 +181,6 @@ void main() {
     await tester.pumpWidget(
         createTestWidget(ViewThreads(firestore: firestore, auth: mockAuth)));
 
-    // Wait for the mock data to load
     await tester.pumpAndSettle();
     expect(find.text("Replies"), findsOneWidget);
 
@@ -230,11 +198,8 @@ void main() {
     // Tap the visibility icon button
     await tester.tap(visibilityIconButtonFinder);
 
-    // Trigger a frame
     await tester.pumpAndSettle();
 
-    // Now, we expect that the navigation has occurred.
-    // This checks that ThreadReplies widget is now on the navigation stack.
     expect(find.byType(ThreadReplies), findsOneWidget);
   });
 }

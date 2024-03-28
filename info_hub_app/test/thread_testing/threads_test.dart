@@ -1,7 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:expansion_tile_card/expansion_tile_card.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:info_hub_app/threads/views/custom_card.dart';
@@ -10,15 +8,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:info_hub_app/threads/views/threads.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:info_hub_app/main.dart';
-import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
-import 'package:info_hub_app/threads/controllers/name_generator_controller.dart';
 import 'package:info_hub_app/threads/models/thread_model.dart';
-import 'package:info_hub_app/threads/models/thread_replies_model.dart';
 import 'package:info_hub_app/threads/controllers/thread_controller.dart';
-import 'package:info_hub_app/threads/views/reply_card.dart';
-import 'package:info_hub_app/threads/views/admin_view_threads.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_core_platform_interface/firebase_core_platform_interface.dart';
 
 class MockFirebaseAuth extends Mock implements FirebaseAuth {
   @override
@@ -89,7 +80,6 @@ void main() {
       'roleType': 'Patient',
     });
 
-    // Initialize allNouns and allAdjectives before each test
     allNouns = await loadWordSet('assets/texts/nouns.txt');
     allAdjectives = await loadWordSet('assets/texts/adjectives.txt');
   });
@@ -107,7 +97,7 @@ void main() {
       'description': 'Test Description',
       'creator': 'dummyUid',
       'authorName': 'Author Name',
-      'timestamp': FieldValue.serverTimestamp(), // Simulate server timestamp
+      'timestamp': FieldValue.serverTimestamp(),
       'isEdited': false,
       'roleType': 'Admin',
       'topicId': testTopicId,
@@ -153,7 +143,7 @@ void main() {
     await tester.tap(find.widgetWithText(TextButton, 'Submit'));
     await tester.pump();
 
-    // Here, check if the new thread was added to Firestore.
+    // check if the new thread was added to Firestore.
     final threads = await firestore
         .collection('thread')
         .where('title', isEqualTo: 'New Thread Title')
@@ -204,15 +194,11 @@ void main() {
     await tester.tap(find.text('Cancel'));
     await tester.pumpAndSettle();
 
-    // Since there's no direct way to check if dispose was called on the TextEditingController,
-    // we ensure that there are no errors thrown by Flutter when the widget is disposed.
     expect(tester.takeException(), isNull);
   });
 
   testWidgets('CustomCard _showDialog interaction and reopening',
       (WidgetTester tester) async {
-    // Or your mock FirebaseAuth instance
-
     // Adding a thread document to Firestore
     String dummyDocId = 'dummyDocId';
     await firestore.collection('thread').doc(dummyDocId).set({
@@ -276,7 +262,6 @@ void main() {
     expect(find.text('Updated Title'), findsOneWidget);
     expect(find.text('Updated Description'), findsOneWidget);
 
-    // Optional: Close the dialog after checking
     final cancelButtonFinder = find.text('Cancel');
     await tester.tap(cancelButtonFinder);
     await tester.pumpAndSettle();
@@ -292,7 +277,7 @@ void main() {
       'creator': 'dummyUid',
       'authorName': 'Author Name',
       'timestamp': FieldValue.serverTimestamp(),
-      'isEdited': true, // Setting isEdited to true
+      'isEdited': true,
       'roleType': 'Admin',
       'topicId': 'testTopicId',
       'topicTitle': 'Test Topic Title',
@@ -303,7 +288,6 @@ void main() {
     final threadData = snapshot.docs.first.data();
     final thread = Thread.fromMap(threadData, snapshot.docs.first.id);
 
-    // Assume you have a MockFirebaseAuth for the test
     final mockAuth = MockFirebaseAuth();
 
     final controller = ThreadController(firestore: firestore, auth: mockAuth);
@@ -350,7 +334,6 @@ void main() {
     if (snapshot.exists && snapshot.data() != null) {
       final thread = Thread.fromMap(snapshot.data()!, snapshot.id);
 
-      // Now proceed with your test, knowing that thread is not null
       final controller =
           ThreadController(firestore: firestore, auth: FirebaseAuth.instance);
 
@@ -383,17 +366,9 @@ void main() {
       await tester.tap(find.widgetWithText(TextButton, 'Delete Thread'));
       await tester.pump(); // Rebuild the widget
 
-      await tester
-          .pumpAndSettle(); // Wait for any animations or state updates to complete
+      await tester.pumpAndSettle();
 
-// You can check if the CustomCard widget is no longer displayed
-// This assumes that the CustomCard would be removed from the UI upon successful deletion
       expect(find.byType(CustomCard), findsNothing);
-
-// Or, if there's a specific success message or state change in the UI, check for that
-// For example, if a snackbar message is shown upon successful deletion, you could check for it
-// expect(find.byType(SnackBar), findsOneWidget);
-// expect(find.text('Thread successfully deleted'), findsOneWidget);
     }
   });
   testWidgets('CustomCard calls deleteThread on delete button press',
@@ -432,14 +407,13 @@ void main() {
     await tester.tap(find.byKey(Key('authorText_0')));
     await tester.pumpAndSettle();
 
-    // Tap on the delete button identified by 'deleteIcon_0'
+    // Tap on the delete button
     await tester.tap(find.byKey(Key('deleteIcon_0')));
-    await tester.pump(); // Trigger a frame
+    await tester.pump();
 
     // Now, check if the AlertDialog is shown as a result of tapping the delete button
     expect(find.byType(AlertDialog), findsOneWidget);
 
-    // You can also check for specific text within the AlertDialog to ensure it's the correct one
     expect(find.text('Delete Thread'), findsOneWidget);
   });
   testWidgets('CustomCard navigates to ThreadReplies on tap',
@@ -537,7 +511,7 @@ void main() {
     // Test the 'Close' button
     await tester.tap(find.widgetWithText(TextButton, 'Close'));
     await tester.pumpAndSettle();
-    expect(find.byType(AlertDialog), findsNothing); // Dialog should be closed
+    expect(find.byType(AlertDialog), findsNothing);
 
     // Reopen the dialog to test the 'Delete Thread' button
     await tester.tap(expansionTriggerFinder);
@@ -549,9 +523,6 @@ void main() {
     await tester.tap(find.widgetWithText(TextButton, 'Delete Thread'));
     await tester.pumpAndSettle();
     expect(find.byType(AlertDialog), findsNothing); // Dialog should be closed
-
-    // Here you might want to verify that the deleteThread method was called
-    // This might involve checking a mock or verifying the state of your application
   });
   test('getUserRoleType returns correct role type', () async {
     final firestore = FakeFirebaseFirestore();
@@ -631,7 +602,6 @@ void main() {
   });
 }
 
-// Create a helper function to wrap your widget in a MaterialApp
 Widget createTestWidget(Widget child) {
   return MaterialApp(
     home: Scaffold(
