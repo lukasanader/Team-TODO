@@ -116,10 +116,10 @@ void main() {
 
   testWidgets('Editing a reply shows dialog in ReplyCard',
       (WidgetTester tester) async {
-    final replyId = 'replyId';
-    final threadId = 'testThreadId';
-    final content = 'Test Reply';
-    final creatorId = 'dummyUid';
+    const replyId = 'replyId';
+    const threadId = 'testThreadId';
+    const content = 'Test Reply';
+    const creatorId = 'dummyUid';
 
     await firestore.collection('replies').doc(replyId).set({
       'content': content,
@@ -272,7 +272,6 @@ void main() {
 
   testWidgets('Reply ID is updated after adding to Firestore',
       (WidgetTester tester) async {
-    final mockFirestore = FakeFirebaseFirestore();
     final mockAuth = MockFirebaseAuth();
 
     await tester.pumpWidget(createTestWidget(
@@ -283,7 +282,7 @@ void main() {
           threadTitle: 'Test Thread Title'),
     ));
 
-    final String content = 'Test Reply';
+    const String content = 'Test Reply';
     await tester.tap(find.byIcon(FontAwesomeIcons.reply));
     await tester.pumpAndSettle();
 
@@ -297,7 +296,7 @@ void main() {
     expect(localReplies, isNotEmpty);
     expect(localReplies.any((reply) => reply.content == content), isTrue);
 
-    final String newReplyId = 'someGeneratedFirestoreDocId';
+    const String newReplyId = 'someGeneratedFirestoreDocId';
 
     // Simulate Firestore updating the document ID
     final Reply addedReply =
@@ -350,7 +349,7 @@ void main() {
     expect(localReplies, isNotEmpty);
     expect(localReplies.any((reply) => reply.content == 'Test Reply'), isTrue);
 
-    final String newReplyId = 'newFirestoreDocId';
+    const String newReplyId = 'newFirestoreDocId';
     final Reply originalReply = localReplies.first;
     final Reply updatedReply = Reply(
       id: newReplyId,
@@ -365,10 +364,8 @@ void main() {
       roleType: originalReply.roleType,
     );
 
-    state.setState(() {
-      final int replyIndex = localReplies.indexOf(originalReply);
-      localReplies[replyIndex] = updatedReply;
-    });
+    final int replyIndex = localReplies.indexOf(originalReply);
+    localReplies[replyIndex] = updatedReply;
 
     await tester.pumpAndSettle();
 
@@ -377,7 +374,6 @@ void main() {
 
   testWidgets('Error state when reply content is empty',
       (WidgetTester tester) async {
-    final mockFirestore = FakeFirebaseFirestore();
     final mockAuth = MockFirebaseAuth();
 
     await tester.pumpWidget(createTestWidget(
@@ -401,7 +397,6 @@ void main() {
 
   testWidgets('Cancel button dismisses reply dialog',
       (WidgetTester tester) async {
-    final mockFirestore = FakeFirebaseFirestore();
     final mockAuth = MockFirebaseAuth();
 
     await tester.pumpWidget(createTestWidget(
@@ -426,7 +421,6 @@ void main() {
 
   testWidgets('Error state when reply content is empty',
       (WidgetTester tester) async {
-    final mockFirestore = FakeFirebaseFirestore();
     final mockAuth = MockFirebaseAuth();
 
     await tester.pumpWidget(createTestWidget(

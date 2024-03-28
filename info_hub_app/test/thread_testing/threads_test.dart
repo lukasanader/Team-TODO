@@ -256,8 +256,8 @@ void main() {
     await tester.pumpAndSettle();
 
     // Check the text fields for the updated values
-    final titleTextField = find.byKey(const Key('Title'));
-    final descriptionTextField = find.byKey(const Key('Description'));
+    find.byKey(const Key('Title'));
+    find.byKey(const Key('Description'));
 
     expect(find.text('Updated Title'), findsOneWidget);
     expect(find.text('Updated Description'), findsOneWidget);
@@ -303,11 +303,11 @@ void main() {
     await tester.pumpAndSettle();
 
     // Expand the card to reveal the (edited) text
-    await tester.tap(find.byKey(Key('authorText_0')));
+    await tester.tap(find.byKey(const Key('authorText_0')));
     await tester.pumpAndSettle();
 
     // Check if the (edited) text is displayed
-    expect(find.byKey(Key('editedText_0')), findsOneWidget);
+    expect(find.byKey(const Key('editedText_0')), findsOneWidget);
   });
 
   testWidgets('CustomCard delete thread interaction',
@@ -376,7 +376,7 @@ void main() {
     final firestore = FakeFirebaseFirestore();
 
     // Create a thread in Firestore
-    final threadId = 'dummyThreadId';
+    const threadId = 'dummyThreadId';
     await firestore.collection('thread').doc(threadId).set({
       'title': 'Test Title',
       'description': 'Test Description',
@@ -404,11 +404,11 @@ void main() {
     await tester.pumpAndSettle();
 
     // Find the delete button
-    await tester.tap(find.byKey(Key('authorText_0')));
+    await tester.tap(find.byKey(const Key('authorText_0')));
     await tester.pumpAndSettle();
 
     // Tap on the delete button
-    await tester.tap(find.byKey(Key('deleteIcon_0')));
+    await tester.tap(find.byKey(const Key('deleteIcon_0')));
     await tester.pump();
 
     // Now, check if the AlertDialog is shown as a result of tapping the delete button
@@ -421,7 +421,7 @@ void main() {
     final firestore = FakeFirebaseFirestore();
 
     // Create a thread in Firestore
-    final threadId = 'dummyThreadId';
+    const threadId = 'dummyThreadId';
     await firestore.collection('thread').doc(threadId).set({
       'title': 'Test Title',
       'description': 'Test Description',
@@ -451,7 +451,7 @@ void main() {
     await tester.pumpAndSettle();
 
     // Simulate a tap on the InkWell widget
-    await tester.tap(find.byKey(Key('navigateToThreadReplies_0')));
+    await tester.tap(find.byKey(const Key('navigateToThreadReplies_0')));
     await tester.pumpAndSettle(); // Wait for the navigation to complete
 
     // Check if ThreadReplies screen is pushed onto the navigation stack
@@ -463,7 +463,7 @@ void main() {
     final firestore = FakeFirebaseFirestore();
 
     // Create a thread in Firestore
-    final threadId = 'dummyThreadId';
+    const threadId = 'dummyThreadId';
     await firestore.collection('thread').doc(threadId).set({
       'title': 'Test Title',
       'description': 'Test Description',
@@ -516,7 +516,7 @@ void main() {
     // Reopen the dialog to test the 'Delete Thread' button
     await tester.tap(expansionTriggerFinder);
 
-    await tester.tap(find.byKey(Key('deleteIcon_0')));
+    await tester.tap(find.byKey(const Key('deleteIcon_0')));
     await tester.pumpAndSettle();
 
     // Tap 'Delete Thread' and verify the dialog closes and the deleteThread method is called
@@ -526,8 +526,8 @@ void main() {
   });
   test('getUserRoleType returns correct role type', () async {
     final firestore = FakeFirebaseFirestore();
-    final userId = 'testUserId';
-    final expectedRoleType = 'Admin';
+    const userId = 'testUserId';
+    const expectedRoleType = 'Admin';
 
     await firestore
         .collection('Users')
@@ -542,7 +542,7 @@ void main() {
 
   test('deleteThread deletes the thread and its replies', () async {
     final firestore = FakeFirebaseFirestore();
-    final threadId = 'testThreadId';
+    const threadId = 'testThreadId';
 
     // Simulate existing replies associated with the thread
     await firestore.collection('replies').add({'threadId': threadId});
@@ -566,7 +566,7 @@ void main() {
 
   test('getUserData retrieves user data correctly', () async {
     final firestore = FakeFirebaseFirestore();
-    final userId = 'testUserId';
+    const userId = 'testUserId';
     final expectedUserData = {'name': 'Test User', 'email': 'test@example.com'};
 
     await firestore.collection('Users').doc(userId).set(expectedUserData);
@@ -579,7 +579,7 @@ void main() {
 
   test('getThreads returns a stream of threads for a specific topic', () async {
     final firestore = FakeFirebaseFirestore();
-    final topicId = 'testTopicId';
+    const topicId = 'testTopicId';
 
     // Adding threads for the specific topic
     await firestore

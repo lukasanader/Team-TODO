@@ -30,7 +30,6 @@ void main() {
   late FakeFirebaseFirestore firestore;
   late FirebaseAuth mockAuth;
   const String testTopicId = "testTopicId";
-  const String testTopicTitle = "testTopicTitle";
 
   setUp(() async {
     firestore = FakeFirebaseFirestore();
@@ -87,8 +86,8 @@ void main() {
 
   test('getUserRoleType returns correct role type', () async {
     final firestore = FakeFirebaseFirestore();
-    final userId = 'testUserId';
-    final expectedRoleType = 'Admin';
+    const userId = 'testUserId';
+    const expectedRoleType = 'Admin';
 
     await firestore
         .collection('Users')
@@ -103,7 +102,7 @@ void main() {
 
   test('deleteThread deletes the thread and its replies', () async {
     final firestore = FakeFirebaseFirestore();
-    final threadId = 'testThreadId';
+    const threadId = 'testThreadId';
 
     // Simulate existing replies associated with the thread
     await firestore.collection('replies').add({'threadId': threadId});
@@ -127,7 +126,7 @@ void main() {
 
   test('getUserData retrieves user data correctly', () async {
     final firestore = FakeFirebaseFirestore();
-    final userId = 'testUserId';
+    const userId = 'testUserId';
     final expectedUserData = {'name': 'Test User', 'email': 'test@example.com'};
 
     await firestore.collection('Users').doc(userId).set(expectedUserData);
@@ -140,7 +139,7 @@ void main() {
 
   test('getThreads returns a stream of threads for a specific topic', () async {
     final firestore = FakeFirebaseFirestore();
-    final topicId = 'testTopicId';
+    const topicId = 'testTopicId';
 
     // Adding threads for the specific topic
     await firestore
@@ -164,8 +163,8 @@ void main() {
 
   test('getUserProfileImage returns correct AssetImage', () async {
     final firestore = FakeFirebaseFirestore();
-    final userId = 'testUserId';
-    final expectedImageFilename = 'profile_photo.png';
+    const userId = 'testUserId';
+    const expectedImageFilename = 'profile_photo.png';
 
     await firestore
         .collection('Users')
@@ -182,8 +181,8 @@ void main() {
 
   test('getUserProfilePhotoFilename returns the correct filename', () async {
     final firestore = FakeFirebaseFirestore();
-    final userId = 'testUserId';
-    final expectedFilename = 'user_profile.png';
+    const userId = 'testUserId';
+    const expectedFilename = 'user_profile.png';
 
     await firestore
         .collection('Users')
@@ -199,7 +198,7 @@ void main() {
   test('getThreadListStream returns a stream of threads for a specific topic',
       () async {
     final firestore = FakeFirebaseFirestore();
-    final topicId = 'testTopicId';
+    const topicId = 'testTopicId';
 
     await firestore
         .collection('thread')
@@ -235,7 +234,7 @@ void main() {
 
   test('getThreadData returns data for a specific thread', () async {
     final firestore = FakeFirebaseFirestore();
-    final threadId = 'testThreadId';
+    const threadId = 'testThreadId';
 
     await firestore
         .collection('thread')
@@ -252,7 +251,7 @@ void main() {
 
   test('getThreadDocument retrieves the correct thread', () async {
     final firestore = FakeFirebaseFirestore();
-    final threadId = 'testThreadId';
+    const threadId = 'testThreadId';
 
     // Create a thread
     await firestore.collection('thread').doc(threadId).set({
@@ -286,7 +285,7 @@ void main() {
 
   test('getRepliesStream returns replies for a specific thread', () async {
     final firestore = FakeFirebaseFirestore();
-    final threadId = 'testThreadId';
+    const threadId = 'testThreadId';
     final controller = ThreadController(firestore: firestore, auth: mockAuth);
 
     // Add replies for two different threads
@@ -335,7 +334,7 @@ void main() {
 
   test('updateThread updates the thread correctly', () async {
     final firestore = FakeFirebaseFirestore();
-    final threadId = 'testThreadId';
+    const threadId = 'testThreadId';
 
     // Create a thread
     await firestore.collection('thread').doc(threadId).set({
@@ -402,7 +401,7 @@ void main() {
   test('getThreadDocument returns fallback Thread when no document exists',
       () async {
     final firestore = FakeFirebaseFirestore();
-    final threadId = 'nonexistentThreadId';
+    const threadId = 'nonexistentThreadId';
     final controller = ThreadController(firestore: firestore, auth: mockAuth);
 
     final thread = await controller.getThreadDocument(threadId);
@@ -442,7 +441,7 @@ void main() {
   test('getReplies returns a stream of replies for a specific thread',
       () async {
     final firestore = FakeFirebaseFirestore();
-    final threadId = 'Thread1';
+    const threadId = 'Thread1';
     final controller = ThreadController(firestore: firestore, auth: mockAuth);
 
     // Add sample replies for different threads
@@ -464,7 +463,7 @@ void main() {
 
   test('updateReply updates the specified reply', () async {
     final firestore = FakeFirebaseFirestore();
-    final replyId = 'Reply1';
+    const replyId = 'Reply1';
     final controller = ThreadController(firestore: firestore, auth: mockAuth);
 
     // Add a reply to update
@@ -485,7 +484,7 @@ void main() {
 
   test('deleteReply deletes the specified reply', () async {
     final firestore = FakeFirebaseFirestore();
-    final replyId = 'Reply1';
+    const replyId = 'Reply1';
     final controller = ThreadController(firestore: firestore, auth: mockAuth);
 
     // Add a reply to delete
@@ -505,7 +504,7 @@ void main() {
 
   test('getReplyData fetches the correct reply data', () async {
     final firestore = FakeFirebaseFirestore();
-    final replyId = 'Reply1';
+    const replyId = 'Reply1';
     final expectedData = {'content': 'Reply Content'};
     final controller = ThreadController(firestore: firestore, auth: mockAuth);
 

@@ -38,9 +38,6 @@ void main() {
 
   late FakeFirebaseFirestore firestore;
   late FirebaseAuth mockAuth;
-  const String testThreadId = "testThreadId";
-  const String replyId = "replyId";
-  late MockThreadController mockController;
 
   setUp(() async {
     setupFirebaseAuthMocks();
