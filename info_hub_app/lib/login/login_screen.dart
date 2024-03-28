@@ -120,6 +120,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               firestore: widget.firestore,
                               storage: widget.storage,
                               messaging: widget.messaging,
+                              themeManager: widget.themeManager,
                               localnotificationsplugin: FlutterLocalNotificationsPlugin(),
                             );
                         }

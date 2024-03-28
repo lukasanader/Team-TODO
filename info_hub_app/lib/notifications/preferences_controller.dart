@@ -37,7 +37,7 @@ class PreferencesController {
     CollectionReference prefCollection = firestore.collection('preferences');
     await prefCollection.add({
       'uid': auth.currentUser!.uid,
-      'push_notifications': true,
+      'push_notifications': false,
     });
   }
 
@@ -45,7 +45,7 @@ class PreferencesController {
     return snapshot.docs.map((doc) {
       return Preferences(
         uid: auth.currentUser!.uid,
-        pushNotifications: doc.get('push_notifications') ?? true,
+        pushNotifications: doc.get('push_notifications') ?? false,
       );
     }).toList();
   }
