@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:info_hub_app/analytics/topics/analytics_view_topic.dart';
 import 'package:info_hub_app/controller/activity_controller.dart';
 import 'package:info_hub_app/main.dart';
-import 'package:info_hub_app/controller/create_topic_controllers/topic_controller.dart';
+import '../../../controller/create_topic_controllers/topic_controller.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import '../view/topic_view.dart';
 import '../../create_topic/view/topic_creation_view.dart';
@@ -33,37 +33,19 @@ class TopicCard extends StatelessWidget {
     final mediaList = _topic.media as List<dynamic>;
 
     final media = mediaList.isNotEmpty ? mediaList.first : null;
-    final mediaUrl = media != null ? media['url'] as String? : null;
+    final mediaThumbnail = media != null ? media['thumbnail'] as String? : null;
     final mediaType = media != null ? media['mediaType'] as String? : null;
     bool containsVideo = mediaList.isNotEmpty &&
         mediaList.any((element) => element['mediaType'] == 'video');
 
     Widget mediaWidget = const SizedBox.shrink();
 
-    if (mediaType == 'video') {
-      mediaWidget = FutureBuilder<Uint8List>(
-        future: getVideoThumbnail(mediaUrl),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else {
-            return SizedBox(
-              width: 50,
-              height: 50,
-              child: Image.memory(
-                snapshot.data!,
-                fit: BoxFit.cover,
-              ),
-            );
-          }
-        },
-      );
-    } else if (mediaType == 'image') {
+    if (mediaType == 'image' || mediaType == 'video') {
       mediaWidget = SizedBox(
         width: 50,
         height: 50,
         child: Image.network(
-          mediaUrl!,
+          mediaThumbnail!,
           fit: BoxFit.cover,
         ),
       );
@@ -169,16 +151,6 @@ class TopicCard extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  Future<Uint8List> getVideoThumbnail(String? videoUrl) async {
-    final uint8list = await VideoThumbnail.thumbnailData(
-      video: videoUrl!,
-      imageFormat: ImageFormat.JPEG,
-      maxWidth: 100,
-      quality: 25,
-    );
-    return uint8list!;
   }
 
   String formatDate(DateTime? date) {

@@ -83,6 +83,7 @@ void main() {
       );
       await tester.enterText(urlField, 'https://youtu.be/GYW_SJI7ZM8');
       await tester.ensureVisible(find.byType(AppBar));
+      await tester.pumpAndSettle();
       await tester.tap(find.byType(AppBar));
       await tester.pump();
       final titleField = find.ancestor(
@@ -91,6 +92,7 @@ void main() {
       );
       await tester.enterText(titleField, 'test');
       await tester.ensureVisible(find.byType(AppBar));
+      await tester.pumpAndSettle();
       await tester.tap(find.byType(AppBar));
       await tester.pump();
       await tester.ensureVisible(find.text('Patients'));
@@ -181,6 +183,7 @@ void main() {
       );
       await tester.enterText(urlField, 'https://youtu.be/GYW_SJI7ZM8');
       await tester.ensureVisible(find.byType(AppBar));
+      await tester.pumpAndSettle();
       await tester.tap(find.byType(AppBar));
       await tester.pump();
       final titleField = find.ancestor(
@@ -189,6 +192,7 @@ void main() {
       );
       await tester.enterText(titleField, 'test');
       await tester.ensureVisible(find.byType(AppBar));
+      await tester.pumpAndSettle();
       await tester.tap(find.byType(AppBar));
       await tester.pump();
       await tester.ensureVisible(find.text('Patients'));
@@ -267,6 +271,7 @@ void main() {
       await tester.enterText(titleField, 'test');
       await tester.pumpAndSettle();
       await tester.ensureVisible(find.byType(AppBar));
+      await tester.pumpAndSettle();
       await tester.tap(find.byType(AppBar));
       await tester.pump();
       await tester.ensureVisible(find.text('Patients'));

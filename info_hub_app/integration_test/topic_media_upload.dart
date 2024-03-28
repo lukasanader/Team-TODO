@@ -10,6 +10,9 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import '../test/mock_classes.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+import 'package:info_hub_app/model/topic_model.dart';
 
 /// This test file is responsible for testing the media upload using file picker when creating topics.
 void main() async {
@@ -36,7 +39,8 @@ void main() async {
     await tester.enterText(find.byKey(const Key('titleField')), 'Test title');
     await tester.enterText(
         find.byKey(const Key('descField')), 'Test description');
-    await tester.ensureVisible(find.byType(AppBar));    
+    await tester.ensureVisible(find.byType(AppBar));
+    await tester.pumpAndSettle();
     await tester.tap(find.byType(AppBar));
   }
 
@@ -111,5 +115,70 @@ void main() async {
     final ListResult result = await mockStorage.ref().child('media').listAll();
 
     expect(result.items.length, greaterThan(0));
+  });
+
+  testWidgets('edited topic with valid fields updates',
+      (WidgetTester tester) async {
+    await defineUserAndStorage(tester);
+    mockFilePicker('sample-5s.mp4');
+
+    Topic topic = Topic(
+      title: 'Test Topic',
+      description: 'Test Description',
+      articleLink: '',
+      media: [],
+      tags: ['Patient'],
+      likes: 0,
+      views: 0,
+      dislikes: 0,
+      categories: ['Sports'],
+      date: DateTime.now(),
+      quizID: '1',
+    );
+    CollectionReference topicCollectionRef = firestore.collection('topics');
+
+    DocumentReference topicRef = await topicCollectionRef.add(topic.toJson());
+    topic.id = topicRef.id;
+
+    await tester.pumpWidget(MaterialApp(
+      home: TopicCreationView(
+        topic: topic,
+        auth: auth,
+        firestore: firestore,
+        storage: mockStorage,
+        themeManager: themeManager,
+      ),
+    ));
+
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+        find.byKey(const Key('titleField')), 'Updated title');
+    await tester.ensureVisible(find.byKey(const Key('uploadMediaButton')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('uploadMediaButton')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Upload Video'));
+    await tester.pumpAndSettle(Duration(seconds: 2));
+
+    await tester.ensureVisible(find.text('UPDATE TOPIC'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('UPDATE TOPIC'));
+
+    await tester.pumpAndSettle();
+
+    final QuerySnapshot<Map<String, dynamic>> querySnapshot =
+        await firestore.collection("topics").get();
+
+    final List<DocumentSnapshot<Map<String, dynamic>>> documents =
+        querySnapshot.docs;
+
+    expect(
+      documents.any(
+        (doc) => doc.data()?['title'] == 'Updated title',
+      ),
+      isTrue,
+    );
   });
 }

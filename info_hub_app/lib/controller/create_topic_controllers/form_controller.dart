@@ -1,14 +1,19 @@
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../model/topic_model.dart';
 import 'package:info_hub_app/topics/create_topic/view/topic_creation_view.dart';
 import 'media_upload_controller.dart';
+import 'package:video_thumbnail/video_thumbnail.dart';
+import 'package:uuid/uuid.dart';
+import 'dart:typed_data';
 
 /// Controller class responsible for managing the form data and actions in the topic creation process.
 class FormController {
   final FirebaseAuth auth;
   final FirebaseFirestore firestore;
+
   Topic? topic;
   Topic? draft;
   TopicCreationViewState screen;
@@ -89,19 +94,30 @@ class FormController {
   Future<Topic> uploadTopic(context, bool saveAsDraft) async {
     List<Map<String, String>> mediaList = [];
     Topic newTopic = Topic();
+    Uint8List thumbnailData;
+    String? thumbnailUrl;
     for (var item in mediaUploadController!.mediaUrls) {
       String url = item['url']!;
       String mediaType = item['mediaType']!;
 
       if (mediaUploadController!.networkUrls.contains(url)) {
         downloadURL = url;
+        thumbnailUrl = item['thumbnail'];
       } else {
         downloadURL = await mediaUploadController!.uploadMediaToStorage(url);
+        if (mediaType == "video") {
+          thumbnailData =
+              await mediaUploadController!.getVideoThumbnailFromFile(url);
+
+          thumbnailUrl = await mediaUploadController!
+              .uploadThumbnailToStorage(thumbnailData);
+        }
       }
 
       Map<String, String> uploadData = {
         'url': downloadURL!,
         'mediaType': mediaType,
+        'thumbnail': mediaType == "image" ? downloadURL! : thumbnailUrl!
       };
 
       mediaList.add(uploadData);
@@ -163,6 +179,7 @@ class FormController {
             .toList()
             .contains(item['url'])) {
           mediaUploadController!.deleteMediaFromStorage(item['url']);
+          mediaUploadController!.deleteMediaFromStorage(item['thumbnail']);
         }
       }
 

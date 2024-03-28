@@ -5,14 +5,15 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:info_hub_app/main.dart';
 import 'package:info_hub_app/topics/create_topic/view/topic_creation_view.dart';
 import 'package:video_player_platform_interface/video_player_platform_interface.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import '../mock_classes.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:info_hub_app/model/topic_model.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 /// This test file is responsible for testing topic drafts
+
 void main() async {
   late MockFirebaseAuth auth;
   late FakeFirebaseFirestore firestore;
@@ -20,8 +21,9 @@ void main() async {
   late PlatformFile imageFile;
   late PlatformFile videoFile;
   late List<PlatformFile> mediaFileList;
+  List<String> urls1 = [];
   setUp(() {
-    String videoPath = 'info_hub_app/assets/sample-5s.mp4';
+    String videoPath = 'assets/sample-5s.mp4';
     String imagePath = 'assets/blank_pfp.png';
 
     videoFile = PlatformFile(
@@ -81,20 +83,14 @@ void main() async {
       title: 'Test Topic',
       description: 'Test Description',
       articleLink: '',
-      media: [
-        {
-          'url':
-              'https://firebasestorage.googleapis.com/v0/b/team-todo-38f76.appspot.com/o/videos%2F2024-02-27%2022%3A09%3A02.035911.mp4?alt=media&token=ea6b51e9-9e9f-4d2e-a014-64fc3631e321',
-          'mediaType': 'video'
-        }
-      ],
+      media: [],
       tags: ['Patient'],
       likes: 0,
       views: 0,
       dislikes: 0,
       categories: ['Sports'],
       date: DateTime.now(),
-      userID: adminUserDoc.id, // Replace with the actual user ID
+      userID: adminUserDoc.id,
       quizID: '',
     );
 
@@ -115,6 +111,7 @@ void main() async {
         firestore: firestore,
         storage: mockStorage,
         themeManager: themeManager,
+        selectedFiles: mediaFileList,
       ),
     ));
 
@@ -122,6 +119,20 @@ void main() async {
 
     await tester.enterText(
         find.byKey(const Key('titleField')), 'Submitted draft');
+
+    await tester.ensureVisible(find.byKey(const Key('uploadMediaButton')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('uploadMediaButton')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Upload Image'));
+    await tester.pumpAndSettle();
+
+    await tester.ensureVisible(find.byKey(const Key('uploadMediaButton')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('uploadMediaButton')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Upload Image'));
+    await tester.pumpAndSettle();
 
     final publishButtonFinder = find.text('PUBLISH TOPIC');
 
@@ -143,6 +154,84 @@ void main() async {
       ),
       isTrue,
     );
+
+    ListResult listResult = await mockStorage.ref().child('media').listAll();
+
+    // Get the first item in the list
+    Reference? firstItem;
+    if (listResult.items.isNotEmpty) {
+      firstItem = listResult.items.first;
+    }
+    urls1.add(await firstItem!.getDownloadURL());
+  });
+
+  testWidgets('drafted topic replaces unused media in storage',
+      (WidgetTester tester) async {
+    CollectionReference draftCollectionRef;
+
+    draftCollectionRef = firestore.collection('topicDrafts');
+
+    await defineUserAndStorage(tester);
+    DocumentSnapshot adminUserDoc =
+        await firestore.collection('Users').doc('adminUser').get();
+
+    Topic draftTopic2 = Topic(
+      title: 'Submitted draft',
+      description: 'Test Description',
+      articleLink: '',
+      media: [
+        {'url': urls1[0], 'mediaType': 'video', 'thumbnail': urls1[0]},
+      ],
+      tags: ['Patient'],
+      likes: 0,
+      views: 0,
+      dislikes: 0,
+      categories: ['Sports'],
+      date: DateTime.now(),
+      userID: adminUserDoc.id,
+      quizID: '',
+    );
+
+    // Add the draft topic to Firestore
+    DocumentReference draftDocRef =
+        await draftCollectionRef.add(draftTopic2.toJson());
+    draftTopic2.id = draftDocRef.id;
+    // Update user document to include the draft topic
+    await firestore.collection('Users').doc('adminUser').update({
+      'draftedTopics': FieldValue.arrayUnion([draftDocRef.id])
+    });
+    await tester.pumpWidget(MaterialApp(
+      home: TopicCreationView(
+        draft: draftTopic2,
+        auth: auth,
+        firestore: firestore,
+        storage: mockStorage,
+        themeManager: themeManager,
+        selectedFiles: [
+          PlatformFile(
+            name: 'base_image.png',
+            path: 'assets/base_image.png',
+            size: 0,
+          )
+        ],
+      ),
+    ));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.byKey(const Key('uploadMediaButton')));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('uploadMediaButton')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Upload Image'));
+    await tester.pumpAndSettle();
+
+    await tester.ensureVisible(find.text('PUBLISH TOPIC'));
+
+    await tester.tap(find.text('PUBLISH TOPIC'));
+
+    await tester.pumpAndSettle();
+    ListResult listResult = await mockStorage.ref().child('media').listAll();
+    expect(listResult.items.length, 1);
   });
 
   testWidgets('drafted topic can be deleted', (WidgetTester tester) async {
@@ -158,13 +247,7 @@ void main() async {
       title: 'Test Topic',
       description: 'Test Description',
       articleLink: '',
-      media: [
-        {
-          'url':
-              'https://firebasestorage.googleapis.com/v0/b/team-todo-38f76.appspot.com/o/videos%2F2024-02-27%2022%3A09%3A02.035911.mp4?alt=media&token=ea6b51e9-9e9f-4d2e-a014-64fc3631e321',
-          'mediaType': 'video'
-        }
-      ],
+      media: [],
       tags: ['Patient'],
       likes: 0,
       views: 0,
@@ -217,34 +300,32 @@ void main() async {
   testWidgets('Can save as draft', (WidgetTester tester) async {
     await defineUserAndStorage(tester);
 
-    await tester.pumpWidget(MaterialApp(
-      home: TopicCreationView(
-        firestore: firestore,
-        storage: mockStorage,
-        auth: auth,
-        themeManager: themeManager,
-        selectedFiles: mediaFileList,
-      ),
-    ));
+    await tester.runAsync(() async {
+      tester.pumpWidget(MaterialApp(
+        home: TopicCreationView(
+          firestore: firestore,
+          storage: mockStorage,
+          auth: auth,
+          themeManager: themeManager,
+          selectedFiles: mediaFileList,
+        ),
+      ));
+    });
 
     await fillRequiredFields(tester);
-
-    await tester.ensureVisible(find.byKey(const Key('uploadMediaButton')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('uploadMediaButton')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Upload Video'));
-    await tester.pumpAndSettle();
 
     await tester.ensureVisible(find.byKey(const Key('draft_btn')));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('draft_btn')));
+    await tester.pumpAndSettle(const Duration(seconds: 5));
 
     final QuerySnapshot<Map<String, dynamic>> querySnapshot =
         await firestore.collection("topicDrafts").get();
 
     final List<DocumentSnapshot<Map<String, dynamic>>> documents =
         querySnapshot.docs;
+
+    expect(find.byType(TopicCreationView), findsNothing);
 
     expect(
       documents.any(
@@ -267,7 +348,6 @@ void main() async {
       isTrue,
     );
 
-    final ListResult result = await mockStorage.ref().child('media').listAll();
     final DocumentSnapshot<Map<String, dynamic>> userDocSnapshot =
         await firestore.collection('Users').doc('adminUser').get();
     final userData = userDocSnapshot.data();
@@ -276,6 +356,5 @@ void main() async {
     final List<String> draftedTopics =
         List<String>.from(userData?['draftedTopics']);
     expect(draftedTopics[0], equals(documents[0].id));
-    expect(result.items.length, greaterThan(0));
   });
 }

@@ -117,7 +117,7 @@ class WebinarCard extends StatelessWidget {
                 },
                 child: Container(
                   padding: const EdgeInsets.only(top: 10),
-                  height: 80, // Specify the desired height here
+                  height: 80,
                   child: const ListTile(
                     leading: Icon(Icons.archive_outlined),
                     title: Text('Move to Archive'),
@@ -132,7 +132,7 @@ class WebinarCard extends StatelessWidget {
                 },
                 child: Container(
                   padding: const EdgeInsets.only(top: 10),
-                  height: 80, // Specify the desired height here
+                  height: 80,
                   child: const ListTile(
                     leading: Icon(Icons.live_tv_outlined),
                     title: Text('Move to Live'),
