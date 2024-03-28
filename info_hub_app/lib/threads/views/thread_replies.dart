@@ -42,7 +42,7 @@ class ThreadRepliesState extends State<ThreadReplies> {
     threadController =
         ThreadController(firestore: widget.firestore, auth: widget.auth);
 
-// Updates local list of replies from Firebase upon initialization
+    // Updates local list of replies from Firebase upon initialization
     threadController.getReplies(widget.threadId).listen((snapshot) {
       setState(() {
         localReplies = snapshot.docs
@@ -59,7 +59,7 @@ class ThreadRepliesState extends State<ThreadReplies> {
     super.dispose();
   }
 
-// Adds a reply to the local list of replies and updates the Firebase database
+  // Adds a reply to the local list of replies and updates the Firebase database
   void _addReplyToLocalList(String content, String creatorId) async {
     if (_isAddingReply || content.isEmpty) return;
     if (mounted) {

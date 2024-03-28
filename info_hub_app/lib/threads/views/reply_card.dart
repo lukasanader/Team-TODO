@@ -204,7 +204,7 @@ class _ReplyCardState extends State<ReplyCard> {
     );
   }
 
-//Shows dialog for editing reply
+  //Shows dialog for editing reply
   void _showDialog(BuildContext context, String docId) async {
     bool showErrorContent = false;
     var replyData = await widget.controller.getReplyData(docId);

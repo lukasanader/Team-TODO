@@ -88,7 +88,7 @@ class _ThreadAppState extends State<ThreadApp> {
             );
           }
           List<Thread> threads = snapshot.data!;
-// returns a list of threads
+          // returns a list of threads
           return ListView.builder(
             itemCount: threads.length,
             itemBuilder: (context, int index) {
@@ -170,7 +170,7 @@ class _ThreadAppState extends State<ThreadApp> {
                       showErrorDescription =
                           descriptionInputController.text.isEmpty;
                     });
-// Generate thread object and add to firebase database if no errors
+                    // Generate thread object and add to firebase database if no errors
                     if (!showErrorTitle && !showErrorDescription) {
                       String docId = controller.getCurrentUserId();
 
