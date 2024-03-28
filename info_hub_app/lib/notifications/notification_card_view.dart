@@ -36,6 +36,7 @@ class NotificationCard extends StatelessWidget {
     );
   }
 
+// Handles the display of notification details when a notification is clicked
   void showNotificationDetails(BuildContext context) {
     showDialog(
       context: context,
@@ -49,6 +50,7 @@ class NotificationCard extends StatelessWidget {
                 const SizedBox(height: 10),
                 ElevatedButton(
                   onPressed: () {
+                    // Navigate to the content the notification is referring to
                     navigatorKey.currentState!
                       ..popUntil((route) => false)
                       ..pushNamed('/base')
