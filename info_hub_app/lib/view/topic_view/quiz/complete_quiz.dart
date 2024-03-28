@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:info_hub_app/controller/quiz_controllers/quiz_controller.dart';
 import 'package:info_hub_app/model/topic_models/quiz_model.dart';
-import 'package:info_hub_app/view/topic_creation_view/quiz/user_quiz_question_card.dart';
+import 'package:info_hub_app/view/topic_view/quiz/user_quiz_question_card.dart';
 import 'package:info_hub_app/model/topic_models/topic_model.dart';
 
 class CompleteQuiz extends StatefulWidget {
