@@ -9,12 +9,6 @@ class TopicController {
 
   TopicController({required this.auth, required this.firestore});
 
-  Future<String> getTopicTitle(String topicID) async {
-    DocumentSnapshot snapshot =
-        await firestore.collection('topics').doc(topicID).get();
-    return snapshot['title'];
-  }
-
   Future<List<Topic>> getTopicList() async {
     String uid = auth.currentUser!.uid;
     DocumentSnapshot user = await firestore.collection('Users').doc(uid).get();
