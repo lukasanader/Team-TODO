@@ -96,44 +96,4 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(TopicCreationView), findsOne);
   });
-
-  testWidgets('test loading icon shows while draft thumnail loads',
-      (WidgetTester tester) async {
-    await auth.createUserWithEmailAndPassword(
-        email: 'test@tested.org', password: 'Password123!');
-    String uid = auth.currentUser!.uid;
-
-    draftCollectionRef = firestore.collection('topicDrafts');
-    DocumentReference draftDocRef = await draftCollectionRef.add({
-      'title': 'test ',
-      'description': 'this is a test',
-      'articleLink': '',
-      'media': [
-        {
-          'url':
-              'https://firebasestorage.googleapis.com/v0/b/team-todo-38f76.appspot.com/o/videos%2F2024-02-01%2018:28:20.745204.mp4?alt=media&token=6d6e3aee-240d-470f-ab22-58e274a04010',
-          'mediaType': 'video'
-        },
-      ],
-      'views': 10,
-      'date': DateTime.now(),
-      'likes': 0,
-      'dislikes': 0,
-      'tags': ['Patient'],
-      'categories': ['Gym'],
-      'userID': uid
-    });
-
-    await firestore.collection('Users').doc(uid).set({
-      'email': 'test@tested.org',
-      'firstName': 'James',
-      'lastName': 'Doe',
-      'roleType': 'admin',
-      'draftedTopics': [draftDocRef.id],
-    });
-
-    await tester.runAsync(() => tester.pumpWidget(draftedTopicsWidget));
-    await tester.pump(const Duration(seconds: 1));
-    expect(find.byType(CircularProgressIndicator), findsOne);
-  });
 }

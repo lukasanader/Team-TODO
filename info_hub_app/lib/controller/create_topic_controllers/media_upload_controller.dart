@@ -11,6 +11,9 @@ import 'package:path/path.dart' as path;
 import '../../model/topic_model.dart';
 import 'form_controller.dart';
 import 'package:info_hub_app/topics/create_topic/view/topic_creation_view.dart';
+import 'package:video_thumbnail/video_thumbnail.dart';
+import 'package:uuid/uuid.dart';
+import 'dart:typed_data';
 
 /// Controller class responsible for managing media upload operations.
 class MediaUploadController {
@@ -115,6 +118,7 @@ class MediaUploadController {
         Map<String, String> fileInfo = {
           'url': mediaPath,
           'mediaType': type,
+          'thumbmail': ''
         };
         if (!changingMedia) {
           mediaUrls.add(fileInfo);
@@ -260,6 +264,31 @@ class MediaUploadController {
     chewieController?.pause();
     chewieController?.dispose();
     chewieController = null;
+  }
+
+  Future<String> uploadThumbnailToStorage(Uint8List thumbnailData) async {
+    String filename = 'thumbnail_${const Uuid().v4()}.jpg';
+    // Create a reference to the Firebase Storage location where you want to upload the thumbnail
+    Reference storageReference = storage.ref().child('thumbnails/$filename');
+    // Upload the thumbnail data to Firebase Storage
+    TaskSnapshot taskSnapshot = await storageReference.putData(thumbnailData);
+
+    // Get the download URL of the uploaded thumbnail
+    String downloadUrl = await taskSnapshot.ref.getDownloadURL();
+
+    // Return the download URL of the uploaded thumbnail
+    return downloadUrl;
+  }
+
+  Future<Uint8List> getVideoThumbnailFromFile(String videoUrl) async {
+    // Generate thumbnail from video file
+    final thumbnailData = await VideoThumbnail.thumbnailData(
+      video: videoUrl,
+      imageFormat: ImageFormat.JPEG,
+      maxWidth: 100,
+      quality: 25,
+    );
+    return thumbnailData!;
   }
 
   // Initialize image by forcing screen refresh with up-to-date image url
