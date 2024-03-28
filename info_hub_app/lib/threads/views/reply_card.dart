@@ -52,6 +52,7 @@ class _ReplyCardState extends State<ReplyCard> {
       return widget.controller.getRoleIcon(roleType);
     }
 
+    //Builds UI for reply card
     return Column(
       children: <Widget>[
         Padding(
@@ -203,6 +204,7 @@ class _ReplyCardState extends State<ReplyCard> {
     );
   }
 
+//Shows dialog for editing reply
   void _showDialog(BuildContext context, String docId) async {
     bool showErrorContent = false;
     var replyData = await widget.controller.getReplyData(docId);

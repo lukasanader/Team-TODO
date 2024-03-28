@@ -31,6 +31,7 @@ class ThreadReplies extends StatefulWidget {
 class ThreadRepliesState extends State<ThreadReplies> {
   late final ThreadController threadController;
   late TextEditingController contentInputController;
+  //Using local state to update state changes along with Firebase in order to make the UI more responsive
   List<Reply> localReplies = [];
   bool _isAddingReply = false;
 
@@ -41,6 +42,7 @@ class ThreadRepliesState extends State<ThreadReplies> {
     threadController =
         ThreadController(firestore: widget.firestore, auth: widget.auth);
 
+// Updates local list of replies from Firebase upon initialization
     threadController.getReplies(widget.threadId).listen((snapshot) {
       setState(() {
         localReplies = snapshot.docs
@@ -57,6 +59,7 @@ class ThreadRepliesState extends State<ThreadReplies> {
     super.dispose();
   }
 
+// Adds a reply to the local list of replies and updates the Firebase database
   void _addReplyToLocalList(String content, String creatorId) async {
     if (_isAddingReply || content.isEmpty) return;
     if (mounted) {
@@ -97,6 +100,7 @@ class ThreadRepliesState extends State<ThreadReplies> {
     }).whenComplete(() => setState(() => _isAddingReply = false));
   }
 
+// Shows a dialog to add a reply
   void _showDialog(BuildContext context) async {
     bool showErrorContent = false;
 
@@ -157,6 +161,7 @@ class ThreadRepliesState extends State<ThreadReplies> {
     ).then((_) => contentInputController.clear());
   }
 
+// Builds the UI for the parent thread of replies
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -174,7 +179,6 @@ class ThreadRepliesState extends State<ThreadReplies> {
           var threadAuthor = thread.authorName;
           var threadTimestamp = thread.timestamp;
           String formattedDate = threadController.formatDate(threadTimestamp);
-
           return Column(
             children: [
               const SizedBox(height: 30.0),
@@ -234,6 +238,7 @@ class ThreadRepliesState extends State<ThreadReplies> {
                 ),
               ),
               Expanded(
+                // Builds the list of replies for the thread
                 child: localReplies.isEmpty
                     ? const Center(
                         child: Text(

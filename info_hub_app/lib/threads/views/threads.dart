@@ -73,6 +73,7 @@ class _ThreadAppState extends State<ThreadApp> {
         },
         child: const Icon(FontAwesomeIcons.questionCircle),
       ),
+      // listens to the stream of threads and displays them
       body: StreamBuilder<List<Thread>>(
         stream: controller.getThreadListStream(widget.topicId),
         builder: (context, AsyncSnapshot<List<Thread>> snapshot) {
@@ -87,7 +88,7 @@ class _ThreadAppState extends State<ThreadApp> {
             );
           }
           List<Thread> threads = snapshot.data!;
-
+// returns a list of threads
           return ListView.builder(
             itemCount: threads.length,
             itemBuilder: (context, int index) {
@@ -107,6 +108,7 @@ class _ThreadAppState extends State<ThreadApp> {
     );
   }
 
+// Displays form for user to create a new thread
   _showDialog(BuildContext context) async {
     bool showErrorTitle = false;
     bool showErrorDescription = false;
@@ -168,7 +170,7 @@ class _ThreadAppState extends State<ThreadApp> {
                       showErrorDescription =
                           descriptionInputController.text.isEmpty;
                     });
-
+// Generate thread object and add to firebase database if no errors
                     if (!showErrorTitle && !showErrorDescription) {
                       String docId = controller.getCurrentUserId();
 

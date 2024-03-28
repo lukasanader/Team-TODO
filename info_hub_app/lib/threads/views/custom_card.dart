@@ -53,7 +53,7 @@ class _CustomCardState extends State<CustomCard> {
         borderRadius: BorderRadius.all(Radius.circular(4.0)),
       ),
     );
-
+// UI for the custom card
     return Column(
       children: <Widget>[
         Padding(
@@ -249,6 +249,7 @@ class _CustomCardState extends State<CustomCard> {
     );
   }
 
+// Dialog for editing thread
   _showDialog(BuildContext context, String threadId) async {
     bool showErrorTitle = false;
     bool showErrorDescription = false;
