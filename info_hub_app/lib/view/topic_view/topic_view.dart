@@ -6,7 +6,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:info_hub_app/controller/notification_controllers/notification_controller.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:info_hub_app/view/topic_creation_view/quiz/complete_quiz.dart';
+import 'package:info_hub_app/view/topic_view/quiz/complete_quiz.dart';
 import 'package:info_hub_app/view/topic_creation_view/topic_creation_view.dart';
 import 'dart:async';
 import 'package:info_hub_app/view/thread_view/threads.dart';
