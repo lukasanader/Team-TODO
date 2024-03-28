@@ -86,7 +86,7 @@ class FormController {
 
   /// Validates the description field.
   String? validateDescription(String? value) {
-    if (value == null || value.isEmpty) {
+    if (value == null || value.isEmpty || value.length > 500) {
       return 'Please enter a Description';
     }
     return null;
