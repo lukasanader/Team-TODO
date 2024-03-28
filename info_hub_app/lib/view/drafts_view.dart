@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:info_hub_app/helpers/topics_card.dart';
 import '../controller/draft_page_controller.dart';
 
+/// This view is responsible for showing admin their list of drafted topics
 class DraftsPage extends StatefulWidget {
   final FirebaseFirestore firestore;
   final FirebaseAuth auth;

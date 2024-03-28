@@ -5,6 +5,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:info_hub_app/helpers/topics_card.dart';
 import '../controller/saved_page_controller.dart';
 
+/// This view is responsible for showing user their list of saved topics
+
 class SavedPage extends StatefulWidget {
   final FirebaseFirestore firestore;
   final FirebaseAuth auth;
