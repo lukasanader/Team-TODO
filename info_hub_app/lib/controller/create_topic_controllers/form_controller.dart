@@ -26,6 +26,7 @@ class FormController {
   String? downloadURL;
   bool editing = false;
   bool drafting = false;
+  bool titleValid = false;
   List<dynamic> tags = [];
   List<dynamic> categories = [];
 
@@ -66,6 +67,10 @@ class FormController {
       return 'Please enter a Title.';
     }
     return null;
+  }
+
+  bool validateTitleResult(String? value) {
+    return (value != null && value.isNotEmpty);
   }
 
   /// Validates the article link field.
@@ -176,7 +181,9 @@ class FormController {
             .toList()
             .contains(item['url'])) {
           mediaUploadController!.deleteMediaFromStorage(item['url']);
-          mediaUploadController!.deleteMediaFromStorage(item['thumbnail']);
+          if (item['mediaType'] == 'video') {
+            mediaUploadController!.deleteMediaFromStorage(item['thumbnail']);
+          }
         }
       }
 
@@ -185,16 +192,15 @@ class FormController {
         screen.updatedTopicDoc = newTopic;
       } else if (drafting) {
         await topicCollectionRef.add(newTopic.toJson());
-        deleteDraft();
+        deleteDraft(true);
       }
-      if (editing) {}
     }
 
     return newTopic;
   }
 
   /// Deletes the current draft from Firestore.
-  void deleteDraft() async {
+  void deleteDraft(bool publishing) async {
     final user = auth.currentUser;
     if (user != null) {
       final userDocRef = firestore.collection('Users').doc(user.uid);
@@ -216,6 +222,15 @@ class FormController {
 
         // Delete the draft from the topicDrafts collection
         await firestore.collection('topicDrafts').doc(draft!.id).delete();
+
+        if (!publishing) {
+          for (var item in mediaUploadController!.originalUrls) {
+            mediaUploadController!.deleteMediaFromStorage(item['url']);
+            if (item['mediaType'] == 'video') {
+              mediaUploadController!.deleteMediaFromStorage(item['thumbnail']);
+            }
+          }
+        }
       }
     }
   }

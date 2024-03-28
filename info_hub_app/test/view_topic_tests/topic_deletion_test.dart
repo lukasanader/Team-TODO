@@ -73,7 +73,7 @@ void main() {
                 'https://firebasestorage.googleapis.com/v0/b/team-todo-38f76.appspot.com/o/videos%2F2024-02-01%2018:28:20.745204.mp4?alt=media&token=6d6e3aee-240d-470f-ab22-58e274a04010',
             'mediaType': 'video',
             'thumbnail':
-                'https://images.unsplash.com/photo-1606921231106-f1083329a65c?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8ZXhhbXBsZXxlbnwwfHwwfHx8MA%3D%3D'
+                'https://firebasestorage.googleapis.com/v0/b/some-bucket/o/thumbnails/blank_pfp.png'
           }
         ],
         likes: 0,
@@ -83,6 +83,10 @@ void main() {
         dislikes: 0,
         categories: ['Sports'],
         date: DateTime.now());
+
+    final storageRef = storage.ref().child('thumbnails');
+    await storageRef.putString(
+        'https://firebasestorage.googleapis.com/v0/b/some-bucket/o/thumbnails/blank_pfp.png');
 
     // Add a topic
     DocumentReference ref = await topicCollectionRef.add(topic.toJson());
@@ -142,7 +146,7 @@ void main() {
                 'https://firebasestorage.googleapis.com/v0/b/team-todo-38f76.appspot.com/o/videos%2F2024-02-01%2018:28:20.745204.mp4?alt=media&token=6d6e3aee-240d-470f-ab22-58e274a04010',
             'mediaType': 'video',
             'thumbnail':
-                'https://images.unsplash.com/photo-1606921231106-f1083329a65c?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8ZXhhbXBsZXxlbnwwfHwwfHx8MA%3D%3D'
+                'https://firebasestorage.googleapis.com/v0/b/some-bucket/o/thumbnails/blank_pfp.png'
           }
         ],
         likes: 0,
@@ -152,6 +156,9 @@ void main() {
         dislikes: 0,
         categories: ['Sports'],
         date: DateTime.now());
+    final storageRef = storage.ref().child('thumbnails');
+    await storageRef.putString(
+        'https://firebasestorage.googleapis.com/v0/b/some-bucket/o/thumbnails/blank_pfp.png');
 
     DocumentReference topicDocRef =
         await topicCollectionRef.add(topic.toJson());

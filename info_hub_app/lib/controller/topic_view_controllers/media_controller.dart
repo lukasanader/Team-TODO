@@ -112,9 +112,15 @@ class MediaController {
     String fileUrl = topic.media![index]['url'];
 
     // get reference to the video file
-    Reference ref = screen.widget.storage.refFromURL(fileUrl);
+    Reference fileRef = screen.widget.storage.refFromURL(fileUrl);
 
     // Delete the file
-    await ref.delete();
+    await fileRef.delete();
+    // if file is video, delete its thumbnail
+    if (topic.media![index]['mediaType'] == 'video') {
+      String thumbnailUrl = topic.media![index]['thumbnail'];
+      Reference thumbnailRef = screen.widget.storage.refFromURL(thumbnailUrl);
+      await thumbnailRef.delete();
+    }
   }
 }

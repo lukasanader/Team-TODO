@@ -120,8 +120,18 @@ class TopicCreationViewState extends State<TopicCreationView> {
                 TextButton(
                   key: const Key('draft_btn'),
                   onPressed: () async {
-                    await formController.uploadTopic(context, true);
-                    Navigator.pop(context);
+                    if (formController.validateTitleResult(
+                        formController.titleController.text)) {
+                      await formController.uploadTopic(context, true);
+                      Navigator.pop(context);
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content:
+                              Text('Please provide a title for your draft.'),
+                        ),
+                      );
+                    }
                   },
                   child: const Text(
                     'Save Draft',
@@ -132,7 +142,7 @@ class TopicCreationViewState extends State<TopicCreationView> {
                 TextButton(
                   key: const Key('delete_draft_btn'),
                   onPressed: () async {
-                    formController.deleteDraft();
+                    formController.deleteDraft(false);
                     updateState();
                     Navigator.pop(context);
                   },
