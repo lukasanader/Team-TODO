@@ -103,13 +103,11 @@ class _AdminHomepageState extends State<AdminHomepage> {
                 ])),
             ElevatedButton(
               onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => ViewThreads(
-                      firestore: widget.firestore,
-                      auth: widget.auth,
-                    ),
-                  ),
+                PersistentNavBarNavigator.pushNewScreen(
+                  context,
+                  screen: ViewThreads(
+                      firestore: widget.firestore, auth: widget.auth),
+                  withNavBar: false,
                 );
               },
               child: Column(

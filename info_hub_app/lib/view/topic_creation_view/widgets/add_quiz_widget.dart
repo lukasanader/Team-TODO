@@ -5,7 +5,8 @@ import 'package:info_hub_app/topics/create_topic/helpers/quiz/create_quiz.dart';
 class AddQuizWidget extends StatelessWidget {
   final TopicCreationViewState screen;
 
-  const AddQuizWidget({super.key, 
+  const AddQuizWidget({
+    super.key,
     required this.screen,
   });
 
@@ -32,13 +33,14 @@ class AddQuizWidget extends StatelessWidget {
           );
         },
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const SizedBox(width: 150),
-            const Text(
-              "ADD QUIZ",
-              style: TextStyle(
-                color: Colors.red,
-                fontWeight: FontWeight.bold,
+            const Center(
+              child: Text(
+                "ADD QUIZ",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
             if (screen.quizAdded)

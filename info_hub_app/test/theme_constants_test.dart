@@ -2,6 +2,7 @@ import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:info_hub_app/experiences/admin_experience/admin_experience_view.dart';
 import 'package:info_hub_app/helpers/helper_widgets.dart';
 import 'package:info_hub_app/main.dart';
 import 'package:info_hub_app/message_feature/message_bubble.dart';
@@ -187,6 +188,48 @@ void main() {
     );
 
     final ThemeData theme = Theme.of(tester.element(find.byType(Container)));
+
+    expect(theme.brightness, Brightness.dark);
+    expect(theme.primaryColor, COLOR_PRIMARY_DARK);
+  });
+
+  testWidgets('Test Bottom Navigation Bar Light Theme',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: lightTheme,
+        home: BottomNavigationBar(
+          items: const [
+            BottomNavigationBarItem(icon: Icon(Icons.delete), label: 'Delete'),
+            BottomNavigationBarItem(icon: Icon(Icons.delete), label: 'Delete')
+          ],
+        ),
+      ),
+    );
+
+    final ThemeData theme =
+        Theme.of(tester.element(find.byType(BottomNavigationBar)));
+
+    expect(theme.brightness, Brightness.light);
+    expect(theme.primaryColor, COLOR_PRIMARY_LIGHT);
+  });
+
+  testWidgets('Test Bottom Navigation Bar Dark Theme',
+      (WidgetTester tester) async {
+    var firestore = FakeFirebaseFirestore();
+    var auth = MockFirebaseAuth();
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: darkTheme,
+        home: AdminExperienceView(
+          firestore: firestore,
+          auth: auth,
+        ),
+      ),
+    );
+
+    final ThemeData theme =
+        Theme.of(tester.element(find.byType(BottomNavigationBar)));
 
     expect(theme.brightness, Brightness.dark);
     expect(theme.primaryColor, COLOR_PRIMARY_DARK);

@@ -5,6 +5,7 @@ import 'package:info_hub_app/experiences/admin_experience/admin_experience_widge
 import 'package:info_hub_app/experiences/experience_controller.dart';
 import 'package:info_hub_app/experiences/experiences_card.dart';
 import 'package:info_hub_app/experiences/experience_model.dart';
+import 'package:info_hub_app/theme/theme_constants.dart';
 import 'package:info_hub_app/topics/create_topic/helpers/transitions/checkmark_transition.dart';
 
 class AdminExperienceView extends StatefulWidget {
@@ -35,7 +36,6 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
 
   bool pageLoaded = false;
 
-
   @override
   void initState() {
     super.initState();
@@ -59,21 +59,26 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
         ],
       ),
       body: !pageLoaded
-      ? const Center(
-        child: CircularProgressIndicator()) 
-      : PageView(
-        controller: _pageController,
-        onPageChanged: (index) {
-          setState(() {
-            _currentPageIndex = index;
-          });
-        },
-        children: [
-          _buildExperienceSectiion(true, _verifiedExperienceList),
-          _buildExperienceSectiion(false, _unverifiedExperienceList)
-        ],
-      ),
+          ? const Center(child: CircularProgressIndicator())
+          : PageView(
+              controller: _pageController,
+              onPageChanged: (index) {
+                setState(() {
+                  _currentPageIndex = index;
+                });
+              },
+              children: [
+                _buildExperienceSectiion(true, _verifiedExperienceList),
+                _buildExperienceSectiion(false, _unverifiedExperienceList)
+              ],
+            ),
       bottomNavigationBar: BottomNavigationBar(
+        selectedItemColor: Theme.of(context).brightness == Brightness.light
+            ? COLOR_SECONDARY_GREY_LIGHT_DARKER
+            : COLOR_SECONDARY_GREY_DARK_LIGHTER,
+        unselectedItemColor: Theme.of(context).brightness == Brightness.light
+            ? COLOR_SECONDARY_GREY_LIGHT_DARKER.withOpacity(0.5)
+            : COLOR_SECONDARY_GREY_DARK_LIGHTER.withOpacity(0.5),
         currentIndex: _currentPageIndex,
         onTap: (index) {
           setState(() {
@@ -87,12 +92,15 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
         },
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.check_circle_outline),
+            icon: Icon(Icons.check_circle_outline, color: Colors.green),
             key: ValueKey<String>('verify_navbar_button'),
             label: 'Verified',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.highlight_off_outlined),
+            icon: Icon(
+              Icons.highlight_off_outlined,
+              color: Colors.red,
+            ),
             key: ValueKey<String>('unverify_navbar_button'),
             label: 'Unverified',
           ),
@@ -101,75 +109,68 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
     );
   }
 
-
   ///Builds the experience section based on the experience type
-  ///includes the subtitle, drop down filter and the list builder 
-  Widget _buildExperienceSectiion(bool experienceType, List<Experience> experiences) {
+  ///includes the subtitle, drop down filter and the list builder
+  Widget _buildExperienceSectiion(
+      bool experienceType, List<Experience> experiences) {
     return SingleChildScrollView(
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: Center(
-              child: experienceType 
-              ? Text(
-                  "Verified experiences",
-                  style: Theme.of(context).textTheme.headlineLarge,
-                )
-              : Text(
-                  "Unverified experiences",
-                  style: Theme.of(context).textTheme.headlineLarge,
-                ),
-            ),
+        child: Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          child: Center(
+            child: experienceType
+                ? Text(
+                    "Verified experiences",
+                    style: Theme.of(context).textTheme.headlineLarge,
+                  )
+                : Text(
+                    "Unverified experiences",
+                    style: Theme.of(context).textTheme.headlineLarge,
+                  ),
           ),
-          DropdownButton<String>(
-            value: experienceType 
-            ? _verifiedSelectedTag
-            : _unverifiedSelectedTag,
-            onChanged: (String? newValue) async {
+        ),
+        DropdownButton<String>(
+          value: experienceType ? _verifiedSelectedTag : _unverifiedSelectedTag,
+          onChanged: (String? newValue) async {
+            List<Experience> tempList;
 
-              List<Experience> tempList;
-
-              if (newValue == 'All') {
-                tempList = await _experienceController.getAllExperienceListBasedOnVerification(experienceType);
+            if (newValue == 'All') {
+              tempList = await _experienceController
+                  .getAllExperienceListBasedOnVerification(experienceType);
+            } else {
+              if (experienceType) {
+                tempList = await _experienceController
+                    .getVerifiedExperienceListBasedonRole(newValue!);
+              } else {
+                tempList = await _experienceController
+                    .getUnverifiedExperienceListBasedonRole(newValue!);
               }
-              else {
-                if (experienceType) {
-                  tempList = await _experienceController.getVerifiedExperienceListBasedonRole(newValue!);
-                }
-                else {
-                  tempList = await _experienceController.getUnverifiedExperienceListBasedonRole(newValue!);
-                }                
+            }
+
+            setState(() {
+              if (experienceType) {
+                _verifiedSelectedTag = newValue!;
+                _verifiedExperienceList = tempList;
+              } else {
+                _unverifiedSelectedTag = newValue!;
+                _unverifiedExperienceList = tempList;
               }
-
-              setState(() {
-                if (experienceType) {
-                  _verifiedSelectedTag = newValue!;
-                  _verifiedExperienceList = tempList;
-                } else {
-                  _unverifiedSelectedTag = newValue!;
-                  _unverifiedExperienceList = tempList;
-                }
-
-              });
-            },
-            items: <String>['All' ,'Patient', 'Parent', 'Healthcare Professional']
+            });
+          },
+          items: <String>['All', 'Patient', 'Parent', 'Healthcare Professional']
               .map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  key: ValueKey<String>('dropdown_menu_$value'),
-                  child: Text(value),
-                );
-              }).toList(),
-          ),
-          _buildExperienceList(experiences)
-        ],
-      )
-    );
+            return DropdownMenuItem<String>(
+              value: value,
+              key: ValueKey<String>('dropdown_menu_$value'),
+              child: Text(value),
+            );
+          }).toList(),
+        ),
+        _buildExperienceList(experiences)
+      ],
+    ));
   }
-
-
-
 
   Widget _buildExperienceList(List<Experience> experiences) {
     return experiences.isEmpty
@@ -177,25 +178,25 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
             "No experiences available",
           )
         : ListView.builder(
-                physics: const NeverScrollableScrollPhysics(),
-                shrinkWrap: true,
-                itemCount: experiences.length * 2 - 1,
-                itemBuilder: (context, index) {
-                  if (index.isOdd) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      key: const ValueKey<String>('between_experience_padding'),
-                      child: Container(
-                        height: 1,
-                        color: Colors.grey,
-                      ),
-                    );
-                  } else {
-                    index = index ~/ 2;
-                    return displayExperiencesForAdmin(experiences[index]);
-                  }
-                },
-              );
+            physics: const NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            itemCount: experiences.length * 2 - 1,
+            itemBuilder: (context, index) {
+              if (index.isOdd) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  key: const ValueKey<String>('between_experience_padding'),
+                  child: Container(
+                    height: 1,
+                    color: Colors.grey,
+                  ),
+                );
+              } else {
+                index = index ~/ 2;
+                return displayExperiencesForAdmin(experiences[index]);
+              }
+            },
+          );
   }
 
   Widget displayExperiencesForAdmin(Experience experience) {
@@ -242,8 +243,7 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
                               const CheckmarkAnimationScreen(),
                         ),
                       );
-                      await Future.delayed(
-                          const Duration(seconds: 2));
+                      await Future.delayed(const Duration(seconds: 2));
                       await updateExperiencesList();
                       Navigator.pop(context);
                     },
@@ -257,7 +257,6 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
       ),
     );
   }
-
 
   Future<void> deleteExperienceConfirmation(Experience experience) async {
     return showDialog<void>(
@@ -297,6 +296,4 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
       pageLoaded = true;
     });
   }
-
-
 }
