@@ -168,7 +168,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         theme: lightTheme,
-        home: const MessageBubble(message: 'Test'),
+        home: const MessageBubble(message: 'Test',color: 'grey',),
       ),
     );
 
@@ -182,7 +182,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         theme: darkTheme,
-        home: const MessageBubble(message: 'Test'),
+        home: const MessageBubble(message: 'Test', color: 'red',),
       ),
     );
 

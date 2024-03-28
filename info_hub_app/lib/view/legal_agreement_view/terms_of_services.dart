@@ -27,7 +27,7 @@ class TermsOfServicesPage extends StatelessWidget {
             ),
             SizedBox(height: 24.0),
             Text(
-              'Welcome to TeamTODO!',
+              'Welcome to LiverWise!',
               style: TextStyle(
                 fontSize: 18.0,
                 fontWeight: FontWeight.bold,
@@ -35,7 +35,7 @@ class TermsOfServicesPage extends StatelessWidget {
             ),
             SizedBox(height: 16.0),
             Text(
-              'These terms of service ("Terms") govern your use of TeamTODO\'s mobile application (the "Service") provided by [Your Company Name] ("us", "we", or "our").',
+              'These terms of service ("Terms") govern your use of LiverWise\'s mobile application (the "Service") provided by [Your Company Name] ("us", "we", or "our").',
               style: TextStyle(
                 fontSize: 16.0,
               ),

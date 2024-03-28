@@ -48,9 +48,9 @@ void main() {
     expect(cardFinder, findsNWidgets(2));
     final textFinders = find.byType(Text);
     expect((textFinders.first.evaluate().single.widget as Text).data,
-        'This is test question number 1 0 days ago');
+        'This is test question number 1 \n0 days ago');
     expect((textFinders.at(1).evaluate().single.widget as Text).data,
-        'This is test question number 2 0 days ago');
+        'This is test question number 2 \n0 days ago');
   });
   testWidgets('Delete question test', (WidgetTester tester) async {
     await tester.pumpWidget(questionWidget);
@@ -68,9 +68,9 @@ void main() {
     expect(cardFinder, findsNWidgets(2));
     Finder textFinders = find.byType(Text);
     expect((textFinders.first.evaluate().single.widget as Text).data,
-        'This is test question number 1 0 days ago');
+        'This is test question number 1 \n0 days ago');
     expect((textFinders.at(1).evaluate().single.widget as Text).data,
-        'This is test question number 2 0 days ago');
+        'This is test question number 2 \n0 days ago');
     textFinders = find.byType(Text);
     cardFinder = find.byType(Card);
     //Click confirm
@@ -81,6 +81,6 @@ void main() {
     await tester.pumpAndSettle();
     expect(cardFinder, findsNWidgets(1));
     expect((textFinders.first.evaluate().single.widget as Text).data,
-        'This is test question number 2 0 days ago');
+        'This is test question number 2 \n0 days ago');
   });
 }

@@ -58,7 +58,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Team TODO'),
+        title: const Text('LiverWise'),
         actions: <Widget>[
           IconButton(
             icon: const Icon(Icons.notifications_none_outlined),

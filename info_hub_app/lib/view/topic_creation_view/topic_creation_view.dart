@@ -105,14 +105,11 @@ class TopicCreationViewState extends State<TopicCreationView> {
       },
       child: Scaffold(
         appBar: AppBar(
-            backgroundColor: Colors.red,
             title: Text(
               formController.appBarTitle,
               style: const TextStyle(
-                  color: Colors.white, fontWeight: FontWeight.bold),
-            ),
-            iconTheme: const IconThemeData(
-              color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             actions: <Widget>[
               // Save as draft button (visible only when not editing or publishing a draft)
@@ -135,7 +132,6 @@ class TopicCreationViewState extends State<TopicCreationView> {
                   },
                   child: const Text(
                     'Save Draft',
-                    style: TextStyle(color: Colors.white),
                   ),
                 )
               else if (drafting)
@@ -148,7 +144,6 @@ class TopicCreationViewState extends State<TopicCreationView> {
                   },
                   child: const Text(
                     'Delete this draft',
-                    style: TextStyle(color: Colors.white),
                   ),
                 )
             ]),
@@ -186,9 +181,7 @@ class TopicCreationViewState extends State<TopicCreationView> {
                             SizedBox(
                               width: 200,
                               child: OutlinedButton(
-                                style: OutlinedButton.styleFrom(
-                                  backgroundColor: Colors.red,
-                                ),
+                                style: OutlinedButton.styleFrom(),
                                 onPressed: () async {
                                   // Check if the form's current state is valid and Publish the topic
                                   if (topicFormKey.currentState!.validate() &&
@@ -221,7 +214,6 @@ class TopicCreationViewState extends State<TopicCreationView> {
                                 child: Text(
                                   editing ? "UPDATE TOPIC" : "PUBLISH TOPIC",
                                   style: const TextStyle(
-                                    color: Colors.white,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),

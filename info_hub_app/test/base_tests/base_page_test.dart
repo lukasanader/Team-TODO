@@ -96,7 +96,7 @@ void main() {
     await tester.pump();
     await tester.pumpAndSettle();
 
-    expect(find.text('Team TODO'), findsOneWidget);
+    expect(find.text('LiverWise'), findsOneWidget);
     expect(find.byType(HomePage), findsOneWidget);
   });
   testWidgets('Bottom Nav Bar to Search Page', (WidgetTester tester) async {
@@ -169,7 +169,7 @@ void main() {
       ),
     ));
 
-    expect(find.text('Team TODO'), findsOneWidget);
+    expect(find.text('LiverWise'), findsOneWidget);
     expect(find.byType(HomePage), findsOneWidget);
   });
 

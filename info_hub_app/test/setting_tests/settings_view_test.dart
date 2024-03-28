@@ -110,7 +110,7 @@ void main() {
     expect(find.text("History"), findsOneWidget);
     expect(find.text("Privacy"), findsOneWidget);
     expect(find.text("Help"), findsOneWidget);
-    expect(find.text("About TEAM TODO"), findsOneWidget);
+    expect(find.text("About LiverWise"), findsOneWidget);
     expect(find.text("Log Out"), findsOneWidget);
   });
 

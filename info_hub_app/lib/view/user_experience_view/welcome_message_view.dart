@@ -16,7 +16,7 @@ class WelcomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Team TODO'),
+        title: const Text('LiverWise'),
         backgroundColor: Colors.red,
       ),
       body: SingleChildScrollView(
@@ -241,7 +241,7 @@ class WelcomePage extends StatelessWidget {
                             color: Colors.black,
                           ),
                         ),
-                                               subtitle: Padding(
+                        subtitle: Padding(
                           padding: const EdgeInsets.only(top: 8.0),
                           child: Text(
                             "Lifestyle changes that may help manage liver disease include maintaining a healthy diet low in fat and processed foods, avoiding alcohol and tobacco, exercising regularly, managing stress, and following prescribed treatment plans. It's essential to consult healthcare professionals.",
@@ -261,7 +261,8 @@ class WelcomePage extends StatelessWidget {
                   child: ElevatedButton(
                     onPressed: () async {
                       await controller.navigateToBase(context);
-                      await preferencesController.updateNotificationPreferences('push_notifications', true);
+                      await preferencesController.updateNotificationPreferences(
+                          'push_notifications', true);
                     },
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.all(16.0),
@@ -288,19 +289,3 @@ class WelcomePage extends StatelessWidget {
     );
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

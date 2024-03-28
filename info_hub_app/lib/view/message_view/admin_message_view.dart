@@ -50,48 +50,53 @@ class _MessageViewState extends State<MessageView> {
         title: const Text("Message Users"),
       ),
       body: !pageLoaded
-      ? const Center(child: CircularProgressIndicator(),) 
-      : SingleChildScrollView(
-        child: Column(
-          children: [
-            Center(
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
+          : SingleChildScrollView(
               child: Column(
                 children: [
-                  const Text('Messages'),
-                  ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: _chatList.length,
-                    itemBuilder: (context, index) {
-                      MessageRoom chat = _chatList[index];
-                      return Row(
-                        children: [
-                          Expanded(
-                            child: MessageRoomCard(
-                                widget.firestore, widget.auth, chat),
-                          ),
-                          IconButton(
-                            onPressed: () {
-                              deleteMessageRoomConfirmation(chat.id!);
-                            },
-                            icon: const Icon(Icons.delete),
-                          ),
-                        ],
-                      );
+                  Center(
+                    child: Column(
+                      children: [
+                        Text(
+                          'Messages',
+                          style: Theme.of(context).textTheme.headlineLarge,
+                        ),
+                        ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: _chatList.length,
+                          itemBuilder: (context, index) {
+                            MessageRoom chat = _chatList[index];
+                            return Row(
+                              children: [
+                                Expanded(
+                                  child: MessageRoomCard(
+                                      widget.firestore, widget.auth, chat),
+                                ),
+                                IconButton(
+                                  onPressed: () {
+                                    deleteMessageRoomConfirmation(chat.id!);
+                                  },
+                                  icon: const Icon(Icons.delete),
+                                ),
+                              ],
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                  addVerticalSpace(15),
+                  ElevatedButton(
+                    onPressed: () {
+                      selectUserDialog();
                     },
+                    child: const Text('Message new patient'),
                   ),
                 ],
               ),
             ),
-            addVerticalSpace(15),
-            ElevatedButton(
-              onPressed: () {
-                selectUserDialog();
-              },
-              child: const Text('Message new patient'),
-            ),
-          ],
-        ),
-      ),
     );
   }
 

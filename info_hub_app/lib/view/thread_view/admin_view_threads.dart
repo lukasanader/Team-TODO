@@ -32,6 +32,7 @@ class _ViewThreadsState extends State<ViewThreads> {
     repliesStream = controller.getAllRepliesStream();
   }
 
+// Displays either threads or replies based on the user's selection
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -84,6 +85,7 @@ class _ViewThreadsState extends State<ViewThreads> {
     );
   }
 
+// Displays the list of all threads
   Widget buildThreadsList() {
     return StreamBuilder<List<Thread>>(
       stream: threadsStream,
@@ -115,6 +117,7 @@ class _ViewThreadsState extends State<ViewThreads> {
     );
   }
 
+// Card UI for each thread
   Widget buildThreadItem(Thread thread) {
     return Card(
       elevation: 5,
@@ -173,6 +176,7 @@ class _ViewThreadsState extends State<ViewThreads> {
     );
   }
 
+// Displays the list of all replies
   Widget buildRepliesList() {
     return StreamBuilder<List<Reply>>(
       stream: repliesStream,
@@ -204,6 +208,7 @@ class _ViewThreadsState extends State<ViewThreads> {
     );
   }
 
+// Card UI for each reply
   Widget buildReplyItem(Reply reply) {
     return Card(
       elevation: 5,

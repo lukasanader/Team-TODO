@@ -39,11 +39,13 @@ class ThreadController {
     return auth.currentUser?.uid == creatorId;
   }
 
+  //Returns the user's profile image
   Future<ImageProvider<Object>> getUserProfileImage(String userId) async {
     String profilePhotoFileName = await getUserProfilePhotoFilename(userId);
     return AssetImage('assets/$profilePhotoFileName');
   }
 
+  //Returns the name of profile photo used by the user
   Future<String> getUserProfilePhotoFilename(String userId) async {
     DocumentSnapshot userDoc =
         await firestore.collection('Users').doc(userId).get();
@@ -54,6 +56,7 @@ class ThreadController {
     return 'default_profile_photo.png';
   }
 
+  //Streams a list of replies for a given thread
   Stream<List<Reply>> getRepliesStream(String threadId) {
     return firestore
         .collection("replies")
@@ -67,6 +70,7 @@ class ThreadController {
     });
   }
 
+  //Streams a list of threads for a given topic
   Stream<List<Thread>> getThreadListStream(String topicId) {
     return firestore
         .collection("thread")
@@ -80,6 +84,7 @@ class ThreadController {
     });
   }
 
+  //Streams all threads
   Stream<List<Thread>> getAllThreadsStream() {
     return firestore
         .collection("thread")
@@ -92,6 +97,7 @@ class ThreadController {
     });
   }
 
+//Streams all replies
   Stream<List<Reply>> getAllRepliesStream() {
     return firestore
         .collection("replies")
@@ -104,12 +110,14 @@ class ThreadController {
     });
   }
 
+  //Fetches thread data for given thread id
   Future<Map<String, dynamic>?> getThreadData(String threadId) async {
     DocumentSnapshot threadDoc =
         await firestore.collection("thread").doc(threadId).get();
     return threadDoc.data() as Map<String, dynamic>?;
   }
 
+//Fetches thread object for given thread id
   Future<Thread> getThreadDocument(String threadId) async {
     DocumentSnapshot snapshot =
         await firestore.collection("thread").doc(threadId).get();
@@ -133,6 +141,7 @@ class ThreadController {
     }
   }
 
+//Submits thread to firebase database
   Future<void> addThread(Thread thread) async {
     await firestore.collection("thread").add({
       "id": thread.id,
@@ -148,6 +157,7 @@ class ThreadController {
     });
   }
 
+//Streams snapshot of threads for given topic id
   Stream<QuerySnapshot> getThreads(String topicId) {
     return firestore
         .collection("thread")
@@ -155,12 +165,14 @@ class ThreadController {
         .snapshots();
   }
 
+//Fetches user document for given user id
   Future<Map<String, dynamic>?> getUserData(String userId) async {
     DocumentSnapshot userDoc =
         await firestore.collection('Users').doc(userId).get();
     return userDoc.data() as Map<String, dynamic>?;
   }
 
+//Updates thread data on firebase database
   Future<void> updateThread(
       String threadId, String title, String description) async {
     await firestore.collection("thread").doc(threadId).update({
@@ -171,6 +183,7 @@ class ThreadController {
     });
   }
 
+//Deletes a thread and all replies inside the thread from firebase database
   Future<void> deleteThread(String threadId) async {
     final replyQuerySnapshot = await firestore
         .collection("replies")
@@ -187,10 +200,12 @@ class ThreadController {
     await firestore.collection("thread").doc(threadId).delete();
   }
 
+//Submits reply to firebase database
   Future<DocumentReference> addReply(Reply reply) async {
     return await firestore.collection("replies").add(reply.toMap());
   }
 
+//Streams snapshot of replies for given thread id
   Stream<QuerySnapshot> getReplies(String threadId) {
     return firestore
         .collection("replies")
@@ -198,6 +213,7 @@ class ThreadController {
         .snapshots();
   }
 
+//Updates reply data on firebase database
   Future<void> updateReply(String replyId, String content) async {
     await firestore.collection("replies").doc(replyId).update({
       "content": content,
@@ -206,10 +222,12 @@ class ThreadController {
     });
   }
 
+//Deletes reply from firebase database
   Future<void> deleteReply(String replyId) async {
     await firestore.collection("replies").doc(replyId).delete();
   }
 
+//Fetches user role type for given user id
   Future<String> getUserRoleType(String userId) async {
     DocumentSnapshot userDoc =
         await firestore.collection('Users').doc(userId).get();
@@ -220,6 +238,7 @@ class ThreadController {
     return 'Missing Role';
   }
 
+//Fetches reply object for given reply id
   Future<Map<String, dynamic>?> getReplyData(String replyId) async {
     DocumentSnapshot replyDoc =
         await firestore.collection('replies').doc(replyId).get();
