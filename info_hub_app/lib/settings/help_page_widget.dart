@@ -10,14 +10,12 @@ class HelpPageControllers {
             style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Colors.black,
             ),
           ),
           subtitle: Text(
             subtitle,
             style: const TextStyle(
               fontSize: 16,
-              color: Colors.black,
             ),
           ),
         ),
@@ -35,14 +33,13 @@ class HelpPageControllers {
             style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Colors.black,
+              //color: Colors.black,
             ),
           ),
           subtitle: Text(
             answer,
             style: const TextStyle(
               fontSize: 16,
-              color: Color.fromARGB(255, 138, 135, 135),
             ),
           ),
         ),
