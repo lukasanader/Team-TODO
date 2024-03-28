@@ -2,7 +2,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:info_hub_app/view/discovery_view/admin_dash_view.dart';
+import 'package:info_hub_app/view/dashboard_view/admin_dash_view.dart';
 import 'package:info_hub_app/view/dashboard_view/home_page_view.dart';
 import 'package:info_hub_app/view/login_view/login_screen.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';

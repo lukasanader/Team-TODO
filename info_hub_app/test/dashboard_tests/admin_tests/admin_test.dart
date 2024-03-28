@@ -3,7 +3,7 @@ import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:info_hub_app/view/discovery_view/admin_dash_view.dart';
+import 'package:info_hub_app/view/dashboard_view/admin_dash_view.dart';
 import 'package:info_hub_app/view/analytics_view/analytics_topic.dart';
 
 import 'package:info_hub_app/main.dart';

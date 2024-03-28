@@ -13,7 +13,7 @@ import 'package:info_hub_app/view/settings_view/settings_view.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:info_hub_app/view/dashboard_view/home_page_view.dart';
-import 'package:info_hub_app/view/discovery_view/admin_dash_view.dart';
+import 'package:info_hub_app/view/dashboard_view/admin_dash_view.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:info_hub_app/theme/theme_constants.dart';
 

@@ -5,7 +5,7 @@ import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:info_hub_app/view/discovery_view/admin_dash_view.dart';
+import 'package:info_hub_app/view/dashboard_view/admin_dash_view.dart';
 import 'package:info_hub_app/view/dashboard_view/home_page_view.dart';
 import 'package:info_hub_app/main.dart';
 import 'package:info_hub_app/view/registration_view/start_page.dart';
