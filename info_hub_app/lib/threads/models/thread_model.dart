@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+/// Thread model class
 class Thread {
   String id;
   String title;
@@ -26,6 +27,7 @@ class Thread {
     required this.topicTitle,
   });
 
+// Creates a thread object from a map
   factory Thread.fromMap(Map<String, dynamic> map, String id) {
     return Thread(
       id: id,
