@@ -86,7 +86,7 @@ class ThreadRepliesState extends State<ThreadReplies> {
 
     setState(() => localReplies.add(newReply));
     ActivityController(auth: widget.auth, firestore: widget.firestore)
-                .addActivity(widget.threadId, 'thread');
+        .addActivity(widget.threadId, 'thread');
     threadController.addReply(newReply).then((docRef) {
       int index = localReplies.indexWhere((r) => r.id == tempReplyId);
       if (index != -1) {
@@ -234,16 +234,26 @@ class ThreadRepliesState extends State<ThreadReplies> {
                 ),
               ),
               Expanded(
-                child: ListView.builder(
-                  itemCount: localReplies.length,
-                  itemBuilder: (context, index) {
-                    var reply = localReplies[index];
-                    return ReplyCard(
-                      reply: reply,
-                      controller: threadController,
-                    );
-                  },
-                ),
+                child: localReplies.isEmpty
+                    ? const Center(
+                        child: Text(
+                          "No one has replied to this thread yet.",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                      )
+                    : ListView.builder(
+                        itemCount: localReplies.length,
+                        itemBuilder: (context, index) {
+                          var reply = localReplies[index];
+                          return ReplyCard(
+                            reply: reply,
+                            controller: threadController,
+                          );
+                        },
+                      ),
               ),
             ],
           );

@@ -3,6 +3,7 @@ import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:info_hub_app/main.dart';
+import 'package:info_hub_app/webinar/models/livestream.dart';
 import 'package:info_hub_app/webinar/views/admin-webinar-screens/create_webinar_screen.dart';
 import 'package:info_hub_app/model/user_model.dart';
 import 'package:info_hub_app/webinar/controllers/webinar_controller.dart';
@@ -226,5 +227,26 @@ void main() {
         find.text(
             'Please check if you have uploaded a thumbnail or selected a role.'),
         findsOneWidget);
+  });
+
+  test('Should return a Livestream object when valid id is provided', () async {
+    const String validId = 'valid_id';
+    await firestore.collection('Webinar').doc(validId).set({
+      'id': 'valid_id',
+      'title': 'Test',
+      'url': 'https://www.youtube.com/watch?v=tSXZ8hervgY',
+      'thumbnail': "doesntmatter",
+      'webinarleadname': 'John Doe',
+      'startTime': DateTime.now().toString(),
+      'views': 0,
+      'dateStarted': DateTime.now().toString(),
+      'status': 'Live',
+    });
+
+    Livestream result = await WebinarController(
+            auth: auth, firestore: firestore, storage: mockStorage)
+        .getWebinar(validId);
+
+    expect(result, isA<Livestream>());
   });
 }

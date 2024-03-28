@@ -65,7 +65,6 @@ class NotificationController {
         .collection('deviceTokens')
         .get();
 
-    // Extract the device tokens from the snapshot
     final tokens = snapshot.docs.map((doc) => doc.get('token')).toList();
 
     return tokens;
@@ -77,6 +76,7 @@ class NotificationController {
     await notificationsCollection.doc(id).delete();
   }
 
+// Converts a QuerySnapshot from the database into a List of custom.Notification objects
   List<custom.Notification> notificationListFromSnapshot(
       QuerySnapshot snapshot) {
     final notifications = snapshot.docs.map((doc) {
@@ -105,6 +105,7 @@ class NotificationController {
         .map(notificationListFromSnapshot);
   }
 
+// Returns a list of notification IDs that have the given payload
   Future<List<String>> getNotificationIdFromPayload(String? payload) async {
     QuerySnapshot snapshot = await firestore
         .collection('notifications')
