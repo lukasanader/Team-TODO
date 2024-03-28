@@ -10,13 +10,8 @@ import 'package:info_hub_app/threads/controllers/thread_controller.dart';
 class ViewThreads extends StatefulWidget {
   final FirebaseFirestore firestore;
   final FirebaseAuth auth;
-  final ThreadController? controller;
 
-  const ViewThreads(
-      {super.key,
-      required this.firestore,
-      required this.auth,
-      this.controller});
+  const ViewThreads({super.key, required this.firestore, required this.auth});
 
   @override
   State<ViewThreads> createState() => _ViewThreadsState();
@@ -31,7 +26,7 @@ class _ViewThreadsState extends State<ViewThreads> {
   @override
   void initState() {
     super.initState();
-    controller = widget.controller ??
+    controller =
         ThreadController(firestore: widget.firestore, auth: widget.auth);
     threadsStream = controller.getAllThreadsStream();
     repliesStream = controller.getAllRepliesStream();
