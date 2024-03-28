@@ -65,6 +65,7 @@ class _SettingsViewState extends State<SettingsView> {
         children: [
           ListTile(
             title: const Text("Account"),
+            trailing: const Icon(Icons.keyboard_arrow_right),
             onTap: () {
               PersistentNavBarNavigator.pushNewScreen(
                 context,
@@ -80,6 +81,7 @@ class _SettingsViewState extends State<SettingsView> {
           ),
           ListTile(
             title: const Text("General"),
+            trailing: const Icon(Icons.keyboard_arrow_right),
             onTap: () {
               PersistentNavBarNavigator.pushNewScreen(
                 context,
@@ -91,7 +93,20 @@ class _SettingsViewState extends State<SettingsView> {
             },
           ),
           ListTile(
+            title: const Text("Privacy"),
+            trailing: const Icon(Icons.keyboard_arrow_right),
+            onTap: () {
+              PersistentNavBarNavigator.pushNewScreen(
+                context,
+                screen: const PrivacyPage(),
+                withNavBar: false,
+              );
+            },
+          ),
+          const SizedBox(height: 30),
+          ListTile(
             title: const Text("Notifications"),
+            trailing: const Icon(Icons.keyboard_arrow_right),
             onTap: () {
               PersistentNavBarNavigator.pushNewScreen(
                 context,
@@ -105,6 +120,7 @@ class _SettingsViewState extends State<SettingsView> {
           ),
           ListTile(
             title: const Text('History'),
+            trailing: const Icon(Icons.keyboard_arrow_right),
             onTap: () {
               PersistentNavBarNavigator.pushNewScreen(
                 context,
@@ -118,17 +134,8 @@ class _SettingsViewState extends State<SettingsView> {
             },
           ),
           ListTile(
-            title: const Text("Privacy"),
-            onTap: () {
-              PersistentNavBarNavigator.pushNewScreen(
-                context,
-                screen: const PrivacyPage(),
-                withNavBar: false,
-              );
-            },
-          ),
-          ListTile(
             title: const Text('Saved Topics'),
+            trailing: const Icon(Icons.keyboard_arrow_right),
             onTap: () {
               PersistentNavBarNavigator.pushNewScreen(
                 context,
@@ -144,6 +151,7 @@ class _SettingsViewState extends State<SettingsView> {
           if (isAdmin)
             ListTile(
               key: const Key("drafts_tile"),
+              trailing: const Icon(Icons.keyboard_arrow_right),
               title: const Text('Topic Drafts'),
               onTap: () {
                 PersistentNavBarNavigator.pushNewScreen(
@@ -157,8 +165,10 @@ class _SettingsViewState extends State<SettingsView> {
                 );
               },
             ),
+          const SizedBox(height: 30),
           ListTile(
             title: const Text('Help'),
+            trailing: const Icon(Icons.keyboard_arrow_right),
             onTap: () {
               // Navigate to the HelpPage when tapped
               Navigator.push(
@@ -177,6 +187,7 @@ class _SettingsViewState extends State<SettingsView> {
           ),
           ListTile(
             title: const Text('Log Out'),
+            trailing: const Icon(Icons.keyboard_arrow_right),
             onTap: () async {
               final String? deviceToken = await widget.messaging.getToken();
               if (deviceToken != null) {

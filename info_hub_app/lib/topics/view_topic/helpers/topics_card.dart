@@ -10,8 +10,6 @@ import '../view/topic_view.dart';
 import '../../create_topic/view/topic_creation_view.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:video_thumbnail/video_thumbnail.dart';
-import 'dart:typed_data';
 import 'package:info_hub_app/model/topic_model.dart';
 
 class TopicCard extends StatelessWidget {

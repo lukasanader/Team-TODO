@@ -7,8 +7,6 @@ import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:io';
-import 'package:flutter/services.dart';
-import 'package:video_thumbnail/video_thumbnail.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

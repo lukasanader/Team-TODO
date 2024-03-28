@@ -1,12 +1,9 @@
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../model/topic_model.dart';
 import 'package:info_hub_app/topics/create_topic/view/topic_creation_view.dart';
 import 'media_upload_controller.dart';
-import 'package:video_thumbnail/video_thumbnail.dart';
-import 'package:uuid/uuid.dart';
 import 'dart:typed_data';
 
 /// Controller class responsible for managing the form data and actions in the topic creation process.

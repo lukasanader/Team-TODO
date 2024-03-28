@@ -9,7 +9,6 @@ import 'package:info_hub_app/webinar/controllers/webinar_controller.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import '../test/mock_classes.dart';
 import '../test/webinar-screens/mock.dart';
-import 'package:integration_test/integration_test.dart';
 
 void main() {
   late FakeFirebaseFirestore firestore;
@@ -84,7 +83,7 @@ void main() {
       await tester.enterText(urlField, 'https://youtu.be/GYW_SJI7ZM8');
       await tester.ensureVisible(find.byType(AppBar));
       await tester.pumpAndSettle();
-      await tester.tap(find.byType(AppBar));
+      await tester.tap(find.byType(AppBar), warnIfMissed: false);
       await tester.pump();
       final titleField = find.ancestor(
         of: find.text('Title'),
@@ -93,7 +92,7 @@ void main() {
       await tester.enterText(titleField, 'test');
       await tester.ensureVisible(find.byType(AppBar));
       await tester.pumpAndSettle();
-      await tester.tap(find.byType(AppBar));
+      await tester.tap(find.byType(AppBar), warnIfMissed: false);
       await tester.pump();
       await tester.ensureVisible(find.text('Patients'));
       await tester.tap(find.text('Patients'));
@@ -184,7 +183,7 @@ void main() {
       await tester.enterText(urlField, 'https://youtu.be/GYW_SJI7ZM8');
       await tester.ensureVisible(find.byType(AppBar));
       await tester.pumpAndSettle();
-      await tester.tap(find.byType(AppBar));
+      await tester.tap(find.byType(AppBar), warnIfMissed: false);
       await tester.pump();
       final titleField = find.ancestor(
         of: find.text('Title'),
@@ -193,7 +192,7 @@ void main() {
       await tester.enterText(titleField, 'test');
       await tester.ensureVisible(find.byType(AppBar));
       await tester.pumpAndSettle();
-      await tester.tap(find.byType(AppBar));
+      await tester.tap(find.byType(AppBar), warnIfMissed: false);
       await tester.pump();
       await tester.ensureVisible(find.text('Patients'));
       await tester.tap(find.text('Patients'));
@@ -272,7 +271,7 @@ void main() {
       await tester.pumpAndSettle();
       await tester.ensureVisible(find.byType(AppBar));
       await tester.pumpAndSettle();
-      await tester.tap(find.byType(AppBar));
+      await tester.tap(find.byType(AppBar), warnIfMissed: false);
       await tester.pump();
       await tester.ensureVisible(find.text('Patients'));
       await tester.tap(find.text('Patients'));

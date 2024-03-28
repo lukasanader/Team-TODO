@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:info_hub_app/main.dart';
 import 'package:info_hub_app/topics/create_topic/view/topic_creation_view.dart';
-import 'package:integration_test/integration_test.dart';
 import 'package:chewie/chewie.dart';
 import 'package:video_player_platform_interface/video_player_platform_interface.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -41,7 +40,7 @@ void main() async {
         find.byKey(const Key('descField')), 'Test description');
     await tester.ensureVisible(find.byType(AppBar));
     await tester.pumpAndSettle();
-    await tester.tap(find.byType(AppBar));
+    await tester.tap(find.byType(AppBar), warnIfMissed: false);
   }
 
   Future<void> defineUserAndStorage(WidgetTester tester) async {
@@ -156,10 +155,11 @@ void main() async {
         find.byKey(const Key('titleField')), 'Updated title');
     await tester.ensureVisible(find.byKey(const Key('uploadMediaButton')));
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('uploadMediaButton')));
+    await tester.tap(find.byKey(const Key('uploadMediaButton')),
+        warnIfMissed: false);
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Upload Video'));
-    await tester.pumpAndSettle(Duration(seconds: 2));
+    await tester.tap(find.text('Upload Video'), warnIfMissed: false);
+    await tester.pumpAndSettle(const Duration(seconds: 2));
 
     await tester.ensureVisible(find.text('UPDATE TOPIC'));
     await tester.pumpAndSettle();

@@ -266,27 +266,29 @@ class MediaUploadController {
     chewieController = null;
   }
 
+  /// Stores thumbnail of uploaded video
   Future<String> uploadThumbnailToStorage(Uint8List thumbnailData) async {
     String filename = 'thumbnail_${const Uuid().v4()}.jpg';
-    // Create a reference to the Firebase Storage location where you want to upload the thumbnail
+    // Creates a reference to the Firebase Storage location where you want to upload the thumbnail
     Reference storageReference = storage.ref().child('thumbnails/$filename');
-    // Upload the thumbnail data to Firebase Storage
+    // Uploads the thumbnail data to Firebase Storage
     TaskSnapshot taskSnapshot = await storageReference.putData(thumbnailData);
 
-    // Get the download URL of the uploaded thumbnail
+    // Gets the download URL of the uploaded thumbnail
     String downloadUrl = await taskSnapshot.ref.getDownloadURL();
 
-    // Return the download URL of the uploaded thumbnail
+    // Returns the download URL of the uploaded thumbnail
     return downloadUrl;
   }
 
+  /// Converts uploaded file to thumnail
   Future<Uint8List> getVideoThumbnailFromFile(String videoUrl) async {
     // Generate thumbnail from video file
     final thumbnailData = await VideoThumbnail.thumbnailData(
       video: videoUrl,
       imageFormat: ImageFormat.JPEG,
       maxWidth: 100,
-      quality: 25,
+      quality: 50,
     );
     return thumbnailData!;
   }
