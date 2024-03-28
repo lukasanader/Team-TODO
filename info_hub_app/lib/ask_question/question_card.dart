@@ -23,7 +23,7 @@ class QuestionCard extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  "${_question.question} ${TopicQuestionController(firestore: firestore, auth: auth).calculateDaysAgo(_question.date)} days ago",
+                  "${_question.question} \n${TopicQuestionController(firestore: firestore, auth: auth).calculateDaysAgo(_question.date)} days ago",
                 ),
               ),
               IconButton(

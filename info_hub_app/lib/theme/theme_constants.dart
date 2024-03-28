@@ -94,7 +94,7 @@ ThemeData lightTheme = ThemeData(
 
   textTheme: TextTheme(
     headlineLarge: const TextStyle(
-      fontSize: 22,
+      fontSize: 21,
       color: Colors.black,
       fontWeight: FontWeight.w600,
     ),
@@ -333,7 +333,7 @@ ThemeData darkTheme = ThemeData(
   // All text themes
   textTheme: TextTheme(
     headlineLarge: const TextStyle(
-      fontSize: 22,
+      fontSize: 21,
       color: Colors.white,
       fontWeight: FontWeight.w600,
     ),
