@@ -19,7 +19,7 @@ import 'package:info_hub_app/notifications/notification_view.dart';
 import 'package:info_hub_app/push_notifications/push_notifications_controller.dart';
 import 'package:mockito/mockito.dart';
 import 'package:provider/provider.dart';
-
+import 'fake_firebase_messaging.dart';
 import 'mock.dart';
 
 const UsersCollection = 'Users';
@@ -58,46 +58,6 @@ class MockFlutterLocalNotificationsPlugin extends Fake
     String? payload,
   }) async {
     showCalled = true;
-  }
-}
-
-class FakeFirebaseMessaging extends Fake implements FirebaseMessaging {
-  Function(RemoteMessage)? onMessageOpenedAppHandler;
-
-  void simulateMessageOpenedApp(RemoteMessage message) {
-    if (onMessageOpenedAppHandler != null) {
-      onMessageOpenedAppHandler!(message);
-    }
-  }
-
-  @override
-  Future<String?> getToken({String? vapidKey}) async {
-    return 'fakeDeviceToken';
-  }
-
-  @override
-  Future<NotificationSettings> requestPermission({
-    bool alert = false,
-    bool announcement = false,
-    bool badge = false,
-    bool carPlay = false,
-    bool criticalAlert = false,
-    bool provisional = false,
-    bool sound = false,
-  }) async {
-    return const NotificationSettings(
-      authorizationStatus: AuthorizationStatus.authorized,
-      alert: AppleNotificationSetting.enabled,
-      announcement: AppleNotificationSetting.enabled,
-      badge: AppleNotificationSetting.enabled,
-      carPlay: AppleNotificationSetting.enabled,
-      criticalAlert: AppleNotificationSetting.enabled,
-      sound: AppleNotificationSetting.enabled,
-      lockScreen: AppleNotificationSetting.enabled,
-      notificationCenter: AppleNotificationSetting.enabled,
-      showPreviews: AppleShowPreviewSetting.always,
-      timeSensitive: AppleNotificationSetting.enabled,
-    );
   }
 }
 
@@ -236,6 +196,7 @@ Future<void> main() async {
                         firestore: firestore,
                         storage: storage,
                         themeManager: themeManager,
+                        messaging: firebaseMessaging,
                         roleType: roleType,
                       )),
                   builder: (context, snapshot) {

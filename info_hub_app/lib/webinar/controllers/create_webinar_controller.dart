@@ -25,17 +25,13 @@ class CreateWebinarController {
   /// validates URL entered by user
   String? validateUrl(String? url) {
     final RegExp youtubeUrlRegex = RegExp(
-      r'^https?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)(\?feature=shared)?$',
+      r'^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube(-nocookie)?\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|live\/|v\/)?)([\w\-]+)(\S+)?$',
     );
-    final RegExp youtubeLiveUrlRegex = RegExp(
-      r'^https?:\/\/(?:www\.)?youtube\.com\/live\/([a-zA-Z0-9_-]+)',
-    );
-
     if (url == null || url.isEmpty) {
       return 'URL is required';
     }
 
-    if (!youtubeUrlRegex.hasMatch(url) && !youtubeLiveUrlRegex.hasMatch(url)) {
+    if (!youtubeUrlRegex.hasMatch(url)) {
       return 'Enter a valid YouTube video URL';
     }
 

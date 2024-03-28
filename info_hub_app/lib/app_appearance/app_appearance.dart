@@ -1,3 +1,9 @@
+/*
+ * This file contains the code for the AppAppearance class. 
+ * This class is used to change the appearance of the app, such as the theme mode.
+ * The user can choose between the system theme, light theme, and dark theme.
+ */
+
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
 

@@ -86,10 +86,11 @@ void main() {
   late MockFirebaseStorage mockStorage = MockFirebaseStorage();
   late Widget verificationwidget;
 
-  setUp(() async{
+  setUp(() async {
     auth = MockFirebaseAuth();
     firestore = FakeFirebaseFirestore();
-    auth.createUserWithEmailAndPassword(email: 'test@tested.org', password: 'Password123!');
+    auth.createUserWithEmailAndPassword(
+        email: 'test@tested.org', password: 'Password123!');
     verificationwidget = MaterialApp(
       home: EmailVerificationScreen(
         firestore: firestore,
@@ -100,7 +101,8 @@ void main() {
       ),
     );
   });
-  testWidgets('test if verification screen exists', (WidgetTester tester) async {
+  testWidgets('test if verification screen exists',
+      (WidgetTester tester) async {
     await tester.pumpWidget(verificationwidget);
     await tester.pumpAndSettle();
     expect(find.text('Email Verification'), findsOneWidget);
@@ -112,14 +114,17 @@ void main() {
     expect(find.text('Resend Verification Email'), findsOneWidget);
   });
 
-  testWidgets('test if I have verified email button exists', (WidgetTester test) async {
+  testWidgets('test if I have verified email button exists',
+      (WidgetTester test) async {
     await test.pumpWidget(verificationwidget);
     await test.pumpAndSettle();
     expect(find.text('I have verified my email'), findsOneWidget);
   });
 
-  testWidgets('test if email is verified when button is pressed you go to main page', (WidgetTester test) async {
-      String uid = auth.currentUser!.uid;
+  testWidgets(
+      'test if email is verified when button is pressed you go to main page',
+      (WidgetTester test) async {
+    String uid = auth.currentUser!.uid;
     await firestore.collection('Users').doc(uid).set({
       'email': 'test@tested.org',
       'firstName': 'James',
@@ -133,6 +138,4 @@ void main() {
     await test.pumpAndSettle();
     expect(find.byType(Base), findsOneWidget);
   });
-
-
 }

@@ -87,6 +87,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(),
       body: Form(
         key: _formKey,
         child: SingleChildScrollView(
@@ -102,9 +103,11 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter your first name';
-                  } else if (!RegExp(r'^[a-zA-Z]+$').hasMatch(value)) {
+                  } else if (value.length > 30) {
+                    return 'Please shorten this field!';
+                  } else if (!RegExp(r"^[A-Za-z][A-Za-z\'\-]+(?: [\ A-Za-z][A-Za-z\'\-]+)*$").hasMatch(value)) {
                     return 'Please enter only letters';
-                  }
+                  } 
                   return null;
                 },
               ),
@@ -116,7 +119,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter your last name';
-                  } else if (!RegExp(r'^[a-zA-Z]+$').hasMatch(value)) {
+                  } else if (value.length > 30) {
+                    return 'Please shorten this field!';
+                  } else if (!RegExp(r"^[A-Za-z][A-Za-z\'\-]+(?: [\ A-Za-z][A-Za-z\'\-]+)*$").hasMatch(value)) {
                     return 'Please enter only letters';
                   }
                   return null;

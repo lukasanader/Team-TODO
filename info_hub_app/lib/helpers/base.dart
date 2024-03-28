@@ -6,6 +6,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/discovery_view/discovery_view.dart';
 import 'package:info_hub_app/settings/settings_view.dart';
@@ -15,6 +16,9 @@ import 'package:info_hub_app/home_page/home_page.dart';
 import 'package:info_hub_app/admin/admin_dash.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:info_hub_app/theme/theme_constants.dart';
+import 'package:info_hub_app/email_verification/email_verification_screen.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class Base extends StatefulWidget {
   final FirebaseAuth auth;
@@ -22,13 +26,15 @@ class Base extends StatefulWidget {
   final FirebaseStorage storage;
   final ThemeManager themeManager;
   final String roleType;
+  final FirebaseMessaging messaging;
   const Base(
       {super.key,
       required this.auth,
       required this.storage,
       required this.firestore,
       required this.themeManager,
-      required this.roleType});
+      required this.roleType,
+      required this.messaging});
 
   @override
   State<Base> createState() => _BaseState();
@@ -37,6 +43,15 @@ class Base extends StatefulWidget {
 class _BaseState extends State<Base> {
   List<Widget> getScreenBasedOnUser() {
     Widget userHomePage;
+    // if (widget.auth.currentUser!.emailVerified != true){
+    //   userHomePage= EmailVerificationScreen(
+    //       auth: widget.auth,
+    //       firestore: widget.firestore,
+    //       storage: widget.storage,
+    //       messaging: widget.messaging,
+    //       localnotificationsplugin: FlutterLocalNotificationsPlugin(),
+    //     );
+    // }
     if (widget.roleType == 'admin') {
       userHomePage= AdminHomepage(
           auth: widget.auth,
@@ -63,6 +78,7 @@ class _BaseState extends State<Base> {
           firestore: widget.firestore,
           storage: widget.storage,
           themeManager: widget.themeManager,
+          messaging: widget.messaging,
         ),
       ];
   }

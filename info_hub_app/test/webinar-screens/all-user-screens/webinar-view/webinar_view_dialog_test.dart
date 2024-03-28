@@ -159,7 +159,7 @@ void main() {
 
       expect(
           find.text(
-              'Are you sure you want to move this webinar to the archive?'),
+            'Are you sure you want to move this webinar to the archive? \nPlease enter the URL of this video again as it has now changed.'),
           findsOneWidget);
       expect(find.text('Cancel'), findsOneWidget);
       expect(find.text('Confirm'), findsOneWidget);
@@ -169,7 +169,7 @@ void main() {
 
       expect(
           find.text(
-              'Are you sure you want to move this webinar to the archive?'),
+              'Are you sure you want to move this webinar to the archive? \nPlease enter the URL of this video again as it has now changed.'),
           findsNothing);
       expect(find.text('Cancel'), findsNothing);
       expect(find.text('Confirm'), findsNothing);
@@ -220,7 +220,7 @@ void main() {
       await tester.tap(find.text('Move to Live'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Are you sure you want to move this webinar to live?'),
+      expect(find.text('Are you sure you want to move this webinar to live? \nEnsure that you have followed the guide on the create webinar page before doing so.'),
           findsOneWidget);
       expect(find.text('Cancel'), findsOneWidget);
       expect(find.text('Confirm'), findsOneWidget);
@@ -252,13 +252,13 @@ void main() {
       await tester.tap(find.text('Move to Live'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Are you sure you want to move this webinar to live?'),
+      expect(find.text('Are you sure you want to move this webinar to live? \nEnsure that you have followed the guide on the create webinar page before doing so.'),
           findsOneWidget);
       expect(find.text('Cancel'), findsOneWidget);
       expect(find.text('Confirm'), findsOneWidget);
       await tester.tap(find.text('Cancel'));
       await tester.pumpAndSettle();
-      expect(find.text('Are you sure you want to move this webinar to live?'),
+      expect(find.text('Are you sure you want to move this webinar to live? \nEnsure that you have followed the guide on the create webinar page before doing so.'),
           findsNothing);
 
       DocumentSnapshot result =
@@ -287,7 +287,7 @@ void main() {
 
       expect(
           find.text(
-              'Are you sure you want to move this webinar to the archive?'),
+              'Are you sure you want to move this webinar to the archive? \nPlease enter the URL of this video again as it has now changed.'),
           findsOneWidget);
       expect(find.text('Cancel'), findsOneWidget);
       expect(find.text('Confirm'), findsOneWidget);
@@ -303,7 +303,7 @@ void main() {
 
       expect(
           find.text(
-              'Are you sure you want to move this webinar to the archive?'),
+              'Are you sure you want to move this webinar to the archive? \nPlease enter the URL of this video again as it has now changed.'),
           findsNothing);
 
       DocumentSnapshot result =
@@ -334,7 +334,7 @@ void main() {
 
       expect(
           find.text(
-              'Are you sure you want to move this webinar to the archive?'),
+              'Are you sure you want to move this webinar to the archive? \nPlease enter the URL of this video again as it has now changed.'),
           findsOneWidget);
       expect(find.text('Cancel'), findsOneWidget);
       expect(find.text('Confirm'), findsOneWidget);
@@ -382,7 +382,7 @@ void main() {
 
       expect(
           find.text(
-              'Are you sure you want to move this webinar to the archive?'),
+              'Are you sure you want to move this webinar to the archive? \nPlease enter the URL of this video again as it has now changed.'),
           findsOneWidget);
       expect(find.text('Cancel'), findsOneWidget);
       expect(find.text('Confirm'), findsOneWidget);
@@ -392,7 +392,7 @@ void main() {
 
       expect(
           find.text(
-              'Are you sure you want to move this webinar to the archive?'),
+              'Are you sure you want to move this webinar to the archive? \nPlease enter the URL of this video again as it has now changed.'),
           findsNothing);
       expect(find.text('Cancel'), findsNothing);
       expect(find.text('Confirm'), findsNothing);
