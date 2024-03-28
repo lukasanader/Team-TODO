@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+/// Reply model class
 class Reply {
   String id;
   String content;
@@ -24,6 +25,8 @@ class Reply {
     required this.threadTitle,
     required this.roleType,
   });
+
+  /// Converts reply object to map
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -39,6 +42,7 @@ class Reply {
     };
   }
 
+// Converts map to reply object
   factory Reply.fromMap(Map<String, dynamic> map, String id) {
     return Reply(
       id: id,

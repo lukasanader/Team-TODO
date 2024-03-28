@@ -43,7 +43,7 @@ class StartPage extends StatelessWidget {
               ),
               const SizedBox(height: 16.0),
               const Text(
-                'Team TODO',
+                'LiverWise',
                 style: TextStyle(
                   fontSize: 24.0,
                   fontWeight: FontWeight.bold,
