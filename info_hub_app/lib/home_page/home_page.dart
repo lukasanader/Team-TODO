@@ -13,7 +13,7 @@ import 'package:info_hub_app/notifications/notification_view.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:info_hub_app/controller/create_topic_controllers/topic_controller.dart';
-import 'package:info_hub_app/topics/view_topic/helpers/topics_card.dart';
+import 'package:info_hub_app/view/topic_view/helpers/topics_card.dart';
 import 'package:info_hub_app/webinar/controllers/webinar_controller.dart';
 import 'package:info_hub_app/webinar/views/webinar-screens/webinar_view.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';

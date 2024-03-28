@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../../../controller/create_topic_controllers/media_upload_controller.dart';
-import 'package:info_hub_app/topics/create_topic/view/topic_creation_view.dart';
+import '../../../controller/create_topic_controllers/media_upload_controller.dart';
+import 'package:info_hub_app/view/topic_creation_view/topic_creation_view.dart';
 
 import 'dart:io';
 import 'package:chewie/chewie.dart';

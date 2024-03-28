@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:info_hub_app/topics/view_topic/helpers/topics_card.dart';
+import 'package:info_hub_app/view/topic_view/helpers/topics_card.dart';
 import '../../../controller/saved_page_controller.dart';
 
 class SavedPage extends StatefulWidget {

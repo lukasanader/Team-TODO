@@ -7,7 +7,7 @@ import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:info_hub_app/topics/create_topic/helpers/quiz/complete_quiz.dart';
 import 'package:info_hub_app/topics/create_topic/helpers/quiz/quiz_answer_card.dart';
-import 'package:info_hub_app/topics/view_topic/view/topic_view.dart';
+import 'package:info_hub_app/view/topic_view/topic_view.dart';
 import 'package:info_hub_app/model/topic_model.dart';
 
 void main() {

@@ -9,7 +9,7 @@ import 'package:info_hub_app/controller/create_topic_controllers/topic_controlle
 import 'package:info_hub_app/topics/create_topic/helpers/categories/category_controller.dart';
 import 'package:info_hub_app/topics/create_topic/helpers/categories/category_model.dart';
 
-import 'package:info_hub_app/topics/view_topic/helpers/topics_card.dart';
+import 'package:info_hub_app/view/topic_view/helpers/topics_card.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:info_hub_app/model/topic_model.dart';

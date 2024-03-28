@@ -7,12 +7,12 @@ import 'package:info_hub_app/notifications/notification_controller.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:info_hub_app/topics/create_topic/helpers/quiz/complete_quiz.dart';
-import 'package:info_hub_app/topics/create_topic/view/topic_creation_view.dart';
+import 'package:info_hub_app/view/topic_creation_view/topic_creation_view.dart';
 import 'dart:async';
 import 'package:info_hub_app/threads/views/threads.dart';
 import 'package:info_hub_app/model/topic_model.dart';
-import '../../../controller/topic_view_controllers/interaction_controller.dart';
-import '../../../controller/topic_view_controllers/media_controller.dart';
+import '../../controller/topic_view_controllers/interaction_controller.dart';
+import '../../controller/topic_view_controllers/media_controller.dart';
 import 'widgets/view_media_widget.dart';
 import 'package:info_hub_app/controller/user_controller.dart';
 

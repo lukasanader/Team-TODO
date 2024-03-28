@@ -14,7 +14,7 @@ import 'package:info_hub_app/experiences/admin_experience/admin_experience_view.
 import 'package:info_hub_app/model/user_model.dart';
 import 'package:info_hub_app/theme/theme_constants.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
-import 'package:info_hub_app/topics/create_topic/view/topic_creation_view.dart';
+import 'package:info_hub_app/view/topic_creation_view/topic_creation_view.dart';
 import 'package:info_hub_app/ask_question/question_view.dart';
 import 'package:info_hub_app/webinar/views/admin-webinar-screens/admin_webinar_dashboard.dart';
 import 'package:info_hub_app/webinar/controllers/webinar_controller.dart';

@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:info_hub_app/controller/create_topic_controllers/topic_controller.dart';
-import 'package:info_hub_app/topics/view_topic/helpers/topics_card.dart';
+import 'package:info_hub_app/view/topic_view/helpers/topics_card.dart';
 import 'package:info_hub_app/helpers/helper.dart' show getTrending;
 import 'package:info_hub_app/model/topic_model.dart';
 

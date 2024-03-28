@@ -19,7 +19,7 @@ import 'package:info_hub_app/push_notifications/push_notifications_controller.da
 import 'package:info_hub_app/theme/theme_constants.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:info_hub_app/model/topic_model.dart';
-import 'package:info_hub_app/topics/view_topic/view/topic_view.dart';
+import 'package:info_hub_app/view/topic_view/topic_view.dart';
 import 'package:info_hub_app/webinar/controllers/webinar_controller.dart';
 import 'package:info_hub_app/webinar/views/webinar-screens/display_webinar.dart';
 import 'controller/create_topic_controllers/topic_controller.dart';

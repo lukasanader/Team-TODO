@@ -10,7 +10,7 @@ import 'package:path/path.dart';
 import 'package:path/path.dart' as path;
 import '../../model/topic_model.dart';
 import 'form_controller.dart';
-import 'package:info_hub_app/topics/create_topic/view/topic_creation_view.dart';
+import 'package:info_hub_app/view/topic_creation_view/topic_creation_view.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
 import 'package:uuid/uuid.dart';
 import 'dart:typed_data';

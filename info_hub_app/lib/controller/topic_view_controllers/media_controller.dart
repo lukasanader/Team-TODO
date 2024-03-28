@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:info_hub_app/model/topic_model.dart';
-import 'package:info_hub_app/topics/view_topic/view/topic_view.dart';
+import 'package:info_hub_app/view/topic_view/topic_view.dart';
 import 'package:flutter/material.dart';
 import 'package:chewie/chewie.dart';
 import 'package:video_player/video_player.dart';
