@@ -114,6 +114,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         String roleType;
                         Widget nextPage;
                         if (widget.auth.currentUser!.emailVerified != true) {
+                          widget.auth.currentUser!.sendEmailVerification();
                           nextPage= EmailVerificationScreen(
                               auth: widget.auth,
                               firestore: widget.firestore,
