@@ -101,13 +101,18 @@ class _MessageRoomViewState extends State<MessageRoomView> {
     var alignment = (data['senderId'] == widget.auth.currentUser!.uid)
         ? Alignment.centerRight
         : Alignment.centerLeft;
+    
+    String color = (data['senderId'] == widget.auth.currentUser!.uid)
+        ? 'red'
+        : 'grey'
+    ;
 
     return Container(
       alignment: alignment,
       child: Column(
         children: [
           const SizedBox(height: 10),
-          MessageBubble(message: data['message'])
+          MessageBubble(message: data['message'], color: color)
         ],
       ),
     );
