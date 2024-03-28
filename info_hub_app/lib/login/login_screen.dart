@@ -111,17 +111,30 @@ class _LoginScreenState extends State<LoginScreen> {
                     User? user = await _auth.signInUser(
                         emailController.text, passwordController.text);
                     if (user != null) {
-                        String roleType =
-                            await UserController(widget.auth, widget.firestore)
+                        String roleType;
+                        Widget nextPage;
+                        if (widget.auth.currentUser!.emailVerified != true) {
+                          nextPage= EmailVerificationScreen(
+                              auth: widget.auth,
+                              firestore: widget.firestore,
+                              storage: widget.storage,
+                              messaging: widget.messaging,
+                              localnotificationsplugin: FlutterLocalNotificationsPlugin(),
+                            );
+                        }
+                        else {
+                          roleType = await UserController(widget.auth, widget.firestore)
                                 .getUserRoleType();
-                        Widget nextPage = Base(
-                          firestore: widget.firestore,
-                          auth: widget.auth,
-                          storage: widget.storage,
-                          themeManager: widget.themeManager,
-                          roleType: roleType,
-                          messaging: widget.messaging,
-                        );
+
+                          nextPage = Base(
+                            firestore: widget.firestore,
+                            auth: widget.auth,
+                            storage: widget.storage,
+                            themeManager: widget.themeManager,
+                            roleType: roleType,
+                            messaging: widget.messaging,
+                          );
+                        }
                         Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(builder: (context) => nextPage),

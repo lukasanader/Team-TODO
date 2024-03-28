@@ -43,16 +43,16 @@ class Base extends StatefulWidget {
 class _BaseState extends State<Base> {
   List<Widget> getScreenBasedOnUser() {
     Widget userHomePage;
-    if (widget.auth.currentUser!.emailVerified != true){
-      userHomePage= EmailVerificationScreen(
-          auth: widget.auth,
-          firestore: widget.firestore,
-          storage: widget.storage,
-          messaging: widget.messaging,
-          localnotificationsplugin: FlutterLocalNotificationsPlugin(),
-        );
-    }
-    else if (widget.roleType == 'admin') {
+    // if (widget.auth.currentUser!.emailVerified != true){
+    //   userHomePage= EmailVerificationScreen(
+    //       auth: widget.auth,
+    //       firestore: widget.firestore,
+    //       storage: widget.storage,
+    //       messaging: widget.messaging,
+    //       localnotificationsplugin: FlutterLocalNotificationsPlugin(),
+    //     );
+    // }
+    if (widget.roleType == 'admin') {
       userHomePage= AdminHomepage(
           auth: widget.auth,
           storage: widget.storage,
