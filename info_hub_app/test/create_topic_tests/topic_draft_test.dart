@@ -10,9 +10,7 @@ import '../mock_classes.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:info_hub_app/model/topic_model.dart';
-import 'package:http/http.dart' as http;
 import 'package:firebase_storage/firebase_storage.dart';
-import 'dart:io';
 
 /// This test file is responsible for testing topic drafts
 

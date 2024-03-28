@@ -106,7 +106,6 @@ class FormController {
       } else {
         downloadURL = await mediaUploadController!.uploadMediaToStorage(url);
         if (mediaType == "video") {
-          print('hi');
           thumbnailData =
               await mediaUploadController!.getVideoThumbnailFromFile(url);
 
@@ -179,7 +178,6 @@ class FormController {
             .map((map) => map['url'])
             .toList()
             .contains(item['url'])) {
-          print('whyyyy');
           mediaUploadController!.deleteMediaFromStorage(item['url']);
           mediaUploadController!.deleteMediaFromStorage(item['thumbnail']);
         }
