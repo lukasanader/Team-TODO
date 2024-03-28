@@ -127,20 +127,4 @@ class PushNotifications {
       }
     }
   }
-
-  Future<void> deleteDeviceToken() async {
-    final String? deviceToken = await messaging.getToken();
-    if (deviceToken != null) {
-      final tokenSnapshot = await firestore
-          .collection('Users')
-          .doc(auth.currentUser!.uid)
-          .collection('deviceTokens')
-          .where('token', isEqualTo: deviceToken)
-          .get();
-
-      if (tokenSnapshot.docs.isNotEmpty) {
-        await tokenSnapshot.docs.first.reference.delete();
-      }
-    }
-  }
 }

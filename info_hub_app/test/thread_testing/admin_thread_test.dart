@@ -38,12 +38,16 @@ void main() {
 
   late FakeFirebaseFirestore firestore;
   late FirebaseAuth mockAuth;
-
+  late Widget viewWidget;
   setUp(() async {
-    setupFirebaseAuthMocks();
-
     firestore = FakeFirebaseFirestore();
     mockAuth = MockFirebaseAuth();
+    setupFirebaseAuthMocks();
+     viewWidget = MaterialApp(
+      home: (ViewThreads(firestore: firestore, auth: mockAuth)),
+      );
+    
+  
 
     await firestore.collection('thread').add({
       'id': 'threadId',
@@ -72,8 +76,7 @@ void main() {
 
   testWidgets('Switching between Threads and Replies view',
       (WidgetTester tester) async {
-    await tester.pumpWidget(
-        createTestWidget(ViewThreads(firestore: firestore, auth: mockAuth)));
+    await tester.pumpWidget(viewWidget);
 
     // Verify initial state is Threads view
     expect(find.text("Threads"), findsOneWidget);
@@ -95,8 +98,7 @@ void main() {
 
   testWidgets('Triggering and canceling thread deletion',
       (WidgetTester tester) async {
-    await tester.pumpWidget(
-        createTestWidget(ViewThreads(firestore: firestore, auth: mockAuth)));
+    await tester.pumpWidget(viewWidget);
 
     expect(find.text("Threads"), findsOneWidget);
     expect(find.text("Replies"), findsOneWidget);
@@ -115,8 +117,7 @@ void main() {
 
   testWidgets('Deleting a thread dismisses the dialog and calls deleteThread',
       (WidgetTester tester) async {
-    await tester.pumpWidget(
-        createTestWidget(ViewThreads(firestore: firestore, auth: mockAuth)));
+    await tester.pumpWidget(viewWidget);
 
     await tester.pumpAndSettle();
 
@@ -175,8 +176,7 @@ void main() {
 
   testWidgets('Tapping on visibility icon navigates to ThreadReplies',
       (WidgetTester tester) async {
-    await tester.pumpWidget(
-        createTestWidget(ViewThreads(firestore: firestore, auth: mockAuth)));
+    await tester.pumpWidget(viewWidget);
 
     await tester.pumpAndSettle();
     expect(find.text("Replies"), findsOneWidget);
