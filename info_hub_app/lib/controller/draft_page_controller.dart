@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:info_hub_app/model/topic_model.dart';
-import '../settings/drafts/view/drafts_view.dart';
+import '../view/drafts_view.dart';
 
 /// Controller class responsible for managing the Page where admins view list of drafts
 class DraftPageController {

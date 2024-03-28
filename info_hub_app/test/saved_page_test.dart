@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:info_hub_app/settings/saved/view/saved_view.dart';
+import 'package:info_hub_app/view/saved_view.dart';
 import 'package:info_hub_app/view/topic_view/topic_view.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';

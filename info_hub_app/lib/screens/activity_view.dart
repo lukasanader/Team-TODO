@@ -4,7 +4,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/controller/activity_controller.dart';
 import 'package:info_hub_app/helpers/activity_card.dart';
-import 'package:info_hub_app/view/topic_view/helpers/topics_card.dart';
+import 'package:info_hub_app/helpers/topics_card.dart';
 
 class ActivityView extends StatefulWidget {
   final FirebaseFirestore firestore;
