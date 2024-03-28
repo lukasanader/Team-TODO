@@ -118,19 +118,31 @@ class MediaDisplayWidget extends StatelessWidget {
           if (!screen.editing ||
               mediaUploadController.networkUrls
                   .contains(mediaUploadController.videoURL))
-            Text(
-              'The above is a preview of your video.       ${screen.currentIndex + 1} / ${mediaUploadController.mediaUrls.length}',
-              key: const Key('upload_text_video'),
-              style: const TextStyle(color: Colors.grey),
+            Row(
+              children: [
+                const Text(
+                  'The above is a preview of your video.',
+                  key: Key('upload_text_video'),
+                  style: TextStyle(color: Colors.grey),
+                ),
+                currentMediaCount()
+              ],
             ),
+
           if (screen.editing &&
               !mediaUploadController.networkUrls
                   .contains(mediaUploadController.videoURL))
-            Text(
-              'The above is a preview of your new video.    ${screen.currentIndex + 1} / ${mediaUploadController.mediaUrls.length}',
-              key: const Key('edit_text_video'),
-              style: const TextStyle(color: Colors.grey),
+            Row(
+              children: [
+                const Text(
+                  'The above is a preview of your new video.',
+                  key: Key('edit_text_video'),
+                  style: TextStyle(color: Colors.grey),
+                ),
+                currentMediaCount()
+              ],
             ),
+
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -165,19 +177,31 @@ class MediaDisplayWidget extends StatelessWidget {
         if (!screen.editing ||
             mediaUploadController.networkUrls
                 .contains(mediaUploadController.imageURL))
-          Text(
-            'The above is a preview of your image.          ${screen.currentIndex + 1} / ${mediaUploadController.mediaUrls.length}',
-            key: const Key('upload_text_image'),
-            style: const TextStyle(color: Colors.grey),
+          Row(
+            children: [
+              const Text(
+                'The above is a preview of your image.',
+                key: Key('upload_text_image'),
+                style: TextStyle(color: Colors.grey),
+              ),
+              currentMediaCount()
+            ],
           ),
+
         if (screen.editing &&
             !mediaUploadController.networkUrls
                 .contains(mediaUploadController.imageURL))
-          Text(
-            'The above is a preview of your new image.        ${screen.currentIndex + 1} / ${mediaUploadController.mediaUrls.length}',
-            key: const Key('edit_text_image'),
-            style: const TextStyle(color: Colors.grey),
+          Row(
+            children: [
+              const Text(
+                'The above is a preview of your new image.',
+                key: Key('edit_text_image'),
+                style: TextStyle(color: Colors.grey),
+              ),
+              currentMediaCount()
+            ],
           ),
+
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -192,6 +216,19 @@ class MediaDisplayWidget extends StatelessWidget {
           ],
         ),
       ],
+    );
+  }
+
+  Widget currentMediaCount() {
+    return Align(
+      alignment: Alignment.bottomRight,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Text(
+          '${screen.currentIndex + 1} / ${mediaUploadController.mediaUrls.length}',
+          style: const TextStyle(color: Color.fromARGB(255, 197, 15, 15)),
+        ),
+      ),
     );
   }
 }
