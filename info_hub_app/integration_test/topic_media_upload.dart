@@ -116,7 +116,7 @@ void main() async {
     expect(result.items.length, greaterThan(0));
   });
 
-  testWidgets('edited topic with valid fields updates',
+  testWidgets('edited topic with valid fields and video updates',
       (WidgetTester tester) async {
     await defineUserAndStorage(tester);
     mockFilePicker('sample-5s.mp4');
@@ -153,6 +153,10 @@ void main() async {
 
     await tester.enterText(
         find.byKey(const Key('titleField')), 'Updated title');
+
+    await tester.ensureVisible(find.byType(AppBar));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(AppBar), warnIfMissed: false);
     await tester.ensureVisible(find.byKey(const Key('uploadMediaButton')));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('uploadMediaButton')),
@@ -161,6 +165,73 @@ void main() async {
     await tester.tap(find.text('Upload Video'), warnIfMissed: false);
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
+    await tester.ensureVisible(find.text('UPDATE TOPIC'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('UPDATE TOPIC'));
+
+    await tester.pumpAndSettle();
+
+    final QuerySnapshot<Map<String, dynamic>> querySnapshot =
+        await firestore.collection("topics").get();
+
+    final List<DocumentSnapshot<Map<String, dynamic>>> documents =
+        querySnapshot.docs;
+
+    expect(
+      documents.any(
+        (doc) => doc.data()?['title'] == 'Updated title',
+      ),
+      isTrue,
+    );
+  });
+  testWidgets('edited topic with valid fields and image updates',
+      (WidgetTester tester) async {
+    await defineUserAndStorage(tester);
+    mockFilePicker('base_image.png');
+
+    Topic topic = Topic(
+      title: 'Test Topic',
+      description: 'Test Description',
+      articleLink: '',
+      media: [],
+      tags: ['Patient'],
+      likes: 0,
+      views: 0,
+      dislikes: 0,
+      categories: ['Sports'],
+      date: DateTime.now(),
+      quizID: '1',
+    );
+    CollectionReference topicCollectionRef = firestore.collection('topics');
+
+    DocumentReference topicRef = await topicCollectionRef.add(topic.toJson());
+    topic.id = topicRef.id;
+
+    await tester.pumpWidget(MaterialApp(
+      home: TopicCreationView(
+        topic: topic,
+        auth: auth,
+        firestore: firestore,
+        storage: mockStorage,
+        themeManager: themeManager,
+      ),
+    ));
+
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+        find.byKey(const Key('titleField')), 'Updated title');
+    await tester.ensureVisible(find.byType(AppBar));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(AppBar), warnIfMissed: false);
+    await tester.ensureVisible(find.byKey(const Key('uploadMediaButton')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('uploadMediaButton')),
+        warnIfMissed: false);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Upload Image'), warnIfMissed: false);
+    await tester.pumpAndSettle(const Duration(seconds: 2));
     await tester.ensureVisible(find.text('UPDATE TOPIC'));
     await tester.pumpAndSettle();
 

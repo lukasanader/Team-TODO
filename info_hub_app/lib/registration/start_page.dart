@@ -62,6 +62,7 @@ class StartPage extends StatelessWidget {
                           firestore: firestore,
                           auth: auth,
                           messaging: FirebaseMessaging.instance,
+                          themeManager: themeManager,
                           localnotificationsplugin:
                               FlutterLocalNotificationsPlugin(),
                         ),

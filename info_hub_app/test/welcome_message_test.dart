@@ -1,8 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:info_hub_app/helpers/base.dart';
 import 'package:info_hub_app/main.dart';
+import 'package:info_hub_app/notifications/preferences_controller.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:info_hub_app/welcome_message/welcome_message_view.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
@@ -50,64 +52,75 @@ class FakeFirebaseMessaging extends Fake implements FirebaseMessaging {
   }
 }
 
+
 void main() {
+  late FakeFirebaseFirestore firestore;
+  late MockFirebaseAuth auth;
+  late MockFirebaseStorage storage;
+  late ThemeManager themeManager;
+  late Widget welcomePage;
+
+  setUp(() async {
+    firestore = FakeFirebaseFirestore();
+    auth = MockFirebaseAuth();
+    storage = MockFirebaseStorage();
+    themeManager = ThemeManager();
+    
+    auth.createUserWithEmailAndPassword(
+        email: 'test@email.com',
+        password: 'Password123!');
+    String uid = auth.currentUser!.uid;
+    await firestore.collection('Users').doc(uid).set({
+      'email': 'test@tested.org',
+      'firstName': 'James',
+      'lastName': 'Doe',
+      'roleType': 'Patient'
+    });
+
+
+    welcomePage = MaterialApp(
+      home: WelcomePage(
+                  controller: WelcomeMessageController(
+                    firestore: firestore,
+                    auth: auth,
+                    storage: storage,
+                    themeManager: themeManager,
+                    messaging: FakeFirebaseMessaging(),
+                  ), 
+                  preferencesController: PreferencesController(
+                    auth: auth,
+                    firestore: firestore, 
+                    uid: uid,
+                  ),
+                )
+    );
+
+  });
+
+
   testWidgets('Test if Welcome Message is present',
       (WidgetTester tester) async {
-    final firestore = FakeFirebaseFirestore();
-    final auth = MockFirebaseAuth();
-    final storage = MockFirebaseStorage();
-    final ThemeManager themeManager = ThemeManager();
-    await tester.pumpWidget(MaterialApp(
-      home: WelcomePage(
-        controller: WelcomeMessageController(
-          firestore: firestore,
-          auth: auth,
-          storage: storage,
-          themeManager: themeManager,
-          messaging: FakeFirebaseMessaging(),
-        ),
-      ),
-    ));
-    expect(find.text('Welcome to Info Hub App!'), findsOneWidget);
+      
+      await tester.pumpWidget(welcomePage);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Welcome to Info Hub App!'), findsOneWidget);
   });
 
   testWidgets('Test if how to use this app text is present',
       (WidgetTester tester) async {
-    final firestore = FakeFirebaseFirestore();
-    final auth = MockFirebaseAuth();
-    final storage = MockFirebaseStorage();
-    await tester.pumpWidget(MaterialApp(
-      home: WelcomePage(
-        controller: WelcomeMessageController(
-          firestore: firestore,
-          auth: auth,
-          storage: storage,
-          themeManager: themeManager,
-          messaging: FakeFirebaseMessaging(),
-        ),
-      ),
-    ));
+
+    await tester.pumpWidget(welcomePage);
+    await tester.pumpAndSettle();
 
     expect(find.text('How to use this app'), findsOneWidget);
   });
 
   testWidgets('Test if General ExpansionTile is present',
       (WidgetTester tester) async {
-    final firestore = FakeFirebaseFirestore();
-    final auth = MockFirebaseAuth();
-    final storage = MockFirebaseStorage();
 
-    await tester.pumpWidget(MaterialApp(
-      home: WelcomePage(
-        controller: WelcomeMessageController(
-          firestore: firestore,
-          auth: auth,
-          storage: storage,
-          themeManager: themeManager,
-          messaging: FakeFirebaseMessaging(),
-        ),
-      ),
-    ));
+    await tester.pumpWidget(welcomePage);
+    await tester.pumpAndSettle();
 
     expect(find.text('General'), findsOneWidget);
   });
@@ -115,21 +128,8 @@ void main() {
   testWidgets(
     'Test if description in General ExpansionTile dropdown is displayed',
     (WidgetTester tester) async {
-      final firestore = FakeFirebaseFirestore();
-      final auth = MockFirebaseAuth();
-      final storage = MockFirebaseStorage();
-
-      await tester.pumpWidget(MaterialApp(
-        home: WelcomePage(
-          controller: WelcomeMessageController(
-            firestore: firestore,
-            auth: auth,
-            storage: storage,
-            themeManager: themeManager,
-            messaging: FakeFirebaseMessaging(),
-          ),
-        ),
-      ));
+      await tester.pumpWidget(welcomePage);
+      await tester.pumpAndSettle();
 
       final generalExpansionTileFinder =
           find.byKey(const Key('general_expansion_tile'));
@@ -147,42 +147,17 @@ void main() {
 
   testWidgets('Test if Guide ExpansionTile is present',
       (WidgetTester tester) async {
-    final firestore = FakeFirebaseFirestore();
-    final auth = MockFirebaseAuth();
-    final storage = MockFirebaseStorage();
-
-    await tester.pumpWidget(MaterialApp(
-      home: WelcomePage(
-        controller: WelcomeMessageController(
-          firestore: firestore,
-          auth: auth,
-          storage: storage,
-          themeManager: themeManager,
-          messaging: FakeFirebaseMessaging(),
-        ),
-      ),
-    ));
+      await tester.pumpWidget(welcomePage);
+      await tester.pumpAndSettle();
 
     expect(find.text('Guide'), findsOneWidget);
   });
 
   testWidgets('Test if FAQs ExpansionTile is present',
       (WidgetTester tester) async {
-    final firestore = FakeFirebaseFirestore();
-    final auth = MockFirebaseAuth();
-    final storage = MockFirebaseStorage();
 
-    await tester.pumpWidget(MaterialApp(
-      home: WelcomePage(
-        controller: WelcomeMessageController(
-          firestore: firestore,
-          auth: auth,
-          storage: storage,
-          themeManager: themeManager,
-          messaging: FakeFirebaseMessaging(),
-        ),
-      ),
-    ));
+    await tester.pumpWidget(welcomePage);
+    await tester.pumpAndSettle();
 
     expect(find.text('FAQs'), findsOneWidget);
   });
@@ -190,21 +165,8 @@ void main() {
   testWidgets(
     'Test if "Topics" option in Guide ExpansionTile dropdown is displayed',
     (WidgetTester tester) async {
-      final firestore = FakeFirebaseFirestore();
-      final auth = MockFirebaseAuth();
-      final storage = MockFirebaseStorage();
-
-      await tester.pumpWidget(MaterialApp(
-        home: WelcomePage(
-          controller: WelcomeMessageController(
-            firestore: firestore,
-            auth: auth,
-            storage: storage,
-            themeManager: themeManager,
-            messaging: FakeFirebaseMessaging(),
-          ),
-        ),
-      ));
+      await tester.pumpWidget(welcomePage);
+      await tester.pumpAndSettle();
 
       final generalExpansionTileFinder =
           find.byKey(const Key('guide_expansion_tile'));
@@ -219,21 +181,8 @@ void main() {
   testWidgets(
     'Test if "Topics" description in Guide ExpansionTile dropdown is displayed',
     (WidgetTester tester) async {
-      final firestore = FakeFirebaseFirestore();
-      final auth = MockFirebaseAuth();
-      final storage = MockFirebaseStorage();
-
-      await tester.pumpWidget(MaterialApp(
-        home: WelcomePage(
-          controller: WelcomeMessageController(
-            firestore: firestore,
-            auth: auth,
-            storage: storage,
-            themeManager: themeManager,
-            messaging: FakeFirebaseMessaging(),
-          ),
-        ),
-      ));
+      await tester.pumpWidget(welcomePage);
+      await tester.pumpAndSettle();
 
       final generalExpansionTileFinder =
           find.byKey(const Key('guide_expansion_tile'));
@@ -252,21 +201,8 @@ void main() {
   testWidgets(
     'Test if "Submit Questions" option in Guide ExpansionTile dropdown is displayed',
     (WidgetTester tester) async {
-      final firestore = FakeFirebaseFirestore();
-      final auth = MockFirebaseAuth();
-      final storage = MockFirebaseStorage();
-
-      await tester.pumpWidget(MaterialApp(
-        home: WelcomePage(
-          controller: WelcomeMessageController(
-            firestore: firestore,
-            auth: auth,
-            storage: storage,
-            themeManager: themeManager,
-            messaging: FakeFirebaseMessaging(),
-          ),
-        ),
-      ));
+      await tester.pumpWidget(welcomePage);
+      await tester.pumpAndSettle();
 
       final generalExpansionTileFinder =
           find.byKey(const Key('guide_expansion_tile'));
@@ -282,21 +218,8 @@ void main() {
   testWidgets(
     'Test if "Submit Questions" description in Guide ExpansionTile dropdown is displayed',
     (WidgetTester tester) async {
-      final firestore = FakeFirebaseFirestore();
-      final auth = MockFirebaseAuth();
-      final storage = MockFirebaseStorage();
-
-      await tester.pumpWidget(MaterialApp(
-        home: WelcomePage(
-          controller: WelcomeMessageController(
-            firestore: firestore,
-            auth: auth,
-            storage: storage,
-            themeManager: themeManager,
-            messaging: FakeFirebaseMessaging(),
-          ),
-        ),
-      ));
+      await tester.pumpWidget(welcomePage);
+      await tester.pumpAndSettle();
 
       final generalExpansionTileFinder =
           find.byKey(const Key('guide_expansion_tile'));
@@ -315,21 +238,8 @@ void main() {
   testWidgets(
     'Test if "Patient Experience" option in Guide ExpansionTile dropdown is displayed',
     (WidgetTester tester) async {
-      final firestore = FakeFirebaseFirestore();
-      final auth = MockFirebaseAuth();
-      final storage = MockFirebaseStorage();
-
-      await tester.pumpWidget(MaterialApp(
-        home: WelcomePage(
-          controller: WelcomeMessageController(
-            firestore: firestore,
-            auth: auth,
-            storage: storage,
-            themeManager: themeManager,
-            messaging: FakeFirebaseMessaging(),
-          ),
-        ),
-      ));
+      await tester.pumpWidget(welcomePage);
+      await tester.pumpAndSettle();
 
       final generalExpansionTileFinder =
           find.byKey(const Key('guide_expansion_tile'));
@@ -346,21 +256,8 @@ void main() {
   testWidgets(
     'Test if "Patient Experience" description in Guide ExpansionTile dropdown is displayed',
     (WidgetTester tester) async {
-      final firestore = FakeFirebaseFirestore();
-      final auth = MockFirebaseAuth();
-      final storage = MockFirebaseStorage();
-
-      await tester.pumpWidget(MaterialApp(
-        home: WelcomePage(
-          controller: WelcomeMessageController(
-            firestore: firestore,
-            auth: auth,
-            storage: storage,
-            themeManager: themeManager,
-            messaging: FakeFirebaseMessaging(),
-          ),
-        ),
-      ));
+      await tester.pumpWidget(welcomePage);
+      await tester.pumpAndSettle();
 
       final generalExpansionTileFinder =
           find.byKey(const Key('guide_expansion_tile'));
@@ -380,21 +277,8 @@ void main() {
   testWidgets(
     'Test if "Webinars" option in Guide ExpansionTile dropdown is displayed',
     (WidgetTester tester) async {
-      final firestore = FakeFirebaseFirestore();
-      final auth = MockFirebaseAuth();
-      final storage = MockFirebaseStorage();
-
-      await tester.pumpWidget(MaterialApp(
-        home: WelcomePage(
-          controller: WelcomeMessageController(
-            firestore: firestore,
-            auth: auth,
-            storage: storage,
-            themeManager: themeManager,
-            messaging: FakeFirebaseMessaging(),
-          ),
-        ),
-      ));
+      await tester.pumpWidget(welcomePage);
+      await tester.pumpAndSettle();
 
       final generalExpansionTileFinder =
           find.byKey(const Key('guide_expansion_tile'));
@@ -411,20 +295,8 @@ void main() {
   testWidgets(
     'Test if "Webinars" description in Guide ExpansionTile dropdown is displayed',
     (WidgetTester tester) async {
-      final firestore = FakeFirebaseFirestore();
-      final auth = MockFirebaseAuth();
-      final storage = MockFirebaseStorage();
-      await tester.pumpWidget(MaterialApp(
-        home: WelcomePage(
-          controller: WelcomeMessageController(
-            firestore: firestore,
-            auth: auth,
-            storage: storage,
-            themeManager: themeManager,
-            messaging: FakeFirebaseMessaging(),
-          ),
-        ),
-      ));
+      await tester.pumpWidget(welcomePage);
+      await tester.pumpAndSettle();
       final generalExpansionTileFinder =
           find.byKey(const Key('guide_expansion_tile'));
       expect(generalExpansionTileFinder, findsOneWidget);
@@ -441,21 +313,8 @@ void main() {
 
   testWidgets('FAQs first question should be displayed',
       (WidgetTester tester) async {
-    final firestore = FakeFirebaseFirestore();
-    final auth = MockFirebaseAuth();
-    final storage = MockFirebaseStorage();
-
-    await tester.pumpWidget(MaterialApp(
-      home: WelcomePage(
-        controller: WelcomeMessageController(
-          firestore: firestore,
-          auth: auth,
-          storage: storage,
-          themeManager: themeManager, // Provide a non-null value here
-          messaging: FakeFirebaseMessaging(),
-        ),
-      ),
-    ));
+      await tester.pumpWidget(welcomePage);
+      await tester.pumpAndSettle();
     final generalExpansionTileFinder =
         find.byKey(const Key('faq_expansion_tile'));
     expect(generalExpansionTileFinder, findsOneWidget);
@@ -470,21 +329,8 @@ void main() {
 
   testWidgets('FAQs first answer should be displayed',
       (WidgetTester tester) async {
-    final firestore = FakeFirebaseFirestore();
-    final auth = MockFirebaseAuth();
-    final storage = MockFirebaseStorage();
-
-    await tester.pumpWidget(MaterialApp(
-      home: WelcomePage(
-        controller: WelcomeMessageController(
-          firestore: firestore,
-          auth: auth,
-          storage: storage,
-          themeManager: themeManager,
-          messaging: FakeFirebaseMessaging(),
-        ),
-      ),
-    ));
+      await tester.pumpWidget(welcomePage);
+      await tester.pumpAndSettle();
     final generalExpansionTileFinder =
         find.byKey(const Key('faq_expansion_tile'));
     expect(generalExpansionTileFinder, findsOneWidget);
@@ -499,21 +345,8 @@ void main() {
 
   testWidgets('FAQs second question should be displayed',
       (WidgetTester tester) async {
-    final firestore = FakeFirebaseFirestore();
-    final auth = MockFirebaseAuth();
-    final storage = MockFirebaseStorage();
-
-    await tester.pumpWidget(MaterialApp(
-      home: WelcomePage(
-        controller: WelcomeMessageController(
-          firestore: firestore,
-          auth: auth,
-          storage: storage,
-          themeManager: themeManager,
-          messaging: FakeFirebaseMessaging(),
-        ),
-      ),
-    ));
+      await tester.pumpWidget(welcomePage);
+      await tester.pumpAndSettle();
     final generalExpansionTileFinder =
         find.byKey(const Key('faq_expansion_tile'));
     expect(generalExpansionTileFinder, findsOneWidget);
@@ -527,21 +360,8 @@ void main() {
 
   testWidgets('FAQs second answer should be displayed',
       (WidgetTester tester) async {
-    final firestore = FakeFirebaseFirestore();
-    final auth = MockFirebaseAuth();
-    final storage = MockFirebaseStorage();
-
-    await tester.pumpWidget(MaterialApp(
-      home: WelcomePage(
-        controller: WelcomeMessageController(
-          firestore: firestore,
-          auth: auth,
-          storage: storage,
-          themeManager: themeManager,
-          messaging: FakeFirebaseMessaging(),
-        ),
-      ),
-    ));
+      await tester.pumpWidget(welcomePage);
+      await tester.pumpAndSettle();
     final generalExpansionTileFinder =
         find.byKey(const Key('faq_expansion_tile'));
     expect(generalExpansionTileFinder, findsOneWidget);
@@ -556,21 +376,8 @@ void main() {
 
   testWidgets('FAQs third question should be displayed',
       (WidgetTester tester) async {
-    final firestore = FakeFirebaseFirestore();
-    final auth = MockFirebaseAuth();
-    final storage = MockFirebaseStorage();
-
-    await tester.pumpWidget(MaterialApp(
-      home: WelcomePage(
-        controller: WelcomeMessageController(
-          firestore: firestore,
-          auth: auth,
-          storage: storage,
-          themeManager: themeManager,
-          messaging: FakeFirebaseMessaging(),
-        ),
-      ),
-    ));
+      await tester.pumpWidget(welcomePage);
+      await tester.pumpAndSettle();
 
     final generalExpansionTileFinder =
         find.byKey(const Key('faq_expansion_tile'));
@@ -586,21 +393,8 @@ void main() {
 
   testWidgets('FAQs third answer should be displayed',
       (WidgetTester tester) async {
-    final firestore = FakeFirebaseFirestore();
-    final auth = MockFirebaseAuth();
-    final storage = MockFirebaseStorage();
-
-    await tester.pumpWidget(MaterialApp(
-      home: WelcomePage(
-        controller: WelcomeMessageController(
-          firestore: firestore,
-          auth: auth,
-          storage: storage,
-          themeManager: themeManager,
-          messaging: FakeFirebaseMessaging(),
-        ),
-      ),
-    ));
+      await tester.pumpWidget(welcomePage);
+      await tester.pumpAndSettle();
     final generalExpansionTileFinder =
         find.byKey(const Key('faq_expansion_tile'));
     expect(generalExpansionTileFinder, findsOneWidget);
@@ -616,55 +410,43 @@ void main() {
   testWidgets(
       'WelcomePage "Get Started" button test if it brings you to the Home Page',
       (WidgetTester tester) async {
-    final firestore = FakeFirebaseFirestore();
-    final auth = MockFirebaseAuth();
-    final storage = MockFirebaseStorage();
-    auth.createUserWithEmailAndPassword(
-        email: 'testcaseemail@example.org', password: 'Password123!');
+      
+      await firestore
+        .collection('preferences')
+        .doc('notifId')
+        .set({
+          'push_notifications': false,
+          'uid': auth.currentUser!.uid
+        });
 
-    // Create a fake user document with old first name
-    final fakeUserId = auth.currentUser?.uid;
-    final fakeUser = {
-      'email': 'testcaseemail@example.org',
-      'roleType': 'Patient',
-      'firstName': 'OldFirstName',
-      'lastName': 'OldLastName',
-    };
-    await firestore.collection('Users').doc(fakeUserId).set(fakeUser);
-    await tester.pumpWidget(MaterialApp(
-      home: WelcomePage(
-        controller: WelcomeMessageController(
-          firestore: firestore,
-          auth: auth,
-          storage: storage,
-          themeManager: themeManager,
-          messaging: FakeFirebaseMessaging(),
-        ),
-      ),
-    ));
-    await tester.ensureVisible(find.textContaining('Get Started'));
-    expect(find.text('Get Started'), findsOneWidget);
-    await tester.tap(find.text('Get Started'));
-    await tester.pumpAndSettle();
-    expect(find.byType(Base), findsOneWidget);
+      await tester.pumpWidget(welcomePage);
+      await tester.pumpAndSettle();
+
+      Finder getStartedButton = find.text('Get Started');
+
+      await tester.ensureVisible(getStartedButton);
+      await tester.pumpAndSettle();
+      expect(getStartedButton, findsOneWidget);
+      
+      await tester.tap(getStartedButton);
+       
+      await tester.pumpAndSettle();
+      expect(find.byType(Base), findsOneWidget);
+
+      DocumentSnapshot preference = await firestore.collection('preferences').doc('notifId').get();
+
+      expect(preference['push_notifications'], true);
+
   });
+
+
+
+
 
   testWidgets('WelcomePage "Get Started" button is visible',
       (WidgetTester tester) async {
-    final firestore = FakeFirebaseFirestore();
-    final auth = MockFirebaseAuth();
-    final storage = MockFirebaseStorage();
-    await tester.pumpWidget(MaterialApp(
-      home: WelcomePage(
-        controller: WelcomeMessageController(
-          firestore: firestore,
-          auth: auth,
-          storage: storage,
-          themeManager: themeManager,
-          messaging: FakeFirebaseMessaging(),
-        ),
-      ),
-    ));
+      await tester.pumpWidget(welcomePage);
+      await tester.pumpAndSettle();
 
     await tester.ensureVisible(find.textContaining('Get Started'));
     expect(find.text('Get Started'), findsOneWidget);

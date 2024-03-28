@@ -11,6 +11,7 @@ import 'package:info_hub_app/registration/registration_screen.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
+import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:info_hub_app/welcome_message/welcome_message_view.dart';
 
 class MockFlutterLocalNotificationsPlugin extends Fake
@@ -109,7 +110,8 @@ void main() {
         auth: auth,
         messaging: firebaseMessaging,
         localnotificationsplugin: mockFlutterLocalNotificationsPlugin,
-        storage: storage,
+        storage: storage, 
+        themeManager: ThemeManager(),
       ),
     );
   });
@@ -331,7 +333,8 @@ void main() {
             storage: storage,
             auth: auth,
             messaging: firebaseMessaging,
-            localnotificationsplugin: mockFlutterLocalNotificationsPlugin)));
+            localnotificationsplugin: mockFlutterLocalNotificationsPlugin, 
+            themeManager: ThemeManager(),)));
 
     final firstNameField = find.ancestor(
       of: find.text('First Name'),

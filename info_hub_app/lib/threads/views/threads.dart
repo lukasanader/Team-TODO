@@ -77,6 +77,15 @@ class _ThreadAppState extends State<ThreadApp> {
         stream: controller.getThreadListStream(widget.topicId),
         builder: (context, AsyncSnapshot<List<Thread>> snapshot) {
           if (!snapshot.hasData) return const CircularProgressIndicator();
+          if (snapshot.data!.isEmpty) {
+            return const Center(
+              child: Text(
+                "This topic has no threads yet.",
+                style: TextStyle(fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+              ),
+            );
+          }
           List<Thread> threads = snapshot.data!;
 
           return ListView.builder(

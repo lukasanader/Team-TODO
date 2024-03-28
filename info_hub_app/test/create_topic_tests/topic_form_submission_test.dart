@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:info_hub_app/controller/create_topic_controllers/topic_controller.dart';
 import 'package:info_hub_app/main.dart';
 import 'package:info_hub_app/model/topic_model.dart';
 import 'package:info_hub_app/view/topic_creation_view/topic_creation_view.dart';
@@ -15,6 +16,7 @@ void main() async {
   late MockFirebaseStorage mockStorage;
   Widget? basicWidget;
   setUp(() {
+    auth = MockFirebaseAuth(signedIn: true);
     firestore = FakeFirebaseFirestore();
   });
   Future<void> fillRequiredFields(WidgetTester tester) async {
@@ -250,9 +252,8 @@ void main() async {
       'quizID': ''
     });
 
-    final DocumentSnapshot snapshot =
-        await firestore.collection('Topics').doc(validId).get();
-    final result = Topic.fromSnapshot(snapshot);
+    Topic result = await TopicController(auth: auth, firestore: firestore)
+        .getTopic(validId);
 
     expect(result, isA<Topic>());
   });

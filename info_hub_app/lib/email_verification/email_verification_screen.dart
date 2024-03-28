@@ -9,14 +9,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:info_hub_app/admin/admin_dash.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:info_hub_app/notifications/preferences_controller.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:info_hub_app/services/auth.dart';
+import 'package:info_hub_app/welcome_message/welcome_message_controller.dart';
+import 'package:info_hub_app/welcome_message/welcome_message_view.dart';
 
 class EmailVerificationScreen extends StatefulWidget {
   final FirebaseFirestore firestore;
   final FirebaseAuth auth;
   final FirebaseStorage storage;
   final FirebaseMessaging messaging;
+  final ThemeManager themeManager;
   final FlutterLocalNotificationsPlugin localnotificationsplugin;
   const EmailVerificationScreen(
       {super.key,
@@ -24,6 +28,7 @@ class EmailVerificationScreen extends StatefulWidget {
       required this.auth,
       required this.storage,
       required this.messaging,
+      required this.themeManager,
       required this.localnotificationsplugin});
 
   @override
@@ -86,13 +91,20 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                     String role =
                         await UserController(widget.auth, widget.firestore)
                             .getUserRoleType();
-                    Widget nextPage = Base(
-                      firestore: widget.firestore,
-                      auth: widget.auth,
-                      storage: widget.storage,
-                      messaging: widget.messaging,
-                      themeManager: ThemeManager(),
-                      roleType: role,
+                    Widget nextPage = WelcomePage
+                    (
+                      controller: WelcomeMessageController(
+                        auth: widget.auth, 
+                        firestore: widget.firestore, 
+                        storage: widget.storage, 
+                        themeManager: widget.themeManager, 
+                        messaging: widget.messaging
+                        ),
+                      preferencesController: PreferencesController(
+                        auth: widget.auth, 
+                        uid: widget.auth.currentUser!.uid,
+                        firestore: widget.firestore
+                      ),
                     );
                     Navigator.pushAndRemoveUntil(
                       context,

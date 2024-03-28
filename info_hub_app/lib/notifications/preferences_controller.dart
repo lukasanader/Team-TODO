@@ -10,6 +10,10 @@ class PreferencesController {
   PreferencesController(
       {required this.auth, required this.uid, required this.firestore});
 
+// Fetches the notification preferences from Firestore
+// and return the value of the push_notifications field
+// as a boolean value
+
   Future<bool> getNotificationPreferences() async {
     final currentUser = auth.currentUser;
 
@@ -20,6 +24,10 @@ class PreferencesController {
 
     return querySnapshot.docs.first.get('push_notifications');
   }
+
+// Updates the notification preferences in Firestore
+// type: the type of notification preference to update
+// newValue: the new value of the notification preference
 
   Future<void> updateNotificationPreferences(String type, bool newValue) async {
     final currentUser = auth.currentUser;
@@ -33,23 +41,28 @@ class PreferencesController {
     });
   }
 
+// Creates the default preferences document for the user in the database
+// Called when the user signs up for the first time
   Future<void> createPreferences() async {
     CollectionReference prefCollection = firestore.collection('preferences');
     await prefCollection.add({
       'uid': auth.currentUser!.uid,
-      'push_notifications': true,
+      'push_notifications': false,
     });
   }
 
+// Converts a QuerySnapshot of preferences documents to a List of Preferences objects
   List<Preferences> prefListFromSnapshot(QuerySnapshot snapshot) {
     return snapshot.docs.map((doc) {
       return Preferences(
         uid: auth.currentUser!.uid,
-        pushNotifications: doc.get('push_notifications') ?? true,
+        pushNotifications: doc.get('push_notifications') ?? false,
       );
     }).toList();
   }
 
+// Stream of user preferences from Firestore
+// Access this stream to get the user's preferences in real-time
   Stream<List<Preferences>> get preferences {
     CollectionReference prefCollectionRef = firestore.collection('preferences');
     return prefCollectionRef.snapshots().map(prefListFromSnapshot);
