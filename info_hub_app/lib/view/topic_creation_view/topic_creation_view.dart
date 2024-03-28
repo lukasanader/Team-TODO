@@ -132,7 +132,7 @@ class TopicCreationViewState extends State<TopicCreationView> {
                 TextButton(
                   key: const Key('delete_draft_btn'),
                   onPressed: () async {
-                    formController.deleteDraft();
+                    formController.deleteDraft(false);
                     updateState();
                     Navigator.pop(context);
                   },

@@ -247,7 +247,15 @@ void main() async {
       title: 'Test Topic',
       description: 'Test Description',
       articleLink: '',
-      media: [],
+      media: [
+        {
+          'url':
+              'https://firebasestorage.googleapis.com/v0/b/team-todo-38f76.appspot.com/o/videos%2F2024-02-01%2018:28:20.745204.mp4?alt=media&token=6d6e3aee-240d-470f-ab22-58e274a04010',
+          'mediaType': 'video',
+          'thumbnail':
+              'https://firebasestorage.googleapis.com/v0/b/some-bucket/o/thumbnails/blank_pfp.png'
+        }
+      ],
       tags: ['Patient'],
       likes: 0,
       views: 0,
@@ -257,6 +265,9 @@ void main() async {
       userID: adminUserDoc.id, // Replace with the actual user ID
       quizID: '',
     );
+    final storageRef = mockStorage.ref().child('thumbnails');
+    await storageRef.putString(
+        'https://firebasestorage.googleapis.com/v0/b/some-bucket/o/thumbnails/blank_pfp.png');
 
     // Add the draft topic to Firestore
     DocumentReference draftDocRef =
