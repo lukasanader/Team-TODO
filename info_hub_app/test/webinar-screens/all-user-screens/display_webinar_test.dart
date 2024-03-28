@@ -4,9 +4,9 @@ import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:info_hub_app/main.dart';
-import 'package:info_hub_app/model/user_model.dart';
-import 'package:info_hub_app/webinar/controllers/webinar_controller.dart';
-import 'package:info_hub_app/webinar/views/webinar-screens/display_webinar.dart';
+import 'package:info_hub_app/model/user_models/user_model.dart';
+import 'package:info_hub_app/controller/webinar_controllers/webinar_controller.dart';
+import 'package:info_hub_app/view/webinar_view/webinar-screens/display_webinar.dart';
 import '../mock.dart';
 
 void main() {

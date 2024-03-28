@@ -4,11 +4,11 @@ import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:info_hub_app/main.dart';
-import 'package:info_hub_app/message_feature/admin_message_view.dart';
-import 'package:info_hub_app/message_feature/message_bubble.dart';
-import 'package:info_hub_app/message_feature/message_rooms_card.dart';
-import 'package:info_hub_app/message_feature/messaging_room_view.dart';
-import 'package:info_hub_app/threads/controllers/name_generator_controller.dart';
+import 'package:info_hub_app/view/message_view/admin_message_view.dart';
+import 'package:info_hub_app/view/message_view/message_bubble.dart';
+import 'package:info_hub_app/view/message_view/message_rooms_card.dart';
+import 'package:info_hub_app/view/message_view/messaging_room_view.dart';
+import 'package:info_hub_app/controller/thread_controllers/name_generator_controller.dart';
 
 void main() {
   late MockFirebaseAuth auth;

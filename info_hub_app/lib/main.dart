@@ -5,26 +5,23 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:info_hub_app/controller/user_controller.dart';
-import 'package:info_hub_app/email_verification/email_verification_screen.dart';
-import 'package:info_hub_app/helpers/base.dart';
-import 'package:info_hub_app/home_page/home_page.dart';
-import 'package:info_hub_app/message_feature/message_room/message_room_controller.dart';
-import 'package:info_hub_app/message_feature/messaging_room_view.dart';
-import 'package:info_hub_app/model/user_model.dart';
-import 'package:info_hub_app/notifications/notification_controller.dart';
-import 'package:info_hub_app/push_notifications/push_notifications_controller.dart';
+import 'package:info_hub_app/controller/user_controllers/user_controller.dart';
+import 'package:info_hub_app/view/base_view/base.dart';
+import 'package:info_hub_app/view/dashboard_view/home_page_view.dart';
+import 'package:info_hub_app/controller/message_controllers/message_room_controller.dart';
+import 'package:info_hub_app/view/message_view/messaging_room_view.dart';
+import 'package:info_hub_app/controller/notification_controllers/notification_controller.dart';
+import 'package:info_hub_app/controller/notification_controllers/push_notifications_controller.dart';
 import 'package:info_hub_app/theme/theme_constants.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
-import 'package:info_hub_app/model/topic_model.dart';
 import 'package:info_hub_app/view/topic_view/topic_view.dart';
-import 'package:info_hub_app/webinar/controllers/webinar_controller.dart';
-import 'package:info_hub_app/webinar/views/webinar-screens/display_webinar.dart';
+import 'package:info_hub_app/controller/webinar_controllers/webinar_controller.dart';
+import 'package:info_hub_app/view/webinar_view/webinar-screens/display_webinar.dart';
 import 'controller/create_topic_controllers/topic_controller.dart';
-import 'notifications/notification_model.dart' as custom;
-import 'registration/start_page.dart';
+import 'model/notification_models/notification_model.dart' as custom;
+import 'view/registration_view/start_page.dart';
 import 'package:provider/provider.dart';
-import 'package:info_hub_app/notifications/notification_view.dart';
+import 'package:info_hub_app/view/notifications_view/notification_view.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:intl/date_symbol_data_local.dart';
@@ -185,15 +182,14 @@ class _MyAppState extends State<MyApp> {
               }
               if (widget.auth.currentUser!.emailVerified != true) {
                 return StartPage(
-                    auth: widget.auth,
-                    firestore: widget.firestore,
-                    storage: widget.storage,
-                    messaging: FirebaseMessaging.instance,
-                    localnotificationsplugin: FlutterLocalNotificationsPlugin(),
-                    themeManager: themeManager,
+                  auth: widget.auth,
+                  firestore: widget.firestore,
+                  storage: widget.storage,
+                  messaging: FirebaseMessaging.instance,
+                  localnotificationsplugin: FlutterLocalNotificationsPlugin(),
+                  themeManager: themeManager,
                 );
-              }
-              else {
+              } else {
                 switch (snapshot.data) {
                   case 'admin':
                     return Base(
@@ -219,7 +215,8 @@ class _MyAppState extends State<MyApp> {
                       storage: widget.storage,
                       auth: widget.auth,
                       messaging: FirebaseMessaging.instance,
-                      localnotificationsplugin: FlutterLocalNotificationsPlugin(),
+                      localnotificationsplugin:
+                          FlutterLocalNotificationsPlugin(),
                       themeManager: themeManager,
                     );
                 }

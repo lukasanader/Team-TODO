@@ -9,10 +9,10 @@ import 'package:video_player_platform_interface/video_player_platform_interface.
 import 'package:url_launcher_platform_interface/url_launcher_platform_interface.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
-import '../mock_classes.dart';
+import '../test_helpers/mock_classes.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:info_hub_app/model/topic_model.dart';
-import 'package:info_hub_app/threads/views/threads.dart';
+import 'package:info_hub_app/model/topic_models/topic_model.dart';
+import 'package:info_hub_app/view/thread_view/threads.dart';
 
 /// This test file is responsible for testing that elements of the topic view screen can be utilised
 void main() {

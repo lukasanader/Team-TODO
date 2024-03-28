@@ -3,7 +3,7 @@ import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
-import 'package:info_hub_app/experiences/experiences_view.dart';
+import 'package:info_hub_app/view/experience_view/experiences_view.dart';
 
 void main() {
   late FakeFirebaseFirestore firestore;

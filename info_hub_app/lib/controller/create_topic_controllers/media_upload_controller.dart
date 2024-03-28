@@ -8,7 +8,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:path/path.dart';
 import 'package:path/path.dart' as path;
-import '../../model/topic_model.dart';
+import '../../model/topic_models/topic_model.dart';
 import 'form_controller.dart';
 import 'package:info_hub_app/view/topic_creation_view/topic_creation_view.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';

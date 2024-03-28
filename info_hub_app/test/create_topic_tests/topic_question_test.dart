@@ -5,7 +5,7 @@ import 'package:info_hub_app/main.dart';
 import 'package:info_hub_app/view/topic_creation_view/topic_creation_view.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
-import 'package:info_hub_app/ask_question/question_card.dart';
+import 'package:info_hub_app/view/ask_question_view/question_card.dart';
 
 void main() async {
   late MockFirebaseAuth auth;

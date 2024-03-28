@@ -2,14 +2,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:info_hub_app/threads/views/custom_card.dart';
-import 'package:info_hub_app/threads/views/thread_replies.dart';
+import 'package:info_hub_app/view/thread_view/custom_card.dart';
+import 'package:info_hub_app/view/thread_view/thread_replies.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:info_hub_app/threads/views/threads.dart';
+import 'package:info_hub_app/view/thread_view/threads.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:info_hub_app/main.dart';
-import 'package:info_hub_app/threads/models/thread_model.dart';
-import 'package:info_hub_app/threads/controllers/thread_controller.dart';
+import 'package:info_hub_app/model/thread_models/thread_model.dart';
+import 'package:info_hub_app/controller/thread_controllers/thread_controller.dart';
 
 class MockFirebaseAuth extends Mock implements FirebaseAuth {
   @override

@@ -3,18 +3,18 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:info_hub_app/notifications/notification_controller.dart';
+import 'package:info_hub_app/controller/notification_controllers/notification_controller.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:info_hub_app/topics/create_topic/helpers/quiz/complete_quiz.dart';
+import 'package:info_hub_app/view/topic_creation_view/quiz/complete_quiz.dart';
 import 'package:info_hub_app/view/topic_creation_view/topic_creation_view.dart';
 import 'dart:async';
-import 'package:info_hub_app/threads/views/threads.dart';
-import 'package:info_hub_app/model/topic_model.dart';
+import 'package:info_hub_app/view/thread_view/threads.dart';
+import 'package:info_hub_app/model/topic_models/topic_model.dart';
 import '../../controller/topic_view_controllers/interaction_controller.dart';
 import '../../controller/topic_view_controllers/media_controller.dart';
 import 'widgets/view_media_widget.dart';
-import 'package:info_hub_app/controller/user_controller.dart';
+import 'package:info_hub_app/controller/user_controllers/user_controller.dart';
 
 /// View Responsible For Viewing Topics
 class TopicView extends StatefulWidget {
