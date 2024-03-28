@@ -94,7 +94,15 @@ class _ViewThreadsState extends State<ViewThreads> {
           return const Center(child: CircularProgressIndicator());
         }
         if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return const Text("No threads found.");
+          return const Center(
+            child: Text(
+              "Currently no threads to view.",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+          );
         }
 
         return ListView.builder(
@@ -185,7 +193,15 @@ class _ViewThreadsState extends State<ViewThreads> {
           return const Center(child: CircularProgressIndicator());
         }
         if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return const Text("No replies found.");
+          return const Center(
+            child: Text(
+              "Currently no replies to view.",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+          );
         }
 
         return ListView.builder(
