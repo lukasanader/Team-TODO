@@ -47,6 +47,7 @@ class _PreferencesPageState extends State<PreferencesPage> {
       appBar: AppBar(
         title: const Text('Manage Notifications'),
       ),
+      // Display a loading spinner while fetching the notification preferences
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : ListView(
@@ -62,8 +63,10 @@ class _PreferencesPageState extends State<PreferencesPage> {
                           value: _pushNotificationsEnabled,
                           onChanged: (value) {
                             setState(() {
+                              // Update the state of the switch
                               _pushNotificationsEnabled = value;
                             });
+                            // Update the value in Firestore
                             _updateNotificationPreferences(
                                 'push_notifications', value);
                           },
