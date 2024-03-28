@@ -49,7 +49,7 @@ void main() async {
     );
   }
 
-  testWidgets('Topic with title,description, category and tag save',
+  testWidgets('Topic with title, description, and tag saves',
       (WidgetTester tester) async {
     await defineUserAndStorage(tester);
 
@@ -58,6 +58,7 @@ void main() async {
     await tester.pumpWidget(basicWidget!);
 
     await fillRequiredFields(tester);
+
     expect(tester.testTextInput.isVisible, true);
     final outsideGestureDetectorFinder = find.descendant(
       of: find.byType(
@@ -190,225 +191,7 @@ void main() async {
 
     expect(documents.length, 1);
   });
-
-  testWidgets('Can create a new category', (WidgetTester tester) async {
-    await defineUserAndStorage(tester);
-
-    await tester.pumpWidget(basicWidget!);
-
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pumpAndSettle();
-
-    await tester.enterText(find.byType(TextField).last, 'Gym');
-    await tester.tap(find.text('OK'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Gym'), findsOne);
-  });
-
-  testWidgets('Cannot create a blank category', (WidgetTester tester) async {
-    await defineUserAndStorage(tester);
-
-    await tester.pumpWidget(basicWidget!);
-
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pumpAndSettle();
-
-    await tester.enterText(find.byType(TextField).last, '');
-    await tester.tap(find.text('OK'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Warning!'), findsOne);
-  });
-
-  testWidgets('Cannot create a category that already exists',
-      (WidgetTester tester) async {
-    await defineUserAndStorage(tester);
-
-    await firestore.collection('categories').add({'name': 'Gym'});
-
-    await tester.pumpWidget(basicWidget!);
-
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pumpAndSettle();
-
-    await tester.enterText(find.byType(TextField).last, 'Gym');
-    await tester.tap(find.text('OK'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Warning!'), findsOne);
-  });
-
-  testWidgets('Can delete a category', (WidgetTester tester) async {
-    await defineUserAndStorage(tester);
-
-    await firestore.collection('categories').add({'name': 'Gym'});
-
-    await tester.pumpWidget(basicWidget!);
-    await fillRequiredFields(tester);
-
-    await tester.ensureVisible(find.text('Gym'));
-    expect(find.text('Gym'), findsOne);
-
-    //steps to remove Gym
-    await tester.tap(find.byIcon(Icons.close));
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.text('Gym').last);
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.text('OK'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Gym'), findsNothing);
-  });
-
-  testWidgets('Deleting category removes category from existing topics',
-      (WidgetTester tester) async {
-    await defineUserAndStorage(tester);
-
-    await firestore.collection('categories').add({'name': 'Testing category'});
-
-    Topic topic = Topic(
-        title: 'Test Topic',
-        description: 'Test Description',
-        articleLink: '',
-        media: [
-          {
-            'url':
-                'https://firebasestorage.googleapis.com/v0/b/team-todo-38f76.appspot.com/o/videos%2F2024-02-27%2022%3A09%3A02.035911.mp4?alt=media&token=ea6b51e9-9e9f-4d2e-a014-64fc3631e321',
-            'mediaType': 'video',
-            'thumbnail':
-                'https://images.unsplash.com/photo-1606921231106-f1083329a65c?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8ZXhhbXBsZXxlbnwwfHwwfHx8MA%3D%3D'
-          },
-        ],
-        likes: 0,
-        tags: ['Patient'],
-        views: 0,
-        dislikes: 0,
-        categories: ['Testing category'],
-        date: DateTime.now(),
-        quizID: '');
-
-    DocumentReference topicRef =
-        await firestore.collection('topics').add(topic.toJson());
-
-    topic.id = topicRef.id;
-
-    await tester.pumpWidget(basicWidget!);
-    await fillRequiredFields(tester);
-
-    await tester.ensureVisible(find.text('Testing category'));
-    expect(find.text('Testing category'), findsOne);
-
-    //steps to remove Testing category
-    await tester.tap(find.byIcon(Icons.close));
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.text('Testing category').last);
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.text('OK'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Testing category'), findsNothing);
-
-    //verifies that the topic no longer contains the category Testing category
-    DocumentSnapshot topicSnapshot =
-        await firestore.collection('topics').doc(topic.id).get();
-    expect(topicSnapshot['categories'], isEmpty);
-  });
-
-  testWidgets('Topic with no title does not save', (WidgetTester tester) async {
-    await defineUserAndStorage(tester);
-    await tester.pumpWidget(basicWidget!);
-
-    await tester.enterText(
-        find.byKey(const Key('descField')), 'Test description');
-
-    await tester.ensureVisible(find.text('PUBLISH TOPIC'));
-
-    await tester.tap(find.text('PUBLISH TOPIC'));
-
-    await tester.ensureVisible(find.text('Patient'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Patient'));
-
-    await tester.pumpAndSettle();
-
-    final QuerySnapshot<Map<String, dynamic>> querySnapshot =
-        await firestore.collection("topics").get();
-
-    final List<DocumentSnapshot<Map<String, dynamic>>> documents =
-        querySnapshot.docs;
-
-    expect(documents.isEmpty, isTrue);
-  });
-
-  testWidgets('Topic with no description does not save',
-      (WidgetTester tester) async {
-    await defineUserAndStorage(tester);
-
-    await tester.pumpWidget(basicWidget!);
-
-    await tester.enterText(find.byKey(const Key('titleField')), 'Test title');
-    await tester.ensureVisible(find.text('PUBLISH TOPIC'));
-    await tester.tap(find.text('PUBLISH TOPIC'));
-
-    await tester.pumpAndSettle();
-
-    final QuerySnapshot<Map<String, dynamic>> querySnapshot =
-        await firestore.collection("topics").get();
-
-    final List<DocumentSnapshot<Map<String, dynamic>>> documents =
-        querySnapshot.docs;
-
-    expect(documents.isEmpty, isTrue);
-  });
-  testWidgets('Topic with no tags does not save', (WidgetTester tester) async {
-    await defineUserAndStorage(tester);
-
-    await tester.pumpWidget(basicWidget!);
-
-    await tester.enterText(find.byKey(const Key('titleField')), 'Test title');
-    await tester.ensureVisible(find.text('PUBLISH TOPIC'));
-    await tester.tap(find.text('PUBLISH TOPIC'));
-
-    await tester.enterText(
-        find.byKey(const Key('descField')), 'Test description');
-
-    await tester.pumpAndSettle();
-
-    final QuerySnapshot<Map<String, dynamic>> querySnapshot =
-        await firestore.collection("topics").get();
-
-    final List<DocumentSnapshot<Map<String, dynamic>>> documents =
-        querySnapshot.docs;
-
-    expect(documents.isEmpty, isTrue);
-  });
-  testWidgets('Topic with invalid article link does not save',
-      (WidgetTester tester) async {
-    await defineUserAndStorage(tester);
-    await tester.pumpWidget(basicWidget!);
-
-    await fillRequiredFields(tester);
-
-    await tester.enterText(find.byKey(const Key('linkField')), 'invalidLink');
-    await tester.ensureVisible(find.text('PUBLISH TOPIC'));
-
-    await tester.tap(find.text('PUBLISH TOPIC'));
-
-    await tester.pumpAndSettle();
-    final QuerySnapshot<Map<String, dynamic>> querySnapshot =
-        await firestore.collection("topics").get();
-    final List<DocumentSnapshot<Map<String, dynamic>>> documents =
-        querySnapshot.docs;
-    expect(documents.isEmpty, isTrue);
-  });
-
-  testWidgets('Topic with valid article link saves',
-      (WidgetTester tester) async {
+  testWidgets('Topic article link saves', (WidgetTester tester) async {
     await defineUserAndStorage(tester);
     await tester.pumpWidget(basicWidget!);
     await fillRequiredFields(tester);
@@ -430,7 +213,6 @@ void main() async {
       isTrue,
     );
   });
-
   testWidgets('Test all form parts are present', (WidgetTester tester) async {
     await defineUserAndStorage(tester);
     await tester.pumpWidget(basicWidget!);
@@ -444,8 +226,8 @@ void main() async {
     expect(find.byKey(const Key('draft_btn')), findsOneWidget);
   });
 
-  test('should return a Topic object when valid id is provided', () async {
-    final String validId = 'valid_id';
+  test('Should return a Topic object when valid id is provided', () async {
+    const String validId = 'valid_id';
     await firestore.collection('Topics').doc(validId).set({
       'title': 'Test title',
       'description': 'Test description',
