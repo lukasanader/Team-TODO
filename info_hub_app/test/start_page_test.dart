@@ -219,7 +219,7 @@ void main() {
       localnotificationsplugin: mockFlutterLocalNotificationsPlugin,
       themeManager: themeManager,
     )));
-    expect(find.text('Team TODO'), findsOneWidget);
+    expect(find.text('LiverWise'), findsOneWidget);
   });
 
   testWidgets('Register button press leads to register screen',

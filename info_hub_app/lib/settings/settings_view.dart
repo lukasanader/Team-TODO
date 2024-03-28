@@ -179,7 +179,7 @@ class _SettingsViewState extends State<SettingsView> {
           ),
           const AboutListTile(
             applicationLegalese: 'Legalese',
-            applicationName: 'TEAM TODO',
+            applicationName: 'LiverWise',
             applicationVersion: '1.0.0',
             aboutBoxChildren: [
               Text('Liver information hub for young people'),
