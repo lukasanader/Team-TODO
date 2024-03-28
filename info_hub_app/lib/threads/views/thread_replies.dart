@@ -25,10 +25,10 @@ class ThreadReplies extends StatefulWidget {
   });
 
   @override
-  State<ThreadReplies> createState() => _ThreadRepliesState();
+  State<ThreadReplies> createState() => ThreadRepliesState();
 }
 
-class _ThreadRepliesState extends State<ThreadReplies> {
+class ThreadRepliesState extends State<ThreadReplies> {
   late final ThreadController threadController;
   late TextEditingController contentInputController;
   List<Reply> localReplies = [];
@@ -67,7 +67,7 @@ class _ThreadRepliesState extends State<ThreadReplies> {
 
     String authorName = generateUniqueName(creatorId);
     String userProfilePhoto =
-        await threadController.getUserProfilePhoto(creatorId);
+        await threadController.getUserProfilePhotoFilename(creatorId);
     String tempReplyId = DateTime.now().millisecondsSinceEpoch.toString();
     String roleType = await threadController.getUserRoleType(creatorId);
 
