@@ -10,8 +10,13 @@ import 'package:info_hub_app/threads/controllers/thread_controller.dart';
 class ViewThreads extends StatefulWidget {
   final FirebaseFirestore firestore;
   final FirebaseAuth auth;
+  final ThreadController? controller;
 
-  const ViewThreads({super.key, required this.firestore, required this.auth});
+  const ViewThreads(
+      {super.key,
+      required this.firestore,
+      required this.auth,
+      this.controller});
 
   @override
   State<ViewThreads> createState() => _ViewThreadsState();
@@ -20,15 +25,13 @@ class ViewThreads extends StatefulWidget {
 class _ViewThreadsState extends State<ViewThreads> {
   late Stream<List<Thread>> threadsStream;
   late Stream<List<Reply>> repliesStream;
-  //late String profilePhotoFilename;
   bool isViewingThreads = true;
   late ThreadController controller;
 
   @override
   void initState() {
     super.initState();
-    //_loadUserProfilePhoto();
-    controller =
+    controller = widget.controller ??
         ThreadController(firestore: widget.firestore, auth: widget.auth);
     threadsStream = controller.getAllThreadsStream();
     repliesStream = controller.getAllRepliesStream();

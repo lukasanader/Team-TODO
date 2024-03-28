@@ -24,10 +24,10 @@ class ThreadReplies extends StatefulWidget {
   });
 
   @override
-  State<ThreadReplies> createState() => _ThreadRepliesState();
+  State<ThreadReplies> createState() => ThreadRepliesState();
 }
 
-class _ThreadRepliesState extends State<ThreadReplies> {
+class ThreadRepliesState extends State<ThreadReplies> {
   late final ThreadController threadController;
   late TextEditingController contentInputController;
   List<Reply> localReplies = [];
