@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:info_hub_app/main.dart';
 
+/// Generates a unique name for user based on their firebase user id.
 String generateUniqueName(String docId) {
   var bytes = utf8.encode(docId);
   var digest = sha256.convert(bytes);
