@@ -4,7 +4,7 @@ import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:info_hub_app/analytics/topics/analytics_topic.dart';
+import 'package:info_hub_app/view/analytics_view/analytics_topic.dart';
 import 'package:intl/intl.dart';
 
 void main() {

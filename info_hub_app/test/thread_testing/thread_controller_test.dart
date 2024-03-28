@@ -5,9 +5,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:info_hub_app/main.dart';
-import 'package:info_hub_app/threads/models/thread_model.dart';
-import 'package:info_hub_app/threads/models/thread_replies_model.dart';
-import 'package:info_hub_app/threads/controllers/thread_controller.dart';
+import 'package:info_hub_app/model/thread_models/thread_model.dart';
+import 'package:info_hub_app/model/thread_models/thread_replies_model.dart';
+import 'package:info_hub_app/controller/thread_controllers/thread_controller.dart';
 
 class MockFirebaseAuth extends Mock implements FirebaseAuth {
   @override

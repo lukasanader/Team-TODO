@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../../model/topic_model.dart';
+import '../../model/topic_models/topic_model.dart';
 import 'package:info_hub_app/view/topic_creation_view/topic_creation_view.dart';
 import 'media_upload_controller.dart';
 import 'dart:typed_data';

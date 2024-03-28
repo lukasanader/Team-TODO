@@ -1,10 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:info_hub_app/model/topic_model.dart';
+import 'package:info_hub_app/model/topic_models/topic_model.dart';
 import 'package:info_hub_app/view/topic_view/topic_view.dart';
-import 'package:info_hub_app/controller/activity_controller.dart';
+import 'package:info_hub_app/controller/activity_controllers/activity_controller.dart';
 import 'media_controller.dart';
-import 'package:info_hub_app/threads/controllers/thread_controller.dart';
+import 'package:info_hub_app/controller/thread_controllers/thread_controller.dart';
 
 /// Controller class responsible for managing the form data and actions in the topic creation process.
 class InteractionController {

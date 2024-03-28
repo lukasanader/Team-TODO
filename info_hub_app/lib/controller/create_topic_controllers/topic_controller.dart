@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:info_hub_app/controller/user_controller.dart';
-import 'package:info_hub_app/model/topic_model.dart';
+import 'package:info_hub_app/controller/user_controllers/user_controller.dart';
+import 'package:info_hub_app/model/topic_models/topic_model.dart';
 
 class TopicController {
   final FirebaseAuth auth;
@@ -32,7 +32,6 @@ class TopicController {
   }
 
   Future<Query<Object?>> getTopicQuery() async {
-    
     String role = await UserController(auth, firestore).getUserRoleType();
     Query<Object?> topicsQuery;
 
@@ -66,5 +65,15 @@ class TopicController {
     DocumentSnapshot snapshot =
         await firestore.collection('Topics').doc(id).get();
     return Topic.fromSnapshot(snapshot);
+  }
+
+  // This function calculates the trending score of a topic.
+  double getTrending(Topic topic) {
+    DateTime date = topic.date!;
+    int difference = DateTime.now().difference(date).inDays;
+    if (difference == 0) {
+      difference = 1;
+    }
+    return topic.views! / difference;
   }
 }

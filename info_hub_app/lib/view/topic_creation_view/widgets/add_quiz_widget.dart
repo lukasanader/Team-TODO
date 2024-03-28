@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/view/topic_creation_view/topic_creation_view.dart';
-import 'package:info_hub_app/topics/create_topic/helpers/quiz/create_quiz.dart';
+import 'package:info_hub_app/view/topic_creation_view/quiz/create_quiz.dart';
 
 class AddQuizWidget extends StatelessWidget {
   final TopicCreationViewState screen;

@@ -1,25 +1,25 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
-import 'package:info_hub_app/controller/topic_question_controller.dart';
-import 'package:info_hub_app/model/topic_question_model.dart';
-import 'package:info_hub_app/notifications/notification_controller.dart';
+import 'package:info_hub_app/controller/create_topic_controllers/topic_question_controller.dart';
+import 'package:info_hub_app/model/topic_models/topic_question_model.dart';
+import 'package:info_hub_app/controller/notification_controllers/notification_controller.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:info_hub_app/ask_question/question_card.dart';
-import '../../topics/create_topic/helpers/transitions/checkmark_transition.dart';
-import '../../model/topic_model.dart';
+import 'package:info_hub_app/view/ask_question_view/question_card.dart';
+import 'transitions/checkmark_transition.dart';
+import '../../model/topic_models/topic_model.dart';
 import '../../controller/create_topic_controllers/form_controller.dart';
 import '../../controller/create_topic_controllers/media_upload_controller.dart';
 import 'widgets/topic_form_widget.dart';
 import 'widgets/add_quiz_widget.dart';
 import 'widgets/media_upload_widget.dart';
 import 'widgets/media_display_widget.dart';
-import 'package:info_hub_app/topics/create_topic/helpers/categories/category_controller.dart';
-import 'package:info_hub_app/topics/create_topic/helpers/categories/category_model.dart';
+import 'package:info_hub_app/view/topic_creation_view/categories/category_controller.dart';
+import 'package:info_hub_app/view/topic_creation_view/categories/category_model.dart';
 
 /// View Responsible for Topic creation
 class TopicCreationView extends StatefulWidget {
