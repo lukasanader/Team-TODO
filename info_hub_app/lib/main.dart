@@ -175,6 +175,16 @@ class _MyAppState extends State<MyApp> {
                 ),
               );
             } else {
+              if (widget.auth.currentUser == null) {
+                return StartPage(
+                  auth: widget.auth,
+                  firestore: widget.firestore,
+                  storage: widget.storage,
+                  messaging: FirebaseMessaging.instance,
+                  localnotificationsplugin: FlutterLocalNotificationsPlugin(),
+                  themeManager: themeManager,
+                );
+              }
               if (widget.auth.currentUser!.emailVerified != true) {
                 return StartPage(
                     auth: widget.auth,
