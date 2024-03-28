@@ -101,6 +101,7 @@ class _ReplyCardState extends State<ReplyCard> {
                 if (isEdited)
                   const Text(
                     " (edited)",
+                    key: Key('editedText'),
                     style: TextStyle(
                       fontSize: 12,
                       color: Color.fromARGB(255, 255, 0, 0),
@@ -180,7 +181,7 @@ class _ReplyCardState extends State<ReplyCard> {
                             padding: EdgeInsets.symmetric(vertical: 2.0),
                           ),
                           Text(
-                            'Delete Reply',
+                            'Delete',
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                         ],
@@ -270,7 +271,7 @@ class _ReplyCardState extends State<ReplyCard> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Delete Reply'),
+          title: const Text('Warning'),
           content: const Text("Are you sure you want to delete your reply?"),
           actions: <Widget>[
             TextButton(

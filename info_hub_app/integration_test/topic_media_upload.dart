@@ -153,6 +153,7 @@ void main() async {
 
     await tester.enterText(
         find.byKey(const Key('titleField')), 'Updated title');
+
     await tester.ensureVisible(find.byType(AppBar));
     await tester.pumpAndSettle();
     await tester.tap(find.byType(AppBar), warnIfMissed: false);

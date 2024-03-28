@@ -163,7 +163,7 @@ class _CustomCardState extends State<CustomCard> {
                             },
                             child: Column(
                               children: <Widget>[
-                                Icon(Icons.edit, key: Key('editIcon_0')),
+                                const Icon(Icons.edit, key: Key('editIcon_0')),
                                 const Padding(
                                   padding: EdgeInsets.symmetric(vertical: 2.0),
                                 ),

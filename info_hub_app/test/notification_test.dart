@@ -396,5 +396,62 @@ Future<void> main() async {
       await tester.tap(find.text('Close'));
       expect(find.byType(Notifications), findsOneWidget);
     });
+
+    test(
+        'getNotificationIdFromPayload returns a list of notification ids to be deleted',
+        () async {
+      const payload = 'payload1';
+
+      await firestore.collection(notificationCollection).add({
+        'uid': auth.currentUser!.uid,
+        'title': 'title1',
+        'body': 'body1',
+        'timestamp': DateTime.now(),
+        'route': 'route1',
+        'payload': 'payload1',
+      });
+
+      await firestore.collection(notificationCollection).add({
+        'uid': auth.currentUser!.uid,
+        'title': 'title2',
+        'body': 'body2',
+        'timestamp': DateTime.now(),
+        'route': 'route2',
+        'payload': 'payload1',
+      });
+
+      NotificationController notificationController = NotificationController(
+          auth: auth, firestore: firestore, uid: auth.currentUser!.uid);
+      List<String> notificationId =
+          await notificationController.getNotificationIdFromPayload(payload);
+
+      expect(notificationId.length, 2);
+
+      if (notificationId.isNotEmpty) {
+        for (String id in notificationId) {
+          notificationController.deleteNotification(id);
+        }
+      }
+
+      final snapshot = await firestore.collection(notificationCollection).get();
+      expect(snapshot.docs.length, 0);
+    });
+
+    test(
+        'getNotificationIdFromPayload returns an empty list of notification ids',
+        () async {
+      const payload = 'payload1';
+
+      NotificationController notificationController = NotificationController(
+          auth: auth, firestore: firestore, uid: auth.currentUser!.uid);
+      List<String> notificationId =
+          await notificationController.getNotificationIdFromPayload(payload);
+
+      expect(notificationId.length, 0);
+
+      final snapshot = await firestore.collection(notificationCollection).get();
+
+      expect(snapshot.docs.length, 0);
+    });
   });
 }

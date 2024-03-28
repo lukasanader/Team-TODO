@@ -52,6 +52,7 @@ class PushNotifications {
   }
 
   // Handle tap on local notification in foreground
+  // Navigate to the notifications page
   static void onNotificationTap(NotificationResponse notificationResponse) {
     navigatorKey.currentState!
       ..popUntil((route) => false)
@@ -59,7 +60,7 @@ class PushNotifications {
       ..pushNamed('/notifications');
   }
 
-  // Show a simple notification
+  // Display a simple notification
   Future<void> showSimpleNotification({
     required String title,
     required String body,
@@ -78,7 +79,7 @@ class PushNotifications {
         payload: payload);
   }
 
-  // Send notification to a specific device
+  // Send notification to a specific device using the device token
   Future<void> sendNotificationToDevice(
       String deviceToken, String title, String body) async {
     final url = Uri.parse('https://fcm.googleapis.com/fcm/send');
@@ -103,6 +104,8 @@ class PushNotifications {
   }
 
   // Store device token in Firestore if it doesn't exist already
+  // Called when the user logs in
+
   Future<void> storeDeviceToken() async {
     final String? deviceToken = await messaging.getToken();
     if (kDebugMode) {
@@ -124,22 +127,6 @@ class PushNotifications {
             .add({
           'token': deviceToken,
         });
-      }
-    }
-  }
-
-  Future<void> deleteDeviceToken() async {
-    final String? deviceToken = await messaging.getToken();
-    if (deviceToken != null) {
-      final tokenSnapshot = await firestore
-          .collection('Users')
-          .doc(auth.currentUser!.uid)
-          .collection('deviceTokens')
-          .where('token', isEqualTo: deviceToken)
-          .get();
-
-      if (tokenSnapshot.docs.isNotEmpty) {
-        await tokenSnapshot.docs.first.reference.delete();
       }
     }
   }

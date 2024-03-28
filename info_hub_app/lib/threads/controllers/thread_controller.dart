@@ -40,21 +40,11 @@ class ThreadController {
   }
 
   Future<ImageProvider<Object>> getUserProfileImage(String userId) async {
-    String profilePhotoFileName = await getUserProfilePhoto(userId);
+    String profilePhotoFileName = await getUserProfilePhotoFilename(userId);
     return AssetImage('assets/$profilePhotoFileName');
   }
 
   Future<String> getUserProfilePhotoFilename(String userId) async {
-    DocumentSnapshot userDoc =
-        await firestore.collection('Users').doc(userId).get();
-    if (userDoc.exists) {
-      Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
-      return userData['selectedProfilePhoto'] ?? 'default_profile_photo.png';
-    }
-    return 'default_profile_photo.png';
-  }
-
-  Future<String> getUserProfilePhoto(String userId) async {
     DocumentSnapshot userDoc =
         await firestore.collection('Users').doc(userId).get();
     if (userDoc.exists) {
