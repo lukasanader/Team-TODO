@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:info_hub_app/controller/activity_controller.dart';
 import 'package:info_hub_app/theme/theme_constants.dart';
 import 'package:info_hub_app/threads/views/reply_card.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -84,7 +85,8 @@ class _ThreadRepliesState extends State<ThreadReplies> {
     );
 
     setState(() => localReplies.add(newReply));
-
+    ActivityController(auth: widget.auth, firestore: widget.firestore)
+                .addActivity(widget.threadId, 'thread');
     threadController.addReply(newReply).then((docRef) {
       int index = localReplies.indexWhere((r) => r.id == tempReplyId);
       if (index != -1) {
