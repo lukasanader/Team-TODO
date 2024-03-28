@@ -121,8 +121,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     return 'Please enter your last name';
                   } else if (value.length > 30) {
                     return 'Please shorten this field!';
-                  }
-                   else if (!RegExp(r"^[A-Za-z][A-Za-z\'\-]+(?: [\ A-Za-z][A-Za-z\'\-]+)*$").hasMatch(value)) {
+                  } else if (!RegExp(r"^[A-Za-z][A-Za-z\'\-]+(?: [\ A-Za-z][A-Za-z\'\-]+)*$").hasMatch(value)) {
                     return 'Please enter only letters';
                   }
                   return null;
