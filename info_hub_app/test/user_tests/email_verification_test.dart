@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:info_hub_app/view/user_experience_view/welcome_message_view.dart';
+import 'package:info_hub_app/view/welcome_message_view/welcome_message_view.dart';
 
 class MockFlutterLocalNotificationsPlugin extends Fake
     implements FlutterLocalNotificationsPlugin {

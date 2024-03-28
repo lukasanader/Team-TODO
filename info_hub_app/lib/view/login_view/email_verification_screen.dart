@@ -9,7 +9,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:info_hub_app/controller/notification_controllers/preferences_controller.dart';
 import 'package:info_hub_app/theme/theme_manager.dart';
 import 'package:info_hub_app/controller/user_experience_controllers/welcome_message_controller.dart';
-import 'package:info_hub_app/view/user_experience_view/welcome_message_view.dart';
+import 'package:info_hub_app/view/welcome_message_view/welcome_message_view.dart';
 
 class EmailVerificationScreen extends StatefulWidget {
   final FirebaseFirestore firestore;

@@ -18,8 +18,8 @@ import 'widgets/topic_form_widget.dart';
 import 'widgets/add_quiz_widget.dart';
 import 'widgets/media_upload_widget.dart';
 import 'widgets/media_display_widget.dart';
-import 'package:info_hub_app/view/topic_creation_view/categories/category_controller.dart';
-import 'package:info_hub_app/view/topic_creation_view/categories/category_model.dart';
+import 'package:info_hub_app/controller/categories_controllers/category_controller.dart';
+import 'package:info_hub_app/model/categories_model/category_model.dart';
 
 /// View Responsible for Topic creation
 class TopicCreationView extends StatefulWidget {

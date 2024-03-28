@@ -4,8 +4,8 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:info_hub_app/view/topic_creation_view/categories/category_controller.dart';
-import 'package:info_hub_app/view/topic_creation_view/categories/category_model.dart';
+import 'package:info_hub_app/controller/categories_controllers/category_controller.dart';
+import 'package:info_hub_app/model/categories_model/category_model.dart';
 
 class CategoryDialogManager {
   final FirebaseFirestore _firestore;
