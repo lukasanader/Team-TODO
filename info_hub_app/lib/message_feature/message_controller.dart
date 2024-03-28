@@ -16,6 +16,8 @@ class MessageController extends ChangeNotifier {
     this._firestore,
   );
 
+  ///logic to send a message which creates a message - creates message room 
+  ///if its a new conversation
   Future<void> sendMessage(String receiverId, String message) async {
     final String currentUserId = _firebaseAuth.currentUser!.uid;
     final Timestamp timestamp = Timestamp.now();
@@ -59,6 +61,7 @@ class MessageController extends ChangeNotifier {
         .add(newMessage.toMap());
   }
 
+  ///gets messages as query snapshot based on the ID's of conversations present
   Stream<QuerySnapshot> getMessages(String userId, String otherUserId) {
     List<String> ids = [userId, otherUserId];
     ids.sort();

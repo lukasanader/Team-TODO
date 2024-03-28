@@ -9,6 +9,8 @@ class MessageRoomController {
 
   MessageRoomController(this._auth, this._firestore);
 
+  ///creates a message room holding details for the message room
+  ///also sends a notification to the patient to let them know
   void addMessageRoom(String chatRoomId, String adminId, String patientId,
       String adminDisplayName, String patientDisplayName) async {
     MessageRoom newMessageRoom = MessageRoom();
@@ -51,6 +53,7 @@ class MessageRoomController {
         .delete();
   }
 
+  ///gets a list of all existing message rooms for a given user
   Future<List<MessageRoom>> getMessageRoomsList() async {
     late String receiverType;
     String uid = _auth.currentUser!.uid;
@@ -73,6 +76,7 @@ class MessageRoomController {
     return messageRoomList;
   }
 
+  ///returns the message room as an object based on their id
   Future<MessageRoom> getMessageRoom(String? id) async {
     DocumentSnapshot snapshot =
         await _firestore.collection('message_rooms').doc(id).get();

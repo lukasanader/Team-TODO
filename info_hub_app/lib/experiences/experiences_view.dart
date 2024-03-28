@@ -22,6 +22,7 @@ class _ExperienceViewState extends State<ExperienceView> {
   late ExperienceController _experienceController;
   late ExperienceSharingController _experienceSharingController;
   List<Experience> _experienceList = [];
+  bool pageLoaded = false;
   // ignore: prefer_final_fields
 
   @override
@@ -52,7 +53,9 @@ class _ExperienceViewState extends State<ExperienceView> {
             ),
           ],
         ),
-        body: SafeArea(
+        body: !pageLoaded
+        ? const Center(child: CircularProgressIndicator(),) 
+        : SafeArea(
             child: Column(
           children: [
             Expanded(
@@ -110,6 +113,7 @@ class _ExperienceViewState extends State<ExperienceView> {
 
     setState(() {
       _experienceList = data;
+      pageLoaded = true;
     });
   }
 

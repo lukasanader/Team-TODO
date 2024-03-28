@@ -9,6 +9,7 @@ class MessageRoom {
 
   MessageRoom({this.id, this.adminId, this.patientId, this.adminDisplayName, this.patientDisplayName});
 
+  ///allows us to get a message room as an object from a snapshot
   factory MessageRoom.fromSnapshot(DocumentSnapshot snapshot) {
     Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
     return MessageRoom(
@@ -20,6 +21,7 @@ class MessageRoom {
     );
   }
 
+  ///maps the object
   Map<String, dynamic> toJson() {
     return {
       'adminId': adminId,

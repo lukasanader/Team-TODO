@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/controller/topic_question_controller.dart';
 
+///dialog used in discovery view, for users to leave a question for admins
 Future<void> addQuestionDialog(
   BuildContext context,
   FirebaseFirestore firestore,

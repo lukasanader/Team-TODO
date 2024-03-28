@@ -27,7 +27,7 @@ class MessageRoomView extends StatefulWidget {
 class _MessageRoomViewState extends State<MessageRoomView> {
   final TextEditingController _messageController = TextEditingController();
   late MessageController messageController;
-  late Widget displayName = const Text('Loading');
+  late Widget displayName = const Text('Loading'); //placeholder until actual name is loaded
 
   @override
   void initState() {
@@ -36,6 +36,7 @@ class _MessageRoomViewState extends State<MessageRoomView> {
     getDisplayName();
   }
 
+  //logic behind sending the message
   void sendMessage() async {
     if (_messageController.text.isNotEmpty) {
       await messageController.sendMessage(
@@ -45,6 +46,7 @@ class _MessageRoomViewState extends State<MessageRoomView> {
     widget.onNewMessageRoomCreated!();
   }
 
+  //generates display name using random generator
   Future<void> getDisplayName() async {
     displayName = Text(generateUniqueName(widget.receiverId));
   }
@@ -94,6 +96,8 @@ class _MessageRoomViewState extends State<MessageRoomView> {
   Widget _buildMessageItem(DocumentSnapshot document) {
     Map<String, dynamic> data = document.data() as Map<String, dynamic>;
 
+    //determines if message is on the left or right depending on who's
+    //the sender or receiver
     var alignment = (data['senderId'] == widget.auth.currentUser!.uid)
         ? Alignment.centerRight
         : Alignment.centerLeft;
@@ -109,6 +113,7 @@ class _MessageRoomViewState extends State<MessageRoomView> {
     );
   }
 
+  //essentially the text bar
   Widget _buildMessageInput() {
     return Container(
       color: Theme.of(context).brightness == Brightness.light

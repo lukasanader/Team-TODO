@@ -16,6 +16,7 @@ class PatientMessageView extends StatefulWidget {
 
 class _PatientMessageViewState extends State<PatientMessageView> {
   List<MessageRoom> _chatList = [];
+  bool pageLoaded = false;
 
 
 
@@ -34,7 +35,9 @@ class _PatientMessageViewState extends State<PatientMessageView> {
         title: const Text("Reply to admins"),
       ),
     
-      body: Center(
+      body: !pageLoaded
+      ? const Center(child: CircularProgressIndicator(),) 
+      : Center(
         child: Column(
           children: [
             const Text('Messages'),
@@ -63,6 +66,7 @@ class _PatientMessageViewState extends State<PatientMessageView> {
     
     setState(() {
       _chatList = tempList;
+      pageLoaded = true;
     });
   }
 }

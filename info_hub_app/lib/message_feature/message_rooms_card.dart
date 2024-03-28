@@ -12,6 +12,7 @@ class MessageRoomCard extends StatelessWidget {
 
   const MessageRoomCard(this.firestore, this.auth, this._chat, {super.key});
 
+  
   bool isAdmin() {
     return _chat.adminId == auth.currentUser!.uid;
   }
@@ -21,6 +22,7 @@ class MessageRoomCard extends StatelessWidget {
     String senderId;
     String receiverId;
 
+    //determines the receiver and sender of message
     if (isAdmin()) {
       senderId = _chat.adminId.toString();
       receiverId = _chat.patientId.toString();

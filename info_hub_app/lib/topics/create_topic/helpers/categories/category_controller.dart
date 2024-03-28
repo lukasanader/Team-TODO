@@ -15,6 +15,7 @@ class CategoryController {
     await db.add(newCategory.toJson());
   }
 
+  ///deletes category and removes cateogry from all topics with said category
   void deleteCategory(Category category) async {
     await _firestore.collection('categories').doc(category.id).delete();
 
@@ -31,6 +32,8 @@ class CategoryController {
     }
   }
 
+  ///returns the category based on the name - category names are unique by
+  ///design
   Future<Category> getCategoryFromName(String categoryName) async {
     QuerySnapshot querySnapshot = await _firestore
         .collection('categories')
@@ -43,6 +46,7 @@ class CategoryController {
     return category;
   }
 
+  ///returns list of all existing categories
   Future<List<Category>> getCategoryList() async {
     QuerySnapshot data =
         await _firestore.collection('categories').orderBy('name').get();

@@ -1,4 +1,8 @@
-  import 'package:cloud_firestore/cloud_firestore.dart';
+/*
+  Dialog manager for categories used in the create topic files
+*/
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:info_hub_app/topics/create_topic/helpers/categories/category_controller.dart';
 import 'package:info_hub_app/topics/create_topic/helpers/categories/category_model.dart';
@@ -7,12 +11,13 @@ class CategoryDialogManager {
   final FirebaseFirestore _firestore;
   final List<String> categoriesOptions;
   late CategoryController categoryController;
-  Function updateCatergoryList;
+  Function updateCatergoryList;  //call back function to update UI
 
   CategoryDialogManager(this._firestore, this.categoriesOptions, this.updateCatergoryList) {
     categoryController = CategoryController(_firestore);
   }
 
+  ///dialog to create new category based on a name
   void createNewCategoryDialog(context) {
     final TextEditingController newCategoryNameController = TextEditingController();
 
@@ -35,6 +40,8 @@ class CategoryDialogManager {
                     updateCatergoryList();
                     Navigator.of(context).pop();
                   } else {
+
+                    //ensures categories aren't blank or repeated names
                     return showDialog<void>(
                       context: context,
                       builder: (BuildContext context) {

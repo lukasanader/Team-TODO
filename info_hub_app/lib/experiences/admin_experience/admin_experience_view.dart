@@ -33,6 +33,8 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
   String _verifiedSelectedTag = 'All';
   String _unverifiedSelectedTag = 'All';
 
+  bool pageLoaded = false;
+
 
   @override
   void initState() {
@@ -56,7 +58,10 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
           ),
         ],
       ),
-      body: PageView(
+      body: !pageLoaded
+      ? const Center(
+        child: CircularProgressIndicator()) 
+      : PageView(
         controller: _pageController,
         onPageChanged: (index) {
           setState(() {
@@ -289,6 +294,7 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
     setState(() {
       _unverifiedExperienceList = unverifiedExperiences;
       _verifiedExperienceList = verifiedExperiences;
+      pageLoaded = true;
     });
   }
 

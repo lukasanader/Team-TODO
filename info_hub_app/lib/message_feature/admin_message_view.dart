@@ -26,6 +26,7 @@ class _MessageViewState extends State<MessageView> {
   List<MessageRoom> _chatList = [];
   late MessageRoomController messageRoomController;
   late UserController userController;
+  bool pageLoaded = false;
 
   @override
   void initState() {
@@ -48,7 +49,9 @@ class _MessageViewState extends State<MessageView> {
       appBar: AppBar(
         title: const Text("Message Users"),
       ),
-      body: SingleChildScrollView(
+      body: !pageLoaded
+      ? const Center(child: CircularProgressIndicator(),) 
+      : SingleChildScrollView(
         child: Column(
           children: [
             Center(
@@ -92,6 +95,7 @@ class _MessageViewState extends State<MessageView> {
     );
   }
 
+  ///dialog that displays the search for patients to message
   void selectUserDialog() {
     showDialog(
         context: context,
@@ -145,6 +149,7 @@ class _MessageViewState extends State<MessageView> {
         });
   }
 
+  ///delete confirmation dialog
   Future<void> deleteMessageRoomConfirmation(String chatId) async {
     MessageRoom chat =
         await MessageRoomController(widget.auth, widget.firestore)
@@ -182,6 +187,7 @@ class _MessageViewState extends State<MessageView> {
     );
   }
 
+  ///implements search logic for getting the users in the dialog
   Future getUserList() async {
     List<UserModel> tempList;
     List<UserModel> allPatientsList =
@@ -208,6 +214,7 @@ class _MessageViewState extends State<MessageView> {
 
     setState(() {
       _chatList = tempList;
+      pageLoaded = true;
     });
   }
 }

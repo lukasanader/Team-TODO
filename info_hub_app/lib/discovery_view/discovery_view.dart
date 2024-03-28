@@ -181,10 +181,7 @@ class _DiscoveryViewState extends State<DiscoveryView> {
       });
     });
 
-
     Query<Object?> topicsQuery = await TopicController(auth: widget.auth, firestore: widget.firestore).getTopicQuery();
-
-
     _topicsSubscription = topicsQuery.snapshots().listen(_updateTopicsList);
   }
 
