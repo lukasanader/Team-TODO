@@ -308,7 +308,7 @@ void main() async {
     );
   });
 
-  testWidgets('Can save as draft', (WidgetTester tester) async {
+  testWidgets('Can save as draft with title', (WidgetTester tester) async {
     await defineUserAndStorage(tester);
 
     await tester.runAsync(() async {
@@ -367,5 +367,42 @@ void main() async {
     final List<String> draftedTopics =
         List<String>.from(userData?['draftedTopics']);
     expect(draftedTopics[0], equals(documents[0].id));
+  });
+  testWidgets('Cannot save draft with no title', (WidgetTester tester) async {
+    await defineUserAndStorage(tester);
+
+    await tester.runAsync(() async {
+      tester.pumpWidget(MaterialApp(
+        home: TopicCreationView(
+          firestore: firestore,
+          storage: mockStorage,
+          auth: auth,
+          themeManager: themeManager,
+          selectedFiles: mediaFileList,
+        ),
+      ));
+    });
+    await tester.enterText(
+        find.byKey(const Key('descField')), 'Test invalid draft');
+
+    await tester.ensureVisible(find.byKey(const Key('draft_btn')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('draft_btn')));
+    await tester.pumpAndSettle();
+
+    final QuerySnapshot<Map<String, dynamic>> querySnapshot =
+        await firestore.collection("topicDrafts").get();
+
+    final List<DocumentSnapshot<Map<String, dynamic>>> documents =
+        querySnapshot.docs;
+
+    expect(find.byType(SnackBar), findsOneWidget);
+
+    expect(
+      documents.any(
+        (doc) => doc.data()?['description'] == 'Test invalid draft',
+      ),
+      isFalse,
+    );
   });
 }

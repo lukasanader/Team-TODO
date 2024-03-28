@@ -26,6 +26,7 @@ class FormController {
   String? downloadURL;
   bool editing = false;
   bool drafting = false;
+  bool titleValid = false;
   List<dynamic> tags = [];
   List<dynamic> categories = [];
 
@@ -66,6 +67,10 @@ class FormController {
       return 'Please enter a Title.';
     }
     return null;
+  }
+
+  bool validateTitleResult(String? value) {
+    return (value != null && value.isNotEmpty);
   }
 
   /// Validates the article link field.
