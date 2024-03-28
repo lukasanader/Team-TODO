@@ -8,6 +8,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:info_hub_app/controller/user_controller.dart';
+import 'package:info_hub_app/email_verification/email_verification_screen.dart';
 import 'package:info_hub_app/helpers/base.dart';
 import 'package:info_hub_app/home_page/home_page.dart';
 import 'package:info_hub_app/message_feature/message_room/message_room_controller.dart';
@@ -174,32 +175,46 @@ class _MyAppState extends State<MyApp> {
                 ),
               );
             } else {
-              switch (snapshot.data) {
-                case 'admin':
-                  return Base(
+              if (widget.auth.currentUser!.emailVerified != true) {
+                return StartPage(
                     auth: widget.auth,
                     firestore: widget.firestore,
                     storage: widget.storage,
-                    themeManager: themeManager,
-                    roleType: 'admin',
-                  );
-                case 'user':
-                  return Base(
-                    auth: widget.auth,
-                    firestore: widget.firestore,
-                    storage: widget.storage,
-                    themeManager: themeManager,
-                    roleType: 'user',
-                  );
-                default:
-                  return StartPage(
-                    firestore: widget.firestore,
-                    storage: widget.storage,
-                    auth: widget.auth,
                     messaging: FirebaseMessaging.instance,
                     localnotificationsplugin: FlutterLocalNotificationsPlugin(),
                     themeManager: themeManager,
-                  );
+                );
+              }
+              else {
+                switch (snapshot.data) {
+                  case 'admin':
+                    return Base(
+                      auth: widget.auth,
+                      firestore: widget.firestore,
+                      storage: widget.storage,
+                      themeManager: themeManager,
+                      messaging: FirebaseMessaging.instance,
+                      roleType: 'admin',
+                    );
+                  case 'user':
+                    return Base(
+                      auth: widget.auth,
+                      firestore: widget.firestore,
+                      storage: widget.storage,
+                      themeManager: themeManager,
+                      messaging: FirebaseMessaging.instance,
+                      roleType: 'user',
+                    );
+                  default:
+                    return StartPage(
+                      firestore: widget.firestore,
+                      storage: widget.storage,
+                      auth: widget.auth,
+                      messaging: FirebaseMessaging.instance,
+                      localnotificationsplugin: FlutterLocalNotificationsPlugin(),
+                      themeManager: themeManager,
+                    );
+                }
               }
             }
           },
@@ -220,6 +235,7 @@ class _MyAppState extends State<MyApp> {
                       firestore: widget.firestore,
                       storage: widget.storage,
                       themeManager: themeManager,
+                      messaging: FirebaseMessaging.instance,
                       roleType: roleType,
                     )),
                 builder: (context, snapshot) {

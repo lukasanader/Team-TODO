@@ -1,19 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:intl/intl.dart';
-import 'package:info_hub_app/threads/reply_card.dart';
+import 'package:info_hub_app/controller/activity_controller.dart';
+import 'package:info_hub_app/theme/theme_constants.dart';
+import 'package:info_hub_app/threads/views/reply_card.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:info_hub_app/threads/name_generator.dart';
+import 'package:info_hub_app/threads/controllers/name_generator_controller.dart';
+import 'package:info_hub_app/threads/models/thread_model.dart';
+import 'package:info_hub_app/threads/models/thread_replies_model.dart';
+import 'package:info_hub_app/threads/controllers/thread_controller.dart';
 
 class ThreadReplies extends StatefulWidget {
   final String threadId;
+  final String threadTitle;
   final FirebaseFirestore firestore;
   final FirebaseAuth auth;
 
   const ThreadReplies({
     super.key,
     required this.threadId,
+    required this.threadTitle,
     required this.firestore,
     required this.auth,
   });
@@ -23,28 +29,23 @@ class ThreadReplies extends StatefulWidget {
 }
 
 class _ThreadRepliesState extends State<ThreadReplies> {
-  late Stream<QuerySnapshot> replyStream;
-  late Future<DocumentSnapshot> threadFuture;
+  late final ThreadController threadController;
   late TextEditingController contentInputController;
-  List<Map<String, dynamic>> localReplies = [];
-  bool _isAddingReply =
-      false; // Declare the variable to track if a reply is being added
+  List<Reply> localReplies = [];
+  bool _isAddingReply = false;
 
   @override
   void initState() {
     super.initState();
-    threadFuture =
-        widget.firestore.collection("thread").doc(widget.threadId).get();
-    replyStream = widget.firestore
-        .collection("replies")
-        .where('threadId', isEqualTo: widget.threadId)
-        .snapshots();
     contentInputController = TextEditingController();
+    threadController =
+        ThreadController(firestore: widget.firestore, auth: widget.auth);
 
-    replyStream.listen((snapshot) {
+    threadController.getReplies(widget.threadId).listen((snapshot) {
       setState(() {
         localReplies = snapshot.docs
-            .map((doc) => {...doc.data() as Map<String, dynamic>, 'id': doc.id})
+            .map((doc) =>
+                Reply.fromMap(doc.data() as Map<String, dynamic>, doc.id))
             .toList();
       });
     });
@@ -64,40 +65,33 @@ class _ThreadRepliesState extends State<ThreadReplies> {
       });
     }
 
-    DocumentSnapshot threadDoc =
-        await widget.firestore.collection('thread').doc(widget.threadId).get();
-    String threadTitle = threadDoc['title'] ?? 'No Title';
-
-    DocumentSnapshot userDoc =
-        await widget.firestore.collection('Users').doc(creatorId).get();
-    Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
-
-    String authorName = generateUniqueName(creatorId) ?? 'Anonymous';
+    String authorName = generateUniqueName(creatorId);
     String userProfilePhoto =
-        userData['selectedProfilePhoto'] ?? 'default_profile_photo.png';
-
+        await threadController.getUserProfilePhoto(creatorId);
     String tempReplyId = DateTime.now().millisecondsSinceEpoch.toString();
-    Map<String, dynamic> newReply = {
-      "id": tempReplyId,
-      "author": authorName,
-      "content": content,
-      "creator": creatorId,
-      "userProfilePhoto": userProfilePhoto,
-      "threadId": widget.threadId,
-      "threadTitle": threadTitle,
-      "timestamp": DateTime.now(),
-      "isEdited": false,
-      "roleType": userData['roleType'],
-    };
+    String roleType = await threadController.getUserRoleType(creatorId);
+
+    Reply newReply = Reply(
+      id: tempReplyId,
+      content: content,
+      creator: creatorId,
+      authorName: authorName,
+      timestamp: DateTime.now(),
+      isEdited: false,
+      userProfilePhoto: userProfilePhoto,
+      threadId: widget.threadId,
+      threadTitle: widget.threadTitle,
+      roleType: roleType,
+    );
 
     setState(() => localReplies.add(newReply));
-    //localReplies.add(newReply);
-
-    widget.firestore.collection("replies").add(newReply).then((docRef) {
-      int index = localReplies.indexWhere((r) => r["id"] == tempReplyId);
+    ActivityController(auth: widget.auth, firestore: widget.firestore)
+                .addActivity(widget.threadId, 'thread');
+    threadController.addReply(newReply).then((docRef) {
+      int index = localReplies.indexWhere((r) => r.id == tempReplyId);
       if (index != -1) {
         setState(() {
-          localReplies[index]['id'] = docRef.id;
+          localReplies[index].id = docRef.id;
         });
       }
     }).whenComplete(() => setState(() => _isAddingReply = false));
@@ -117,7 +111,7 @@ class _ThreadRepliesState extends State<ThreadReplies> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
-                    const Text("Please fill out the form"),
+                    const Text("Please enter your reply"),
                     TextField(
                       key: const Key('Content'),
                       autofocus: true,
@@ -144,10 +138,8 @@ class _ThreadRepliesState extends State<ThreadReplies> {
                   onPressed: () {
                     if (!_isAddingReply &&
                         contentInputController.text.isNotEmpty) {
-                      String docId = widget.auth.currentUser!.uid;
-                      String authorName = generateUniqueName(docId);
+                      String docId = threadController.getCurrentUserId();
                       _addReplyToLocalList(contentInputController.text, docId);
-                      //contentInputController.clear();
                       Navigator.pop(context);
                     } else {
                       setState(() {
@@ -172,36 +164,46 @@ class _ThreadRepliesState extends State<ThreadReplies> {
         onPressed: () => _showDialog(context),
         child: const Icon(FontAwesomeIcons.reply),
       ),
-      body: FutureBuilder<DocumentSnapshot>(
-        future: threadFuture,
-        builder: (context, AsyncSnapshot<DocumentSnapshot> threadSnapshot) {
+      body: FutureBuilder<Thread>(
+        future: threadController.getThreadDocument(widget.threadId),
+        builder: (context, AsyncSnapshot<Thread> threadSnapshot) {
           if (!threadSnapshot.hasData) return const CircularProgressIndicator();
-          var threadData = threadSnapshot.data!.data() as Map<String, dynamic>;
-          var threadTitle = threadData['title'] ?? 'No Title';
-          var threadDescription = threadData['description'] ?? 'No Description';
-          var threadAuthor = threadData['author'] ?? 'Anonymous';
-          var threadTimestamp = threadData['timestamp']?.toDate();
-          var formattedDate = threadTimestamp != null
-              ? DateFormat("dd-MMM-yyyy 'at' HH:mm").format(threadTimestamp)
-              : 'Date Unknown';
+          Thread thread = threadSnapshot.data!;
+          var threadTitle = thread.title;
+          var threadDescription = thread.description;
+          var threadAuthor = thread.authorName;
+          var threadTimestamp = thread.timestamp;
+          String formattedDate = threadController.formatDate(threadTimestamp);
 
           return Column(
             children: [
+              const SizedBox(height: 30.0),
               Card(
                 margin: const EdgeInsets.all(8.0),
                 elevation: 10.0,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(6.0),
-                    side: const BorderSide(color: Colors.grey, width: 1.0)),
+                    side: BorderSide(
+                        color: Theme.of(context).brightness == Brightness.light
+                            ? COLOR_SECONDARY_GREY_LIGHT
+                            : COLOR_SECONDARY_GREY_DARK,
+                        width: 1.0)),
                 child: Padding(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.only(
+                      top: 8, bottom: 16.0, left: 16.0, right: 16.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
                         children: [
                           IconButton(
-                            icon: const Icon(Icons.arrow_back),
+                            icon: Icon(
+                              Icons.arrow_back,
+                              color: Theme.of(context).brightness ==
+                                      Brightness.light
+                                  ? COLOR_PRIMARY_LIGHT
+                                  : COLOR_PRIMARY_DARK,
+                            ),
                             onPressed: () => Navigator.of(context).pop(),
                           ),
                           Expanded(
@@ -238,12 +240,7 @@ class _ThreadRepliesState extends State<ThreadReplies> {
                     var reply = localReplies[index];
                     return ReplyCard(
                       reply: reply,
-                      firestore: widget.firestore,
-                      auth: widget.auth,
-                      userProfilePhoto: reply['userProfilePhoto'] ??
-                          'default_profile_photo.png',
-                      authorName: reply['author'] ?? 'Anonymous',
-                      roleType: reply['roleType'] ?? 'Missing Role Type',
+                      controller: threadController,
                     );
                   },
                 ),

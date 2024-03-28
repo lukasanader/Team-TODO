@@ -111,37 +111,37 @@ class _LoginScreenState extends State<LoginScreen> {
                     User? user = await _auth.signInUser(
                         emailController.text, passwordController.text);
                     if (user != null) {
-                      if (user.emailVerified!= true ){
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => EmailVerificationScreen(
-                              firestore: widget.firestore,
+                        String roleType;
+                        Widget nextPage;
+                        if (widget.auth.currentUser!.emailVerified != true) {
+                          nextPage= EmailVerificationScreen(
                               auth: widget.auth,
+                              firestore: widget.firestore,
                               storage: widget.storage,
                               messaging: widget.messaging,
-                              localnotificationsplugin: widget.localnotificationsplugin,
-                            ),
-                          ),
+                              localnotificationsplugin: FlutterLocalNotificationsPlugin(),
+                            );
+                        }
+                        else {
+                          roleType = await UserController(widget.auth, widget.firestore)
+                                .getUserRoleType();
+
+                          nextPage = Base(
+                            firestore: widget.firestore,
+                            auth: widget.auth,
+                            storage: widget.storage,
+                            themeManager: widget.themeManager,
+                            roleType: roleType,
+                            messaging: widget.messaging,
+                          );
+                        }
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(builder: (context) => nextPage),
+                          (Route<dynamic> route) => false,
                         );
-                      }
-                      else{
-                      String roleType =
-                          await UserController(widget.auth, widget.firestore)
-                              .getUserRoleType();
-                      Widget nextPage = Base(
-                        firestore: widget.firestore,
-                        auth: widget.auth,
-                        storage: widget.storage,
-                        themeManager: widget.themeManager,
-                        roleType: roleType,
-                      );
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(builder: (context) => nextPage),
-                        (Route<dynamic> route) => false,
-                      );
-                    }} else {
+                      
+                    } else {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text(
@@ -163,11 +163,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       context,
                       MaterialPageRoute(
                         builder: (context) => ResetPassword(
-                          controller: ResetPasswordController(
-                            firestore: widget.firestore,
-                            auth: widget.auth,
-                          )
-                        ),
+                            controller: ResetPasswordController(
+                          firestore: widget.firestore,
+                          auth: widget.auth,
+                        )),
                       ),
                     );
                   },

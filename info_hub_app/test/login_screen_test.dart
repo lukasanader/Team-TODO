@@ -349,16 +349,17 @@ void main() {
     expect(find.text('test'), findsOneWidget);
   });
 
-  testWidgets('test logging in with a patient works', (WidgetTester test) async {
+  testWidgets('test logging in with a patient works',
+      (WidgetTester test) async {
     await auth.createUserWithEmailAndPassword(
         email: 'test@tested@example.org', password: 'Password123!');
     String uid = auth.currentUser!.uid;
-        await firestore.collection('Users').doc(uid).set({
+    await firestore.collection('Users').doc(uid).set({
       'email': 'test@tested.org',
       'firstName': 'James',
       'lastName': 'Doe',
       'roleType': 'Patient',
-  });
+    });
     await test.pumpWidget(MaterialApp(
         home: LoginScreen(
             firestore: firestore,
@@ -381,7 +382,7 @@ void main() {
     await test.tap(loginButton);
     await test.pumpAndSettle();
     expect(find.byType(HomePage), findsOneWidget);
-});
+  });
 
   testWidgets('test logging in with a parent works', (WidgetTester test) async {
     await auth.createUserWithEmailAndPassword(
@@ -392,7 +393,7 @@ void main() {
       'firstName': 'James',
       'lastName': 'Doe',
       'roleType': 'Parent',
-  });
+    });
     await test.pumpWidget(MaterialApp(
         home: LoginScreen(
             firestore: firestore,
@@ -415,19 +416,19 @@ void main() {
     await test.tap(loginButton);
     await test.pumpAndSettle();
     expect(find.byType(HomePage), findsOneWidget);
-});
+  });
 
-  testWidgets('test logging in with a healthcare professional works', (WidgetTester test) async {
+  testWidgets('test logging in with a healthcare professional works',
+      (WidgetTester test) async {
     await auth.createUserWithEmailAndPassword(
-      email: 'test@tested.org',
-      password: 'Password123!');
+        email: 'test@tested.org', password: 'Password123!');
     String uid = auth.currentUser!.uid;
     await firestore.collection('Users').doc(uid).set({
       'email': 'test@tested.org',
       'firstName': 'James',
       'lastName': 'Doe',
       'roleType': 'Healthcare Professional',
-  });
+    });
     await test.pumpWidget(MaterialApp(
         home: LoginScreen(
             firestore: firestore,
@@ -450,6 +451,5 @@ void main() {
     await test.tap(loginButton);
     await test.pumpAndSettle();
     expect(find.byType(HomePage), findsOneWidget);
-});
-  
+  });
 }

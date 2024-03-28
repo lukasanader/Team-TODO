@@ -1,10 +1,7 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:info_hub_app/experiences/admin_experience/admin_experience_widgets.dart';
-import 'package:info_hub_app/helpers/helper_widgets.dart';
 import 'package:info_hub_app/experiences/experience_controller.dart';
 import 'package:info_hub_app/experiences/experiences_card.dart';
 import 'package:info_hub_app/experiences/experience_model.dart';
@@ -26,10 +23,13 @@ class AdminExperienceView extends StatefulWidget {
 
 class _AdminExperienceViewState extends State<AdminExperienceView> {
   late ExperienceController _experienceController;
+
   List<Experience> _verifiedExperienceList = [];
   List<Experience> _unverifiedExperienceList = [];
-  int _currentIndex = 0;
+
   late PageController _pageController;
+  int _currentPageIndex = 0;
+
   String _verifiedSelectedTag = 'All';
   String _unverifiedSelectedTag = 'All';
 
@@ -39,7 +39,7 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
     super.initState();
     _experienceController = ExperienceController(widget.auth, widget.firestore);
     updateExperiencesList();
-    _pageController = PageController(initialPage: _currentIndex);
+    _pageController = PageController(initialPage: _currentPageIndex);
   }
 
   @override
@@ -51,7 +51,7 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
           IconButton(
             icon: const Icon(Icons.help_outline),
             onPressed: () {
-              showAdminExperienceDialog(context);
+              showAdminExperienceHelpDialog(context);
             },
           ),
         ],
@@ -60,7 +60,7 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
         controller: _pageController,
         onPageChanged: (index) {
           setState(() {
-            _currentIndex = index;
+            _currentPageIndex = index;
           });
         },
         children: [
@@ -69,10 +69,10 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
+        currentIndex: _currentPageIndex,
         onTap: (index) {
           setState(() {
-            _currentIndex = index;
+            _currentPageIndex = index;
             _pageController.animateToPage(
               index,
               duration: const Duration(milliseconds: 300),
@@ -96,6 +96,9 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
     );
   }
 
+
+  ///Builds the experience section based on the experience type
+  ///includes the subtitle, drop down filter and the list builder 
   Widget _buildExperienceSectiion(bool experienceType, List<Experience> experiences) {
     return SingleChildScrollView(
       child: Column(
@@ -130,7 +133,7 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
                   tempList = await _experienceController.getVerifiedExperienceListBasedonRole(newValue!);
                 }
                 else {
-                  tempList = await _experienceController.getunVerifiedExperienceListBasedonRole(newValue!);
+                  tempList = await _experienceController.getUnverifiedExperienceListBasedonRole(newValue!);
                 }                
               }
 
@@ -176,11 +179,11 @@ class _AdminExperienceViewState extends State<AdminExperienceView> {
                   if (index.isOdd) {
                     return Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
+                      key: const ValueKey<String>('between_experience_padding'),
                       child: Container(
                         height: 1,
                         color: Colors.grey,
                       ),
-                      key: const ValueKey<String>('between_experience_padding'),
                     );
                   } else {
                     index = index ~/ 2;

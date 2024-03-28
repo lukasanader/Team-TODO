@@ -118,7 +118,6 @@ class _CreateQuizState extends State<CreateQuiz> {
                     firestore: widget.firestore,
                     auth: widget.auth,
                     editQuestion: widget.isEdit ? editQuestions[index] : null,
-                    onDelete: onDeleteQuestion,
                   );
                 },
               ),
@@ -210,14 +209,4 @@ class _CreateQuizState extends State<CreateQuiz> {
     }
   }
 
-  // Callback function to handle question deletion
-  void onDeleteQuestion(int index) {
-    setState(() {
-      if (widget.isEdit) {
-        editQuestions.removeAt(index);
-      } else {
-        questions.removeAt(index);
-      }
-    });
-  }
 }

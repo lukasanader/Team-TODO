@@ -11,6 +11,8 @@ class Experience {
 
   Experience({this.id, this.title, this.description, this.userEmail, this.userRoleType, this.timestamp,this.verified});
 
+  ///allows you to get the Experience from a snapshot into the form of
+  ///an experience Object
   factory Experience.fromSnapshot(DocumentSnapshot snapshot) {
     Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
     return Experience(
@@ -24,6 +26,7 @@ class Experience {
     );
   }
 
+  ///method to easily map an experience
   Map<String, dynamic> toJson() {
     return {
       'title': title,

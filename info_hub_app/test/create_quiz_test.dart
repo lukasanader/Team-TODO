@@ -88,7 +88,7 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(deleteQuestionButton);
       await tester.pumpAndSettle(const Duration(seconds: 4));
-      expect(find.byType(QuizQuestionCard), findsNothing);
+      expect(find.textContaining('[Deleted]'), findsOne);
 
       await tester.enterText(find.byType(TextField), 'What is a liver?');
       await tester.pumpAndSettle(const Duration(seconds: 4));
@@ -215,7 +215,7 @@ void main() {
         await tester.pumpAndSettle();
         await tester.tap(deleteQuestionButton);
         await tester.pumpAndSettle(const Duration(seconds: 4));
-        expect(find.byType(QuizQuestionCard), findsOne);
+        expect(find.textContaining('[Deleted]'), findsOne);
 
         await tester.ensureVisible(addQuestionButton);
         await tester.pumpAndSettle(const Duration(seconds: 4));

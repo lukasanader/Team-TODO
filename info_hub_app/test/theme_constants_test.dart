@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:info_hub_app/helpers/helper_widgets.dart';
 import 'package:info_hub_app/main.dart';
+import 'package:info_hub_app/message_feature/message_bubble.dart';
 import 'package:info_hub_app/profile_view/profile_view_controller.dart';
 import 'package:info_hub_app/theme/theme_constants.dart';
 import 'package:info_hub_app/profile_view/profile_view.dart';
@@ -158,6 +159,34 @@ void main() {
 
     final ThemeData theme =
         Theme.of(tester.element(find.byType(Container).first));
+
+    expect(theme.brightness, Brightness.dark);
+    expect(theme.primaryColor, COLOR_PRIMARY_DARK);
+  });
+
+  testWidgets('Test Message Bubble Light Theme', (WidgetTester tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: lightTheme,
+        home: const MessageBubble(message: 'Test'),
+      ),
+    );
+
+    final ThemeData theme = Theme.of(tester.element(find.byType(Container)));
+
+    expect(theme.brightness, Brightness.light);
+    expect(theme.primaryColor, COLOR_PRIMARY_LIGHT);
+  });
+
+  testWidgets('Test Message Bubble Dark Theme', (WidgetTester tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: darkTheme,
+        home: const MessageBubble(message: 'Test'),
+      ),
+    );
+
+    final ThemeData theme = Theme.of(tester.element(find.byType(Container)));
 
     expect(theme.brightness, Brightness.dark);
     expect(theme.primaryColor, COLOR_PRIMARY_DARK);
