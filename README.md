@@ -28,11 +28,11 @@ The following credentials provide access to an account of each respective user t
 | Account Type | Email | Password |
 | ------------ | ----- | -------- |
 | Patient      | k22002386@kcl.ac.uk | Password123! |
-| Patient      | hasan14is.sa@gmail.com | Password123! | 
+| Patient      | benjaminmorka@gmail.com | Password123! | 
 | Parent       | k22001386@kcl.ac.uk | Password123! |
 | Healthcare Professional | michaelalelegn119@gmail.com | Password123! |
-| Healthcare Professional | hasan14i.ssa@gmail.com | Password123! |
-| Adminstrator | hasan14iss.a@gmail.com | Password123! |
+| Healthcare Professional | benjmorka@gmail.com | Password123! |
+| Adminstrator | benjayymorka@gmail.com | Password123! |
 | Adminstrator | fakesj34@gmail.com | Password123! |  
 
 ## References
